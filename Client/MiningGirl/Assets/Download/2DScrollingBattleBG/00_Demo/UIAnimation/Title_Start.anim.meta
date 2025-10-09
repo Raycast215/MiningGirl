@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 17358b2c27146a44ca8228f510233dc5
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 7400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 244454
+  packageName: 2D Scrolling Battle Backgrounds Pack
+  packageVersion: 1.1.0
+  assetPath: Assets/2DScrollingBattleBG/00_Demo/UIAnimation/Title_Start.anim
+  uploadId: 585783
