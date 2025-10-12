@@ -27,7 +27,7 @@ public class SheetsToJsonExporter : EditorWindow
     private string outputFolder = "Assets/Data/SheetsJson";
     private bool prettyPrint = true;
 
-    [MenuItem("Tools/Sheets/Export All (Google Drive Folder)")]
+    [MenuItem("Tools/DataTable/Export All (Google Drive Folder)")]
     private static void Open()
     {
         var wnd = GetWindow<SheetsToJsonExporter>("Sheets → JSON Exporter");
