@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
+using Data;
 using UnityEngine;
 
 public class TestStageController : GameInitializer
@@ -27,8 +28,25 @@ public class TestStageController : GameInitializer
       
       await UniTask.WaitUntil(() => IsInitialized);
       player.Init(rock, Damage);
-   }
 
+
+      var load = await DataTableManager.LoadLabelAsync("DataTable");
+     
+      if (load == ELoadResponseType.Success)
+      {
+         Debug.Log("Success");
+      }
+      
+      var test = DataTableManager.GetAll<TestTable>();
+      
+      Debug.Log(test.Count);
+      
+      foreach (var data in test)
+      {
+         Debug.Log($"{data.Id} / {data.Name}");
+      }
+   }
+   
    private void LoadDamageObject()
    {
       _damageFloatingQueue ??= new Queue<DamageFloating>();

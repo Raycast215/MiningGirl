@@ -9,6 +9,13 @@ using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
 using UnityEngine.ResourceManagement.ResourceLocations;
 
+public enum ELoadResponseType
+{
+    None,
+    Success,
+    Failure,
+}
+
 /// <summary>
 /// 특정 JSON 파일(baseName.json)과 클래스를 매핑하기 위한 Attribute.
 /// 예) [DataFile("Stage")] → "Stage.json"
@@ -36,10 +43,12 @@ public static class DataTableManager
     private static bool _typesIndexed;
 
     /// <summary> Addressables 라벨로 로드 (모든 JSON 파싱, 캐시 갱신). </summary>
-    public static async Task LoadLabelAsync(string label, CancellationToken ct = default)
+    public static async Task<ELoadResponseType> LoadLabelAsync(string label, CancellationToken ct = default)
     {
         EnsureTypeIndex();
 
+        ELoadResponseType responseType = ELoadResponseType.None;
+        
         // 라벨에 해당하는 모든 로케이션을 조회
         AsyncOperationHandle<IList<IResourceLocation>> locHandle =
             Addressables.LoadResourceLocationsAsync(label, typeof(TextAsset));
@@ -116,6 +125,7 @@ public static class DataTableManager
         }
 
         Debug.Log($"[AddressablesSheetsDataManager] 라벨 로드 완료: '{label}'  로드={loaded}, 스킵={skipped}");
+        return responseType;
     }
 
     /// <summary> 특정 타입의 모든 데이터를 반환 (없으면 빈 배열). </summary>
