@@ -61,7 +61,7 @@ MonoBehaviour:
   m_overridePlayerVersion: '[UnityEditor.PlayerSettings.bundleVersion]'
   m_GroupAssets:
   - {fileID: 11400000, guid: 041d9e0bd69177b44b291bd4c79c4308, type: 2}
-  - {fileID: 11400000, guid: 98600002225629540bbca2a4d03e7469, type: 2}
+  - {fileID: 11400000, guid: d7aa3489cefe65d47bcaba98f8d8c69f, type: 2}
   m_BuildSettings:
     m_LogResourceManagerExceptions: 1
     m_BundleBuildPath: Temp/com.unity.addressables/AssetBundles
@@ -102,6 +102,7 @@ MonoBehaviour:
     m_LabelNames:
     - default
     - DataTable
+    - GameData
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: 0279018745dbcd846b66b3f9d7ae5b57, type: 2}

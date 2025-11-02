@@ -34,7 +34,7 @@ public sealed class DataFileAttribute : Attribute
 /// - 파일명에서 확장자를 뺀 "BaseName"으로 타입을 찾음 (대소문자 무시)
 /// - GetAll<T>()로 파싱된 List<T>를 조회
 /// </summary>
-public static class DataTableManager
+public static class AddressableSheetsDataManager
 {
     // 타입 인덱스: baseName(lower) → 타입
     private static readonly Dictionary<string, Type> _typeByBase = new();
@@ -125,7 +125,7 @@ public static class DataTableManager
         }
 
         Debug.Log($"[AddressablesSheetsDataManager] 라벨 로드 완료: '{label}'  로드={loaded}, 스킵={skipped}");
-        return responseType;
+        return ELoadResponseType.Success;
     }
 
     /// <summary> 특정 타입의 모든 데이터를 반환 (없으면 빈 배열). </summary>
@@ -133,7 +133,9 @@ public static class DataTableManager
     {
         if (_cache.TryGetValue(typeof(T), out var listObj) && listObj is List<T> list)
             return list;
-        return Array.Empty<T>();
+        
+        return null;
+        // return Array.Empty<T>();
     }
 
     /// <summary> 모든 캐시 삭제 (타입 인덱스는 유지). </summary>
@@ -187,6 +189,25 @@ public static class DataTableManager
 
     // ───────── JSON 파싱 래퍼 (JsonUtility는 루트 배열 불가) ─────────
 
+    // private static void LoadTextForType(Type targetType, string jsonArrayText)
+    // {
+    //     if (string.IsNullOrWhiteSpace(jsonArrayText))
+    //     {
+    //         _cache[targetType] = CreateEmptyList(targetType);
+    //         return;
+    //     }
+    //
+    //     string wrapped = WrapArray(jsonArrayText);
+    //
+    //     var wrapperType = typeof(ListWrapper<>).MakeGenericType(targetType);
+    //     var parsed = JsonUtility_FromJson(wrapped, wrapperType);
+    //
+    //     var itemsField = wrapperType.GetField("items");
+    //     var listObj = itemsField?.GetValue(parsed) ?? CreateEmptyList(targetType);
+    //
+    //     _cache[targetType] = listObj;
+    // }
+    
     private static void LoadTextForType(Type targetType, string jsonArrayText)
     {
         if (string.IsNullOrWhiteSpace(jsonArrayText))
@@ -195,15 +216,37 @@ public static class DataTableManager
             return;
         }
 
-        string wrapped = WrapArray(jsonArrayText);
+        var trimmed = jsonArrayText.TrimStart();
+        // 루트 배열 케이스만 고려
+        if (trimmed.Length > 0 && trimmed[0] == '[')
+        {
+#if USE_NEWTONSOFT
+        try
+        {
+            // Newtonsoft 사용 시: enum 문자열/대소문자 등 유연
+            var listType = typeof(List<>).MakeGenericType(targetType);
+            var listObj = Newtonsoft.Json.JsonConvert.DeserializeObject(jsonArrayText, listType);
+            _cache[targetType] = listObj ?? CreateEmptyList(targetType);
+            return;
+        }
+        catch (Exception e)
+        {
+            Debug.LogWarning($"[A-Sheets] Newtonsoft 실패, JsonUtility로 폴백. {e.Message}");
+        }
+#endif
+            // JsonUtility는 루트 배열 불가 → 래핑
+            string wrapped = "{\"items\":" + jsonArrayText + "}";
+            var wrapperType = typeof(ListWrapper<>).MakeGenericType(targetType);
+            var parsed = JsonUtility_FromJson(wrapped, wrapperType);
+            var itemsField = wrapperType.GetField("items");
+            var listObjJU = itemsField?.GetValue(parsed) ?? CreateEmptyList(targetType);
+            _cache[targetType] = listObjJU;
+            return;
+        }
 
-        var wrapperType = typeof(ListWrapper<>).MakeGenericType(targetType);
-        var parsed = JsonUtility_FromJson(wrapped, wrapperType);
-
-        var itemsField = wrapperType.GetField("items");
-        var listObj = itemsField?.GetValue(parsed) ?? CreateEmptyList(targetType);
-
-        _cache[targetType] = listObj;
+        // 객체 루트 등 다른 형식은 필요 시 확장
+        Debug.LogWarning("[A-Sheets] 예상치 못한 JSON 루트 형식. 루트 배열을 권장합니다.");
+        _cache[targetType] = CreateEmptyList(targetType);
     }
 
     private static string WrapArray(string raw)

@@ -15,8 +15,8 @@ public class AddJsonToAddressablesWindow : EditorWindow
 {
     // 기본값은 네가 JSON을 뱉는 폴더로 맞춰 둠
     private string jsonFolder = "Assets/Data/SheetsJson";
-    private string groupName  = "GameData";     // 없으면 생성
-    private string labelName  = "GameData";     // 없으면 생성
+    private string groupName  = "DataTable";     // 없으면 생성
+    private string labelName  = "DataTable";     // 없으면 생성
     private bool   useFileNameAsAddress = true; // true면 파일명(확장자 제외)로 address 설정
 
     [MenuItem("Tools/DataTable/Add JSONs to Addressables")]

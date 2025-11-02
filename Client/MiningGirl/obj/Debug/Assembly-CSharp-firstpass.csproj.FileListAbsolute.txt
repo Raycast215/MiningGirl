@@ -552,3 +552,4 @@ E:\MiningGirl\Client\MiningGirl\obj\Debug\Assembly-CSharp-firstpass.csproj.CoreC
 E:\MiningGirl\Client\MiningGirl\obj\Debug\Assembly.67A50FFC.Up2Date
 E:\MiningGirl\Client\MiningGirl\obj\Debug\Assembly-CSharp-firstpass.dll
 E:\MiningGirl\Client\MiningGirl\obj\Debug\Assembly-CSharp-firstpass.pdb
+E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\Newtonsoft.Json.dll

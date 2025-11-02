@@ -810,7 +810,7 @@ public class SheetsOAuthSettingsWindow : EditorWindow
 {
     private string clientId = "";
     private string clientSecret = "";
-    private bool saveToLocalJson = true;
+    private bool saveToLocalJson = false;
 
     public static void Open()
     {

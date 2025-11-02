@@ -1,87 +1,75 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Cysharp.Threading.Tasks;
 using Data;
+using InGame;
+using InGame.System;
+using InGame.System.FloatingDamage;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 public class TestStageController : GameInitializer
 {
+   [Header("Timer")]
+   [SerializeField] 
+   private float time;
+   [SerializeField]
+   private Timer timer;
+   
+   [Header("Damage Floating")]
+   [SerializeField]
+   private FloatingDamageController floatingDamageController;
+   
+   [Header("UI")]
+   [SerializeField]
+   private StatViewer statViewer;
+   
    [SerializeField] 
    private TestPlayer player;
    [SerializeField] 
    private TestRock rock;
-
-   [Header("Test Prefab")]
-   [SerializeField]
-   private DamageFloating damageFloating;
-   [SerializeField] 
-   private int poolCount = 10;
-   [SerializeField] 
-   private Transform poolHolder;
-
-   private Queue<DamageFloating> _damageFloatingQueue;
-   
    
    private async void Start()
    {
-      LoadDamageObject();
+      // 작업해야할거
+      // 데이터 로드
+      // 테스트 스테이지 초기화
+      // 
       
-      await UniTask.WaitUntil(() => IsInitialized);
-      player.Init(rock, Damage);
+      
+      
+      floatingDamageController.InitAsync().Forget();
+      await UniTask.WaitUntil(() => floatingDamageController.IsInitialized);
+
+      var load = await AddressableSheetsDataManager.LoadLabelAsync("DataTable");
+      await UniTask.WaitUntil(() => load == ELoadResponseType.Success);
+      
+      var playerStatRow = AddressableSheetsDataManager.GetAll<PlayerStatTable>();
+
+      // foreach (var d in playerStatRow)
+      // {
+      //    Debug.Log(d.Str);
+      //    Debug.Log(d.Dex);
+      //    Debug.Log(d.Luk);
+      // }
+
+      var playerRow = playerStatRow.FirstOrDefault();
+      
+      statViewer.Set(playerRow);
+      statViewer.OnLevelUpdated += player.SetLevel;
+      
+      player.Init(playerRow, rock, floatingDamageController.Damage);
+      
+      timer.Init(time, null);
+      timer.Execute().Forget();
 
 
-      var load = await DataTableManager.LoadLabelAsync("DataTable");
-     
-      if (load == ELoadResponseType.Success)
+      for (int i = 1; i <= 10; i++)
       {
-         Debug.Log("Success");
-      }
-      
-      var test = DataTableManager.GetAll<TestTable>();
-      
-      Debug.Log(test.Count);
-      
-      foreach (var data in test)
-      {
-         Debug.Log($"{data.Id} / {data.Name}");
-      }
-   }
-   
-   private void LoadDamageObject()
-   {
-      _damageFloatingQueue ??= new Queue<DamageFloating>();
-
-      for (var i = 0; i < poolCount; i++)
-      {
-         var ins = Instantiate(damageFloating, poolHolder);
+         var stat = new CalcPlayerStat(i, playerRow);
          
-         ins.gameObject.SetActive(false);
-         _damageFloatingQueue.Enqueue(ins);
+         Debug.Log($"Str: {stat.Str}, Dex: {stat.Dex}, Luk: {stat.Luk}");
       }
-      
-      IsInitialized = true;
-   }
-
-   private void Damage(int damage, Vector2 pos)
-   {
-      DamageFloating dmg = null;
-      
-      if (_damageFloatingQueue == null || _damageFloatingQueue.Count == 0)
-      {
-         damageFloating = Instantiate(damageFloating, transform);
-         damageFloating.gameObject.SetActive(false);
-      }
-      else
-      {
-         dmg = _damageFloatingQueue.Dequeue();
-      }
-      
-      dmg.Init(damage, pos, PoolRelease);
-   }
-   
-   private void PoolRelease(DamageFloating poolObject)
-   {
-      poolObject.gameObject.SetActive(false);
-      _damageFloatingQueue.Enqueue(poolObject);
    }
 }
