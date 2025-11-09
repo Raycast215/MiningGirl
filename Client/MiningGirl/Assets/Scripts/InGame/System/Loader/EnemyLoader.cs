@@ -1,54 +1,73 @@
-using System;
 using System.Collections.Generic;
+using Cysharp.Threading.Tasks;
 using InGame.System.Enemy;
 using UnityEngine;
-using Random = UnityEngine.Random;
 
-namespace InGame.System.Stage
+namespace InGame.System.Loader
 {
-    public class EnemyManager : GameInitializer
+    public class EnemyLoader
     {
-        [SerializeField]
-        private EnemyController prefab;
-        [SerializeField]
-        private Transform parent;
-
-        [SerializeField]
-        private int initCount = 10;
-        [SerializeField] 
-        private float minRange = 100;
-        [SerializeField] 
-        private float maxRange = 100;
-        [SerializeField] 
-        private float minDistance = 10;
-        [SerializeField] 
-        private float minDistanceBetweenPoints = 100;
-
-        private Dictionary<int, EnemyController> _dic;
+        public List<EnemyController> GetEnemyList { get; private set; }
+        public bool IsInitialized { get; private set; }
         
-        private void Start()
+        private Transform _parent;
+        private GameObject _prefab;
+        private Queue<EnemyController> _queue;
+        
+        public EnemyLoader(Transform parent)
         {
-            Initialize();
+            _parent = parent;
+            GetEnemyList = new List<EnemyController>();
+            _queue = new Queue<EnemyController>();
         }
 
-        public void Initialize()
+        public async UniTaskVoid Initialize()
         {
-            var posList = GetUIPositionsInRing(Vector2.zero, minRange, maxRange, initCount, minDistanceBetweenPoints);
+            // To Do: 어드레서블로 변경
+            _prefab = Resources.Load<GameObject>("InGame/Enemy");
 
-            _dic = new Dictionary<int, EnemyController>();
+            for (var i = 0; i < 10; i++)
+            {
+                Crate();
+            }
             
+            IsInitialized = true;
+        }
+
+        public void Load()
+        {
+            var posList = GetUIPositionsInRing(Vector2.zero, 300, 800, 10, 300);
+
             foreach (var pos in posList)
             {
-                var ins = Instantiate(prefab, parent);
+                var enemy = Get();
                 
-                ins.gameObject.SetActive(true);
-                ins.SetPosition(pos);
-                _dic.Add(ins.GetHashCode(), ins);
+                enemy.SetPosition(pos);
+                enemy.gameObject.SetActive(true);
+                GetEnemyList.Add(enemy);
             }
         }
         
-        public static List<Vector2> GetUIPositionsInRing(Vector2 basePos, float minRange, float maxRange, int count,
-            float minDistanceBetweenPoints, int maxTryPerPoint = 25)
+        private EnemyController Get()
+        {
+            if (_queue == null || _queue.Count == 0)
+            {
+                Crate();
+            }
+            
+            return _queue?.Dequeue();
+        }
+        
+        private void Crate()
+        {
+            var ins = Object.Instantiate(_prefab, _parent);
+            
+            ins.gameObject.SetActive(false);
+            
+            _queue.Enqueue(ins.GetComponent<EnemyController>());
+        }
+        
+        private List<Vector2> GetUIPositionsInRing(Vector2 basePos, float minRange, float maxRange, int count, float minDistanceBetweenPoints, int maxTryPerPoint = 25)
         {
             var result = new List<Vector2>(count);
 

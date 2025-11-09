@@ -53,10 +53,10 @@ public class TestPlayer : GameInitializer
 
     private void FixedUpdate()
     {
-        _moveComponent.SetMoveVec(Vector2.left);
-        _moveComponent.Move(1.0f);
-
-        SetDirection(Vector2.left);
+        // _moveComponent.SetMoveVec(Vector2.left);
+        // _moveComponent.Move(1.0f);
+        //
+        // SetDirection(Vector2.left);
     }
 
     private void SetDirection(Vector2 dir)
