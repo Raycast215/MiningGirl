@@ -21,6 +21,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - DataTable
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: c6f4ccf88074ffb4f9fb81d7832736ab
+    m_Address: CardDataTable
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - DataTable
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 768474f74753eb84289176247933f264, type: 2}
   m_SchemaSet:

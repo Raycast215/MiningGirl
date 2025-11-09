@@ -14,8 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_PixelRect:
     serializedVersion: 2
-    x: 1839
-    y: 131
+    x: 1501
+    y: 90
     width: 615
     height: 1271
   m_ShowMode: 0
@@ -43,7 +43,7 @@ MonoBehaviour:
     width: 2560
     height: 1367
   m_ShowMode: 4
-  m_Title: Project
+  m_Title: Hierarchy
   m_RootView: {fileID: 11}
   m_MinSize: {x: 875, y: 300}
   m_MaxSize: {x: 10000, y: 10000}
@@ -116,7 +116,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 0
-    width: 410
+    width: 518
     height: 884
   m_MinSize: {x: 276, y: 76}
   m_MaxSize: {x: 4001, y: 4026}
@@ -178,7 +178,7 @@ MonoBehaviour:
   m_MinSize: {x: 200, y: 50}
   m_MaxSize: {x: 16192, y: 8096}
   vertical: 0
-  controlID: 63
+  controlID: 124
   draggingID: 0
 --- !u!114 &8
 MonoBehaviour:
@@ -220,9 +220,9 @@ MonoBehaviour:
   m_Children: []
   m_Position:
     serializedVersion: 2
-    x: 410
+    x: 518
     y: 0
-    width: 449
+    width: 340
     height: 884
   m_MinSize: {x: 202, y: 226}
   m_MaxSize: {x: 4002, y: 4026}
@@ -396,9 +396,9 @@ MonoBehaviour:
   m_Children: []
   m_Position:
     serializedVersion: 2
-    x: 859
+    x: 858
     y: 0
-    width: 1701
+    width: 1702
     height: 884
   m_MinSize: {x: 201, y: 226}
   m_MaxSize: {x: 4001, y: 4026}
@@ -446,8 +446,8 @@ MonoBehaviour:
   m_GroupEditor:
     m_TreeState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: a487425c
-      m_LastClickedID: 1547863972
+      m_SelectedIDs: 00000000
+      m_LastClickedID: 0
       m_ExpandedIDs: 9ff2bc98a44aebc493559904
       m_RenameOverlay:
         m_UserAcceptedRename: 0
@@ -555,7 +555,7 @@ MonoBehaviour:
         canSort: 1
         userData: 0
       m_VisibleColumns: 0000000001000000020000000300000004000000
-      m_SortedColumns: 
+      m_SortedColumns: 01000000
     window: {fileID: 17}
     m_VerticalSplitterPercent: 0.8
 --- !u!114 &18
@@ -580,9 +580,9 @@ MonoBehaviour:
   m_Pos:
     serializedVersion: 2
     x: 907
-    y: 969
+    y: 963
     width: 1652
-    height: 395
+    height: 401
   m_SerializedDataModeController:
     m_DataMode: 0
     m_PreferredDataMode: 0
@@ -668,7 +668,7 @@ MonoBehaviour:
     m_OverlaysVisible: 1
   m_LockTracker:
     m_IsLocked: 0
-  m_LastSelectedObjectID: -94300
+  m_LastSelectedObjectID: 48852
 --- !u!114 &20
 MonoBehaviour:
   m_ObjectHideFlags: 52
@@ -716,7 +716,7 @@ MonoBehaviour:
     m_SkipHidden: 0
     m_SearchArea: 1
     m_Folders:
-    - Assets/Scripts/InGame
+    - Assets/Scripts/InGame/System
     m_Globs: []
     m_ProductIds: 
     m_AnyWithAssetOrigin: 0
@@ -726,16 +726,16 @@ MonoBehaviour:
   m_ViewMode: 1
   m_StartGridSize: 16
   m_LastFolders:
-  - Assets/Scripts/InGame
+  - Assets/Scripts/InGame/System
   m_LastFoldersGridSize: 16
   m_LastProjectPath: E:\MiningGirl\Client\MiningGirl
   m_LockTracker:
     m_IsLocked: 0
   m_FolderTreeState:
     scrollPos: {x: 0, y: 79}
-    m_SelectedIDs: 76c20000
-    m_LastClickedID: 49782
-    m_ExpandedIDs: 00000000fcc10000
+    m_SelectedIDs: dcc20000
+    m_LastClickedID: 49884
+    m_ExpandedIDs: 00000000c0c10000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -764,7 +764,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 00000000fcc10000
+    m_ExpandedIDs: 00000000c0c10000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -792,8 +792,8 @@ MonoBehaviour:
   m_ListAreaState:
     m_SelectedInstanceIDs: 
     m_LastClickedInstanceID: 0
-    m_HadKeyboardFocusLastEvent: 1
-    m_ExpandedInstanceIDs: c623000056cf0100300a0600d2bd00000490000018a70000faf20000649400004ed9000078130100b64001008c900100860301006af0000000000000
+    m_HadKeyboardFocusLastEvent: 0
+    m_ExpandedInstanceIDs: c623000056cf0100300a0600d2bd00000490000018a70000faf20000649400004ed9000078130100b64001008c900100860301006af000000000000008c00000eebf0000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -845,7 +845,7 @@ MonoBehaviour:
     serializedVersion: 2
     x: 0
     y: 24
-    width: 409
+    width: 517
     height: 858
   m_SerializedDataModeController:
     m_DataMode: 0
@@ -892,9 +892,9 @@ MonoBehaviour:
     m_TextWithWhitespace: "Hierarchy\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 411
+    x: 519
     y: 24
-    width: 447
+    width: 338
     height: 858
   m_SerializedDataModeController:
     m_DataMode: 0
@@ -912,7 +912,7 @@ MonoBehaviour:
       scrollPos: {x: 0, y: 0}
       m_SelectedIDs: 
       m_LastClickedID: 0
-      m_ExpandedIDs: 768ffeffa68ffeff76d8feff90ddffff02fbfffff8be00001ebf000038bf0000
+      m_ExpandedIDs: 044effff1266ffff02fbffff86be00000ebf000084bf0000
       m_RenameOverlay:
         m_UserAcceptedRename: 0
         m_Name: 
@@ -958,9 +958,9 @@ MonoBehaviour:
     m_TextWithWhitespace: "Scene\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 860
+    x: 859
     y: 24
-    width: 1700
+    width: 1701
     height: 858
   m_SerializedDataModeController:
     m_DataMode: 0
@@ -1530,9 +1530,9 @@ MonoBehaviour:
   m_AudioPlay: 0
   m_DebugDrawModesUseInteractiveLightBakingData: 0
   m_Position:
-    m_Target: {x: 2.2862546, y: 3.867282, z: -0.26710415}
+    m_Target: {x: 4.5351796, y: -0.019560609, z: -0.2521361}
     speed: 2
-    m_Value: {x: 1.7829614, y: 3.6853006, z: -0.27350554}
+    m_Value: {x: 4.5351796, y: -0.019560609, z: -0.2521361}
   m_RenderMode: 0
   m_CameraMode:
     drawMode: 0
@@ -1582,9 +1582,9 @@ MonoBehaviour:
     speed: 2
     m_Value: {x: 0, y: 0, z: 0, w: 1}
   m_Size:
-    m_Target: 1.1755475
+    m_Target: 5.059533
     speed: 2
-    m_Value: 1.8156735
+    m_Value: 5.059533
   m_Ortho:
     m_Target: 1
     speed: 2
@@ -1716,8 +1716,8 @@ MonoBehaviour:
     pluginStates:
     - '{}'
     - '{}'
-    scale: 10
-    fitToScreenEnabled: 1
+    scale: 38
+    fitToScreenEnabled: 0
     rotationDegree: 0
     highlightSafeAreaEnabled: 0
     friendlyName: Samsung Galaxy Note20 Ultra 5G

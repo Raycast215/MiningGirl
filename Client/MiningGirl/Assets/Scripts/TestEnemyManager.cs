@@ -5,11 +5,12 @@ using Cysharp.Threading.Tasks;
 using Data;
 using InGame;
 using InGame.System;
+using InGame.System.Enemy;
 using InGame.System.FloatingDamage;
 using UnityEngine;
 using UnityEngine.Serialization;
 
-public class TestStageController : GameInitializer
+public class TestEnemyManager : GameInitializer
 {
    [Header("Timer")]
    [SerializeField] 
@@ -28,7 +29,7 @@ public class TestStageController : GameInitializer
    [SerializeField] 
    private TestPlayer player;
    [SerializeField] 
-   private TestRock rock;
+   private EnemyController rock;
    
    private async void Start()
    {
