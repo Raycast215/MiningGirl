@@ -32,15 +32,15 @@ public class Floating : GameInitializer
         addObject.SetActive(isAdd);
         
         damageText.text = $"{damage}";
-        _rect.anchoredPosition = startPos;
+        _rect.localPosition = startPos;
         _rect.DOScale(1.5f, 0.0f);
 
         await UniTask.Yield();
         
         _canvasGroup.alpha = 1;
         _rect.DOScale(1.0f, 0.3f).SetDelay(0.2f);
-        _rect.DOAnchorPosY(_rect.anchoredPosition.y + 500.0f, 1.2f);
-        _canvasGroup.DOFade(0.0f, 1.0f).SetDelay(0.3f).OnComplete(Clear);
+        _rect.DOAnchorPosY(_rect.anchoredPosition.y + 200.0f, 1.2f);
+        _canvasGroup.DOFade(0.0f, 1.0f).SetDelay(0.5f).OnComplete(Clear);
     }
 
     private void Clear()

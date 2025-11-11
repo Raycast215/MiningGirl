@@ -3,5 +3,7 @@ using UnityEngine;
 public interface IHit
 {
     public void Damage();
-    public Vector2 GetPosition();
+    public Vector3 GetPosition();
+    public Vector2 GetAnchoredPosition();
+    public bool GetActiveState();
 }

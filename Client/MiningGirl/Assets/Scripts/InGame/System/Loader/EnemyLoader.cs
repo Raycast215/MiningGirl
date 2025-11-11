@@ -7,7 +7,7 @@ namespace InGame.System.Loader
 {
     public class EnemyLoader
     {
-        public List<EnemyController> GetEnemyList { get; private set; }
+        public List<IHit> GetEnemyList { get; private set; }
         public bool IsInitialized { get; private set; }
         
         private Transform _parent;
@@ -17,8 +17,8 @@ namespace InGame.System.Loader
         public EnemyLoader(Transform parent)
         {
             _parent = parent;
-            GetEnemyList = new List<EnemyController>();
             _queue = new Queue<EnemyController>();
+            GetEnemyList = new List<IHit>();
         }
 
         public async UniTaskVoid Initialize()
@@ -26,7 +26,7 @@ namespace InGame.System.Loader
             // To Do: 어드레서블로 변경
             _prefab = Resources.Load<GameObject>("InGame/Enemy");
 
-            for (var i = 0; i < 10; i++)
+            for (var i = 0; i < 100; i++)
             {
                 Crate();
             }
@@ -36,7 +36,7 @@ namespace InGame.System.Loader
 
         public void Load()
         {
-            var posList = GetUIPositionsInRing(Vector2.zero, 300, 800, 10, 300);
+            var posList = GetUIPositionsInRing(Vector2.zero, 500, 3000, 100, 300);
 
             foreach (var pos in posList)
             {

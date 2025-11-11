@@ -60,7 +60,7 @@ public class TestEnemyManager : GameInitializer
       statViewer.Set(playerRow);
       statViewer.OnLevelUpdated += player.SetLevel;
       
-      player.Init(playerRow, rock, floatingDamageController.Damage);
+      // player.Init(playerRow, rock, floatingDamageController.Damage);
       
       timer.Init(time, null);
       timer.Execute().Forget();

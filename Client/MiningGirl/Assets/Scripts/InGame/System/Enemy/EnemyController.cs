@@ -6,7 +6,8 @@ namespace InGame.System.Enemy
    public class EnemyController : GameInitializer, IHit
    {
       private RectTransform _rect;
-
+      private int _health = 3;
+      
       private void Awake()
       {
          _rect ??= GetComponent<RectTransform>();
@@ -21,14 +22,30 @@ namespace InGame.System.Enemy
 
       public void Damage()
       {
+         _health -= 1;
          _rect.DOShakePosition(0.3f, 10.0f);
+
+         if (_health <= 0)
+         {
+            gameObject.SetActive(false);
+         }
       }
       
-      public Vector2 GetPosition()
+      public Vector3 GetPosition()
       {
-         return _rect.anchoredPosition;
+         return transform.position;
       }
 
-#endregion
+      public Vector2 GetAnchoredPosition()
+      {
+         return _rect.localPosition;
+      }
+
+      public bool GetActiveState()
+      {
+         return gameObject.activeSelf;
+      }
+
+      #endregion
    }
 }
