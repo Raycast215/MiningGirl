@@ -14,7 +14,7 @@ namespace Scene
             SceneStartAsync().Forget();
         }
 
-        public async UniTask SceneStartAsync()
+        private async UniTask SceneStartAsync()
         {
             // 이전 토큰 초기화.
             Dispose();

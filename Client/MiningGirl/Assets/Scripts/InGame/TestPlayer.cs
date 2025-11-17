@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using BehaviourTree;
 using Cysharp.Threading.Tasks;
 using Data;
@@ -16,15 +17,17 @@ public class TestPlayer : GameInitializer
     
     [SerializeField]
     private Animator animator;
+    [SerializeField]
+    private Rigidbody2D rigidBody2D;
+    [SerializeField]
+    private SpriteRenderer spriteRenderer;
     
-    private int _level;
     private CalcPlayerStat _stat;
     private MoveForward _moveComponent;
-    private Rigidbody2D _rigidbody;
-    private SpriteRenderer _spriteRenderer;
     private IInGameHandler _handler;
     private NodeRunner _nodeRunner;
     private IHit _target;
+    private CancellationTokenSource _cts;
     
     public void Init(IInGameHandler handler, Action<int, Vector2, bool> onHit)
     {
@@ -32,9 +35,7 @@ public class TestPlayer : GameInitializer
         OnHit += onHit;
         
         _handler = handler;
-        _rigidbody ??= GetComponent<Rigidbody2D>();
-        _spriteRenderer ??= GetComponent<SpriteRenderer>();
-        _moveComponent = new MoveForward(_rigidbody);
+        _moveComponent = new MoveForward(rigidBody2D);
 
         _nodeRunner = new NodeRunner( new SequenceNode(new List<INode>()
         {
@@ -50,24 +51,26 @@ public class TestPlayer : GameInitializer
 
     public async UniTaskVoid ExecuteFindEnemy()
     {
-        while (_handler.GetEnemyList() != null && _handler.GetEnemyList().Count != 0)
+        while (true)
         {
-            var playerPos = transform.position;
-            var nearEnemy = _handler.GetEnemyList()
-                .Where(x => x.GetActiveState()) // 오브젝트가 켜져있고,
-                .OrderBy(x => (x.GetPosition() - playerPos).sqrMagnitude) // 가장 근접한 대상
-                .FirstOrDefault();
+            var enemyList = _handler.GetEnemyList();
 
-            // 검색 결과가 없다면 일단 대기후 넘김.
-            if (nearEnemy == null)
+            if (enemyList == null || enemyList.Count == 0)
             {
                 _target = null;
-                await UniTask.WaitForSeconds(1.0f);
+                await UniTask.WaitForSeconds(0.1f);
                 continue;
             }
-            
+
+            var playerPos = transform.position;
+            var nearEnemy = enemyList
+                .Where(x => x.GetActiveState())
+                .OrderBy(x => (x.GetPosition() - playerPos).sqrMagnitude)
+                .FirstOrDefault();
+
             _target = nearEnemy;
-            await UniTask.WaitForSeconds(2.0f);
+
+            await UniTask.WaitForSeconds(0.1f); // 0.1초마다 재탐색
         }
     }
 
@@ -79,115 +82,155 @@ public class TestPlayer : GameInitializer
         var currentPlayerPos = transform.position;
         var enemyPos = _target.GetPosition();
         var dist = Vector3.Distance(currentPlayerPos, enemyPos);
-
-        // 충분히 가까워졌으면 멈춤
-        if (dist <= 1.5f)
+        
+        if (dist <= 1.0f)
             return NodeState.Success;
 
+        if (_isPlaying && !_attackDone)
+            return NodeState.Success;
+        
         var dirVec = (enemyPos - currentPlayerPos).normalized;
 
-        _moveComponent.Move(5.0f);
+        _moveComponent.Move(3.0f);
         _moveComponent.SetMoveVec(dirVec);
         SetDirection(dirVec);
         animator.Play("Idle", 0, 0);
-        Debug.Log("Move");
+        // Debug.Log("Move");
         return NodeState.Running;
     }
 
     private bool _isPlaying;
+    private bool _attackDone;
     
     private NodeState AttackNode()
     {
-        if (_target == null)
-            return NodeState.Failure;
+        // 타겟이 없거나 비활성 → 공격 취소
+        if (!IsValidTarget(_target))
+        {
+            // 이미 공격 중이면 코루틴/UniTask 취소
+            if (_isPlaying)
+            {
+                _cts?.Cancel();   // 아래 AttackNodeAsync 쪽에서 처리됨
+            }
         
+            return NodeState.Failure;
+        }
+
+        // 애니/공격 로직 진행 중이면 계속 Running
         if (_isPlaying)
             return NodeState.Running;
-        
+
+        // 한 사이클 끝났으면 한 번만 Success
+        if (_attackDone)
+        {
+            _attackDone = false;
+            return NodeState.Success;
+        }
+
+        // 새 공격 시작
         AttackNodeAsync().Forget();
         return NodeState.Running;
     }
     
-    private async UniTaskVoid AttackNodeAsync()
+    private bool IsValidTarget(IHit target)
     {
-        _isPlaying = true;
-
-        _moveComponent.Move(0f);
-        _moveComponent.SetMoveVec(Vector3.zero);
-
-        Debug.Log("Ready");
-        animator.Play("Ready", 0, 0);
-        
-        await UniTask.WaitForSeconds(0.5f);
-
-        Debug.Log("Hit");
-        animator.Play("Hit", 0, 0);
-        _target.Damage();
-        // OnHit?.Invoke(1, _target.GetAnchoredPosition(), false);
-        
-        await UniTask.WaitForSeconds(0.5f);
-        
-        _isPlaying = false;
+        return target != null && target.GetActiveState();
     }
     
-    private async void Start()
+    private async UniTaskVoid AttackNodeAsync()
     {
-        // await UniTask.WaitUntil(() => IsInitialized);
-        //
-        // while (true)
-        // {
-        //     Ready();
-        //     await UniTask.WaitForSeconds(_stat.Speed);
-        //     
-        //     // 기본 공격
-        //     Hit();
-        //     _target.Damage();
-        //
-        //     var add = Random.Range(0, 3);
-        //     
-        //     // 추가타
-        //     if (add == 0)
-        //     {
-        //         Hit(true);
-        //         _target.Damage();
-        //     }
-        //     
-        //     await UniTask.WaitForSeconds(0.1f);
-        // }
+        // 이전 공격 취소 & 정리
+        _cts?.Cancel();
+        _cts?.Dispose();
+        _cts = new CancellationTokenSource();
+
+        _isPlaying = true;
+        _attackDone = false;
+
+        // 공격 시작 시점의 타겟 스냅샷
+        var target = _target;
+
+        try
+        {
+            // 시작부터 타겟이 이미 죽어있으면 바로 종료
+            if (!IsValidTarget(target))
+                return;
+
+            // 1. 이동 정지
+            _moveComponent.Move(0f);
+            _moveComponent.SetMoveVec(Vector3.zero);
+
+            // 방향 맞추기
+            var dir = (target.GetPosition() - transform.position).normalized;
+            SetDirection(dir);
+
+            // 2. 준비 자세
+            animator.Play("Ready", 0, 0);
+            await UniTask.WaitForSeconds(0.5f, cancellationToken: _cts.Token);
+
+            if (!IsValidTarget(target))
+            {
+                // animator.Play("Ready", 0, 0);
+                return;
+            }
+
+            // 3. Hit 포즈로 전환
+            animator.Play("Hit", 0, 0);
+
+            // 화면에 Hit가 한 프레임이라도 보이게
+            await UniTask.Yield();
+
+            if (!IsValidTarget(target))
+            {
+                // animator.Play("Ready", 0, 0);
+                return;
+            }
+
+            // 4. 이 타이밍에 데미지
+            target.Damage();
+
+            await UniTask.WaitForSeconds(0.1f, cancellationToken: _cts.Token);
+
+            if (!IsValidTarget(target))
+            {
+                // animator.Play("Ready", 0, 0);
+                return;
+            }
+
+            // 5. 다시 Ready + 후딜
+            animator.Play("Ready", 0, 0);
+            await UniTask.WaitForSeconds(2.0f, cancellationToken: _cts.Token);
+
+            // 여기까지 왔으면 한 사이클 정상 완료
+            _attackDone = true;
+        }
+        catch (OperationCanceledException)
+        {
+            // 공격 도중 취소 (타겟 사라짐 등) → 조용히 무시해도 됨
+            // Debug.Log("Attack canceled");
+        }
+        catch (Exception e)
+        {
+            Debug.LogException(e);
+        }
+        finally
+        {
+            _isPlaying = false;
+        }
     }
 
     private void SetDirection(Vector2 dir)
     {
-        _spriteRenderer.flipX = dir.x switch
+        spriteRenderer.flipX = dir.x switch
         {
             > 0 => false,
             < 0 => true,
-            _ => _spriteRenderer.flipX
+            _ => spriteRenderer.flipX
         };
     }
 
     public void SetLevel(int level)
     {
-        _level = level;
-    }
-
-    private void Idle()
-    {
-        animator.Play("Idle", 0, 0);
-    }
-    
-    private void Ready()
-    {
-        animator.Play("Ready", 0, 0);
-    }
-
-    private void Hit(bool isAdd = false)
-    {
-        animator.Play("Hit", 0, 0);
-
-        // Debug.Log(_level);
-        // _stat = new CalcPlayerStat(_level, Row);
-        //
-        // OnHit?.Invoke((int)_stat.Damage, _target.GetPosition(), isAdd);
+        
     }
 }

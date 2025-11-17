@@ -13,12 +13,14 @@ namespace InGame.System.Loader
         private Transform _parent;
         private GameObject _prefab;
         private Queue<EnemyController> _queue;
+        private IInGameHandler _handler;
         
-        public EnemyLoader(Transform parent)
+        public EnemyLoader(Transform parent, IInGameHandler handler)
         {
             _parent = parent;
             _queue = new Queue<EnemyController>();
             GetEnemyList = new List<IHit>();
+            _handler = handler;
         }
 
         public async UniTaskVoid Initialize()
@@ -26,7 +28,7 @@ namespace InGame.System.Loader
             // To Do: 어드레서블로 변경
             _prefab = Resources.Load<GameObject>("InGame/Enemy");
 
-            for (var i = 0; i < 100; i++)
+            for (var i = 0; i < 10; i++)
             {
                 Crate();
             }
@@ -36,14 +38,25 @@ namespace InGame.System.Loader
 
         public void Load()
         {
-            var posList = GetUIPositionsInRing(Vector2.zero, 500, 3000, 100, 300);
-
+            // var posList = GetUIPositionsInRing(Vector2.zero, 5.0f, 10.0f, 30, 1);
+            var posList = _handler.GetTilePosList();
+            
             foreach (var pos in posList)
             {
                 var enemy = Get();
+                var delay = Random.Range(0.0f, 1.0f);
                 
-                enemy.SetPosition(pos);
+                // 1) 회전 전 로컬 기준 좌표
+                var local = new Vector3(pos.x, pos.y, 0.0f);
+
+                // 2) 타일 부모의 회전과 위치를 적용해서 월드 좌표로 변환
+                //    (타일만 회전되어 있으니까 이 회전을 그대로 쓴다)
+                var ddd =  _handler.GetTileTransform().position + _handler.GetTileTransform().rotation * local;
+                
+                enemy.SetPosition(ddd);
+                enemy.SetDelay(delay);
                 enemy.gameObject.SetActive(true);
+                // enemy.Drop();
                 GetEnemyList.Add(enemy);
             }
         }
