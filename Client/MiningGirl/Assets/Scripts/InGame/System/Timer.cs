@@ -1,6 +1,7 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using TMPro;
 using Unity.Mathematics;
 using UnityEngine;
@@ -19,6 +20,7 @@ namespace InGame.System
         
         private float _time;
         private CancellationTokenSource _cts;
+        private RectTransform _rect;
         
         public void Init(float time, Action onFinished)
         {
@@ -28,6 +30,13 @@ namespace InGame.System
             Dispose();
             _time = time;
             _cts = new CancellationTokenSource();
+            _rect ??= GetComponent<RectTransform>();
+            _rect.anchoredPosition = new Vector2(0.0f, 200.0f);
+        }
+
+        public void Appear()
+        {
+            _rect.DOAnchorPosY(-100.0f, 0.5f);
         }
 
         public async UniTaskVoid Execute()

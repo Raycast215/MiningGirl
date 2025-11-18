@@ -12,11 +12,7 @@ using UnityEngine.Serialization;
 
 public class TestEnemyManager : GameInitializer
 {
-   [Header("Timer")]
-   [SerializeField] 
-   private float time;
-   [SerializeField]
-   private Timer timer;
+   
    
    [Header("Damage Floating")]
    [SerializeField]
@@ -62,9 +58,6 @@ public class TestEnemyManager : GameInitializer
       
       // player.Init(playerRow, rock, floatingDamageController.Damage);
       
-      timer.Init(time, null);
-      timer.Execute().Forget();
-
 
       for (int i = 1; i <= 10; i++)
       {
