@@ -4,7 +4,7 @@ using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace InGame.System.Skill
+namespace InGame.System.Skill.UI
 {
     public class SkillPointGauge : GameInitializer
     {

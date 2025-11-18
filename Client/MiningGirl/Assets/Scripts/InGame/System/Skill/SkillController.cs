@@ -1,6 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using InGame.System.Skill.UI;
 using UnityEngine;
 
 namespace InGame.System.Skill
@@ -9,7 +11,11 @@ namespace InGame.System.Skill
     {
         [SerializeField]
         private SkillPointGauge skillPointGauge;
-
+        [SerializeField]
+        private SkillInfoViewer skillInfoViewer;
+        [SerializeField] 
+        private List<SkillCardElementUI> testUiList;
+        
         private bool _isGameStated;
         private CancellationTokenSource _cts;
         
@@ -18,7 +24,13 @@ namespace InGame.System.Skill
             IsInitialized = false;
             _isGameStated = false;
             
+            skillInfoViewer.Hide();
             skillPointGauge.Init(10);
+
+            for (var i = 0; i < testUiList.Count; i++)
+            {
+                testUiList[i].Init(i, SkillCardTouch, ExecuteSkillEffect);
+            }
             
             IsInitialized = true;
         }
@@ -57,6 +69,26 @@ namespace InGame.System.Skill
             }
         }
 
+        private void SkillCardTouch(int index)
+        {
+            var isShow = false;
+            
+            for (var i = 0; i < testUiList.Count; i++)
+            {
+                if (i != index)
+                    testUiList[i].UnTouch();
+            }
+            
+            skillInfoViewer.Set(index);
+            skillInfoViewer.Show(); 
+        }
+
+        private void ExecuteSkillEffect(SkillCardElementUI selectSkill)
+        {
+            skillPointGauge.UpdateGaugeUI(-selectSkill.SkillCost);
+            skillInfoViewer.Hide();
+        }
+        
         private void OnDestroy()
         {
             Dispose();
