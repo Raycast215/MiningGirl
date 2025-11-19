@@ -17,8 +17,13 @@ namespace InGame
         public List<Vector3> GetTilePosList();
         public Transform GetTileTransform();
     }
+
+    public interface ISkillHandlerParentHandler
+    {
+        public Canvas GetUICanvas();
+    }
     
-    public class InGameManager : GameInitializer, IDisposable, IInGameHandler
+    public class InGameManager : GameInitializer, IDisposable, IInGameHandler, ISkillHandlerParentHandler
     {
         [SerializeField]
         private Transform actorTransform;
@@ -28,6 +33,8 @@ namespace InGame
         [Header("UI")]
         [SerializeField] 
         private Timer timer;
+        [SerializeField]
+        private Canvas uiCanvas;
         
         [SerializeField] 
         private SkillController skillController;
@@ -55,7 +62,7 @@ namespace InGame
             {
                 timer.Init(120, null);
                 
-                skillController.Init();
+                skillController.Init(this);
                 await UniTask.WaitUntil(() => skillController.IsInitialized);
                 
                 floatingDamageController.InitAsync().Forget();
@@ -144,6 +151,15 @@ namespace InGame
         public Transform GetTileTransform()
         {
             return tileTransform;
+        }
+
+#endregion
+
+#region ISkillHandlerParentHandler
+
+        public Canvas GetUICanvas()
+        {
+            return uiCanvas;
         }
 
 #endregion

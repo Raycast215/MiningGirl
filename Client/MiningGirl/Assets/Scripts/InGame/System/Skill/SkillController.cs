@@ -7,37 +7,57 @@ using UnityEngine;
 
 namespace InGame.System.Skill
 {
-    public class SkillController : GameInitializer, IDisposable
+    public interface ISkillControllerHandler : ISkillHandlerParentHandler
+    {
+        public void ExecuteSkillEffect(int cost);
+        public void OnSkillCardTouch(int index);
+        public void HideInfoUI();
+        public int GetSkillPoint();
+        public SkillCardDelete GetSkillCardDelete();
+    }
+    
+    public class SkillController : GameInitializer, IDisposable, ISkillControllerHandler
     {
         [SerializeField]
         private SkillPointGauge skillPointGauge;
         [SerializeField]
         private SkillInfoViewer skillInfoViewer;
+        [SerializeField]
+        private SkillCardDelete skillCardDelete;
         [SerializeField] 
         private List<SkillCardElementUI> testUiList;
         
         private bool _isGameStated;
         private CancellationTokenSource _cts;
+        private ISkillHandlerParentHandler _handler;
         
-        public void Init()
+        public void Init(ISkillHandlerParentHandler handler)
         {
             IsInitialized = false;
             _isGameStated = false;
+            
+            _handler = handler;
             
             skillInfoViewer.Hide();
             skillPointGauge.Init(10);
 
             for (var i = 0; i < testUiList.Count; i++)
             {
-                testUiList[i].Init(i, SkillCardTouch, ExecuteSkillEffect);
+                testUiList[i].Init(i, this);
             }
             
             IsInitialized = true;
         }
 
-        public void Appear()
+        public async void Appear()
         {
             skillPointGauge.Appear();
+
+            foreach (var skillUI in testUiList)
+            {
+                await UniTask.WaitForSeconds(0.1f);
+                skillUI.Appear();
+            }
         }
 
         public async UniTaskVoid ExecuteSkillPointGauge()
@@ -50,7 +70,7 @@ namespace InGame.System.Skill
             {
                 while (_isGameStated)
                 {
-                    await UniTask.WaitForSeconds(1.0f, cancellationToken: _cts.Token);
+                    await UniTask.WaitForSeconds(2.0f, cancellationToken: _cts.Token);
                 
                     skillPointGauge.UpdateGaugeUI(1);
                 }
@@ -68,32 +88,54 @@ namespace InGame.System.Skill
                 _isGameStated = false;
             }
         }
-
-        private void SkillCardTouch(int index)
-        {
-            var isShow = false;
-            
-            for (var i = 0; i < testUiList.Count; i++)
-            {
-                if (i != index)
-                    testUiList[i].UnTouch();
-            }
-            
-            skillInfoViewer.Set(index);
-            skillInfoViewer.Show(); 
-        }
-
-        private void ExecuteSkillEffect(SkillCardElementUI selectSkill)
-        {
-            skillPointGauge.UpdateGaugeUI(-selectSkill.SkillCost);
-            skillInfoViewer.Hide();
-        }
         
         private void OnDestroy()
         {
             Dispose();
         }
 
+#region ISkillControllerHandler
+
+        public Canvas GetUICanvas()
+        {
+            return _handler.GetUICanvas();
+        }
+        
+        public void ExecuteSkillEffect(int cost)
+        {
+            skillPointGauge.UpdateGaugeUI(cost);
+            skillInfoViewer.Hide();
+        }
+
+        public void OnSkillCardTouch(int index)
+        {
+            for (var i = 0; i < testUiList.Count; i++)
+            {
+                if (i != index)
+                    testUiList[i].OnDeselectCard();
+            }
+            
+            skillInfoViewer.Set(index);
+            skillInfoViewer.Show(); 
+        }
+
+        public void HideInfoUI()
+        {
+            skillInfoViewer.Hide();
+        }
+
+        public int GetSkillPoint()
+        {
+            return skillPointGauge.SkillPoint;
+        }
+
+        public SkillCardDelete GetSkillCardDelete()
+        {
+            return skillCardDelete;
+        }
+
+#endregion
+        
 #region IDisposable
 
         public void Dispose()

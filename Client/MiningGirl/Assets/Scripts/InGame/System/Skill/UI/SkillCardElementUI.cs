@@ -1,19 +1,25 @@
-using System;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using NotImplementedException = System.NotImplementedException;
 
 namespace InGame.System.Skill.UI
 {
-    public class SkillCardElementUI : GameInitializer
+    public interface ISkillCardHandler
     {
-        private event Action<int> OnTouched;
-        private event Action<SkillCardElementUI> OnSkillUsed;
-        
+        public Canvas GetUICanvas();
+        public void OnSelectCard();
+        public void OnDeselectCard();
+        public void ExecuteSkillEffect();
+        public void DeleteSkillCard();
+        public SkillCardDelete GetSkillCardDelete();
+    }
+    
+    public class SkillCardElementUI : GameInitializer, ISkillCardHandler
+    {
         public int Index { get; private set; }
-        public int SkillCost { get; private set; }
-        
+      
         [SerializeField] 
         private Image skillIconImage;
         [SerializeField] 
@@ -22,49 +28,78 @@ namespace InGame.System.Skill.UI
         private TMP_Text skillNameText;
         [SerializeField] 
         private RectTransform contents;
-        [SerializeField] 
-        private Button touchButton;
+        [SerializeField]
+        private SkillCardDrag dragHandler;
 
+        private int _cost;
         private bool _isSelected;
-        
-        private void Awake()
-        {
-            touchButton.onClick.RemoveAllListeners();
-            touchButton.onClick.AddListener(OnTouchButton);
-        }
+        private ISkillControllerHandler _handler;
 
-        public void Init(int index, Action<int> onTouched, Action<SkillCardElementUI> onSkillUsed)
+        public void Init(int index, ISkillControllerHandler handler)
         {
-            OnTouched = null;
-            OnTouched += onTouched;
-
-            OnSkillUsed = null;
-            OnSkillUsed += onSkillUsed;
-            
             Index = index;
-            SkillCost = 3;
+            _handler = handler;
+            _cost = 3;
             contents.transform.localScale = Vector3.one;
+            contents.anchoredPosition = new Vector2(0, -800);
+            dragHandler.Init(this);
         }
 
-        public void UnTouch()
+        public void Appear()
         {
-            _isSelected = false;
-            contents.transform.localScale = Vector3.one;
+            contents.DOAnchorPos(new Vector2(0, 0), 0.2f);
         }
-        
-        private void OnTouchButton()
+
+#region ISkillCardHandler
+
+        public Canvas GetUICanvas()
         {
-            if (_isSelected)
+            return _handler.GetUICanvas();
+        }
+
+        public void OnSelectCard()
+        {
+            _handler.OnSkillCardTouch(Index);
+            contents.DOScale(1.2f, 0.2f);
+        }
+
+        public void OnDeselectCard()
+        {
+            contents.transform.localScale = Vector3.one;
+            dragHandler.Reset();
+        }
+
+        public void ExecuteSkillEffect()
+        {
+            _handler.HideInfoUI();
+            
+            if (_handler.GetSkillPoint() >= _cost)
             {
-                _isSelected = false;
-                contents.DOScale(1.0f, 0.2f);
-                OnSkillUsed?.Invoke(this);
+                _handler.ExecuteSkillEffect(-_cost);
                 return;
             }
             
-            _isSelected = true;
-            OnTouched?.Invoke(Index);
-            contents.DOScale(1.2f, 0.2f);
+            Debug.Log("스킬 포인트 부족...");
         }
+
+        public void DeleteSkillCard()
+        {
+            _handler.HideInfoUI();
+            
+            if (_handler.GetSkillPoint() > 0)
+            {
+                _handler.ExecuteSkillEffect(-1);
+                return;
+            }
+            
+            Debug.Log("스킬 포인트 부족...");
+        }
+
+        public SkillCardDelete GetSkillCardDelete()
+        {
+            return _handler.GetSkillCardDelete();
+        }
+
+#endregion
     }
 }
