@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
@@ -6,20 +7,30 @@ using NotImplementedException = System.NotImplementedException;
 
 namespace InGame.System.Skill.UI
 {
-    public interface ISkillCardHandler
+    public interface ISkillCardUIHandler
     {
-        public Canvas GetUICanvas();
-        public void OnSelectCard();
-        public void OnDeselectCard();
-        public void ExecuteSkillEffect();
-        public void DeleteSkillCard();
-        public SkillCardDelete GetSkillCardDelete();
+        void Select();
+        void Deselect();
+        void ShowEffect();
+        void HideEffect();
+        void ChangeSkillCard(bool isSkillExecuted);
+        void MoveContents(Vector2 pos, bool isUseDuration, Action callback = null);
+        RectTransform GetContentsRectTransform();
+        ISkillUIControllerHandler GetSkillUIControllerHandler();
     }
-    
-    public class SkillCardElementUI : GameInitializer, ISkillCardHandler
+
+    public class SkillCardElementUI : GameInitializer, ISkillCardUIHandler
     {
+        public Sprite GetSpriteIcon { get; private set; }
+        public SkillData Data { get; private set; }
         public int Index { get; private set; }
-      
+        
+        private ISkillUIControllerHandler SkillUIControllerHandler { get; set; }
+        private RectTransform RectTransform { get; set; }
+        private float Duration => 0.2f;
+        private float SelectScale => 1.2f;
+        private float StartPosY => -800.0f;
+
         [SerializeField] 
         private Image skillIconImage;
         [SerializeField] 
@@ -28,76 +39,96 @@ namespace InGame.System.Skill.UI
         private TMP_Text skillNameText;
         [SerializeField] 
         private RectTransform contents;
-        [SerializeField]
+        [SerializeField] 
         private SkillCardDrag dragHandler;
+        [SerializeField]
+        private GameObject effectObject;
 
-        private int _cost;
-        private bool _isSelected;
-        private ISkillControllerHandler _handler;
+        private void Awake()
+        {
+            RectTransform = GetComponent<RectTransform>();
+        }
 
-        public void Init(int index, ISkillControllerHandler handler)
+        public void Init(SkillData data, ISkillUIControllerHandler uiHandler)
+        {
+            Data = data;
+            SkillUIControllerHandler = uiHandler;
+            
+            // To Do: 임시
+            skillIconImage.sprite = Resources.Load<Sprite>($"Icon/{Data.IconAssetName}");
+            GetSpriteIcon = skillIconImage.sprite;
+            skillCostText.text = $"{Data.Cost}";
+            skillNameText.text = $"{Data.Id}";
+
+            contents.localScale = Vector3.one;
+            contents.anchoredPosition = new Vector2(0, StartPosY);
+            
+            effectObject.SetActive(false);
+            dragHandler.Init(Data, this);
+        }
+
+        public void SetIndex(int index)
         {
             Index = index;
-            _handler = handler;
-            _cost = 3;
-            contents.transform.localScale = Vector3.one;
-            contents.anchoredPosition = new Vector2(0, -800);
-            dragHandler.Init(this);
+            skillNameText.text = $"{Index}";
         }
-
+        
         public void Appear()
         {
-            contents.DOAnchorPos(new Vector2(0, 0), 0.2f);
+            contents.DOAnchorPos(Vector2.zero, Duration);
         }
 
-#region ISkillCardHandler
-
-        public Canvas GetUICanvas()
+        public void Move(Vector2 pos)
         {
-            return _handler.GetUICanvas();
+            RectTransform
+                .DOAnchorPos(pos, Duration)
+                .OnComplete(Appear);
+        }
+        
+#region ISkillCardUIHandler
+
+        public void Select()
+        {
+            contents.DOScale(SelectScale, Duration);
+        }
+        
+        public void Deselect()
+        {
+            HideEffect();
+            contents.DOScale(1.0f, Duration);
         }
 
-        public void OnSelectCard()
+        public void ShowEffect()
         {
-            _handler.OnSkillCardTouch(Index);
-            contents.DOScale(1.2f, 0.2f);
+            effectObject.SetActive(true);
         }
 
-        public void OnDeselectCard()
+        public void HideEffect()
         {
-            contents.transform.localScale = Vector3.one;
-            dragHandler.Reset();
+            effectObject.SetActive(false);
         }
 
-        public void ExecuteSkillEffect()
+        public void ChangeSkillCard(bool isSkillExecuted)
         {
-            _handler.HideInfoUI();
-            
-            if (_handler.GetSkillPoint() >= _cost)
-            {
-                _handler.ExecuteSkillEffect(-_cost);
-                return;
-            }
-            
-            Debug.Log("스킬 포인트 부족...");
+            MoveContents(new Vector2(0, StartPosY), true, 
+                () => SkillUIControllerHandler.NextCard(this, isSkillExecuted));
         }
 
-        public void DeleteSkillCard()
+        public void MoveContents(Vector2 pos, bool isUseDuration, Action callback = null)
         {
-            _handler.HideInfoUI();
-            
-            if (_handler.GetSkillPoint() > 0)
-            {
-                _handler.ExecuteSkillEffect(-1);
-                return;
-            }
-            
-            Debug.Log("스킬 포인트 부족...");
+            contents
+                .DOAnchorPos(pos, isUseDuration ? Duration : 0.0f)
+                .OnComplete(() => callback?.Invoke());
         }
 
-        public SkillCardDelete GetSkillCardDelete()
+        public RectTransform GetContentsRectTransform()
         {
-            return _handler.GetSkillCardDelete();
+            return contents;
+        }
+
+        public ISkillUIControllerHandler GetSkillUIControllerHandler()
+        {
+            return SkillUIControllerHandler;
         }
 
 #endregion

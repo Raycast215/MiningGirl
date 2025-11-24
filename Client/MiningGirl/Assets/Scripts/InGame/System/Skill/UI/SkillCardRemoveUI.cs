@@ -2,7 +2,7 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace InGame.System.Skill
+namespace InGame.System.Skill.UI
 {
     public interface ISkillCardRemoveUIHandler
     {
@@ -22,7 +22,7 @@ namespace InGame.System.Skill
         private float showDelay = 0.1f;
 
         private bool _isShow;
-
+        
 #region ISkillCardRemoveUIHandler
 
         public void ShowCardRemoveUI()

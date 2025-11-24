@@ -31,7 +31,7 @@ namespace InGame.System.Skill.UI
         
         private int _maxSkillPoint;
         private RectTransform _rect;
-        private int _skillPoint;
+        [SerializeField]private int _skillPoint;
 
         public void Init(int maxPoint)
         {

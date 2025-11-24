@@ -1273,7 +1273,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 400, y: -50}
-  m_SizeDelta: {x: 0, y: 50}
+  m_SizeDelta: {x: 74.74, y: 50}
   m_Pivot: {x: 1, y: 0}
 --- !u!114 &294215770
 MonoBehaviour:
@@ -1661,7 +1661,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 277.26, y: -52}
-  m_SizeDelta: {x: 0, y: 54}
+  m_SizeDelta: {x: 97.28, y: 54}
   m_Pivot: {x: 1, y: 0}
 --- !u!114 &671402657
 MonoBehaviour:
@@ -2400,7 +2400,7 @@ GameObject:
   - component: {fileID: 862292937}
   - component: {fileID: 862292936}
   m_Layer: 5
-  m_Name: SkillPointGauge
+  m_Name: SkillPointGaugeUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2481,6 +2481,10 @@ MonoBehaviour:
   curSkillPointText: {fileID: 671402657}
   maxSkillPointText: {fileID: 294215770}
   gaugeUI: {fileID: 187240642}
+  startPosY: -120
+  endPosY: 32
+  duration: 0.5
+  _skillPoint: 0
 --- !u!1 &885034027
 GameObject:
   m_ObjectHideFlags: 0
@@ -2716,9 +2720,10 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 981923321}
+  - component: {fileID: 981923323}
   - component: {fileID: 981923322}
   m_Layer: 5
-  m_Name: GameObject
+  m_Name: SkillQueueListUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2772,6 +2777,22 @@ MonoBehaviour:
   m_ChildScaleWidth: 0
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
+--- !u!114 &981923323
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 981923320}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 01c80a5c098f3eb4ca20b9ee21960de4, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  queueListUI:
+  - {fileID: 1226620577}
+  - {fileID: 1841860805}
+  - {fileID: 1183999968}
 --- !u!1 &1020816261
 GameObject:
   m_ObjectHideFlags: 0
@@ -2994,7 +3015,7 @@ GameObject:
   - component: {fileID: 1096947340}
   - component: {fileID: 1096947341}
   m_Layer: 5
-  m_Name: SkillCardDelete
+  m_Name: SkillCardRemoveUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3034,6 +3055,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   gradientImage: {fileID: 1902718053}
   durationTime: 0.2
+  showDelay: 0.1
 --- !u!1 &1111693073
 GameObject:
   m_ObjectHideFlags: 0
@@ -3083,7 +3105,7 @@ GameObject:
   - component: {fileID: 1183999969}
   - component: {fileID: 1183999968}
   m_Layer: 5
-  m_Name: Image (2)
+  m_Name: Icon - 2
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3158,7 +3180,7 @@ GameObject:
   - component: {fileID: 1226620578}
   - component: {fileID: 1226620577}
   m_Layer: 5
-  m_Name: Image
+  m_Name: Icon - 0
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -3367,6 +3389,7 @@ GameObject:
   m_Component:
   - component: {fileID: 1293548454}
   - component: {fileID: 1293548453}
+  - component: {fileID: 1293548455}
   m_Layer: 0
   m_Name: SkillController
   m_TagString: Untagged
@@ -3386,13 +3409,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: aac71d2c47080234bb1699e07c1379eb, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  skillPointGauge: {fileID: 862292938}
-  skillInfoViewer: {fileID: 1714429336}
-  skillCardDelete: {fileID: 1096947341}
-  testUiList:
-  - {fileID: 898512577}
-  - {fileID: 40683092}
-  - {fileID: 1451302093}
+  skillUIController: {fileID: 1293548455}
 --- !u!4 &1293548454
 Transform:
   m_ObjectHideFlags: 0
@@ -3408,6 +3425,29 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1293548455
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1293548452}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 862fe577b4db39b45ae16ad14e397632, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  uiCanvas: {fileID: 55965466}
+  skillPointGaugeUI: {fileID: 862292938}
+  skillInfoUI: {fileID: 1714429336}
+  skillCardRemoveUI: {fileID: 1096947341}
+  skillQueueListUI: {fileID: 981923323}
+  skillUIList:
+  - {fileID: 898512577}
+  - {fileID: 40683092}
+  - {fileID: 1451302093}
+  appearDelay: 0.1
+  cardPosXOffset: 400
 --- !u!1 &1306955027
 GameObject:
   m_ObjectHideFlags: 0
@@ -5004,7 +5044,7 @@ GameObject:
   - component: {fileID: 1714429335}
   - component: {fileID: 1714429334}
   m_Layer: 5
-  m_Name: SkillInfoViewer
+  m_Name: SkillInfoUI
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5684,7 +5724,7 @@ GameObject:
   - component: {fileID: 1841860806}
   - component: {fileID: 1841860805}
   m_Layer: 5
-  m_Name: Image (1)
+  m_Name: Icon - 1
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5837,7 +5877,7 @@ GameObject:
   - component: {fileID: 1850087947}
   - component: {fileID: 1850087948}
   m_Layer: 5
-  m_Name: Skill Group
+  m_Name: Skill Card Group
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

@@ -7,77 +7,88 @@ using UnityEngine;
 
 namespace InGame.System.Skill
 {
-    public interface ISkillControllerHandler : ISkillHandlerParentHandler
+    public class SkillData
     {
-        public void ExecuteSkillEffect(int cost);
-        public void OnSkillCardTouch(int index);
-        public void HideInfoUI();
-        public int GetSkillPoint();
-        public SkillCardDelete GetSkillCardDelete();
+        public string Id { get; set; }
+        public int Cost { get; set; }
+        public bool IsChainable  { get; set; }
+        public int Weight { get; set; }
+        public string IconAssetName { get; set; }
+    }
+
+    public class GameSettingData
+    {
+        public int HandCount { get; set; }
+        public int MaxCost  { get; set; }
+        public float CostUpdateTime { get; set; }
+        public int CostIncreaseCount { get; set; }
+    }
+
+    public interface ISkillDataHandler
+    {
+        public SkillData GetSkillData();
     }
     
-    public class SkillController : GameInitializer, IDisposable, ISkillControllerHandler
+    public class SkillController : GameInitializer, ISkillDataHandler, IDisposable
     {
         [SerializeField]
-        private SkillPointGauge skillPointGauge;
-        [SerializeField]
-        private SkillInfoViewer skillInfoViewer;
-        [SerializeField]
-        private SkillCardDelete skillCardDelete;
-        [SerializeField] 
-        private List<SkillCardElementUI> testUiList;
-        
-        private bool _isGameStated;
+        private SkillUIController skillUIController;
+
+        private GameSettingData _gameSettingData;
+        private bool _isGameStarted;
         private CancellationTokenSource _cts;
-        private ISkillHandlerParentHandler _handler;
+        private SkillCardDrawController _cardDrawController;
         
-        public void Init(ISkillHandlerParentHandler handler)
+        public void Init()
         {
             IsInitialized = false;
-            _isGameStated = false;
+            _isGameStarted = false;
             
-            _handler = handler;
-            
-            skillInfoViewer.Hide();
-            skillPointGauge.Init(10);
-
-            for (var i = 0; i < testUiList.Count; i++)
+            _gameSettingData = new GameSettingData
             {
-                testUiList[i].Init(i, this);
-            }
+                HandCount = 3,
+                MaxCost = 10,
+                CostUpdateTime = 2.0f,
+                CostIncreaseCount = 1,
+            };
+            
+            var testSkillList = new List<SkillData>()
+            {
+                new SkillData { Id = "Skill_001", Cost = 1, IsChainable = true, Weight = 30, IconAssetName = "Skill_Icon_001"},
+                new SkillData { Id = "Skill_002", Cost = 3, IsChainable = true, Weight = 10, IconAssetName = "Skill_Icon_002"},
+                new SkillData { Id = "Skill_003", Cost = 3, IsChainable = true, Weight = 10, IconAssetName = "Skill_Icon_003"},
+            };
+            
+            _cardDrawController = new SkillCardDrawController(_gameSettingData.HandCount, testSkillList);
+            skillUIController.Init(this, _gameSettingData.MaxCost);
             
             IsInitialized = true;
         }
 
-        public async void Appear()
+        public void Appear()
         {
-            skillPointGauge.Appear();
-
-            foreach (var skillUI in testUiList)
-            {
-                await UniTask.WaitForSeconds(0.1f);
-                skillUI.Appear();
-            }
+            skillUIController.AppearUI().Forget();
         }
 
         public async UniTaskVoid ExecuteSkillPointGauge()
         {
-            _isGameStated = true;
+            _isGameStarted = true;
             Dispose();
             _cts ??= new CancellationTokenSource();
             
             try
             {
-                while (_isGameStated)
+                while (_isGameStarted)
                 {
-                    await UniTask.WaitForSeconds(2.0f, cancellationToken: _cts.Token);
-                
-                    skillPointGauge.UpdateGaugeUI(1);
+                    await UniTask.WaitForSeconds(_gameSettingData.CostUpdateTime, cancellationToken: _cts.Token);
+                    
+                    // 2초마다 스킬 포인트 1 회복
+                    skillUIController.GetSkillPointGaugeUIHandler().UpdateGaugeUI(_gameSettingData.CostIncreaseCount);
                 }
             }
             catch (OperationCanceledException)
             {
-                _isGameStated = false;
+                _isGameStarted = false;
             }
             catch (Exception e)
             {
@@ -85,7 +96,7 @@ namespace InGame.System.Skill
             }
             finally
             {
-                _isGameStated = false;
+                _isGameStarted = false;
             }
         }
         
@@ -94,44 +105,11 @@ namespace InGame.System.Skill
             Dispose();
         }
 
-#region ISkillControllerHandler
+#region ISkillDataHandler
 
-        public Canvas GetUICanvas()
+        public SkillData GetSkillData()
         {
-            return _handler.GetUICanvas();
-        }
-        
-        public void ExecuteSkillEffect(int cost)
-        {
-            skillPointGauge.UpdateGaugeUI(cost);
-            skillInfoViewer.Hide();
-        }
-
-        public void OnSkillCardTouch(int index)
-        {
-            for (var i = 0; i < testUiList.Count; i++)
-            {
-                if (i != index)
-                    testUiList[i].OnDeselectCard();
-            }
-            
-            skillInfoViewer.Set(index);
-            skillInfoViewer.Show(); 
-        }
-
-        public void HideInfoUI()
-        {
-            skillInfoViewer.Hide();
-        }
-
-        public int GetSkillPoint()
-        {
-            return skillPointGauge.SkillPoint;
-        }
-
-        public SkillCardDelete GetSkillCardDelete()
-        {
-            return skillCardDelete;
+            return _cardDrawController.GetSkillData();
         }
 
 #endregion

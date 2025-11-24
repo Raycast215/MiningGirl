@@ -21,7 +21,7 @@ namespace InGame.System.Skill
         {
             var toList = new List<SkillData>();
             
-            for (var i = 0; i < 3; i++)
+            for (var i = 0; i < StartCardCount; i++)
             {
                 toList.Add(GetSkillData());
             }
