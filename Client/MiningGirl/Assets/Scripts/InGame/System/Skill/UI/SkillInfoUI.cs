@@ -10,7 +10,7 @@ namespace InGame.System.Skill.UI
         void HideInfoUI();
     }
     
-    public class SkillInfoViewer : GameInitializer, ISkillInfoUIHandler
+    public class SkillInfoUI : GameInitializer, ISkillInfoUIHandler
     {
         [SerializeField]
         private TMP_Text skillNameText;
