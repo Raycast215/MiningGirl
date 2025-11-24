@@ -6,49 +6,71 @@ using UnityEngine.UI;
 
 namespace InGame.System.Skill.UI
 {
-    public class SkillPointGauge : GameInitializer
+    public interface ISkillPointGaugeUIHandler
+    {
+        int GetSkillPoint();
+        void UpdateGaugeUI(int addSkillPoint);
+    }
+    
+    public class SkillPointGaugeUI : GameInitializer, ISkillPointGaugeUIHandler
     { 
-        public int SkillPoint { get; private set; }
-        
         [SerializeField]
         private TMP_Text curSkillPointText;
         [SerializeField] 
         private TMP_Text maxSkillPointText;
         [SerializeField]
         private Image gaugeUI;
-
+        
+        [Header("Option")]
+        [SerializeField] 
+        private float startPosY = -120.0f;
+        [SerializeField] 
+        private float endPosY = 32.0f;
+        [SerializeField]
+        private float duration = 0.5f;
+        
         private int _maxSkillPoint;
         private RectTransform _rect;
+        private int _skillPoint;
 
         public void Init(int maxPoint)
         {
-            SkillPoint = 0;
+            _skillPoint = 0;
             _maxSkillPoint = maxPoint;
             _rect ??= GetComponentInParent<RectTransform>();
-            _rect.anchoredPosition = new Vector2(0, -120.0f);
+            _rect.anchoredPosition = new Vector2(0, startPosY);
             
             Refresh();
         }
 
         public void Appear()
         {
-            _rect.DOAnchorPosY(32.0f, 0.5f);
+            _rect.DOAnchorPosY(endPosY, duration);
+        }
+        
+        private void Refresh()
+        {
+            var ratio = Mathf.Clamp(_skillPoint / (float)_maxSkillPoint, 0, _maxSkillPoint);
+            
+            gaugeUI.DOFillAmount(ratio, duration);
+
+            curSkillPointText.text = $"{_skillPoint}";
+            maxSkillPointText.text = $"{_maxSkillPoint}";
+        }
+
+#region ISkillPointGaugeUIHandler
+
+        public int GetSkillPoint()
+        {
+            return _skillPoint;
         }
 
         public void UpdateGaugeUI(int addSkillPoint)
         {
-            SkillPoint = math.clamp(SkillPoint + addSkillPoint, 0, _maxSkillPoint);
+            _skillPoint = math.clamp(_skillPoint + addSkillPoint, 0, _maxSkillPoint);
             Refresh();
         }
 
-        private void Refresh()
-        {
-            var ratio = Mathf.Clamp(SkillPoint / (float)_maxSkillPoint, 0, _maxSkillPoint);
-            
-            gaugeUI.DOFillAmount(ratio, 0.5f);
-
-            curSkillPointText.text = $"{SkillPoint}";
-            maxSkillPointText.text = $"{_maxSkillPoint}";
-        }
+#endregion
     }
 }

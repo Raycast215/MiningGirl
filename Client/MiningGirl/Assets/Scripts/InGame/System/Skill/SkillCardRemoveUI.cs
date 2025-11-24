@@ -14,8 +14,12 @@ namespace InGame.System.Skill
     {
         [SerializeField] 
         private Image gradientImage;
+        
+        [Header("Option")]
         [SerializeField] 
         private float durationTime = 0.2f;
+        [SerializeField]
+        private float showDelay = 0.1f;
 
         private bool _isShow;
 
@@ -30,7 +34,7 @@ namespace InGame.System.Skill
             
             gameObject.SetActive(true);
             gradientImage.DOFade(0.0f, 0.0f);
-            gradientImage.DOFade(1.0f, durationTime).SetDelay(0.1f);
+            gradientImage.DOFade(1.0f, durationTime).SetDelay(showDelay);
         }
 
         public void HideCardRemoveUI()
