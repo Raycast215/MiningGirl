@@ -4,28 +4,24 @@ using UnityEngine.UI;
 
 namespace InGame.System.Skill
 {
-    public class SkillCardDelete : GameInitializer
+    public interface ISkillCardRemoveUIHandler
     {
-        public bool IsActivated { get; private set; }
-        
+        void ShowCardRemoveUI();
+        void HideCardRemoveUI();
+    }
+    
+    public class SkillCardRemoveUI : GameInitializer, ISkillCardRemoveUIHandler
+    {
         [SerializeField] 
         private Image gradientImage;
         [SerializeField] 
         private float durationTime = 0.2f;
 
         private bool _isShow;
-        
-        private void OnEnable()
-        {
-            IsActivated = true;
-        }
 
-        private void OnDisable()
-        {
-            IsActivated = false;
-        }
+#region ISkillCardRemoveUIHandler
 
-        public void Show()
+        public void ShowCardRemoveUI()
         {
             if (_isShow)
                 return;
@@ -34,17 +30,21 @@ namespace InGame.System.Skill
             
             gameObject.SetActive(true);
             gradientImage.DOFade(0.0f, 0.0f);
-            gradientImage.DOFade(1.0f, durationTime);
+            gradientImage.DOFade(1.0f, durationTime).SetDelay(0.1f);
         }
 
-        public void Hide()
+        public void HideCardRemoveUI()
         {
             if (!_isShow)
                 return;
 
             _isShow = false;
             
-            gradientImage.DOFade(0.0f, durationTime).OnComplete(() => gameObject.SetActive(false));
+            gradientImage
+                .DOFade(0.0f, durationTime)
+                .OnComplete(() => gameObject.SetActive(false));
         }
+        
+#endregion
     }
 }
