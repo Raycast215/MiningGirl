@@ -70,7 +70,6 @@ namespace InGame.System.Skill.UI
         public void SetIndex(int index)
         {
             Index = index;
-            skillNameText.text = $"{Index}";
         }
         
         public void Appear()
