@@ -1,4 +1,5 @@
 using System;
+using Data;
 using InGame.System.Skill.UI;
 using UnityEngine;
 
@@ -15,12 +16,12 @@ namespace InGame.System.Skill
     {
         public bool IsSelected { get; private set; }
         
-        private SkillData Data { get; set; }
+        private SkillDataRowTable Data { get; set; }
         private ISkillCardUIHandler SkillCardUIHandler { get; set; }
         private float CardRemoveTargetPosY => -20.0f;
         private float CardExecuteTargetPosY => 700.0f;
 
-        public SkillCardLogic(SkillData data, ISkillCardUIHandler skillCardUIHandler)
+        public SkillCardLogic(SkillDataRowTable data, ISkillCardUIHandler skillCardUIHandler)
         {
             Data = data;
             SkillCardUIHandler = skillCardUIHandler;
@@ -36,7 +37,7 @@ namespace InGame.System.Skill
             if (skillPointUI.GetSkillPoint() >= Data.Cost)
             {
                 SkillCardUIHandler.ChangeSkillCard(true);
-                skillPointUI.UpdateGaugeUI(-Data.Cost);
+                skillPointUI.UpdateGaugeUI((int)-Data.Cost);
                 Debug.Log($"스킬 발동! Id: {Data.Id}, Cost: {Data.Cost}");
             }
             else
@@ -107,7 +108,7 @@ namespace InGame.System.Skill
             SkillCardUIHandler
                 .GetSkillUIControllerHandler()
                 .GetSkillInfoUIHandler()
-                .ShowInfoUI();
+                .ShowInfoUI(Data.Id);
         }
         
         public void Drag(float deltaY)

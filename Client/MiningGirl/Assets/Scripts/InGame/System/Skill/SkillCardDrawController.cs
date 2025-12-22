@@ -1,38 +1,40 @@
 using System.Collections.Generic;
 using System.Linq;
+using Data;
+using Manager;
 using UnityEngine;
 
 namespace InGame.System.Skill
 {
     public class SkillCardDrawController
     {
-        private int Sum { get; }
+        private int WeightSum { get; }
         private int StartCardCount { get; }
-        private List<SkillData> SkillDataList { get; }
+        private List<SkillDataRowTable> SkillDataList { get; }
         
-        public SkillCardDrawController(int startCardCount, List<SkillData> skillDataList)
+        public SkillCardDrawController(int startCardCount)
         {
             StartCardCount = startCardCount;
-            SkillDataList = skillDataList;
-            Sum = SkillDataList.Sum(x => x.Weight);
-        }
-
-        public List<SkillData> GetStartingData()
-        {
-            var toList = new List<SkillData>();
+            SkillDataList = new List<SkillDataRowTable>();
             
-            for (var i = 0; i < StartCardCount; i++)
+            var skillDataTable = DataTableManager.Instance.SkillDataTable;
+            foreach (var data in  DataTableManager.Instance.StartingSkillDataTable.Rows)
             {
-                toList.Add(GetSkillData());
+                for (var i = 0; i < data.Count; i++)
+                {
+                    
+                    SkillDataList.Add(skillDataTable.GetRow(data.SkillId));
+                }
             }
             
-            return toList;
+            // 가중치 합 계산.
+            WeightSum = SkillDataList.Sum(x => x.Weight);
         }
         
-        public SkillData GetSkillData()
+        public SkillDataRowTable GetSkillData()
         {
             var add = 0;
-            var rand = Random.Range(0, Sum + 1);
+            var rand = Random.Range(0, WeightSum + 1);
 
             foreach (var data in SkillDataList)
             {

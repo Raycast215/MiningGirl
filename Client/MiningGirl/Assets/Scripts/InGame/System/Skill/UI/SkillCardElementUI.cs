@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using Data;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
@@ -22,7 +24,7 @@ namespace InGame.System.Skill.UI
     public class SkillCardElementUI : GameInitializer, ISkillCardUIHandler
     {
         public Sprite GetSpriteIcon { get; private set; }
-        public SkillData Data { get; private set; }
+        public SkillDataRowTable Data { get; private set; }
         public int Index { get; private set; }
         
         private ISkillUIControllerHandler SkillUIControllerHandler { get; set; }
@@ -38,28 +40,42 @@ namespace InGame.System.Skill.UI
         [SerializeField] 
         private TMP_Text skillNameText;
         [SerializeField] 
+        private TMP_Text skillDescText;
+        [SerializeField] 
+        private TMP_Text skillTypeText;
+        [SerializeField] 
         private RectTransform contents;
         [SerializeField] 
         private SkillCardDrag dragHandler;
         [SerializeField]
         private GameObject effectObject;
 
+        [SerializeField] 
+        private List<GameObject> symbolObjectList;
+
         private void Awake()
         {
             RectTransform = GetComponent<RectTransform>();
         }
 
-        public void Init(SkillData data, ISkillUIControllerHandler uiHandler)
+        public void Init(SkillDataRowTable data, ISkillUIControllerHandler uiHandler)
         {
             Data = data;
             SkillUIControllerHandler = uiHandler;
             
             // To Do: 임시
-            skillIconImage.sprite = Resources.Load<Sprite>($"Icon/{Data.IconAssetName}");
+            skillIconImage.sprite = Resources.Load<Sprite>($"Icon/{Data.IconAssetKey}");
             GetSpriteIcon = skillIconImage.sprite;
             skillCostText.text = $"{Data.Cost}";
-            skillNameText.text = $"{Data.Id}";
+            skillNameText.text = $"{Data.NameKey}";
+            skillDescText.text = $"{Data.DescKey}";
+            skillTypeText.text = $"{Data.SkillType}";
 
+            for (var i = 0; i < symbolObjectList.Count; i++)
+            {
+                symbolObjectList[i].SetActive(i == (int)Data.SkillType);
+            }
+            
             contents.localScale = Vector3.one;
             contents.anchoredPosition = new Vector2(0, StartPosY);
             
@@ -79,6 +95,20 @@ namespace InGame.System.Skill.UI
 
         public void Move(Vector2 pos)
         {
+            switch (pos.x)
+            {
+                case > 0:
+                    RectTransform.DORotate(new Vector3(0, 0, -3), 0.2f);
+                    break;
+                case < 0:
+                    RectTransform.DORotate(new Vector3(0, 0, 3), 0.2f);
+                    break;
+                default:
+                    RectTransform.DORotate(Vector3.zero, 0.2f);
+                    pos += new Vector2(0, 12);
+                    break;
+            }
+            
             RectTransform
                 .DOAnchorPos(pos, Duration)
                 .OnComplete(Appear);
@@ -89,6 +119,7 @@ namespace InGame.System.Skill.UI
         public void Select()
         {
             contents.DOScale(SelectScale, Duration);
+            transform.SetAsLastSibling();
         }
         
         public void Deselect()

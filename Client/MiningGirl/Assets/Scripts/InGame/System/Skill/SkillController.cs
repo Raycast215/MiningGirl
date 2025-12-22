@@ -1,21 +1,15 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
+using Data;
 using InGame.System.Skill.UI;
+using Manager;
 using UnityEngine;
 
 namespace InGame.System.Skill
 {
-    public class SkillData
-    {
-        public string Id { get; set; }
-        public int Cost { get; set; }
-        public bool IsChainable  { get; set; }
-        public int Weight { get; set; }
-        public string IconAssetName { get; set; }
-    }
-
     public class GameSettingData
     {
         public int HandCount { get; set; }
@@ -26,7 +20,7 @@ namespace InGame.System.Skill
 
     public interface ISkillDataHandler
     {
-        public SkillData GetSkillData();
+        public SkillDataRowTable GetSkillData();
     }
     
     public class SkillController : GameInitializer, ISkillDataHandler, IDisposable
@@ -39,7 +33,7 @@ namespace InGame.System.Skill
         private CancellationTokenSource _cts;
         private SkillCardDrawController _cardDrawController;
         
-        public void Init()
+        public async void Init()
         {
             IsInitialized = false;
             _isGameStarted = false;
@@ -51,15 +45,10 @@ namespace InGame.System.Skill
                 CostUpdateTime = 2.0f,
                 CostIncreaseCount = 1,
             };
+
+            await UniTask.WaitUntil(() => DataTableManager.Instance.IsInitialized);
             
-            var testSkillList = new List<SkillData>()
-            {
-                new SkillData { Id = "Skill_001", Cost = 1, IsChainable = true, Weight = 30, IconAssetName = "Skill_Icon_001"},
-                new SkillData { Id = "Skill_002", Cost = 3, IsChainable = true, Weight = 10, IconAssetName = "Skill_Icon_002"},
-                new SkillData { Id = "Skill_003", Cost = 3, IsChainable = true, Weight = 10, IconAssetName = "Skill_Icon_003"},
-            };
-            
-            _cardDrawController = new SkillCardDrawController(_gameSettingData.HandCount, testSkillList);
+            _cardDrawController = new SkillCardDrawController(_gameSettingData.HandCount);
             skillUIController.Init(this, _gameSettingData.MaxCost);
             
             IsInitialized = true;
@@ -107,7 +96,7 @@ namespace InGame.System.Skill
 
 #region ISkillDataHandler
 
-        public SkillData GetSkillData()
+        public SkillDataRowTable GetSkillData()
         {
             return _cardDrawController.GetSkillData();
         }

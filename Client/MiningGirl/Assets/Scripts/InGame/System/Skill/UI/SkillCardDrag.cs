@@ -1,5 +1,7 @@
+using Data;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 
 namespace InGame.System.Skill.UI
 {
@@ -20,7 +22,7 @@ namespace InGame.System.Skill.UI
             CanvasGroup = GetComponent<CanvasGroup>();
         }
 
-        public void Init(SkillData data, ISkillCardUIHandler skillCardUIHandler)
+        public void Init(SkillDataRowTable data, ISkillCardUIHandler skillCardUIHandler)
         {
             Logic = new SkillCardLogic(data, skillCardUIHandler);
             UIHandler = skillCardUIHandler;
@@ -41,6 +43,9 @@ namespace InGame.System.Skill.UI
 
         public void OnBeginDrag(PointerEventData eventData)
         {
+            if (Input.touchCount > 0)
+                return;
+            
             if (GetCanvas() == null)
                 return;
 

@@ -1,3 +1,4 @@
+using Manager;
 using TMPro;
 using UnityEngine;
 
@@ -5,8 +6,7 @@ namespace InGame.System.Skill.UI
 {
     public interface ISkillInfoUIHandler
     {
-        void SetInfo(string skillId);
-        void ShowInfoUI();
+        void ShowInfoUI(string skillId);
         void HideInfoUI();
     }
     
@@ -17,17 +17,20 @@ namespace InGame.System.Skill.UI
         [SerializeField] 
         private TMP_Text skillDescText;
 
+        private void SetInfo(string skillId)
+        {
+            var skillData = DataTableManager.Instance.SkillDataTable.GetRow(skillId);
+            
+            skillNameText.text = $"{skillData.NameKey}";
+            skillDescText.text = $"{skillData.DescKey}";
+        }
+        
 #region ISkillInfoUIHandler
 
-        public void SetInfo(string skillId)
-        {
-            skillNameText.text = $"SKILL NAME {skillId}";
-            skillDescText.text = $"SKILL DESC SKILL VALUE <br><color=#FFFF00>{Random.Range(10, 100)}</color> INCREASE";
-        }
-
-        public void ShowInfoUI()
+        public void ShowInfoUI(string skillId)
         {
             gameObject.SetActive(true);
+            SetInfo(skillId);
         }
 
         public void HideInfoUI()

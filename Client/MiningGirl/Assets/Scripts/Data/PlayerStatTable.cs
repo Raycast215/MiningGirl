@@ -1,11 +1,10 @@
 using System;
-using Common;
 
 namespace Data
 {
     [Serializable]
     [DataFile("PlayerStatTable")]  
-    public class PlayerStatTable : DataTableBase
+    public class PlayerStatTable : DataTableRowBase
     {
         public EUnitRank UnitRank { get; set; }
         public int Str { get; set; }

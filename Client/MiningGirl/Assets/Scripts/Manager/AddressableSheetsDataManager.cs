@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -43,7 +44,8 @@ public static class AddressableSheetsDataManager
     private static bool _typesIndexed;
 
     /// <summary> Addressables 라벨로 로드 (모든 JSON 파싱, 캐시 갱신). </summary>
-    public static async Task<ELoadResponseType> LoadLabelAsync(string label, CancellationToken ct = default)
+    public static async Task<ELoadResponseType> LoadLabelAsync(string label, CancellationToken ct = default, 
+        Action<IList<IResourceLocation>> location = null)
     {
         EnsureTypeIndex();
 
@@ -124,6 +126,7 @@ public static class AddressableSheetsDataManager
             }
         }
 
+        location?.Invoke(locations);
         Debug.Log($"[AddressablesSheetsDataManager] 라벨 로드 완료: '{label}'  로드={loaded}, 스킵={skipped}");
         return ELoadResponseType.Success;
     }
@@ -280,5 +283,76 @@ public static class AddressableSheetsDataManager
 
         var gm = m.MakeGenericMethod(t);
         return gm.Invoke(null, new object[] { json });
+    }
+}
+
+
+public class ListFromStringConverter<T> : JsonConverter<List<T>>
+{
+    public override List<T> ReadJson(JsonReader reader, Type objectType, List<T>? existingValue, bool hasExistingValue, JsonSerializer serializer)
+    {
+        var result = new List<T>();
+
+        if (reader.TokenType == JsonToken.String)
+        {
+            var value = reader.Value?.ToString() ?? "";
+            var items = value.Split(',', StringSplitOptions.RemoveEmptyEntries);
+
+            foreach (var item in items)
+            {
+                if (TryConvert(item.Trim(), out T? converted))
+                    result.Add(converted!);
+            }
+        }
+        else if (reader.TokenType == JsonToken.StartArray)
+        {
+            var array = serializer.Deserialize<List<object>>(reader);
+
+            foreach (var item in array!)
+            {
+                if (TryConvert(item, out T? converted))
+                    result.Add(converted!);
+            }
+        }
+
+        return result;
+    }
+
+    public override void WriteJson(JsonWriter writer, List<T>? value, JsonSerializer serializer)
+    {
+        writer.WriteStartArray();
+        foreach (var item in value ?? new List<T>())
+        {
+            writer.WriteValue(item);
+        }
+        writer.WriteEndArray();
+    }
+
+    private bool TryConvert(object input, out T? result)
+    {
+        try
+        {
+            if (input == null || string.IsNullOrWhiteSpace(input.ToString()))
+            {
+                result = default!;
+                return true;
+            }
+
+            if (typeof(T).IsEnum)
+            {
+                result = (T)Enum.Parse(typeof(T), input.ToString()!, ignoreCase: true);
+            }
+            else
+            {
+                result = (T)Convert.ChangeType(input, typeof(T));
+            }
+            
+            return true;
+        }
+        catch
+        {
+            result = default!;
+            return false;
+        }
     }
 }
