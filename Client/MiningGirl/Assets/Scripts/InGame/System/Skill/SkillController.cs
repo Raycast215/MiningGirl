@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using Data;
+using InGame.System.Skill.Logic;
 using InGame.System.Skill.UI;
 using Manager;
 using UnityEngine;
@@ -20,7 +21,8 @@ namespace InGame.System.Skill
 
     public interface ISkillDataHandler
     {
-        public SkillDataRowTable GetSkillData();
+        SkillDataRowTable GetSkillData();
+        void ExecuteSkillEffect(SkillDataRowTable data);
     }
     
     public class SkillController : GameInitializer, ISkillDataHandler, IDisposable
@@ -32,11 +34,14 @@ namespace InGame.System.Skill
         private bool _isGameStarted;
         private CancellationTokenSource _cts;
         private SkillCardDrawController _cardDrawController;
+        private IInGameHandler _inGameHandler;
         
-        public async void Init()
+        public async void Init(IInGameHandler inGameHandler)
         {
             IsInitialized = false;
             _isGameStarted = false;
+            
+            _inGameHandler  = inGameHandler;
             
             _gameSettingData = new GameSettingData
             {
@@ -99,6 +104,33 @@ namespace InGame.System.Skill
         public SkillDataRowTable GetSkillData()
         {
             return _cardDrawController.GetSkillData();
+        }
+
+        public void ExecuteSkillEffect(SkillDataRowTable data)
+        {
+            foreach (var effectID in data.EffectList)
+            {
+                var effectTable = DataTableManager.Instance.SkillEffectDataTable.GetRow(effectID);
+                var effectType = effectTable.EffectType;
+                
+                switch (effectType)
+                {
+                    case ESkillEffectType.TargetHit:
+                        new TargetHit(data, effectTable, _inGameHandler.GetPlayerTarget());
+                        break;
+                
+                    case ESkillEffectType.IncreaseCost:
+                        new IncreaseCost(data, skillUIController.GetSkillPointGaugeUIHandler().UpdateGaugeUI);
+                        break;
+                
+                    case ESkillEffectType.Draw:
+                        break;
+                    
+                    case ESkillEffectType.RangeAll:
+                        new RangeAll(data, effectTable, _inGameHandler);
+                        break;
+                }
+            }
         }
 
 #endregion

@@ -27,3 +27,11 @@ public enum ESkillType
     Assist, // 보조형
     Support // 서포트형
 }
+
+public enum ESkillEffectType
+{
+    TargetHit,
+    IncreaseCost,
+    RangeAll,
+    Draw,
+}

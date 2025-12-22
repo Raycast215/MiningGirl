@@ -37,6 +37,7 @@ namespace InGame.System.Skill
             if (skillPointUI.GetSkillPoint() >= Data.Cost)
             {
                 SkillCardUIHandler.ChangeSkillCard(true);
+                SkillCardUIHandler.ExecuteSkillEffect();
                 skillPointUI.UpdateGaugeUI((int)-Data.Cost);
                 Debug.Log($"스킬 발동! Id: {Data.Id}, Cost: {Data.Cost}");
             }
@@ -82,12 +83,6 @@ namespace InGame.System.Skill
         {
             IsSelected = false;
             
-            // 카드 정보 UI 비활성화.
-            SkillCardUIHandler
-                .GetSkillUIControllerHandler()
-                .GetSkillInfoUIHandler()
-                .HideInfoUI();
-                
             // 카드 제거 UI 비활성화.
             SkillCardUIHandler
                 .GetSkillUIControllerHandler()
@@ -103,12 +98,6 @@ namespace InGame.System.Skill
             
             // 카드 선택.
             SkillCardUIHandler.Select();
-            
-            // 카드 정보 UI 활성화.
-            SkillCardUIHandler
-                .GetSkillUIControllerHandler()
-                .GetSkillInfoUIHandler()
-                .ShowInfoUI(Data.Id);
         }
         
         public void Drag(float deltaY)

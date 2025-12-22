@@ -9,6 +9,7 @@ namespace Manager
     {
         public SkillDataTable SkillDataTable { get; private set; }
         public StartingSkillDataTable StartingSkillDataTable { get; private set; }
+        public SkillEffectDataTable SkillEffectDataTable { get; private set; }
         
         protected override void Initialized()
         {
@@ -39,6 +40,10 @@ namespace Manager
                     
                     case "StartingSkillDataTable":
                         StartingSkillDataTable = new StartingSkillDataTable(AddressableSheetsDataManager.GetAll<StartingSkillDataRowTable>());
+                        break;
+                    
+                    case "SkillEffectDataTable":
+                        SkillEffectDataTable = new SkillEffectDataTable(AddressableSheetsDataManager.GetAll<SkillEffectDataRowTable>());
                         break;
                 }
             }

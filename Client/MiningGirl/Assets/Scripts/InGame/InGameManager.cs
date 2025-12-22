@@ -13,7 +13,9 @@ namespace InGame
 {
     public interface IInGameHandler
     {
+        public IHit GetPlayerTarget();
         public List<IHit> GetEnemyList();
+        public Transform GetPlayerTransform();
         public List<Vector3> GetTilePosList();
         public Transform GetTileTransform();
     }
@@ -57,7 +59,7 @@ namespace InGame
             {
                 timer.Init(120, null);
                 
-                skillController.Init();
+                skillController.Init(this);
                 await UniTask.WaitUntil(() => skillController.IsInitialized);
                 
                 floatingDamageController.InitAsync().Forget();
@@ -124,9 +126,19 @@ namespace InGame
 
 #region IInGameHandler
 
-        public List<IHit> GetEnemyList()
+        public IHit GetPlayerTarget()
+        {
+            return _playerLoader.GetPlayer.Target;
+        }
+
+public List<IHit> GetEnemyList()
         {
             return _enemyLoader.GetEnemyList;
+        }
+
+        public Transform GetPlayerTransform()
+        {
+            return _playerLoader.GetPlayer.transform;
         }
 
         public List<Vector3> GetTilePosList()

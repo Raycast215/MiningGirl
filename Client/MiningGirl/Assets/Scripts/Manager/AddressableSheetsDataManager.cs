@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using UnityEngine;
 using UnityEngine.AddressableAssets;
 using UnityEngine.ResourceManagement.AsyncOperations;
@@ -353,6 +355,111 @@ public class ListFromStringConverter<T> : JsonConverter<List<T>>
         {
             result = default!;
             return false;
+        }
+    }
+}
+
+public class FlexibleListConverter<T> : JsonConverter<List<T>>
+{
+    public override List<T> ReadJson(
+        JsonReader reader,
+        Type objectType,
+        List<T> existingValue,
+        bool hasExistingValue,
+        JsonSerializer serializer)
+    {
+        if (reader.TokenType == JsonToken.Null)
+            return new List<T>();
+
+        // 현재 토큰을 안전하게 읽어서 처리
+        var token = JToken.Load(reader);
+
+        if (token.Type == JTokenType.Null)
+            return new List<T>();
+
+        // 1) 배열이면 그대로
+        if (token.Type == JTokenType.Array)
+            return token.ToObject<List<T>>(serializer) ?? new List<T>();
+
+        // 2) 문자열이면: "-", "1,2,3", "[1,2,3]", "single" 등 처리
+        if (token.Type == JTokenType.String)
+        {
+            var s = token.Value<string>()?.Trim();
+            if (string.IsNullOrEmpty(s) || s == "-")
+                return new List<T>();
+
+            // "[...]" 형태면 벗기기
+            if (s.StartsWith("[") && s.EndsWith("]"))
+                s = s.Substring(1, s.Length - 2).Trim();
+
+            // 콤마로 구분된 다중 값
+            if (s.Contains(","))
+            {
+                var parts = s.Split(new[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                var list = new List<T>(parts.Length);
+                foreach (var p in parts)
+                {
+                    var elem = ConvertStringToT(p.Trim(), serializer);
+                    list.Add(elem);
+                }
+                return list;
+            }
+
+            // 단일 문자열 값
+            return new List<T> { ConvertStringToT(s, serializer) };
+        }
+
+        // 3) 숫자/불리언/객체 등 “단일 값”이면 [단일]로 감싸기
+        return new List<T> { ConvertTokenToT(token, serializer) };
+    }
+
+    public override void WriteJson(JsonWriter writer, List<T> value, JsonSerializer serializer)
+    {
+        serializer.Serialize(writer, value); // 항상 배열로 씀
+    }
+
+    private static T ConvertTokenToT(JToken token, JsonSerializer serializer)
+    {
+        // 가장 범용적인 방법: Json.NET에게 변환 맡기기
+        try
+        {
+            return token.ToObject<T>(serializer);
+        }
+        catch
+        {
+            // 마지막 보루: 문자열로 바꿔서 변환 시도
+            return ConvertStringToT(token.ToString(), serializer);
+        }
+    }
+
+    private static T ConvertStringToT(string s, JsonSerializer serializer)
+    {
+        // enum 지원
+        var t = typeof(T);
+        if (t.IsEnum)
+            return (T)Enum.Parse(t, s, ignoreCase: true);
+
+        // Guid 지원
+        if (t == typeof(Guid) && Guid.TryParse(s, out var g))
+            return (T)(object)g;
+
+        // 숫자/기본형 지원 (문화권 고정)
+        try
+        {
+            var converted = Convert.ChangeType(s, t, CultureInfo.InvariantCulture);
+            return (T)converted;
+        }
+        catch
+        {
+            // 그래도 안 되면 Json.NET에게 한 번 더 (예: 커스텀 타입의 string ctor 등)
+            try
+            {
+                return JToken.FromObject(s).ToObject<T>(serializer);
+            }
+            catch (Exception e)
+            {
+                throw new JsonSerializationException($"Cannot convert '{s}' to {typeof(T).Name}", e);
+            }
         }
     }
 }

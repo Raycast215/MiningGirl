@@ -10,6 +10,7 @@ Library: E:\MiningGirl\Client\MiningGirl\Temp\BurstOutput\tempburstlibs\arm64-v8
 --target-framework=NetFramework
 --generate-link-xml=Temp\burst.link.xml
 --temp-folder=E:\MiningGirl\Client\MiningGirl\Temp\Burst
+--debug=Full
 --key-folder=C:/Program Files/Unity/Hub/Editor/6000.0.59f2/Editor/Data/PlaybackEngines/AndroidPlayer
 --decode-folder=E:\MiningGirl\Client\MiningGirl\Library\Burst
 --output=E:\MiningGirl\Client\MiningGirl\Temp\BurstOutput\tempburstlibs\arm64-v8a\lib_burst_generated
@@ -126,6 +127,7 @@ Library: E:\MiningGirl\Client\MiningGirl\Temp\BurstOutput\tempburstlibs\arm64-v8
 --target-framework=NetFramework
 --generate-link-xml=Temp\burst.link.xml
 --temp-folder=E:\MiningGirl\Client\MiningGirl\Temp\Burst
+--debug=Full
 --key-folder=C:/Program Files/Unity/Hub/Editor/6000.0.59f2/Editor/Data/PlaybackEngines/AndroidPlayer
 --decode-folder=E:\MiningGirl\Client\MiningGirl\Library\Burst
 --output=E:\MiningGirl\Client\MiningGirl\Temp\BurstOutput\tempburstlibs\arm64-v8a\lib_burst_generated
@@ -154,6 +156,7 @@ Library: E:\MiningGirl\Client\MiningGirl\Temp\BurstOutput\tempburstlibs\arm64-v8
 --float-mode=Fast
 --generate-link-xml=Temp\burst.link.xml
 --temp-folder=E:\MiningGirl\Client\MiningGirl\Temp\Burst
+--debug=Full
 --key-folder=C:/Program Files/Unity/Hub/Editor/6000.0.59f2/Editor/Data/PlaybackEngines/AndroidPlayer
 --decode-folder=E:\MiningGirl\Client\MiningGirl\Library\Burst
 --output=E:\MiningGirl\Client\MiningGirl\Temp\BurstOutput\tempburstlibs\arm64-v8a\lib_burst_generated

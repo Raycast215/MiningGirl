@@ -15,6 +15,8 @@ public class TestPlayer : GameInitializer
 
     public PlayerStatTable Row { get; private set; }
     
+    public IHit Target { get; private set; }
+    
     [SerializeField]
     private Animator animator;
     [SerializeField]
@@ -26,7 +28,6 @@ public class TestPlayer : GameInitializer
     private MoveForward _moveComponent;
     private IInGameHandler _handler;
     private NodeRunner _nodeRunner;
-    private IHit _target;
     private CancellationTokenSource _cts;
     
     public void Init(IInGameHandler handler, Action<int, Vector2, bool> onHit)
@@ -57,7 +58,7 @@ public class TestPlayer : GameInitializer
 
             if (enemyList == null || enemyList.Count == 0)
             {
-                _target = null;
+                Target = null;
                 await UniTask.WaitForSeconds(0.1f);
                 continue;
             }
@@ -68,7 +69,7 @@ public class TestPlayer : GameInitializer
                 .OrderBy(x => (x.GetPosition() - playerPos).sqrMagnitude)
                 .FirstOrDefault();
 
-            _target = nearEnemy;
+            Target = nearEnemy;
 
             await UniTask.WaitForSeconds(0.1f); // 0.1초마다 재탐색
         }
@@ -76,11 +77,11 @@ public class TestPlayer : GameInitializer
 
     private NodeState MoveNode()
     {
-        if (_target == null)
+        if (Target == null)
             return NodeState.Failure;
         
         var currentPlayerPos = transform.position;
-        var enemyPos = _target.GetPosition();
+        var enemyPos = Target.GetPosition();
         var dist = Vector3.Distance(currentPlayerPos, enemyPos);
         
         if (dist <= 1.0f)
@@ -105,7 +106,7 @@ public class TestPlayer : GameInitializer
     private NodeState AttackNode()
     {
         // 타겟이 없거나 비활성 → 공격 취소
-        if (!IsValidTarget(_target))
+        if (!IsValidTarget(Target))
         {
             // 이미 공격 중이면 코루틴/UniTask 취소
             if (_isPlaying)
@@ -148,7 +149,7 @@ public class TestPlayer : GameInitializer
         _attackDone = false;
 
         // 공격 시작 시점의 타겟 스냅샷
-        var target = _target;
+        var target = Target;
 
         try
         {

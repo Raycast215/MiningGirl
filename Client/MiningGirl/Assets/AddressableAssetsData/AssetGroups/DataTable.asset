@@ -27,6 +27,18 @@ MonoBehaviour:
     m_SerializedLabels:
     - DataTable
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e2a07d79ad5867d4081bb7ac9821bf31
+    m_Address: SkillEffectDataTable
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - DataTable
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e35c8a019f1830b49bf9ae8219edc05e
+    m_Address: "\uC2DC\uD2B84"
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - DataTable
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f9f5ff48121f60b42abbaf8febbbc9f4
     m_Address: StartingSkillDataTable
     m_ReadOnly: 0

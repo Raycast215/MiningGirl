@@ -1,37 +1,32 @@
 [
 {
-  "Count": 3,
+  "Count": 1,
   "Id": 0,
   "SkillId": 1000
 },
 {
-  "Count": 2,
+  "Count": 1,
   "Id": 1,
   "SkillId": 1001
 },
 {
-  "Count": 1,
+  "Count": 0,
   "Id": 2,
   "SkillId": 1002
 },
 {
-  "Count": 1,
+  "Count": 2,
   "Id": 3,
   "SkillId": 1003
 },
 {
-  "Count": 1,
+  "Count": 3,
   "Id": 4,
-  "SkillId": 1004
+  "SkillId": 2000
 },
 {
   "Count": 1,
   "Id": 5,
-  "SkillId": 1005
-},
-{
-  "Count": 1,
-  "Id": 6,
-  "SkillId": 1006
+  "SkillId": 2001
 }
 ]

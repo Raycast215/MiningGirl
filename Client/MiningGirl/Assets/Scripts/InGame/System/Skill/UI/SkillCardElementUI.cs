@@ -1,11 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using Data;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using NotImplementedException = System.NotImplementedException;
 
 namespace InGame.System.Skill.UI
 {
@@ -16,6 +16,7 @@ namespace InGame.System.Skill.UI
         void ShowEffect();
         void HideEffect();
         void ChangeSkillCard(bool isSkillExecuted);
+        void ExecuteSkillEffect();
         void MoveContents(Vector2 pos, bool isUseDuration, Action callback = null);
         RectTransform GetContentsRectTransform();
         ISkillUIControllerHandler GetSkillUIControllerHandler();
@@ -52,6 +53,8 @@ namespace InGame.System.Skill.UI
 
         [SerializeField] 
         private List<GameObject> symbolObjectList;
+        [SerializeField]
+        private GameObject costEffectObject;
 
         private void Awake()
         {
@@ -62,15 +65,21 @@ namespace InGame.System.Skill.UI
         {
             Data = data;
             SkillUIControllerHandler = uiHandler;
+            costEffectObject.SetActive(true);
             
             // To Do: 임시
             skillIconImage.sprite = Resources.Load<Sprite>($"Icon/{Data.IconAssetKey}");
             GetSpriteIcon = skillIconImage.sprite;
             skillCostText.text = $"{Data.Cost}";
             skillNameText.text = $"{Data.NameKey}";
-            skillDescText.text = $"{Data.DescKey}";
             skillTypeText.text = $"{Data.SkillType}";
-
+            
+            var args = (Data.EffectValueList ?? new List<float>())
+                .Select(x => (object)$"<color=#FFFF00>{x}</color>")
+                .ToArray();
+            
+            skillDescText.text = string.Format(Data.DescKey, args);
+            
             for (var i = 0; i < symbolObjectList.Count; i++)
             {
                 symbolObjectList[i].SetActive(i == (int)Data.SkillType);
@@ -142,6 +151,11 @@ namespace InGame.System.Skill.UI
         {
             MoveContents(new Vector2(0, StartPosY), true, 
                 () => SkillUIControllerHandler.NextCard(this, isSkillExecuted));
+        }
+
+        public void ExecuteSkillEffect()
+        {
+            SkillUIControllerHandler.ExecuteSkillEffect(Data);
         }
 
         public void MoveContents(Vector2 pos, bool isUseDuration, Action callback = null)

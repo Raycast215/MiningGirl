@@ -1,15 +1,17 @@
 using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
+using Data;
 using UnityEngine;
+using NotImplementedException = System.NotImplementedException;
 
 namespace InGame.System.Skill.UI
 {
     public interface ISkillUIControllerHandler
     {
         ISkillPointGaugeUIHandler GetSkillPointGaugeUIHandler();
-        ISkillInfoUIHandler GetSkillInfoUIHandler();
         ISkillCardRemoveUIHandler GetSkillCardRemoveUIHandler();
+        void ExecuteSkillEffect(SkillDataRowTable data);
         void NextCard(SkillCardElementUI cardUI, bool isSkillExecuted);
         Canvas GetUICanvas();
     }
@@ -20,8 +22,6 @@ namespace InGame.System.Skill.UI
         private Canvas uiCanvas;
         [SerializeField] 
         private SkillPointGaugeUI skillPointGaugeUI;
-        [SerializeField]
-        private SkillInfoUI skillInfoUI;
         [SerializeField] 
         private SkillCardRemoveUI skillCardRemoveUI;
         [SerializeField]
@@ -43,7 +43,6 @@ namespace InGame.System.Skill.UI
             
             _skillDataHandler = handler;
             
-            skillInfoUI.HideInfoUI();
             skillPointGaugeUI.Init(maxCost);
             skillQueueListUI.Init();
             
@@ -74,14 +73,14 @@ namespace InGame.System.Skill.UI
             return skillPointGaugeUI;
         }
 
-        public ISkillInfoUIHandler GetSkillInfoUIHandler()
-        {
-            return skillInfoUI;
-        }
-
         public ISkillCardRemoveUIHandler GetSkillCardRemoveUIHandler()
         {
             return skillCardRemoveUI;
+        }
+
+        public void ExecuteSkillEffect(SkillDataRowTable data)
+        {
+            _skillDataHandler.ExecuteSkillEffect(data);
         }
 
         public void NextCard(SkillCardElementUI cardUI, bool isSkillExecuted)
