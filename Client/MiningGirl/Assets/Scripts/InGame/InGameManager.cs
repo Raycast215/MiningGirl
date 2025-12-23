@@ -47,7 +47,6 @@ namespace InGame
 
         private void Start()
         {
-            Application.targetFrameRate = 120;
             Initialize().Forget();
         }
 
