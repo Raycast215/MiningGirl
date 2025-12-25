@@ -9,6 +9,9 @@ namespace InGame.System.Enemy
 {
    public class EnemyController : GameInitializer, IHit, IDisposable
    {
+      [SerializeField]
+      private SpriteRenderer hitRenderer;
+      
       private int _health = 3;
       private float _delay;
       private CancellationTokenSource _cts;
@@ -19,6 +22,7 @@ namespace InGame.System.Enemy
       {
          _isDead = false;
          _handler = handler;
+         hitRenderer.DOFade(0.0f, 0.0f);
       }
       
       public void SetPosition(Vector2 position)
@@ -95,8 +99,19 @@ namespace InGame.System.Enemy
             _isDead = true;
             return;
          }
+       
+         transform.DOShakePosition(
+            duration: 0.1f,
+            strength: new Vector3(0.2f, 0f, 0f),  // X만
+            vibrato: 10,
+            randomness: 90,
+            snapping: false,
+            fadeOut: true
+         ).SetRelative(true);
          
-         transform.DOShakePosition(0.1f, 0.2f);
+         // transform.DOShakePosition(0.1f, 0.2f);
+         hitRenderer.DOFade(0.5f, 0.0f);
+         hitRenderer.DOFade(0.0f, 0.2f);
       }
       
       public Vector3 GetPosition()

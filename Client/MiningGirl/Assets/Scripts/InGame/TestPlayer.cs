@@ -89,7 +89,7 @@ public class TestPlayer : GameInitializer
         var enemyPos = Target.GetPosition();
         var dist = Vector3.Distance(currentPlayerPos, enemyPos);
         
-        if (dist <= 1.0f)
+        if (dist <= 2.0f)
             return NodeState.Success;
 
         if (_isPlaying && !_attackDone)
