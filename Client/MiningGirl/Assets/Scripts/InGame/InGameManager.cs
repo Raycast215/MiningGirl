@@ -8,6 +8,7 @@ using InGame.System.Loader;
 using InGame.System.Skill;
 using Manager;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Timer = InGame.System.Timer;
 
 namespace InGame
@@ -51,6 +52,11 @@ namespace InGame
             Initialize().Forget();
         }
 
+        public void TestReplay()
+        {
+            CoverUIManager.Instance.CoverUI.Show(() => SceneManager.LoadScene("InGameScene")).Forget();
+        }
+        
         private async UniTaskVoid Initialize()
         {
             _cts = new CancellationTokenSource();

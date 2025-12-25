@@ -29,6 +29,7 @@ public class TestPlayer : GameInitializer
     private IInGameHandler _handler;
     private NodeRunner _nodeRunner;
     private CancellationTokenSource _cts;
+    private CancellationTokenSource _checkCts;
     
     public void Init(IInGameHandler handler, Action<int, Vector2, bool> onHit)
     {
@@ -37,7 +38,8 @@ public class TestPlayer : GameInitializer
         
         _handler = handler;
         _moveComponent = new MoveForward(rigidBody2D);
-
+        _checkCts ??= new CancellationTokenSource();
+        
         _nodeRunner = new NodeRunner( new SequenceNode(new List<INode>()
         {
             new ActionNode(MoveNode),
@@ -59,10 +61,13 @@ public class TestPlayer : GameInitializer
             if (enemyList == null || enemyList.Count == 0)
             {
                 Target = null;
-                await UniTask.WaitForSeconds(0.1f);
+                await UniTask.WaitForSeconds(0.1f, cancellationToken: _checkCts.Token);
                 continue;
             }
 
+            if (_checkCts == null || _checkCts.IsCancellationRequested)
+                return;
+            
             var playerPos = transform.position;
             var nearEnemy = enemyList
                 .Where(x => x.GetActiveState())
@@ -71,7 +76,7 @@ public class TestPlayer : GameInitializer
 
             Target = nearEnemy;
 
-            await UniTask.WaitForSeconds(0.1f); // 0.1초마다 재탐색
+            await UniTask.WaitForSeconds(0.1f, cancellationToken: _checkCts.Token); // 0.1초마다 재탐색
         }
     }
 
@@ -212,7 +217,7 @@ public class TestPlayer : GameInitializer
         }
         catch (Exception e)
         {
-            Debug.LogException(e);
+            // Debug.LogException(e);
         }
         finally
         {
@@ -230,8 +235,14 @@ public class TestPlayer : GameInitializer
         };
     }
 
-    public void SetLevel(int level)
+    private void OnDestroy()
     {
+        _cts?.Cancel();
+        _cts?.Dispose();
+        _cts = null;
         
+        _checkCts?.Cancel();
+        _checkCts?.Dispose();
+        _checkCts = null;
     }
 }
