@@ -51,8 +51,10 @@ namespace Scene.StartScene
             await UniTask.Yield();
             
             DataTableManager.Instance.PreLoadData().Forget();
+            CoverUIManager.Instance.PreLoadData();
             
             await UniTask.WaitUntil(() => DataTableManager.Instance.IsInitialized);
+            await UniTask.WaitUntil(() => CoverUIManager.Instance.IsInitialized);
 
             slider.DOValue(1.0f, 1.0f);
             await UniTask.WaitForSeconds(1.0f);
@@ -71,7 +73,7 @@ namespace Scene.StartScene
 
         private void StartGame()
         {
-            SceneManager.LoadScene("InGameScene");
+            CoverUIManager.Instance.CoverUI.Show(() => SceneManager.LoadScene("InGameScene")).Forget();
         }
     }
 }

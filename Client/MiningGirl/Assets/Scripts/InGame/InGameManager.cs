@@ -6,6 +6,7 @@ using Cysharp.Threading.Tasks;
 using InGame.System.FloatingDamage;
 using InGame.System.Loader;
 using InGame.System.Skill;
+using Manager;
 using UnityEngine;
 using Timer = InGame.System.Timer;
 
@@ -72,6 +73,8 @@ namespace InGame
                 _tileLoader.Load();
                 
                 await UniTask.WaitForSeconds(2.0f, cancellationToken: _cts.Token);
+                
+                CoverUIManager.Instance.CoverUI.Hide().Forget();
                 
                 _enemyLoader = new EnemyLoader(actorTransform, this);
                 _enemyLoader.Initialize().Forget();

@@ -1,14 +1,13 @@
 fileFormatVersion: 2
-guid: 482a183e4d8b64347b84fde9fa6bf485
-AssetOrigin:
-  serializedVersion: 1
-  productId: 170168
-  packageName: GUI Pro - Fantasy RPG
-  packageVersion: 4.0.3
-  assetPath: Assets/Layer Lab/GUI Pro-FantasyRPG/ResourcesData/Animatons/Loading_rotate_08.png
-  uploadId: 797988
+guid: a71a6c638b6f32f4eb8ce03bdb776c1e
 TextureImporter:
-  internalIDToNameTable: []
+  internalIDToNameTable:
+  - first:
+      213: 3776444714581792192
+    second: Cover 1_0
+  - first:
+      213: 388440472354153286
+    second: Cover 1_1
   externalObjects: {}
   serializedVersion: 13
   mipmaps:
@@ -70,9 +69,9 @@ TextureImporter:
   compressionQualitySet: 0
   textureFormatSet: 0
   ignorePngGamma: 0
-  applyGammaDecoding: 1
+  applyGammaDecoding: 0
   swizzle: 50462976
-  cookieLightType: 1
+  cookieLightType: 0
   platformSettings:
   - serializedVersion: 4
     buildTarget: DefaultTexturePlatform
@@ -102,7 +101,7 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   - serializedVersion: 4
     buildTarget: Android
-    maxTextureSize: 128
+    maxTextureSize: 256
     resizeAlgorithm: 0
     textureFormat: 47
     textureCompression: 1
@@ -128,7 +127,51 @@ TextureImporter:
     forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: Cover 1_0
+      rect:
+        serializedVersion: 2
+        x: 11
+        y: 0
+        width: 1494
+        height: 1024
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0c59c8e9570a86430800000000000000
+      internalID: 3776444714581792192
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Cover 1_1
+      rect:
+        serializedVersion: 2
+        x: 295
+        y: 681
+        width: 169
+        height: 88
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 643ed033d84046500800000000000000
+      internalID: 388440472354153286
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     customData: 
     physicsShape: []
@@ -142,7 +185,9 @@ TextureImporter:
     secondaryTextures: []
     spriteCustomMetadata:
       entries: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      Cover 1_0: 3776444714581792192
+      Cover 1_1: 388440472354153286
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
