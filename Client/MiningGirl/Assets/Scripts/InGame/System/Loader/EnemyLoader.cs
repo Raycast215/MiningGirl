@@ -2,10 +2,16 @@ using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using InGame.System.Enemy;
 using UnityEngine;
+using NotImplementedException = System.NotImplementedException;
 
 namespace InGame.System.Loader
 {
-    public class EnemyLoader
+    public interface IEnemyHandler
+    {
+        public void IncreaseOreCount(int addCount);
+    }
+    
+    public class EnemyLoader : IEnemyHandler
     {
         public List<IHit> GetEnemyList { get; private set; }
         public bool IsInitialized { get; private set; }
@@ -53,12 +59,15 @@ namespace InGame.System.Loader
                 //    (타일만 회전되어 있으니까 이 회전을 그대로 쓴다)
                 var ddd =  _handler.GetTileTransform().position + _handler.GetTileTransform().rotation * local;
                 
+                enemy.Initialize(this);
                 enemy.SetPosition(ddd);
                 enemy.SetDelay(delay);
                 enemy.gameObject.SetActive(true);
                 // enemy.Drop();
                 GetEnemyList.Add(enemy);
             }
+            
+            Debug.Log($"[EnemyLoader] Create Enemy: {GetEnemyList.Count}");
         }
         
         private EnemyController Get()
@@ -136,5 +145,14 @@ namespace InGame.System.Loader
 
             return result;
         }
+
+#region IEnemyHandler
+
+        public void IncreaseOreCount(int addCount)
+        {
+            _handler.IncreaseOreCount(addCount);
+        }
+
+#endregion
     }
 }

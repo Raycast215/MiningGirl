@@ -103,7 +103,14 @@ namespace InGame.System.Skill
 
         public SkillDataRowTable GetSkillData()
         {
-            return _cardDrawController.GetSkillData();
+            var next = _cardDrawController.GetSkillData();
+
+            while (next.StartDrawCount >= _cardDrawController.DrawCount)
+            {
+                next = _cardDrawController.GetSkillData();
+            }
+            
+            return next;
         }
 
         public void ExecuteSkillEffect(SkillDataRowTable data)

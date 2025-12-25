@@ -6,6 +6,7 @@ using Cysharp.Threading.Tasks;
 using InGame.System.FloatingDamage;
 using InGame.System.Loader;
 using InGame.System.Skill;
+using InGame.System.Stage.UI;
 using Manager;
 using UnityEngine;
 using UnityEngine.SceneManagement;
@@ -20,6 +21,7 @@ namespace InGame
         public Transform GetPlayerTransform();
         public List<Vector3> GetTilePosList();
         public Transform GetTileTransform();
+        public void IncreaseOreCount(int addCount);
     }
     
     public class InGameManager : GameInitializer, IDisposable, IInGameHandler
@@ -34,6 +36,8 @@ namespace InGame
         private Timer timer;
         [SerializeField]
         private Canvas uiCanvas;
+        [SerializeField]
+        private OreCountController oreCountController;
         
         [SerializeField] 
         private SkillController skillController;
@@ -65,6 +69,8 @@ namespace InGame
             {
                 timer.Init(120, null);
                 
+                oreCountController.Initialize();
+                
                 skillController.Init(this);
                 await UniTask.WaitUntil(() => skillController.IsInitialized);
                 
@@ -80,13 +86,15 @@ namespace InGame
                 
                 await UniTask.WaitForSeconds(2.0f, cancellationToken: _cts.Token);
                 
-                CoverUIManager.Instance.CoverUI.Hide().Forget();
-                
                 _enemyLoader = new EnemyLoader(actorTransform, this);
                 _enemyLoader.Initialize().Forget();
                 await UniTask.WaitUntil(() => _enemyLoader.IsInitialized, cancellationToken: _cts.Token);
                 _enemyLoader.Load();
                 
+                CoverUIManager.Instance.CoverUI.Hide().Forget();
+                await UniTask.WaitForSeconds(0.5f, cancellationToken: _cts.Token);
+                
+                oreCountController.Appear();
                 timer.Appear();
                 skillController.Appear();
                 await UniTask.WaitForSeconds(1.0f, cancellationToken: _cts.Token);
@@ -166,6 +174,11 @@ public List<IHit> GetEnemyList()
         public Transform GetTileTransform()
         {
             return tileTransform;
+        }
+
+        public void IncreaseOreCount(int addCount)
+        {
+            oreCountController.IncreaseOreCount(addCount);
         }
 
 #endregion

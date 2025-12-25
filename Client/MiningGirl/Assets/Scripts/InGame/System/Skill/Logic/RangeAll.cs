@@ -14,13 +14,13 @@ namespace InGame.System.Skill.Logic
         
         private async UniTaskVoid Hit(SkillDataRowTable data, SkillEffectDataRowTable effectData, IInGameHandler inGameHandler)
         {
+            var playerPos = inGameHandler.GetPlayerTransform().localPosition;
+            var targetList = inGameHandler.GetEnemyList()
+                .Where(x => Vector3.Distance(playerPos, x.GetPosition()) < data.EffectValueList[1])
+                .ToList();
+            
             for (var i = 0; i < effectData.EffectValue; i++)
             {
-                var playerPos = inGameHandler.GetPlayerTransform().localPosition;
-                var targetList = inGameHandler.GetEnemyList()
-                    .Where(x => Vector3.Distance(playerPos, x.GetPosition()) < data.EffectValueList[1])
-                    .ToList();
-
                 foreach (var target in targetList)
                 {
                     target.Damage();

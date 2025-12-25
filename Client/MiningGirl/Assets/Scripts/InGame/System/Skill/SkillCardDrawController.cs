@@ -8,12 +8,14 @@ namespace InGame.System.Skill
 {
     public class SkillCardDrawController
     {
+        public int DrawCount { get; private set; }
         private int WeightSum { get; }
         private int StartCardCount { get; }
         private List<SkillDataRowTable> SkillDataList { get; }
         
         public SkillCardDrawController(int startCardCount)
         {
+            DrawCount = 0;
             StartCardCount = startCardCount;
             SkillDataList = new List<SkillDataRowTable>();
             
@@ -40,9 +42,12 @@ namespace InGame.System.Skill
             {
                 // 가중치 합산.
                 add += data.Weight;
-                
+
                 if (rand <= add)
+                {
+                    DrawCount += 1;
                     return data;
+                }
             }
 
             return null;
