@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Data;
+using UnityEngine;
 using UnityEngine.ResourceManagement.ResourceLocations;
 
 namespace Manager
@@ -14,13 +15,9 @@ namespace Manager
         protected override void Initialized()
         {
             base.Initialized();
-
-            IsInitialized = false;
-            
-            PreLoadData().Forget();
         }
 
-        private async UniTaskVoid PreLoadData()
+        public async UniTaskVoid PreLoadData()
         {
             await AddressableSheetsDataManager.LoadLabelAsync("DataTable", location: LoadDataTable);
         }

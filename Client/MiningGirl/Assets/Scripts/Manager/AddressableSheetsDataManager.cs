@@ -236,6 +236,7 @@ public static class AddressableSheetsDataManager
         }
         catch (Exception e)
         {
+            Debug.LogWarning($"[A-Sheets] Newtonsoft 실패, JsonUtility로 폴백. {e}");
             Debug.LogWarning($"[A-Sheets] Newtonsoft 실패, JsonUtility로 폴백. {e.Message}");
         }
 #endif

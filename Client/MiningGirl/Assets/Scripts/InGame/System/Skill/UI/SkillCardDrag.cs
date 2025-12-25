@@ -1,7 +1,6 @@
 using Data;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 
 namespace InGame.System.Skill.UI
 {
@@ -43,7 +42,7 @@ namespace InGame.System.Skill.UI
 
         public void OnBeginDrag(PointerEventData eventData)
         {
-            if (Input.touchCount > 0)
+            if (Input.touchCount > 1)
                 return;
             
             if (GetCanvas() == null)
