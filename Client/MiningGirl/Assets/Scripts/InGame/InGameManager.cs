@@ -5,6 +5,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using InGame.System.FloatingDamage;
 using InGame.System.Loader;
+using InGame.System.Result;
 using InGame.System.Skill;
 using InGame.System.Stage.UI;
 using Manager;
@@ -38,6 +39,8 @@ namespace InGame
         private Canvas uiCanvas;
         [SerializeField]
         private OreCountController oreCountController;
+        [SerializeField]
+        private ResultController resultController;
         
         [SerializeField] 
         private SkillController skillController;
@@ -55,11 +58,6 @@ namespace InGame
         {
             Initialize().Forget();
         }
-
-        public void TestReplay()
-        {
-            CoverUIManager.Instance.CoverUI.Show(() => SceneManager.LoadScene("InGameScene")).Forget();
-        }
         
         private async UniTaskVoid Initialize()
         {
@@ -67,8 +65,9 @@ namespace InGame
             
             try
             {
-                timer.Init(120, null);
+                timer.Init(120, resultController.OnFail);
                 
+                resultController.Initialize();
                 oreCountController.Initialize();
                 
                 skillController.Init(this);

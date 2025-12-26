@@ -23,7 +23,7 @@ namespace InGame.System.Stage.UI
         public void Init()
         {
             _rect = GetComponent<RectTransform>();
-            _rect.anchoredPosition = new Vector2(startPosX, _rect.anchoredPosition.y);
+            // _rect.anchoredPosition = new Vector2(startPosX, _rect.anchoredPosition.y);
 
             _count = 0;
             countText.text = $"x {_count}";
@@ -31,7 +31,7 @@ namespace InGame.System.Stage.UI
 
         public void Appear()
         {
-            _rect.DOAnchorPosX(0, 0.2f);
+            
         }
 
         public void IncreaseCount(int addCount)

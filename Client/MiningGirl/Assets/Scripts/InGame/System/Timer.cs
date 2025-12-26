@@ -36,7 +36,7 @@ namespace InGame.System
 
         public void Appear()
         {
-            _rect.DOAnchorPosY(-100.0f, 0.5f);
+            _rect.DOAnchorPosY(0.0f, 0.5f);
         }
 
         public async UniTaskVoid Execute()
@@ -57,6 +57,9 @@ namespace InGame.System
             {
                 // return;
             }
+
+            if (_cts == null || _cts.IsCancellationRequested)
+                return;
             
             OnFinished?.Invoke();
         }

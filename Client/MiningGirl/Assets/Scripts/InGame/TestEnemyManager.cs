@@ -18,10 +18,6 @@ public class TestEnemyManager : GameInitializer
    [SerializeField]
    private FloatingDamageController floatingDamageController;
    
-   [Header("UI")]
-   [SerializeField]
-   private StatViewer statViewer;
-   
    [SerializeField] 
    private TestPlayer player;
    [SerializeField] 

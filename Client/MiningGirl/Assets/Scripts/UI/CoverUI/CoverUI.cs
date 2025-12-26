@@ -13,8 +13,6 @@ namespace UI.CoverUI
         private Image backImage;
         [SerializeField] 
         private Image iconImage;
-        [SerializeField] 
-        private Image decoImage;
         [SerializeField]
         private TMP_Text loadingText;
 
@@ -36,7 +34,6 @@ namespace UI.CoverUI
             backImage.DOFade(0.0f, 0.0f);
             iconImage.DOFade(0.0f, 0.0f);
             loadingText.DOFade(0.0f, 0.0f);
-            decoImage.DOFade(0.0f, 0.0f);
             
             gameObject.SetActive(false);
             
@@ -51,7 +48,6 @@ namespace UI.CoverUI
             
             iconImage.DOFade(1.0f, duration).SetDelay(duration);
             loadingText.DOFade(1.0f, duration).SetDelay(duration);
-            decoImage.DOFade(1.0f, duration).SetDelay(duration);
             backImage.DOFade(1.0f, duration)
                 .OnComplete(() =>
                 {
@@ -67,7 +63,6 @@ namespace UI.CoverUI
             
             iconImage.DOFade(0.0f, 0.2f);
             loadingText.DOFade(0.0f, 0.2f);
-            decoImage.DOFade(0.0f, 0.2f);
             backImage.DOFade(0.0f, duration)
                 .OnComplete(() => gameObject.SetActive(false));
         }

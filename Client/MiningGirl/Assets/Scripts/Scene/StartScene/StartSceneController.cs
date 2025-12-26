@@ -40,6 +40,13 @@ namespace Scene.StartScene
         private async UniTaskVoid Initialize()
         {
             Application.targetFrameRate = 120;
+
+            // 메인씬 재진입 시 예외.
+            if (CoverUIManager.Instance.CoverUI != null && CoverUIManager.Instance.CoverUI.gameObject.activeInHierarchy)
+            {
+                CoverUIManager.Instance.CoverUI.Hide().Forget();
+                await UniTask.WaitUntil(() => !CoverUIManager.Instance.CoverUI.gameObject.activeInHierarchy);
+            }
             
             text.gameObject.SetActive(true);
             slider.gameObject.SetActive(true);
@@ -49,26 +56,27 @@ namespace Scene.StartScene
             text.text = "데이터 초기화...";
             slider.value = 0;
             await UniTask.Yield();
-            
+
+            GameDataManager.Instance.PreLoadData().Forget();
             DataTableManager.Instance.PreLoadData().Forget();
             CoverUIManager.Instance.PreLoadData();
             
             await UniTask.WaitUntil(() => DataTableManager.Instance.IsInitialized);
             await UniTask.WaitUntil(() => CoverUIManager.Instance.IsInitialized);
+            await UniTask.WaitUntil(() => GameDataManager.Instance.IsInitialized);
 
             slider.DOValue(1.0f, 1.0f);
             await UniTask.WaitForSeconds(1.0f);
             
-            text.text = "Complete";
-            await UniTask.Yield();
+            text.text = "초기화 완료...";
+            await UniTask.WaitForSeconds(1.0f);
             
             text.gameObject.SetActive(false);
             slider.gameObject.SetActive(false);
             startObject.SetActive(true);
             touchButton.gameObject.SetActive(true);
             
-            startText.DOFade(0.1f, 1.0f)
-                .SetLoops(-1, LoopType.Yoyo);
+            startText.DOFade(0.1f, 1.0f).SetLoops(-1, LoopType.Yoyo);
         }
 
         private void StartGame()

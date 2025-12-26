@@ -9,6 +9,9 @@ namespace Manager
         
         public void PreLoadData()
         {
+            if (IsInitialized)
+                return;
+            
             var coverUIPrefab = Resources.Load<CoverUI>("CoverUI");
             
             CoverUI = Instantiate(coverUIPrefab, transform);

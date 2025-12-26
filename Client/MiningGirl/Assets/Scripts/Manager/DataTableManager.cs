@@ -11,6 +11,7 @@ namespace Manager
         public SkillDataTable SkillDataTable { get; private set; }
         public StartingSkillDataTable StartingSkillDataTable { get; private set; }
         public SkillEffectDataTable SkillEffectDataTable { get; private set; }
+        public StageDataTable StageDataTable { get; private set; }
         
         protected override void Initialized()
         {
@@ -19,6 +20,9 @@ namespace Manager
 
         public async UniTaskVoid PreLoadData()
         {
+            if (IsInitialized)
+                return;
+            
             await AddressableSheetsDataManager.LoadLabelAsync("DataTable", location: LoadDataTable);
         }
         
@@ -34,13 +38,14 @@ namespace Manager
                     case "SkillDataTable":
                         SkillDataTable = new SkillDataTable(AddressableSheetsDataManager.GetAll<SkillDataRowTable>());
                         break;
-                    
                     case "StartingSkillDataTable":
                         StartingSkillDataTable = new StartingSkillDataTable(AddressableSheetsDataManager.GetAll<StartingSkillDataRowTable>());
                         break;
-                    
                     case "SkillEffectDataTable":
                         SkillEffectDataTable = new SkillEffectDataTable(AddressableSheetsDataManager.GetAll<SkillEffectDataRowTable>());
+                        break;
+                    case "StageDataTable":
+                        StageDataTable = new StageDataTable(AddressableSheetsDataManager.GetAll<StageDataRowTable>());
                         break;
                 }
             }
