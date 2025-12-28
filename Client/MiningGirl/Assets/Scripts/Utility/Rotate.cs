@@ -2,7 +2,7 @@ using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
 
-namespace Util
+namespace Utility
 {
     // Scripted by Raycast
     // 2024.09.03

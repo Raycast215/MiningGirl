@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Manager;
@@ -25,6 +26,18 @@ namespace Scene.StartScene
         private GameObject startObject;
         [SerializeField]
         private TMP_Text startText;
+
+        [Header("BG")]
+        [SerializeField] 
+        private Image bgImage;
+        [SerializeField] 
+        private Image logoImage;
+        [SerializeField] 
+        private List<Sprite> bgImageList;
+        [SerializeField] 
+        private List<Sprite> logoImageList;
+
+        private int _index;
         
         private void Awake()
         {
@@ -60,11 +73,15 @@ namespace Scene.StartScene
             GameDataManager.Instance.PreLoadData().Forget();
             DataTableManager.Instance.PreLoadData().Forget();
             CoverUIManager.Instance.PreLoadData();
+            SoundManager.Instance.PreLoadData();
             
             await UniTask.WaitUntil(() => DataTableManager.Instance.IsInitialized);
             await UniTask.WaitUntil(() => CoverUIManager.Instance.IsInitialized);
             await UniTask.WaitUntil(() => GameDataManager.Instance.IsInitialized);
+            await UniTask.WaitUntil(() => SoundManager.Instance.IsInitialized);
 
+            SoundManager.Instance.PlayBgm("Bgm_1", 1, true);
+            
             slider.DOValue(1.0f, 1.0f);
             await UniTask.WaitForSeconds(1.0f);
             
@@ -81,7 +98,19 @@ namespace Scene.StartScene
 
         private void StartGame()
         {
-            CoverUIManager.Instance.CoverUI.Show(() => SceneManager.LoadScene("InGameScene")).Forget();
+            CoverUIManager.Instance.CoverUI.Show(() => SceneManager.LoadScene("MainScene")).Forget();
         }
+
+#region BGChange
+
+        public void ChangeBg()
+        {
+            _index = Utility.Util.ClampIndex(_index + 1, 0, bgImageList.Count - 1);
+            
+            bgImage.sprite = bgImageList[_index];
+            logoImage.sprite = logoImageList[_index];
+        }
+
+#endregion
     }
 }

@@ -7,6 +7,7 @@ using Cysharp.Threading.Tasks;
 using Data;
 using InGame;
 using InGame.System;
+using Manager;
 using UnityEngine;
 
 public class TestPlayer : GameInitializer
@@ -182,7 +183,7 @@ public class TestPlayer : GameInitializer
 
             // 3. Hit 포즈로 전환
             animator.Play("Hit", 0, 0);
-
+            
             // 화면에 Hit가 한 프레임이라도 보이게
             await UniTask.Yield();
 
@@ -194,6 +195,7 @@ public class TestPlayer : GameInitializer
 
             // 4. 이 타이밍에 데미지
             target.Damage();
+            SoundManager.Instance.PlaySfx("Hit1");
 
             await UniTask.WaitForSeconds(0.1f, cancellationToken: _cts.Token);
 

@@ -1,7 +1,6 @@
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\Assembly-CSharp-firstpass.dll
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\Assembly-CSharp-firstpass.pdb
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\DOTween.dll
-E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\Microsoft.CSharp.dll
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\Microsoft.Win32.Primitives.dll
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\Mono.Cecil.dll
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\mscorlib.dll
@@ -15,7 +14,6 @@ E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.Collections.dll
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.Collections.NonGeneric.dll
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.Collections.Specialized.dll
-E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.ComponentModel.Annotations.dll
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.ComponentModel.Composition.dll
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.ComponentModel.dll
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.ComponentModel.EventBasedAsync.dll
@@ -24,7 +22,6 @@ E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.Console.dll
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.Core.dll
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.Data.Common.dll
-E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.Data.DataSetExtensions.dll
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.Data.dll
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.Diagnostics.Contracts.dll
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.Diagnostics.Debug.dll
@@ -59,7 +56,6 @@ E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.Linq.Queryable.dll
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.Memory.dll
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.Net.Http.dll
-E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.Net.Http.Rtc.dll
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.Net.NameResolution.dll
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.Net.NetworkInformation.dll
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.Net.Ping.dll
@@ -104,11 +100,6 @@ E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.Security.Cryptography.X509Certificates.dll
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.Security.Principal.dll
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.Security.SecureString.dll
-E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.ServiceModel.Duplex.dll
-E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.ServiceModel.Http.dll
-E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.ServiceModel.NetTcp.dll
-E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.ServiceModel.Primitives.dll
-E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.ServiceModel.Security.dll
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.Text.Encoding.dll
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.Text.Encoding.Extensions.dll
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.Text.RegularExpressions.dll
@@ -335,8 +326,6 @@ E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\UnityEn
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\Unity.Cecil.dll
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\IOSCommonPlayerBuildProgram.Data.dll
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\NiceIO.dll
-E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.Configuration.dll
-E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.EnterpriseServices.dll
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\UnityEngine.TestRunner.dll
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\UnityEditor.TestRunner.dll
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\Unity.ShaderGraph.Utilities.dll
@@ -573,3 +562,19 @@ E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\Unity.R
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\Unity.AdaptivePerformance.Simulator.Editor.pdb
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\Unity.AdaptivePerformance.UI.Editor.pdb
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\Unity.Recorder.Editor.pdb
+E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\StompyRobot.SRDebugger.dll
+E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\StompyRobot.SRDebugger.Editor.dll
+E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\StompyRobot.SRF.dll
+E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\StompyRobot.SRF.Editor.dll
+E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.Diagnostics.Tracing.dll
+E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.Net.dll
+E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.ServiceModel.Web.dll
+E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.Web.dll
+E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.Windows.dll
+E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\System.Xml.Serialization.dll
+E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\StompyRobot.SRDebugger.pdb
+E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\StompyRobot.SRF.pdb
+E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\StompyRobot.SRDebugger.Editor.pdb
+E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\StompyRobot.SRF.Editor.pdb
+E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\Newtonsoft.Json.pdb
+E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\Newtonsoft.Json.xml
