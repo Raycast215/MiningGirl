@@ -23,6 +23,7 @@ namespace InGame
         public List<Vector3> GetTilePosList();
         public Transform GetTileTransform();
         public void IncreaseOreCount(int addCount);
+        public void ShowDamageFloatingText(int damage, Vector3 targetPos, bool isCritical = false);
     }
     
     public class InGameManager : GameInitializer, IDisposable, IInGameHandler
@@ -53,6 +54,7 @@ namespace InGame
         private PlayerLoader _playerLoader;
         private EnemyLoader _enemyLoader;
         private CancellationTokenSource _cts;
+        private RectTransform _uiCanvasRect;
 
         private void Start()
         {
@@ -62,6 +64,7 @@ namespace InGame
         private async UniTaskVoid Initialize()
         {
             _cts = new CancellationTokenSource();
+            _uiCanvasRect = uiCanvas.GetComponent<RectTransform>();
             
             try
             {
@@ -96,17 +99,17 @@ namespace InGame
                 oreCountController.Appear();
                 timer.Appear();
                 skillController.Appear();
-                await UniTask.WaitForSeconds(1.0f, cancellationToken: _cts.Token);
+                // await UniTask.WaitForSeconds(1.0f, cancellationToken: _cts.Token);
                 
                 _playerLoader = new PlayerLoader(actorTransform);
                 _playerLoader.Load();
                 await UniTask.WaitUntil(() => _playerLoader.GetPlayer != null, cancellationToken: _cts.Token);
                 
                 // 카메라 부모 설정.
-                cam.transform.SetParent(_playerLoader.GetPlayer.transform);
+                // cam.transform.SetParent(_playerLoader.GetPlayer.transform);
                 
                 // 플레이어 시작.
-                _playerLoader.GetPlayer.Init(this, floatingDamageController.Damage);
+                _playerLoader.GetPlayer.Init(this);
                 _playerLoader.GetPlayer.ExecuteFindEnemy().Forget();
                 
                 // 타이머 시작.
@@ -180,6 +183,18 @@ public List<IHit> GetEnemyList()
             oreCountController.IncreaseOreCount(addCount);
         }
 
-#endregion
+        public void ShowDamageFloatingText(int damage, Vector3 targetPos, bool isCritical = false)
+        {
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(
+                _uiCanvasRect,
+                cam.WorldToScreenPoint(targetPos),
+                cam,                
+                out var pos
+            );
+            
+            floatingDamageController.Damage(damage, pos, isCritical);
+        }
+
+ #endregion
     }
 }

@@ -4,18 +4,14 @@ using System.Linq;
 using System.Threading;
 using BehaviourTree;
 using Cysharp.Threading.Tasks;
-using Data;
 using InGame;
 using InGame.System;
 using Manager;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class TestPlayer : GameInitializer
 {
-    private event Action<int, Vector2, bool> OnHit;
-
-    public PlayerStatTable Row { get; private set; }
-    
     public IHit Target { get; private set; }
     
     [SerializeField]
@@ -32,14 +28,11 @@ public class TestPlayer : GameInitializer
     private CancellationTokenSource _cts;
     private CancellationTokenSource _checkCts;
     
-    public void Init(IInGameHandler handler, Action<int, Vector2, bool> onHit)
+    public void Init(IInGameHandler handler)
     {
-        OnHit = null;
-        OnHit += onHit;
-        
         _handler = handler;
         _moveComponent = new MoveForward(rigidBody2D);
-        _checkCts ??= new CancellationTokenSource();
+        _checkCts = new CancellationTokenSource();
         
         _nodeRunner = new NodeRunner( new SequenceNode(new List<INode>()
         {
@@ -194,7 +187,11 @@ public class TestPlayer : GameInitializer
             }
 
             // 4. 이 타이밍에 데미지
-            target.Damage();
+            target.Damage(1);
+
+            var random = Random.Range(0, 2) > 0 ;
+            
+            _handler.ShowDamageFloatingText(1, target.GetPosition(), random);
             SoundManager.Instance.PlaySfx("Hit1");
 
             await UniTask.WaitForSeconds(0.1f, cancellationToken: _cts.Token);

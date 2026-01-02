@@ -50,7 +50,6 @@ namespace InGame.System.Loader
             foreach (var pos in posList)
             {
                 var enemy = Get();
-                var delay = Random.Range(0.0f, 1.0f);
                 
                 // 1) 회전 전 로컬 기준 좌표
                 var local = new Vector3(pos.x, pos.y, 0.0f);
@@ -61,7 +60,6 @@ namespace InGame.System.Loader
                 
                 enemy.Initialize(this);
                 enemy.SetPosition(ddd);
-                enemy.SetDelay(delay);
                 enemy.gameObject.SetActive(true);
                 // enemy.Drop();
                 GetEnemyList.Add(enemy);

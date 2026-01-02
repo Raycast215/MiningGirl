@@ -37,7 +37,7 @@ namespace InGame.System.Loader
 
         public void Load()
         {
-            var posList = GetDiamondGrid(12, 1.5f, 1.5f);
+            var posList = GetDiamondGrid(11, 1.5f, 1.5f);
 
             foreach (var pos in posList)
             {

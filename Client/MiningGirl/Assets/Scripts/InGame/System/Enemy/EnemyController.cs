@@ -11,9 +11,11 @@ namespace InGame.System.Enemy
    {
       [SerializeField]
       private SpriteRenderer hitRenderer;
+
+      [SerializeField] 
+      private GameObject test;
       
-      private int _health = 3;
-      private float _delay;
+      private float _health = 3;
       private CancellationTokenSource _cts;
       private IEnemyHandler _handler;
       private bool _isDead;
@@ -23,6 +25,7 @@ namespace InGame.System.Enemy
          _isDead = false;
          _handler = handler;
          hitRenderer.DOFade(0.0f, 0.0f);
+         test.SetActive(false);
       }
       
       public void SetPosition(Vector2 position)
@@ -30,38 +33,6 @@ namespace InGame.System.Enemy
          var pos = new Vector3(position.x, position.y, 0);
             
          transform.position = pos;
-      }
-
-      public void SetDelay(float delay)
-      {
-         _delay = delay;
-      }
-
-      public async void Drop()
-      {
-         Dispose();
-         _cts ??= new CancellationTokenSource();
-         
-         try
-         {
-            var pos = transform.position;
-            var to = new Vector3(pos.x, pos.y, 0);
-                
-            transform.position = new Vector3(pos.x, pos.y + 100, 0);
-                
-            await UniTask.WaitForSeconds(_delay, cancellationToken: _cts.Token);
-                
-            gameObject.SetActive(true);
-            transform.DOLocalMove(to, 0.5f);
-         }
-         catch (OperationCanceledException)
-         {
-            Debug.Log("타일 드랍 취소");
-         }
-         catch (Exception e)
-         {
-            Debug.LogException(e);
-         }
       }
       
       private void OnDestroy()
@@ -85,15 +56,17 @@ namespace InGame.System.Enemy
       
 #region IHit
 
-      public void Damage()
+      public void Damage(float damage)
       {
          if (_isDead)
             return;
          
-         _health -= 1;
+         _health -= damage;
 
          if (_health <= 0)
          {
+            test.SetActive(true);
+            test.transform.SetParent(null);
             gameObject.SetActive(false);
             _handler.IncreaseOreCount(1);
             _isDead = true;
@@ -109,7 +82,6 @@ namespace InGame.System.Enemy
             fadeOut: true
          ).SetRelative(true);
          
-         // transform.DOShakePosition(0.1f, 0.2f);
          hitRenderer.DOFade(0.5f, 0.0f);
          hitRenderer.DOFade(0.0f, 0.2f);
       }

@@ -1,0 +1,18 @@
+fileFormatVersion: 2
+guid: 200cead27eebc12459568df6086017e5
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences: []
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 201053
+  packageName: Pixel Effects Pack 4
+  packageVersion: 1.0
+  assetPath: Assets/Pixel Effects 4 - Pixel Art/Demo/Effects4_PlayEffect.cs
+  uploadId: 447798

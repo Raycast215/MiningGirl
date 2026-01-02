@@ -123,7 +123,7 @@ namespace InGame.System.Skill
                 switch (effectType)
                 {
                     case ESkillEffectType.TargetHit:
-                        new TargetHit(data, effectTable, _inGameHandler.GetPlayerTarget());
+                        new TargetHit(data, effectTable, _inGameHandler.GetPlayerTarget(), _inGameHandler);
                         break;
                 
                     case ESkillEffectType.IncreaseCost:
@@ -134,7 +134,8 @@ namespace InGame.System.Skill
                         break;
                     
                     case ESkillEffectType.RangeAll:
-                        new RangeAll(data, effectTable, _inGameHandler);
+                        // new RangeAll(data, effectTable, _inGameHandler);
+                        RangeAll.Execute(data, effectTable, _inGameHandler).Forget();
                         break;
                 }
             }

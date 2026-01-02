@@ -268,7 +268,7 @@ namespace InGame.System.FloatingDamage
             await UniTask.WaitUntil(() => IsInitialized);
         }
         
-        public void Damage(int damage, Vector2 pos, bool isAdd = false)
+        public void Damage(int damage, Vector2 pos, bool isCritical = false)
         {
             Floating dmg;
       
@@ -282,7 +282,7 @@ namespace InGame.System.FloatingDamage
                 dmg = _queue.Dequeue();
             }
       
-            dmg.Init(damage, pos, PoolRelease, isAdd);
+            dmg.Init(damage, pos, PoolRelease, isCritical);
         }
         
         private void LoadDamageObject()
