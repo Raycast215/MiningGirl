@@ -41,11 +41,10 @@ namespace InGame.System.Skill
             IsInitialized = false;
             _isGameStarted = false;
             
-            _inGameHandler  = inGameHandler;
+            _inGameHandler = inGameHandler;
             
             _gameSettingData = new GameSettingData
             {
-                HandCount = 3,
                 MaxCost = 10,
                 CostUpdateTime = 2.0f,
                 CostIncreaseCount = 1,
@@ -53,12 +52,18 @@ namespace InGame.System.Skill
 
             await UniTask.WaitUntil(() => DataTableManager.Instance.IsInitialized);
             
-            _cardDrawController = new SkillCardDrawController(_gameSettingData.HandCount);
+            _cardDrawController = new SkillCardDrawController();
             skillUIController.Init(this, _gameSettingData.MaxCost);
             
             IsInitialized = true;
         }
 
+        public void StopProcess()
+        {
+            _isGameStarted = false;
+            Dispose();
+        }
+        
         public void Appear()
         {
             skillUIController.AppearUI().Forget();

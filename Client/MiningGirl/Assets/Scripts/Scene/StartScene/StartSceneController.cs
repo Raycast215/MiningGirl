@@ -111,6 +111,11 @@ namespace Scene.StartScene
             logoImage.sprite = logoImageList[_index];
         }
 
+        public void MoveToTestScene()
+        {
+            SceneManager.LoadScene("InfoScene");
+        }
+
 #endregion
     }
 }

@@ -10,7 +10,7 @@ using Manager;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
-public class TestPlayer : GameInitializer
+public class TestPlayer : GameInitializer, IDisposable
 {
     public IHit Target { get; private set; }
     
@@ -41,6 +41,11 @@ public class TestPlayer : GameInitializer
         }));
     }
 
+    public void StopProcess()
+    {
+        Dispose();
+    }
+    
     private void Update()
     {
         _nodeRunner?.OperateNode();
@@ -224,6 +229,8 @@ public class TestPlayer : GameInitializer
         }
     }
 
+   
+    
     private void SetDirection(Vector2 dir)
     {
         spriteRenderer.flipX = dir.x switch
@@ -236,6 +243,13 @@ public class TestPlayer : GameInitializer
 
     private void OnDestroy()
     {
+        Dispose();
+    }
+
+#region IDisposable
+
+    public void Dispose()
+    {
         _cts?.Cancel();
         _cts?.Dispose();
         _cts = null;
@@ -244,4 +258,6 @@ public class TestPlayer : GameInitializer
         _checkCts?.Dispose();
         _checkCts = null;
     }
+
+#endregion
 }

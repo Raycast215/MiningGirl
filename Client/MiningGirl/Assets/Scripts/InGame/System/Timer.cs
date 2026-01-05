@@ -39,6 +39,11 @@ namespace InGame.System
             _rect.DOAnchorPosY(0.0f, 0.5f);
         }
 
+        public void StopProcess()
+        {
+            Dispose();
+        }
+        
         public async UniTaskVoid Execute()
         {
             UpdateTime();

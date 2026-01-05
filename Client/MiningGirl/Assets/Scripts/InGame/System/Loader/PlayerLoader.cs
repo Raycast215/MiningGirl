@@ -1,10 +1,11 @@
+using Manager;
 using UnityEngine;
 
 namespace InGame.System.Loader
 {
     public class PlayerLoader
     {
-        public TestPlayer GetPlayer { get; private set; }
+        public PlayerController GetPlayer { get; private set; }
         
         private Transform _parent;
         
@@ -13,15 +14,18 @@ namespace InGame.System.Loader
             _parent = parent;
         }
 
-        public void Load()
+        public void StopProcess()
+        {
+            GetPlayer.Stop();
+        }
+        
+        public async void Load()
         {
             // To Do: 어드레서블로 변경
-            var prefab = Resources.Load<TestPlayer>("InGame/Player");
-            var ins = Object.Instantiate(prefab, _parent);
+            var prefab = await AddressableManager.Instance.LoadAsset<GameObject>("Player_001");
             
-            ins.transform.localPosition = Vector3.zero;
-            
-            GetPlayer = ins.GetComponent<TestPlayer>();
+            GetPlayer = Object.Instantiate(prefab, _parent).GetComponent<PlayerController>();
+            GetPlayer.transform.localPosition = Vector3.zero;
         }
     }
 }

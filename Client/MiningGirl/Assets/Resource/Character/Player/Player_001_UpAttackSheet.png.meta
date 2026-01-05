@@ -1,0 +1,897 @@
+fileFormatVersion: 2
+guid: dde90e93d511c6f4fa740a404ceab56f
+TextureImporter:
+  internalIDToNameTable:
+  - first:
+      213: 1255660706961755231
+    second: Player_001_UpAttackSheet_0
+  - first:
+      213: 4026334040750830562
+    second: Player_001_UpAttackSheet_1
+  - first:
+      213: 2151618383654074578
+    second: Player_001_UpAttackSheet_2
+  - first:
+      213: -72251171743129857
+    second: Player_001_UpAttackSheet_3
+  - first:
+      213: 8303913667728732935
+    second: Player_001_UpAttackSheet_4
+  - first:
+      213: -4543591510938111478
+    second: Player_001_UpAttackSheet_5
+  - first:
+      213: -8478911405653265018
+    second: Player_001_UpAttackSheet_6
+  - first:
+      213: 5358453017437283704
+    second: Player_001_UpAttackSheet_7
+  - first:
+      213: -7873333111451854530
+    second: Player_001_UpAttackSheet_8
+  - first:
+      213: 3814209694647306294
+    second: Player_001_UpAttackSheet_9
+  - first:
+      213: 6067912133368286648
+    second: Player_001_UpAttackSheet_10
+  - first:
+      213: 2282298112392569271
+    second: Player_001_UpAttackSheet_11
+  - first:
+      213: -186581934376088874
+    second: Player_001_UpAttackSheet_12
+  - first:
+      213: -7995302799251158475
+    second: Player_001_UpAttackSheet_13
+  - first:
+      213: 5728645059617931427
+    second: Player_001_UpAttackSheet_14
+  - first:
+      213: 5586781666570715823
+    second: Player_001_UpAttackSheet_15
+  - first:
+      213: -5954732846227174675
+    second: Player_001_UpAttackSheet_16
+  - first:
+      213: 2239433108292766555
+    second: Player_001_UpAttackSheet_17
+  - first:
+      213: 8712845322789325727
+    second: Player_001_UpAttackSheet_18
+  - first:
+      213: -7402638624695778784
+    second: Player_001_UpAttackSheet_19
+  - first:
+      213: -8063563529281767620
+    second: Player_001_UpAttackSheet_20
+  - first:
+      213: -6657772805009628050
+    second: Player_001_UpAttackSheet_21
+  - first:
+      213: 3010072245708343884
+    second: Player_001_UpAttackSheet_22
+  - first:
+      213: -7139410023439794418
+    second: Player_001_UpAttackSheet_23
+  - first:
+      213: 4950158840433835561
+    second: Player_001_UpAttackSheet_24
+  - first:
+      213: 3415328907928308934
+    second: Player_001_UpAttackSheet_25
+  - first:
+      213: 7845871412975318319
+    second: Player_001_UpAttackSheet_26
+  - first:
+      213: 4346911431539176871
+    second: Player_001_UpAttackSheet_27
+  - first:
+      213: 6001331934455214285
+    second: Player_001_UpAttackSheet_28
+  externalObjects: {}
+  serializedVersion: 13
+  mipmaps:
+    mipMapMode: 0
+    enableMipMap: 0
+    sRGBTexture: 1
+    linearTexture: 0
+    fadeOut: 0
+    borderMipMap: 0
+    mipMapsPreserveCoverage: 0
+    alphaTestReferenceValue: 0.5
+    mipMapFadeDistanceStart: 1
+    mipMapFadeDistanceEnd: 3
+  bumpmap:
+    convertToNormalMap: 0
+    externalNormalMap: 0
+    heightScale: 0.25
+    normalMapFilter: 0
+    flipGreenChannel: 0
+  isReadable: 0
+  streamingMipmaps: 0
+  streamingMipmapsPriority: 0
+  vTOnly: 0
+  ignoreMipmapLimit: 0
+  grayScaleToAlpha: 0
+  generateCubemap: 6
+  cubemapConvolution: 0
+  seamlessCubemap: 0
+  textureFormat: 1
+  maxTextureSize: 2048
+  textureSettings:
+    serializedVersion: 2
+    filterMode: 0
+    aniso: 1
+    mipBias: 0
+    wrapU: 1
+    wrapV: 1
+    wrapW: 1
+  nPOTScale: 0
+  lightmap: 0
+  compressionQuality: 50
+  spriteMode: 2
+  spriteExtrude: 1
+  spriteMeshType: 0
+  alignment: 0
+  spritePivot: {x: 0.5, y: 0.5}
+  spritePixelsToUnits: 100
+  spriteBorder: {x: 0, y: 0, z: 0, w: 0}
+  spriteGenerateFallbackPhysicsShape: 1
+  alphaUsage: 1
+  alphaIsTransparency: 1
+  spriteTessellationDetail: -1
+  textureType: 8
+  textureShape: 1
+  singleChannelComponent: 0
+  flipbookRows: 1
+  flipbookColumns: 1
+  maxTextureSizeSet: 0
+  compressionQualitySet: 0
+  textureFormatSet: 0
+  ignorePngGamma: 0
+  applyGammaDecoding: 0
+  swizzle: 50462976
+  cookieLightType: 0
+  platformSettings:
+  - serializedVersion: 4
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: Android
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 4
+    buildTarget: iOS
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  spriteSheet:
+    serializedVersion: 2
+    sprites:
+    - serializedVersion: 2
+      name: Player_001_UpAttackSheet_0
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1120
+        width: 274
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f5c0fdc92c00d6110800000000000000
+      internalID: 1255660706961755231
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_001_UpAttackSheet_1
+      rect:
+        serializedVersion: 2
+        x: 274
+        y: 1120
+        width: 274
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2e334064a7960e730800000000000000
+      internalID: 4026334040750830562
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_001_UpAttackSheet_2
+      rect:
+        serializedVersion: 2
+        x: 548
+        y: 1120
+        width: 274
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 2d8b6e925851cdd10800000000000000
+      internalID: 2151618383654074578
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_001_UpAttackSheet_3
+      rect:
+        serializedVersion: 2
+        x: 822
+        y: 1120
+        width: 274
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: ffe15ad21ff4ffef0800000000000000
+      internalID: -72251171743129857
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_001_UpAttackSheet_4
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 960
+        width: 274
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7037b7a1c7d6d3370800000000000000
+      internalID: 8303913667728732935
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_001_UpAttackSheet_5
+      rect:
+        serializedVersion: 2
+        x: 274
+        y: 960
+        width: 274
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: a02bd02089be1f0c0800000000000000
+      internalID: -4543591510938111478
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_001_UpAttackSheet_6
+      rect:
+        serializedVersion: 2
+        x: 548
+        y: 960
+        width: 274
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6857700fffad45a80800000000000000
+      internalID: -8478911405653265018
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_001_UpAttackSheet_7
+      rect:
+        serializedVersion: 2
+        x: 822
+        y: 960
+        width: 274
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 87528f901ac0d5a40800000000000000
+      internalID: 5358453017437283704
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_001_UpAttackSheet_8
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 800
+        width: 274
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e395795ff3d4cb290800000000000000
+      internalID: -7873333111451854530
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_001_UpAttackSheet_9
+      rect:
+        serializedVersion: 2
+        x: 274
+        y: 800
+        width: 274
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 638cd4c328bcee430800000000000000
+      internalID: 3814209694647306294
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_001_UpAttackSheet_10
+      rect:
+        serializedVersion: 2
+        x: 548
+        y: 800
+        width: 274
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 8bd03b5afed853450800000000000000
+      internalID: 6067912133368286648
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_001_UpAttackSheet_11
+      rect:
+        serializedVersion: 2
+        x: 822
+        y: 800
+        width: 274
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7b124b48a0a5caf10800000000000000
+      internalID: 2282298112392569271
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_001_UpAttackSheet_12
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 640
+        width: 274
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6da020028b0296df0800000000000000
+      internalID: -186581934376088874
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_001_UpAttackSheet_13
+      rect:
+        serializedVersion: 2
+        x: 274
+        y: 640
+        width: 274
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 53ac2fa077afa0190800000000000000
+      internalID: -7995302799251158475
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_001_UpAttackSheet_14
+      rect:
+        serializedVersion: 2
+        x: 548
+        y: 640
+        width: 274
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 3a0c2de745c308f40800000000000000
+      internalID: 5728645059617931427
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_001_UpAttackSheet_15
+      rect:
+        serializedVersion: 2
+        x: 822
+        y: 640
+        width: 274
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: fa2cc91635c388d40800000000000000
+      internalID: 5586781666570715823
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_001_UpAttackSheet_16
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 480
+        width: 274
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dea4740a60a8c5da0800000000000000
+      internalID: -5954732846227174675
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_001_UpAttackSheet_17
+      rect:
+        serializedVersion: 2
+        x: 274
+        y: 480
+        width: 274
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: b5b0a060c80141f10800000000000000
+      internalID: 2239433108292766555
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_001_UpAttackSheet_18
+      rect:
+        serializedVersion: 2
+        x: 548
+        y: 480
+        width: 274
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f9b08cf88ae3ae870800000000000000
+      internalID: 8712845322789325727
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_001_UpAttackSheet_19
+      rect:
+        serializedVersion: 2
+        x: 822
+        y: 480
+        width: 274
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 0220c66446b844990800000000000000
+      internalID: -7402638624695778784
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_001_UpAttackSheet_20
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 320
+        width: 274
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c377d5551b7781090800000000000000
+      internalID: -8063563529281767620
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_001_UpAttackSheet_21
+      rect:
+        serializedVersion: 2
+        x: 274
+        y: 320
+        width: 274
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e64252288e6da93a0800000000000000
+      internalID: -6657772805009628050
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_001_UpAttackSheet_22
+      rect:
+        serializedVersion: 2
+        x: 548
+        y: 320
+        width: 274
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: c4a45b962cce5c920800000000000000
+      internalID: 3010072245708343884
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_001_UpAttackSheet_23
+      rect:
+        serializedVersion: 2
+        x: 822
+        y: 320
+        width: 274
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: e0ff10fe868bbec90800000000000000
+      internalID: -7139410023439794418
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_001_UpAttackSheet_24
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 160
+        width: 274
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 92e71d10d3f72b440800000000000000
+      internalID: 4950158840433835561
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_001_UpAttackSheet_25
+      rect:
+        serializedVersion: 2
+        x: 274
+        y: 160
+        width: 274
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 6cc803ceb8fa56f20800000000000000
+      internalID: 3415328907928308934
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_001_UpAttackSheet_26
+      rect:
+        serializedVersion: 2
+        x: 548
+        y: 160
+        width: 274
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: f2539cb1b7222ec60800000000000000
+      internalID: 7845871412975318319
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_001_UpAttackSheet_27
+      rect:
+        serializedVersion: 2
+        x: 822
+        y: 160
+        width: 274
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: 7a53af28ae4535c30800000000000000
+      internalID: 4346911431539176871
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: Player_001_UpAttackSheet_28
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 274
+        height: 160
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      customData: 
+      outline: []
+      physicsShape: []
+      tessellationDetail: -1
+      bones: []
+      spriteID: dc039641993094350800000000000000
+      internalID: 6001331934455214285
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    outline: []
+    customData: 
+    physicsShape: []
+    bones: []
+    spriteID: 67dffe1771d223f4aa4dff649d0449e0
+    internalID: 0
+    vertices: []
+    indices: 
+    edges: []
+    weights: []
+    secondaryTextures: []
+    spriteCustomMetadata:
+      entries: []
+    nameFileIdTable:
+      Player_001_UpAttackSheet_0: 1255660706961755231
+      Player_001_UpAttackSheet_1: 4026334040750830562
+      Player_001_UpAttackSheet_10: 6067912133368286648
+      Player_001_UpAttackSheet_11: 2282298112392569271
+      Player_001_UpAttackSheet_12: -186581934376088874
+      Player_001_UpAttackSheet_13: -7995302799251158475
+      Player_001_UpAttackSheet_14: 5728645059617931427
+      Player_001_UpAttackSheet_15: 5586781666570715823
+      Player_001_UpAttackSheet_16: -5954732846227174675
+      Player_001_UpAttackSheet_17: 2239433108292766555
+      Player_001_UpAttackSheet_18: 8712845322789325727
+      Player_001_UpAttackSheet_19: -7402638624695778784
+      Player_001_UpAttackSheet_2: 2151618383654074578
+      Player_001_UpAttackSheet_20: -8063563529281767620
+      Player_001_UpAttackSheet_21: -6657772805009628050
+      Player_001_UpAttackSheet_22: 3010072245708343884
+      Player_001_UpAttackSheet_23: -7139410023439794418
+      Player_001_UpAttackSheet_24: 4950158840433835561
+      Player_001_UpAttackSheet_25: 3415328907928308934
+      Player_001_UpAttackSheet_26: 7845871412975318319
+      Player_001_UpAttackSheet_27: 4346911431539176871
+      Player_001_UpAttackSheet_28: 6001331934455214285
+      Player_001_UpAttackSheet_3: -72251171743129857
+      Player_001_UpAttackSheet_4: 8303913667728732935
+      Player_001_UpAttackSheet_5: -4543591510938111478
+      Player_001_UpAttackSheet_6: -8478911405653265018
+      Player_001_UpAttackSheet_7: 5358453017437283704
+      Player_001_UpAttackSheet_8: -7873333111451854530
+      Player_001_UpAttackSheet_9: 3814209694647306294
+  mipmapLimitGroupName: 
+  pSDRemoveMatte: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

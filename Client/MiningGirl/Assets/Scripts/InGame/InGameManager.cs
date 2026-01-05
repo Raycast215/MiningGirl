@@ -15,15 +15,19 @@ using Timer = InGame.System.Timer;
 
 namespace InGame
 {
-    public interface IInGameHandler
+    public interface IInGameHandler : IUnitInfoHandler
     {
-        public IHit GetPlayerTarget();
-        public List<IHit> GetEnemyList();
-        public Transform GetPlayerTransform();
         public List<Vector3> GetTilePosList();
         public Transform GetTileTransform();
         public void IncreaseOreCount(int addCount);
         public void ShowDamageFloatingText(int damage, Vector3 targetPos, bool isCritical = false);
+    }
+
+    public interface IUnitInfoHandler
+    {
+        public IHit GetPlayerTarget();
+        public List<IHit> GetEnemyList();
+        public Transform GetPlayerTransform();
     }
     
     public class InGameManager : GameInitializer, IDisposable, IInGameHandler
@@ -68,7 +72,7 @@ namespace InGame
             
             try
             {
-                timer.Init(120, resultController.OnFail);
+                timer.Init(120, StopGame);
                 
                 resultController.Initialize();
                 oreCountController.Initialize();
@@ -105,12 +109,9 @@ namespace InGame
                 _playerLoader.Load();
                 await UniTask.WaitUntil(() => _playerLoader.GetPlayer != null, cancellationToken: _cts.Token);
                 
-                // 카메라 부모 설정.
-                // cam.transform.SetParent(_playerLoader.GetPlayer.transform);
-                
                 // 플레이어 시작.
-                _playerLoader.GetPlayer.Init(this);
-                _playerLoader.GetPlayer.ExecuteFindEnemy().Forget();
+                _playerLoader.GetPlayer.Initialize(this);
+                _playerLoader.GetPlayer.Process();
                 
                 // 타이머 시작.
                 timer.Execute().Forget();
@@ -131,6 +132,14 @@ namespace InGame
             IsInitialized = true;
         }
 
+        private void StopGame()
+        {
+            timer.StopProcess();
+            skillController.StopProcess();
+            _playerLoader.StopProcess();
+            resultController.OnFail();
+        }
+
 #region IDisposable
 
         public void Dispose()
@@ -146,7 +155,7 @@ namespace InGame
 
         public IHit GetPlayerTarget()
         {
-            return _playerLoader.GetPlayer.Target;
+            return _playerLoader.GetPlayer.GetTarget;
         }
 
 public List<IHit> GetEnemyList()

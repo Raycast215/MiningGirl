@@ -61,9 +61,11 @@ MonoBehaviour:
   m_BuildAddressablesWithPlayerBuild: 0
   m_overridePlayerVersion: '[UnityEditor.PlayerSettings.bundleVersion]'
   m_GroupAssets:
+  - {fileID: 11400000, guid: c20089983ec00514e8fc04da148a0b9e, type: 2}
   - {fileID: 11400000, guid: 041d9e0bd69177b44b291bd4c79c4308, type: 2}
   - {fileID: 11400000, guid: a015238ecc1aa824ead1f37d7c862c4b, type: 2}
   - {fileID: 11400000, guid: d7aa3489cefe65d47bcaba98f8d8c69f, type: 2}
+  - {fileID: 11400000, guid: 1d0ed1b39aee1b948941a83419eee044, type: 2}
   - {fileID: 11400000, guid: cce1a873661f2244685010dba7a95ec8, type: 2}
   m_BuildSettings:
     m_LogResourceManagerExceptions: 1
@@ -108,6 +110,8 @@ MonoBehaviour:
     - GameData
     - Bgm
     - Sfx
+    - Ore
+    - Player
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: 0279018745dbcd846b66b3f9d7ae5b57, type: 2}

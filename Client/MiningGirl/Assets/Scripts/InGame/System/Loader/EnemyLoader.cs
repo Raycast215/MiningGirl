@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using InGame.System.Enemy;
+using Manager;
 using UnityEngine;
 using NotImplementedException = System.NotImplementedException;
 
@@ -32,8 +33,10 @@ namespace InGame.System.Loader
         public async UniTaskVoid Initialize()
         {
             // To Do: 어드레서블로 변경
-            _prefab = Resources.Load<GameObject>("InGame/Enemy");
+            // _prefab = Resources.Load<GameObject>("InGame/Enemy");
 
+            _prefab = await AddressableManager.Instance.LoadAsset<GameObject>("Enemy_G");
+            
             for (var i = 0; i < 10; i++)
             {
                 Crate();

@@ -10,13 +10,11 @@ namespace InGame.System.Skill
     {
         public int DrawCount { get; private set; }
         private int WeightSum { get; }
-        private int StartCardCount { get; }
         private List<SkillDataRowTable> SkillDataList { get; }
         
-        public SkillCardDrawController(int startCardCount)
+        public SkillCardDrawController()
         {
             DrawCount = 0;
-            StartCardCount = startCardCount;
             SkillDataList = new List<SkillDataRowTable>();
             
             var skillDataTable = DataTableManager.Instance.SkillDataTable;

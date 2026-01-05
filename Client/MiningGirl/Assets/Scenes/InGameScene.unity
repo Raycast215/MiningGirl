@@ -1095,6 +1095,37 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 385101880}
   m_CullTransparentMesh: 1
+--- !u!1 &395899208
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 395899209}
+  m_Layer: 0
+  m_Name: StageController
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &395899209
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 395899208}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &448328840
 GameObject:
   m_ObjectHideFlags: 0
@@ -4822,7 +4853,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8432498023725764904, guid: 5362c4e3a5e67674095ed719182b5dd0, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 913.95026
+      value: 913.9502
       objectReference: {fileID: 0}
     - target: {fileID: 8432498023725764904, guid: 5362c4e3a5e67674095ed719182b5dd0, type: 3}
       propertyPath: m_AnchoredPosition.y
@@ -5032,3 +5063,4 @@ SceneRoots:
   - {fileID: 1771232121}
   - {fileID: 1403581049}
   - {fileID: 2090761983}
+  - {fileID: 395899209}
