@@ -98,7 +98,8 @@ namespace Scene.StartScene
 
         private void StartGame()
         {
-            CoverUIManager.Instance.CoverUI.Show(() => SceneManager.LoadScene("MainScene")).Forget();
+            // CoverUIManager.Instance.CoverUI.Show(() => SceneManager.LoadScene("MainScene")).Forget();
+            CoverUIManager.Instance.CoverUI.Show(() => SceneManager.LoadScene("InGameScene")).Forget();
         }
 
 #region BGChange
