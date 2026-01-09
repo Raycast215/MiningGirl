@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 04dcc34faf83a7741bbc4c530fc16ba6
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 27944
+  packageName: 2D Isometric Tile Starter Pack
+  packageVersion: 1.3
+  assetPath: Assets/GoldenSkullStudios/2D/2D_Iso_Tile_Pack_Starter/Autotiles/WaterBlock_Shores_Simple/RuleTile/ISO_Autotile_Water_Shores_01_Simple.asset
+  uploadId: 440227

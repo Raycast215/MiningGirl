@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 0c2bb8754b672cb4c8418f6825df00cb
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 11400000
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 27944
+  packageName: 2D Isometric Tile Starter Pack
+  packageVersion: 1.3
+  assetPath: Assets/GoldenSkullStudios/2D/2D_Iso_Tile_Pack_Starter/Sprites/Lava/Tiles/ISO_Tile_LavaCracks_01.asset
+  uploadId: 440227

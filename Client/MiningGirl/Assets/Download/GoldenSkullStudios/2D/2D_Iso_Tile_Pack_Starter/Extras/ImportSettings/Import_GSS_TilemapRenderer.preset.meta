@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 52163cdceb10a404c89f636812ea335d
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 27944
+  packageName: 2D Isometric Tile Starter Pack
+  packageVersion: 1.3
+  assetPath: Assets/GoldenSkullStudios/2D/2D_Iso_Tile_Pack_Starter/Extras/ImportSettings/Import_GSS_TilemapRenderer.preset
+  uploadId: 440227

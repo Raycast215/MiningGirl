@@ -67,8 +67,8 @@ MonoBehaviour:
     y: 0
     width: 684
     height: 1168
-  m_MinSize: {x: 200, y: 200}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 200, y: 226}
+  m_MaxSize: {x: 4000, y: 4026}
   m_ActualView: {fileID: 26}
   m_Panes:
   - {fileID: 26}
@@ -118,8 +118,8 @@ MonoBehaviour:
     y: 0
     width: 600
     height: 743
-  m_MinSize: {x: 275, y: 50}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 276, y: 76}
+  m_MaxSize: {x: 4001, y: 4026}
   m_ActualView: {fileID: 22}
   m_Panes:
   - {fileID: 22}
@@ -144,8 +144,8 @@ MonoBehaviour:
     y: 0
     width: 1826
     height: 568
-  m_MinSize: {x: 100, y: 100}
-  m_MaxSize: {x: 4000, y: 4000}
+  m_MinSize: {x: 101, y: 126}
+  m_MaxSize: {x: 4001, y: 4026}
   m_ActualView: {fileID: 20}
   m_Panes:
   - {fileID: 25}
@@ -947,8 +947,8 @@ MonoBehaviour:
     m_TextWithWhitespace: "Animation\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 734
-    y: 822
+    x: 735
+    y: 24
     width: 1825
     height: 542
   m_SerializedDataModeController:
@@ -987,7 +987,7 @@ MonoBehaviour:
   m_Pos:
     serializedVersion: 2
     x: 0
-    y: 822
+    y: 24
     width: 733
     height: 542
   m_SerializedDataModeController:
@@ -1031,7 +1031,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 502}
     m_SelectedIDs: c0310100
     m_LastClickedID: 78272
-    m_ExpandedIDs: 0000000056d40000dcd40000e0d40000e6d40000e8d40000ead40000eed4000044d5000046d5000048d500004ad500004cd50000080601000a0601000c0601009e310100e431010000ca9a3bffffff7f
+    m_ExpandedIDs: 0000000036d40000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1060,7 +1060,7 @@ MonoBehaviour:
     scrollPos: {x: 0, y: 0}
     m_SelectedIDs: 
     m_LastClickedID: 0
-    m_ExpandedIDs: 0000000056d40000
+    m_ExpandedIDs: 0000000036d40000
     m_RenameOverlay:
       m_UserAcceptedRename: 0
       m_Name: 
@@ -1140,7 +1140,7 @@ MonoBehaviour:
   m_Pos:
     serializedVersion: 2
     x: 0
-    y: 79
+    y: 24
     width: 599
     height: 717
   m_SerializedDataModeController:
@@ -1188,8 +1188,8 @@ MonoBehaviour:
     m_TextWithWhitespace: "Hierarchy\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 600
-    y: 79
+    x: 601
+    y: 24
     width: 386
     height: 717
   m_SerializedDataModeController:
@@ -1206,23 +1206,23 @@ MonoBehaviour:
   m_SceneHierarchy:
     m_TreeViewState:
       scrollPos: {x: 0, y: 0}
-      m_SelectedIDs: d2310100
+      m_SelectedIDs: 
       m_LastClickedID: 0
       m_ExpandedIDs: 28fefdff7819fefff225feff3c41feff8651feffd06cfeff5c92feff2c99feff76b4feffe0cbfeff2ae7fefff4f5feff3e11ffffda1fffffe22efffff232ffff5a33ffff2e35ffff243bffffee9bffff02fbffff7ecc0000a6cc0000f4cc0000c0cd0000ccce000010cf0000c04101007a420100504f01000e5d0100ee6a0100c26f0100567d0100f68a0100ba8f0100
       m_RenameOverlay:
         m_UserAcceptedRename: 0
-        m_Name: Enemy_G(Clone)
-        m_OriginalName: Enemy_G(Clone)
+        m_Name: 
+        m_OriginalName: 
         m_EditFieldRect:
           serializedVersion: 2
           x: 0
           y: 0
           width: 0
           height: 0
-        m_UserData: -68056
+        m_UserData: 0
         m_IsWaitingForDelay: 0
         m_IsRenaming: 0
-        m_OriginalEventType: 0
+        m_OriginalEventType: 11
         m_IsRenamingFilename: 0
         m_TrimLeadingAndTrailingWhitespace: 0
         m_ClientGUIView: {fileID: 9}
@@ -1254,8 +1254,8 @@ MonoBehaviour:
     m_TextWithWhitespace: "Scene\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 988
-    y: 79
+    x: 989
+    y: 24
     width: 1571
     height: 717
   m_SerializedDataModeController:
@@ -1971,8 +1971,8 @@ MonoBehaviour:
     m_TextWithWhitespace: "Simulator\u200B"
   m_Pos:
     serializedVersion: 2
-    x: 1183
-    y: 158
+    x: 0
+    y: 26
     width: 684
     height: 1142
   m_SerializedDataModeController:
@@ -2002,7 +2002,7 @@ MonoBehaviour:
   m_UseMipMap: 0
   m_SimulatorState:
     controlPanelVisible: 0
-    controlPanelWidth: 0
+    controlPanelWidth: NaN
     controlPanelFoldoutKeys:
     - UnityEditor.AdaptivePerformance.Editor.AdaptivePerformanceUIExtension
     - UnityEditor.DeviceSimulation.ApplicationSettingsPlugin
@@ -2015,7 +2015,7 @@ MonoBehaviour:
     - '{"m_SerializationStates":{"thermalFoldout":false,"performanceFoldout":false,"developerFoldout":false,"indexerFoldout":false,"scalersFoldout":false,"deviceSettingsFoldout":false}}'
     - '{}'
     - '{}'
-    scale: 35
+    scale: 10
     fitToScreenEnabled: 1
     rotationDegree: 0
     highlightSafeAreaEnabled: 0

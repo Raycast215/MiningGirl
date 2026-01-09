@@ -1,0 +1,15 @@
+fileFormatVersion: 2
+guid: 8f1a5307400f62740a163bb15bbcc0f6
+NativeFormatImporter:
+  externalObjects: {}
+  mainObjectFileID: 0
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
+AssetOrigin:
+  serializedVersion: 1
+  productId: 27944
+  packageName: 2D Isometric Tile Starter Pack
+  packageVersion: 1.3
+  assetPath: Assets/GoldenSkullStudios/2D/2D_Iso_Tile_Pack_Starter/Extras/Materials/Mat_Sprite_Collider.mat
+  uploadId: 440227
