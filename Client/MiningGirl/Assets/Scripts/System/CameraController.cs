@@ -14,7 +14,7 @@ namespace System
         private Camera cam;
 
         [SerializeField] 
-        private int projectionSizePortrait = 25;
+        private int projectionSizePortrait = 27;
         [SerializeField]
         private int projectionSizeLandScape = 14;
 
