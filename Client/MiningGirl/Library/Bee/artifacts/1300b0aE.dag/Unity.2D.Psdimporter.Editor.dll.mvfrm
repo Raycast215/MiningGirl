@@ -19,6 +19,11 @@ SpriteLibCategory
 SpriteLibraryAsset
 SpriteResolver
 SpriteSkin
+GridBrush
+UnityEditor
+GridBrushEditor
+GridBrushEditorBase
+GridSelection
 AssetModificationProcessor
 
 Sysroot
@@ -163,12 +168,16 @@ RayTracingAccelerationStructure
 RendererList
 RendererUtils
 RendererListStatus
-RayTracingShader
+RayTracingShaderHelpURLAttribute
 PixelPerfectRendering
 U2D
 SpriteBone
 LocalizationAsset
 UnityEditor
+CurrentPlayer
+Unity
+Multiplayer
+Playmode
 SpriteShapeParameters
 UnityEngine
 Experimental

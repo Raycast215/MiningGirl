@@ -1,3 +1,8 @@
+GridBrush
+UnityEditor
+GridBrushEditor
+GridBrushEditorBase
+GridSelection
 CinemachineUniversalPixelPerfect
 UnityEngine
 Experimental
@@ -160,12 +165,16 @@ RayTracingAccelerationStructure
 RendererList
 RendererUtils
 RendererListStatus
-RayTracingShader
+RayTracingShaderHelpURLAttribute
 PixelPerfectRendering
 U2D
 SpriteBone
 LocalizationAsset
 UnityEditor
+CurrentPlayer
+Unity
+Multiplayer
+Playmode
 SpriteShapeParameters
 UnityEngine
 Experimental
