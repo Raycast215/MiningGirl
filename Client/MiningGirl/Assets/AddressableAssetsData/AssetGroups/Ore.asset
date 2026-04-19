@@ -51,6 +51,18 @@ MonoBehaviour:
     m_SerializedLabels:
     - Ore
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9c4925eaac340b845b0eb54e2b3f940b
+    m_Address: Enemy
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Ore
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: dde912ec4b828ad448a6729af54cd9dc
+    m_Address: Rock
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Ore
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f7a9ec825bebca74e9aab9bfc93a5359
     m_Address: Enemy_D
     m_ReadOnly: 0

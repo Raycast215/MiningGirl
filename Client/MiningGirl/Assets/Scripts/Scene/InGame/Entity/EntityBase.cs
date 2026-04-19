@@ -1,0 +1,85 @@
+using System.Collections.Generic;
+using BehaviourTree;
+using Cysharp.Threading.Tasks;
+using Scene.InGame.Entity.Data;
+using Scene.InGame.Entity.Interface;
+using Scene.InGame.Entity.Node;
+using UnityEngine;
+
+namespace Scene.InGame.Entity
+{
+    public abstract class EntityBase : GameInitializer, IEntity
+    {
+        public EntityData BaseData { get; set; }
+        
+        [SerializeField]
+        private Rigidbody rigidBody;
+        [SerializeField]
+        protected SpriteRenderer spriteRenderer;
+        
+        protected NodeRunner NodeRunner;
+        protected MoveNode MoveNode;
+        private IEntity _target;
+    
+#region IEntity
+
+        public virtual async UniTaskVoid InitAsync()
+        {
+            MoveNode = new MoveNode(rigidBody, this)
+                .SetMinDistance(BaseData.MoveToMinDistance)
+                .SetMoveSpeed(BaseData.MoveSpeed);
+        }
+
+        public void UpdateNode()
+        {
+            NodeRunner?.OperateNode();
+        }
+        
+        public Transform GetTransform()
+        {
+            return transform;
+        }
+
+        public IEntity GetTarget()
+        {
+            return _target;
+        }
+    
+        public void SetTarget(IEntity iEntity)
+        {
+            _target = iEntity;
+        }
+    
+        public Vector3 GetPosition()
+        {
+            return transform.position;
+        }
+    
+        public void SetPosition(Vector3 position)
+        {
+            var pos = new Vector3(position.x, position.y, 0);
+        
+            transform.position = pos;
+        }
+    
+        public void SetDirection(Vector3 direction)
+        {
+            spriteRenderer.flipX = direction.x switch
+            {
+                > 0 => false,
+                < 0 => true,
+                _ => spriteRenderer.flipX
+            };
+        }
+
+        public bool GetActiveState()
+        {
+            return transform.gameObject.activeSelf;
+        }
+
+        public abstract IEnumerable<IEntity> GetNearCheckEntities();
+        public abstract void Damage(float damage);
+
+#endregion
+    }
+}
