@@ -22,6 +22,34 @@ namespace Scene.InGame.Entity.Enemy
             InitAsync("Enemy", 10).Forget();
         }
 
+        public void Spawn(int count)
+        {
+            for (var i = 0; i < count; i++)
+            {
+                var player = _handler.GetEntityHandler().GetPlayer();
+                var playerPos = player.GetPosition();
+                var posX = playerPos.x + Random.Range(minPosX, maxPosX);
+                var posY = playerPos.y + Random.Range(minPosY, maxPosY);
+                var pos = new Vector2(posX, posY);
+                var ins = Get();
+                
+                ins.BaseData = new EntityData
+                {
+                    MaxHealth = 3,
+                    Health = 3,
+                    MoveSpeed = 1,
+                    MoveToMinDistance = 2,
+                    AttackDelay = 300
+                };
+            
+                ins.SetHandler(_handler, x => Return(x as Enemy));
+                ins.InitAsync().Forget();
+                ins.SetPosition(pos);
+                ins.SetTarget(player);
+                ins.gameObject.SetActive(true);
+            }
+        }
+        
         public void RandomSpawn()
         {
             var player = _handler.GetEntityHandler().GetPlayer();

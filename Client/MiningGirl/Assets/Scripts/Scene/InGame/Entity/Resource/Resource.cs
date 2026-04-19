@@ -28,6 +28,7 @@ namespace Scene.InGame.Entity.Resource
             
             OnReturned?.Invoke(this);
             _handler.GetUIHandler().AddStoneCount(1);
+            _handler.GetUIHandler().AddExpCount(1.0f);
         }
         
 #region EntityBase

@@ -125,6 +125,9 @@ namespace Scene.InGame
 
         public async void CameraAnimation()
         {
+            if (PlayerPrefs.GetInt("IsCriticalShow") == 0)
+                return;
+            
             float start = 12f;
             float zoomTarget = 8.0f;   // 살짝 오버슈트
             float endTarget = 12f;
@@ -137,8 +140,8 @@ namespace Scene.InGame
             float t = 0f;
 
             // 🔻 TimeScale 줄이기
-            Time.timeScale = slowTimeScale;
-            Time.fixedDeltaTime = 0.02f * Time.timeScale;
+            // Time.timeScale = slowTimeScale;
+            // Time.fixedDeltaTime = 0.02f * Time.timeScale;
 
             // 1. 확 줌인
             while (t < durationIn)
@@ -172,16 +175,16 @@ namespace Scene.InGame
 
                 cam.Lens.OrthographicSize = Mathf.Lerp(zoomTarget, endTarget, easedZoom);
 
-                Time.timeScale = easedTime;
-                Time.fixedDeltaTime = 0.02f * Time.timeScale;
+                // Time.timeScale = easedTime;
+                // Time.fixedDeltaTime = 0.02f * Time.timeScale;
 
                 await UniTask.Yield();
             }
 
             // 마무리 정리
             cam.Lens.OrthographicSize = endTarget;
-            Time.timeScale = 1f;
-            Time.fixedDeltaTime = 0.02f;
+            // Time.timeScale = 1f;
+            // Time.fixedDeltaTime = 0.02f;
         }
 
 #endregion

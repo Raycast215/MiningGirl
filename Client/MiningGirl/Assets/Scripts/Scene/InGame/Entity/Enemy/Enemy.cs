@@ -36,6 +36,7 @@ namespace Scene.InGame.Entity.Enemy
             
             OnReturned?.Invoke(this);
             _handler.GetUIHandler().AddGoldCount(1);
+            _handler.GetUIHandler().AddExpCount(1.5f);
         }
         
 #region EntityBase
