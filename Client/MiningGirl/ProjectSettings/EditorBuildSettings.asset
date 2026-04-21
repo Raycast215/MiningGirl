@@ -18,6 +18,7 @@ EditorBuildSettings:
     path: Assets/Scenes/InfoScene.unity
     guid: 0a3071e29b8b5f14ab7ba6ddfb28ffec
   m_configObjects:
+    com.unity.adaptivePerformance.basic.provider_settings: {fileID: 11400000, guid: fd70edb5ba1e7a24ba634d6c9de32eb8, type: 2}
     com.unity.adaptiveperformance.loader_settings: {fileID: 11400000, guid: 8a6a1afa9b8f10a4ca07389599d63f74, type: 2}
     com.unity.adaptiveperformance.simulator.provider_settings: {fileID: 11400000, guid: 95f0a95c26827ec40a3c90495b0a5043, type: 2}
     com.unity.addressableassets: {fileID: 11400000, guid: 0cdd4a9fad4f3554a8044cd4626e6bef, type: 2}

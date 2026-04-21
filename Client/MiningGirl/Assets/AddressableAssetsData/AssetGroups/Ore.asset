@@ -27,6 +27,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Ore
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 126b58b132d14fa4bbcc4bcc116794fa
+    m_Address: Stone
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Ore
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 1d792fe531113524a853c4476156e945
     m_Address: Enemy_E
     m_ReadOnly: 0
