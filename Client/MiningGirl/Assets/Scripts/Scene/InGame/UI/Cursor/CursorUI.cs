@@ -1,0 +1,22 @@
+using UnityEngine;
+
+namespace Scene.InGame.UI.Cursor
+{
+    public class CursorUI : GameInitializer
+    {
+        [SerializeField] 
+        private Transform cursor;
+
+        public void Set(Transform parent)
+        {
+            transform.SetParent(parent);
+        }
+
+        public void SetDirection(Vector3 dir)
+        {
+            var angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
+            
+            transform.rotation = Quaternion.Euler(0, 0, angle);
+        }
+    }
+}

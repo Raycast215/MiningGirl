@@ -1,14 +1,18 @@
+using System;
 using System.Collections.Generic;
 using BehaviourTree;
 using Cysharp.Threading.Tasks;
 using InGame.Player;
 using Scene.InGame.Entity.Interface;
 using Scene.InGame.Entity.Node;
+using UnityEngine;
 
 namespace Scene.InGame.Entity.Player
 {
     public class Player : EntityBase
     {
+        private event Action<Vector3> OnDirectionEvent;
+        
         private IInGameHandler _handler;
         private AttackNode _attackNode;
         private SearchTargetNode _targetSearchNode;
@@ -16,6 +20,12 @@ namespace Scene.InGame.Entity.Player
         public void SetHandler(IInGameHandler handler)
         {
             _handler = handler;
+        }
+
+        public void InitDirectionEvent(Action<Vector3> onDirectionEvent)
+        {
+            OnDirectionEvent = null;
+            OnDirectionEvent += onDirectionEvent;
         }
         
 #region EntityBase
@@ -45,6 +55,12 @@ namespace Scene.InGame.Entity.Player
         public override void Damage(float damage)
         {
          
+        }
+
+        public override void SetDirection(Vector3 direction)
+        {
+            base.SetDirection(direction);
+            OnDirectionEvent?.Invoke(direction);
         }
 
 #endregion

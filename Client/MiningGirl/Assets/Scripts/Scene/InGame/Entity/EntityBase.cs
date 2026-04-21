@@ -61,8 +61,13 @@ namespace Scene.InGame.Entity
         
             transform.position = pos;
         }
-    
-        public void SetDirection(Vector3 direction)
+
+        public bool GetActiveState()
+        {
+            return transform.gameObject.activeSelf;
+        }
+
+        public virtual void SetDirection(Vector3 direction)
         {
             spriteRenderer.flipX = direction.x switch
             {
@@ -71,12 +76,7 @@ namespace Scene.InGame.Entity
                 _ => spriteRenderer.flipX
             };
         }
-
-        public bool GetActiveState()
-        {
-            return transform.gameObject.activeSelf;
-        }
-
+        
         public abstract IEnumerable<IEntity> GetNearCheckEntities();
         public abstract void Damage(float damage);
 
