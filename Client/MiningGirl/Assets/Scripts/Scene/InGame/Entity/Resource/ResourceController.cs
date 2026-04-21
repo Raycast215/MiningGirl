@@ -13,7 +13,7 @@ namespace Scene.InGame.Entity.Resource
         public async UniTaskVoid InitAsync(IInGameHandler handler)
         {
             _handler = handler;
-            InitAsync("Rock", 10).Forget();
+            InitAsync("Stone", 10).Forget();
             await UniTask.WaitUntil(() => IsInitialized);
 
             var posList = GetUIPositionsInRing(Vector3.zero, 2, 10, 30, 2);
