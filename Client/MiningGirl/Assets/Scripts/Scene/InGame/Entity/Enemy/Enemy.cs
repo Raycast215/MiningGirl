@@ -29,8 +29,7 @@ namespace Scene.InGame.Entity.Enemy
         private void DamageFinish()
         {
             spriteRenderer.color = new Color(0f, 0f, 0f, 1f);
-            MoveNode.SetMoveSpeed(BaseData.MoveSpeed);
-
+         
             if (!(BaseData.Health <= 0)) 
                 return;
             
@@ -46,9 +45,8 @@ namespace Scene.InGame.Entity.Enemy
             base.InitAsync().Forget();
 
             spriteRenderer.color = new Color(0f, 0f, 0f, 1f);
-            
-            _attackNode = new AttackNode(this)
-                .SetDelay(BaseData.AttackDelay);
+
+            _attackNode = new AttackNode(this);
             
             NodeRunner = new NodeRunner(new SequenceNode(new List<INode>()
             {
@@ -66,7 +64,7 @@ namespace Scene.InGame.Entity.Enemy
             return ret;
         }
 
-        public override void Damage(float damage)
+        public override void Hit(float damage, bool isCritical)
         {
             if (BaseData.Health <= 0)
                 return;
@@ -77,7 +75,6 @@ namespace Scene.InGame.Entity.Enemy
             var vec = (playerPos - myPos).normalized;
 
             BaseData.Health -= damage;
-            MoveNode.SetMoveSpeed(0);
             _handler.ShowDamageFloatingText((int)damage, transform.position);
             
             if (_posTween != null)
@@ -98,6 +95,41 @@ namespace Scene.InGame.Entity.Enemy
             _colorTween = spriteRenderer
                 .DOColor(new Color(1f, 0f, 0f, 1f), 0.2f)
                 .OnComplete(DamageFinish);
+        }
+
+        public override float GetDamage()
+        {
+            return 1;
+        }
+
+        public override float GetAttackDistance()
+        {
+            return 3;
+        }
+
+        public override float GetAttackDelay()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override float GetMoveSpeed()
+        {
+            return BaseData.MoveSpeed;
+        }
+
+        public override float GetCriDamage()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override float GetCriRate()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override float GetExtraHitRate()
+        {
+            throw new NotImplementedException();
         }
 
 #endregion

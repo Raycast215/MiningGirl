@@ -1,3 +1,4 @@
+
 using System;
 using System.Threading;
 using BehaviourTree;
@@ -6,7 +7,7 @@ using InGame.Player;
 using Manager;
 using Scene.InGame.Entity.Interface;
 using UnityEngine;
-using Random = Unity.Mathematics.Random;
+using Random = UnityEngine.Random;
 
 namespace Scene.InGame.Entity.Node
 {
@@ -16,19 +17,11 @@ namespace Scene.InGame.Entity.Node
         public bool IsAttackDone{ get; private set; }
         
         private readonly IEntity _entity;
-
-        private int _delay;
         private CancellationTokenSource _cts;
         
         public AttackNode(IEntity iEntity)
         {
             _entity = iEntity;
-        }
-        
-        public AttackNode SetDelay(int delay)
-        {
-            _delay = delay;
-            return this;
         }
         
         public NodeState ProcessNode()
@@ -74,28 +67,28 @@ namespace Scene.InGame.Entity.Node
             try
             {
                 if (target == null || !target.GetActiveState())
-                {
-                    Debug.Log("======");
                     return;
-                }
-            
-                // 방향 맞추기
-                // var myPos = _entity.GetPosition();
-                // var dir = (target.GetPosition() - myPos).normalized;
-           
-                // _playerMoveHandler.SetAnimation(EPlayerState.Attack, dir.y < 0 
-                //     ? EPlayerDirection.Down 
-                //     : EPlayerDirection.Up);
-            
-                await UniTask.DelayFrame(_delay, cancellationToken: _cts.Token);
+                
+                await UniTask.WaitForSeconds(_entity.GetAttackDelay(), cancellationToken: _cts.Token);
 
-                var damage = 1;
-                // var random = Random.Range(0, 2) > 0 ;
-            
-                target.Damage(damage);
-                // _handler.ShowDamageFloatingText(damage, target.GetPosition(), random);
+                var damage = _entity.GetDamage();
+                var isCritical = Random.Range(0, 100) < _entity.GetCriRate();
+                var isExtraHit = Random.Range(0, 100) < _entity.GetExtraHitRate();
+
+                if (isCritical)
+                {
+                    damage = _entity.GetDamage() * (1 + _entity.GetCriDamage());
+                }
+
+                target.Hit(damage, isCritical);
+                
+                if (isExtraHit)
+                {
+                    await UniTask.WaitForSeconds(0.2f, cancellationToken: _cts.Token);
+                    target.Hit(damage, isCritical);
+                }
+                
                 SoundManager.Instance.PlaySfx("Hit1");
-            
                 IsAttackDone = true;
             }
             catch (OperationCanceledException)

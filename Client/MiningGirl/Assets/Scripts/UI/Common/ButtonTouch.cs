@@ -12,9 +12,9 @@ namespace UI.Common
 
         [Header("Option")]
         [SerializeField]
-        private float animationDuration = 0.2f;
+        private float animationDuration = 0.1f;
         [SerializeField] 
-        private float toScale = 0.8f;
+        private float toScale = 0.9f;
         
         public void OnPointerEnter(PointerEventData eventData)
         {

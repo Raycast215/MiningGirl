@@ -9,10 +9,7 @@ namespace Scene.InGame.Entity.Node
     {
         private readonly MoveForward _moveComponent;
         private readonly IEntity _entity;
-
-        private float _moveSpeed;
-        private float _minDistance;
-
+        
         // 겹침 보정용
         private float _separationDistance = 0.5f;
         private float _separationStrength = 0.35f;
@@ -24,18 +21,6 @@ namespace Scene.InGame.Entity.Node
             _entity = iEntity;
 
             rigidbody.freezeRotation = true;
-        }
-
-        public MoveNode SetMoveSpeed(float speed)
-        {
-            _moveSpeed = speed;
-            return this;
-        }
-
-        public MoveNode SetMinDistance(float minDistance)
-        {
-            _minDistance = minDistance;
-            return this;
         }
 
         public MoveNode SetSeparationDistance(float distance)
@@ -77,7 +62,7 @@ namespace Scene.InGame.Entity.Node
             var toTarget = targetPos - myPos;
             var dist = toTarget.magnitude;
 
-            if (dist <= _minDistance)
+            if (dist <= _entity.GetAttackDistance())
             {
                 _moveComponent.Move(0f);
                 return NodeState.Success;
@@ -126,7 +111,7 @@ namespace Scene.InGame.Entity.Node
                 finalDir.Normalize();
 
             _moveComponent.SetMoveVec(finalDir);
-            _moveComponent.Move(_moveSpeed);
+            _moveComponent.Move(_entity.GetMoveSpeed());
             _entity.SetDirection(moveDir); // 바라보는 방향은 타겟 기준 유지
 
             return NodeState.Running;

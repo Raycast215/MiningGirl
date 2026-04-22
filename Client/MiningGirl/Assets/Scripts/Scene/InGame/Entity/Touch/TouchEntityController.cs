@@ -74,7 +74,7 @@ namespace Scene.InGame.Entity.Touch
         {
             Debug.Log("엔티티 터치");
 
-            entity.Damage(1);
+            entity.Hit(1, false);
         }
 
         private void OnTouchObject(GameObject obj)

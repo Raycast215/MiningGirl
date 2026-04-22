@@ -1,14 +1,20 @@
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Scene.InGame.Entity.Data;
-using Scene.InGame.Entity.Interface;
 using UnityEngine;
 
 namespace Scene.InGame.Entity.Resource
 {
+    public class SpawnData
+    {
+        public int Count { get; set; }
+        public float Interval { get; set; }
+    }
+    
     public class ResourceController : EntityControllerBase<Resource>
     {
         private IInGameHandler _handler;
+        private SpawnData _spawnData;
         
         public async UniTaskVoid InitAsync(IInGameHandler handler)
         {
@@ -16,26 +22,82 @@ namespace Scene.InGame.Entity.Resource
             InitAsync("Stone", 10).Forget();
             await UniTask.WaitUntil(() => IsInitialized);
 
-            var posList = GetUIPositionsInRing(Vector3.zero, 2, 10, 30, 2);
+            // var posList = GetUIPositionsInRing(Vector3.zero, 2, 10, 30, 2);
+            //
+            // foreach (var pos in posList)
+            // {
+            //     Spawn(pos);
+            // }
+            //
+            // _spawnData = new SpawnData
+            // {
+            //     Count = 3,
+            //     Interval = 10
+            // };
+        }
 
-            foreach (var pos in posList)
-            {
-                var ins = Get();
+        public async void ExecuteSpawn()
+        {
+            if (!IsInitialized)
+                return;
+
+            var isBossStage = true;
             
+            if (isBossStage)
+            {
+                Spawn(new Vector3(0, 10, 0), isBossStage);
+                return;
+            }
+            
+            while (true)
+            {
+                var targetPos = _handler.GetEntityHandler().GetPlayer().GetPosition();
+                var posList = GetUIPositionsInRing(targetPos, 2, 10, _spawnData.Count, 2);
+                
+                foreach (var pos in posList)
+                {
+                    Spawn(pos);
+                }
+                
+                await UniTask.WaitForSeconds(_spawnData.Interval);
+            }
+        }
+
+        private void Spawn(Vector3 pos, bool isBossStage = false)
+        {
+            var ins = Get();
+
+            if (isBossStage)
+            {
                 ins.BaseData = new EntityData
                 {
-                    MaxHealth = 3,
-                    Health = 3,
+                    MaxHealth = 10000,
+                    Health = 10000,
                     MoveSpeed = 0,
                     MoveToMinDistance = 0,
                     AttackDelay = 0
                 };
                 
-                ins.SetHandler(_handler, x => Return(x as Resource));
-                ins.InitAsync().Forget();
-                ins.SetPosition(pos);
-                ins.gameObject.SetActive(true);
+                ins.transform.localScale = Vector3.one * 5;
             }
+            else
+            {
+                ins.BaseData = new EntityData
+                {
+                    MaxHealth = 100,
+                    Health = 100,
+                    MoveSpeed = 0,
+                    MoveToMinDistance = 0,
+                    AttackDelay = 0
+                };
+            }
+            
+            
+                
+            ins.SetHandler(_handler, x => Return(x as Resource));
+            ins.InitAsync().Forget();
+            ins.SetPosition(pos);
+            ins.gameObject.SetActive(true);
         }
         
         private List<Vector3> GetUIPositionsInRing(

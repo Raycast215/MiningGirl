@@ -15,32 +15,14 @@ MonoBehaviour:
   m_GroupName: DataTable
   m_GUID: 90aba12d87883cc43ab74248d1336724
   m_SerializeEntries:
-  - m_GUID: 3761c5f7c7af05941a23a7995ec2d2b6
-    m_Address: SkillDataTable
+  - m_GUID: 6003c4fe78e3e3145a7ff0d770ccc648
+    m_Address: CharacterStatGrowthDataTable
     m_ReadOnly: 0
     m_SerializedLabels:
     - DataTable
     FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 3e86cbca1ff362a4399781a813a2dbe1
-    m_Address: PlayerStatTable
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - DataTable
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: e2a07d79ad5867d4081bb7ac9821bf31
-    m_Address: SkillEffectDataTable
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - DataTable
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: e9ab3b55ec15030449519a71a8f5502e
-    m_Address: StageDataTable
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - DataTable
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: f9f5ff48121f60b42abbaf8febbbc9f4
-    m_Address: StartingSkillDataTable
+  - m_GUID: c4cb4a9532eefc1459259f7aa25c5c0b
+    m_Address: CharacterStatDataTable
     m_ReadOnly: 0
     m_SerializedLabels:
     - DataTable

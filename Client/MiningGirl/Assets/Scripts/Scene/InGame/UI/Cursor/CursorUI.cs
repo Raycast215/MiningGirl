@@ -1,3 +1,4 @@
+using DG.Tweening;
 using UnityEngine;
 
 namespace Scene.InGame.UI.Cursor
@@ -16,7 +17,8 @@ namespace Scene.InGame.UI.Cursor
         {
             var angle = Mathf.Atan2(dir.y, dir.x) * Mathf.Rad2Deg;
             
-            transform.rotation = Quaternion.Euler(0, 0, angle);
+            // transform.rotation = Quaternion.Euler(0, 0, angle);
+            transform.DORotateQuaternion(Quaternion.Euler(0, 0, angle), 0.1f);
         }
     }
 }

@@ -1,0 +1,35 @@
+[
+{
+  "// Memo": "밸런스 타입",
+  "AttackDelay": 3,
+  "AttackDistance": 3,
+  "CriDamage": 0.3,
+  "CriRate": 15,
+  "Damage": 10,
+  "ExtraHitRate": 10,
+  "Id": 1000,
+  "MoveSpeed": 2
+},
+{
+  "// Memo": "치명타 타입",
+  "AttackDelay": 3,
+  "AttackDistance": 3,
+  "CriDamage": 1.5,
+  "CriRate": 40,
+  "Damage": 6,
+  "ExtraHitRate": 5,
+  "Id": 1010,
+  "MoveSpeed": 2
+},
+{
+  "// Memo": "추가타 타입",
+  "AttackDelay": 2.3,
+  "AttackDistance": 3,
+  "CriDamage": 0.2,
+  "CriRate": 10,
+  "Damage": 6,
+  "ExtraHitRate": 30,
+  "Id": 1020,
+  "MoveSpeed": 2
+}
+]

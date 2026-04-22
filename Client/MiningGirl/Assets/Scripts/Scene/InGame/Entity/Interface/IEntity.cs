@@ -21,6 +21,15 @@ namespace Scene.InGame.Entity.Interface
         public bool GetActiveState();
 
         public IEnumerable<IEntity> GetNearCheckEntities();
-        public void Damage(float damage);
+        public void Hit(float damage, bool isCritical);
+        
+        
+        public float GetDamage();
+        public float GetAttackDelay();
+        public float GetMoveSpeed();
+        public float GetCriDamage();
+        public float GetCriRate();
+        public float GetExtraHitRate();
+        public float GetAttackDistance();
     }
 }

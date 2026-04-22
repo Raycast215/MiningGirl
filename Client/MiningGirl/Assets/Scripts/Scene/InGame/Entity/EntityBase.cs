@@ -25,9 +25,7 @@ namespace Scene.InGame.Entity
 
         public virtual async UniTaskVoid InitAsync()
         {
-            MoveNode = new MoveNode(rigidBody, this)
-                .SetMinDistance(BaseData.MoveToMinDistance)
-                .SetMoveSpeed(BaseData.MoveSpeed);
+            MoveNode = new MoveNode(rigidBody, this);
         }
 
         public void UpdateNode()
@@ -78,8 +76,16 @@ namespace Scene.InGame.Entity
         }
         
         public abstract IEnumerable<IEntity> GetNearCheckEntities();
-        public abstract void Damage(float damage);
-
+        public abstract void Hit(float damage, bool isCritical);
+        
+        public abstract float GetDamage();
+        public abstract float GetAttackDistance();
+        public abstract float GetAttackDelay();
+        public abstract float GetMoveSpeed();
+        public abstract float GetCriDamage();
+        public abstract float GetCriRate();
+        public abstract float GetExtraHitRate();
+        
 #endregion
     }
 }

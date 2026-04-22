@@ -1,0 +1,58 @@
+[
+{
+  "// Memo": "데미지",
+  "GrowthValue": 1,
+  "Id": 0,
+  "MaxValue": 1000,
+  "MinValue": 1,
+  "StatType": "Damage"
+},
+{
+  "// Memo": "공격속도",
+  "GrowthValue": -0.01,
+  "Id": 1,
+  "MaxValue": 5,
+  "MinValue": 0.2,
+  "StatType": "AttackDelay"
+},
+{
+  "// Memo": "공격거리",
+  "GrowthValue": 0,
+  "Id": 2,
+  "MaxValue": 10,
+  "MinValue": 1,
+  "StatType": "AttackDistance"
+},
+{
+  "// Memo": "이동속도",
+  "GrowthValue": 0.1,
+  "Id": 3,
+  "MaxValue": 10,
+  "MinValue": 1,
+  "StatType": "MoveSpeed"
+},
+{
+  "// Memo": "치명타 데미지",
+  "GrowthValue": 0.01,
+  "Id": 4,
+  "MaxValue": 10,
+  "MinValue": 0.1,
+  "StatType": "CriDamage"
+},
+{
+  "// Memo": "치명타 확률",
+  "GrowthValue": 0.1,
+  "Id": 5,
+  "MaxValue": 100,
+  "MinValue": 0,
+  "StatType": "CriRate"
+},
+{
+  "// Memo": "추가타 확률",
+  "GrowthValue": 0.1,
+  "Id": 6,
+  "MaxValue": 100,
+  "MinValue": 0,
+  "StatType": "ExtraHitRate"
+}
+]

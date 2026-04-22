@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using BehaviourTree;
 using Cysharp.Threading.Tasks;
-using InGame.Player;
 using Scene.InGame.Entity.Interface;
 using Scene.InGame.Entity.Node;
 using UnityEngine;
@@ -34,7 +33,7 @@ namespace Scene.InGame.Entity.Player
         {
             base.InitAsync().Forget();
             
-            _attackNode = new AttackNode(this).SetDelay(BaseData.AttackDelay);
+            _attackNode = new AttackNode(this);
             _targetSearchNode = new SearchTargetNode(this, _handler.GetEntityHandler());
             
             NodeRunner = new NodeRunner(new SequenceNode(new List<INode>()
@@ -52,7 +51,7 @@ namespace Scene.InGame.Entity.Player
             return null;
         }
 
-        public override void Damage(float damage)
+        public override void Hit(float damage, bool isCritical)
         {
          
         }
@@ -61,6 +60,41 @@ namespace Scene.InGame.Entity.Player
         {
             base.SetDirection(direction);
             OnDirectionEvent?.Invoke(direction);
+        }
+        
+        public override float GetDamage()
+        {
+            return _handler.GetInGameData().GetStatData(EStatType.Damage).Value;
+        }
+
+        public override float GetAttackDistance()
+        {
+            return _handler.GetInGameData().GetStatData(EStatType.AttackDistance).Value;
+        }
+
+        public override float GetAttackDelay()
+        {
+            return _handler.GetInGameData().GetStatData(EStatType.AttackDelay).Value;
+        }
+
+        public override float GetMoveSpeed()
+        {
+            return _handler.GetInGameData().GetStatData(EStatType.MoveSpeed).Value;
+        }
+
+        public override float GetCriDamage()
+        {
+            return _handler.GetInGameData().GetStatData(EStatType.CriDamage).Value;
+        }
+
+        public override float GetCriRate()
+        {
+            return _handler.GetInGameData().GetStatData(EStatType.CriRate).Value;
+        }
+
+        public override float GetExtraHitRate()
+        {
+            return _handler.GetInGameData().GetStatData(EStatType.ExtraHitRate).Value;
         }
 
 #endregion

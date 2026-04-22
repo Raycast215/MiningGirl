@@ -23,7 +23,7 @@ using System.Security.Cryptography;      // PKCE(SHA256), 난수
 // ─────────────────────────────────────────────────────────────────────────────
 public class SheetsToJsonExporter : EditorWindow
 {
-    private string driveFolderId = "1Zci9qh1KbPoFt3rAA60uYhcBDJpaRBtg";
+    private string driveFolderId = "1OQgCy69ulyn9BAAl1WTC1ksckkz7OuwL";
     private string outputFolder = "Assets/Data/SheetsJson";
     private bool prettyPrint = true;
 

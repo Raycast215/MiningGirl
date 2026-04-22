@@ -35,3 +35,20 @@ public enum ESkillEffectType
     RangeAll,
     Draw,
 }
+
+public enum EItemType
+{
+    Gold,
+    Stone,
+}
+
+public enum EStatType
+{
+    Damage,
+    AttackDelay,
+    AttackDistance,
+    MoveSpeed,
+    CriDamage,
+    CriRate,
+    ExtraHitRate,
+}

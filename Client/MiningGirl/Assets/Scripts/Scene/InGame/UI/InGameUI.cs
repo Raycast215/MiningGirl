@@ -1,9 +1,12 @@
 using Cysharp.Threading.Tasks;
 using InGame.System;
+using Scene.InGame.UI.Growth.Stat;
 using Scene.InGame.UI.Level;
 using Scene.InGame.UI.Level.Test;
 using Scene.InGame.UI.Resource;
+using Scene.InGame.UI.Test;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Scene.InGame.UI
@@ -41,10 +44,12 @@ namespace Scene.InGame.UI
         private GameObject testUI;
         [SerializeField]
         private ExpTestUIController expTestUIController;
+        [SerializeField]
+        private StatGrowthInfoUIController statGrowthInfoUIController;
         
         private InGameLevelData _levelData;
         
-        public async UniTaskVoid InitAsync()
+        public async UniTaskVoid InitAsync(InGameData inGameData)
         {
             _levelData = new InGameLevelData
             {
@@ -64,6 +69,7 @@ namespace Scene.InGame.UI
 #region Test
 
             expTestUIController.Init(this);
+            statGrowthInfoUIController.Init(inGameData);
 
 #endregion
             

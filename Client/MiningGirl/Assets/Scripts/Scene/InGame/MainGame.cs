@@ -24,6 +24,7 @@ namespace Scene.InGame
     {
         public IEntityHandler GetEntityHandler();
         public IInGameUIHandler GetUIHandler();
+        public IInGameDataHandler GetInGameData();
         public void ShowDamageFloatingText(int damage, Vector3 targetPos, bool isCritical = false);
         public void CameraAnimation();
     }
@@ -34,6 +35,7 @@ namespace Scene.InGame
         [SerializeField]
         private InGameUI inGameUI;
 
+        [Header("Cam")]
         [SerializeField] 
         private CinemachineCamera cam;
         
@@ -47,6 +49,8 @@ namespace Scene.InGame
         [SerializeField]
         private DamageController damageController;
         
+        private InGameData _inGameData;
+        
         private void Start()
         {
             InitAsync().Forget();
@@ -54,7 +58,11 @@ namespace Scene.InGame
 
         private async UniTaskVoid InitAsync()
         {
-            inGameUI.InitAsync().Forget();
+            _inGameData = new InGameData();
+            _inGameData.Init("1020");
+            await UniTask.WaitUntil(() => _inGameData.IsInitialized);
+            
+            inGameUI.InitAsync(_inGameData).Forget();
             await UniTask.WaitUntil(() => inGameUI.IsInitialized);
             
             resourceController.InitAsync(this).Forget();
@@ -75,6 +83,8 @@ namespace Scene.InGame
             await UniTask.WaitForSeconds(0.5f);
             
             inGameUI.GameStart();
+            resourceController.ExecuteSpawn();
+            // enemyController.ExecuteSpawn();
             IsInitialized = true;
         }
 
@@ -117,7 +127,12 @@ namespace Scene.InGame
         {
             return inGameUI;
         }
-        
+
+        public IInGameDataHandler GetInGameData()
+        {
+            return _inGameData;
+        }
+
         public void ShowDamageFloatingText(int damage, Vector3 targetPos, bool isCritical = false)
         {
             damageController.Damage(damage, targetPos, isCritical);
