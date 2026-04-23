@@ -606,3 +606,13 @@ E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\Unity.2
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\Unity.UnifiedRayTracing.Runtime.pdb
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\Unity.InternalAPIEngineBridge.004.pdb
 E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\UnityEngine.HierarchyModule.xml
+E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\Unity.Cinemachine.dll
+E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\Unity.Cinemachine.Editor.dll
+E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\Unity.Settings.Editor.dll
+E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\Unity.Splines.dll
+E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\Unity.Splines.Editor.dll
+E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\Unity.Splines.Editor.pdb
+E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\Unity.Cinemachine.Editor.pdb
+E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\Unity.Cinemachine.pdb
+E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\Unity.Settings.Editor.pdb
+E:\MiningGirl\Client\MiningGirl\Temp\Bin\Debug\Assembly-CSharp-firstpass\Unity.Splines.pdb
