@@ -4,6 +4,7 @@ using System.Linq;
 using Common;
 using Data;
 using Manager;
+using Scene.InGame.UI;
 using UnityEngine;
 
 namespace Scene.InGame
@@ -14,7 +15,7 @@ namespace Scene.InGame
         public bool CheckLevelUpState(EStatType statType);
         public void LevelUpStat(EStatType statType);
         public float GetItemCount(EItemType itemType);
-        public void AddItemCount(EItemType itemType, float add);
+        public void AddItemCount(EItemType itemType, int add);
     }
     
     public class InGameStatData
@@ -23,7 +24,7 @@ namespace Scene.InGame
         public int Level { get; set; } // 현재 레벨
         public float Value { get; set; } // 레벨에 따른 수치
         public bool IsMaxLevel { get; set; } // 최대 레벨 플래그
-        public float Cost { get; set; } // 레벨업에 필요한 비용
+        public int Cost { get; set; } // 레벨업에 필요한 비용
         public float AddValue { get; set; } // 레벨업 시 증가할 수치
         public float MinValue { get; set; } // 최소 수치
         public float MaxValue { get; set; } // 최대 수치
@@ -33,13 +34,15 @@ namespace Scene.InGame
     {
         public bool IsInitialized { get; private set; }
         private Dictionary<EStatType, InGameStatData> InGameStatDataDic { get; set; }
-        private Dictionary<EItemType, float> ItemCountDic { get; set; }
+        private Dictionary<EItemType, int> ItemCountDic { get; set; }
         private string CharacterId { get; set; }
+        private IInGameUIHandler InGameUIHandler { get; set; }
         
-        public void Init(string characterId)
+        public void Init(string characterId, IInGameUIHandler uiHandler)
         {
             CharacterId = characterId;
-
+            InGameUIHandler = uiHandler;
+            
             InitStatData();
             InitItemData();
             
@@ -53,16 +56,6 @@ namespace Scene.InGame
             
             InGameStatDataDic = new Dictionary<EStatType, InGameStatData>();
             
-            Debug.Log(CharacterId == null);
-            Debug.Log(CharacterId);
-            Debug.Log(DataTableManager.Instance.CharacterStatDataTable == null);
-            Debug.Log(statInfoTable == null);
-
-            foreach (var d in DataTableManager.Instance.CharacterStatDataTable.Rows)
-            {
-                Debug.Log(d.Id);
-            }
-            
             foreach (var statType in statTypeList)
             {
                 SetData(statType, statInfoTable);
@@ -73,7 +66,7 @@ namespace Scene.InGame
         {
             var itemTypeList = Enum.GetValues(typeof(EItemType)).Cast<EItemType>();
             
-            ItemCountDic = new Dictionary<EItemType, float>();
+            ItemCountDic = new Dictionary<EItemType, int>();
             
             foreach (var itemType in itemTypeList)
             {
@@ -143,10 +136,12 @@ namespace Scene.InGame
             var toValue = statData.Value + statData.AddValue;
             
             ItemCountDic[EItemType.Gold] -= statData.Cost;
+            InGameUIHandler.AddGoldCount(-statData.Cost);
             
             statData.Value = Mathf.Clamp(toValue, statData.MinValue, statData.MaxValue);
             statData.Level += 1;
-            statData.Cost = ConstData.BaseStatLevelUpCost * Mathf.Pow(ConstData.BaseStatLevelUpFactor, statData.Level);
+            // statData.Cost = ConstData.BaseStatLevelUpCost * Mathf.Pow(ConstData.BaseStatLevelUpFactor, statData.Level);
+            statData.Cost = Mathf.CeilToInt(ConstData.BaseStatLevelUpCost * Mathf.Pow(ConstData.BaseStatLevelUpFactor, statData.Level));
         }
 
         public float GetItemCount(EItemType itemType)
@@ -154,9 +149,10 @@ namespace Scene.InGame
             return ItemCountDic[itemType];
         }
 
-        public void AddItemCount(EItemType itemType, float add)
+        public void AddItemCount(EItemType itemType, int add)
         {
             ItemCountDic[itemType] += add;
+            Debug.Log($"{itemType} Count: {ItemCountDic[itemType]}  / add: {add}");
         }
 
 #endregion

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using BehaviourTree;
+using Common;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Scene.InGame.Entity.Interface;
@@ -29,13 +30,17 @@ namespace Scene.InGame.Entity.Enemy
         private void DamageFinish()
         {
             spriteRenderer.color = new Color(0f, 0f, 0f, 1f);
-         
-            if (!(BaseData.Health <= 0)) 
+
+            if (BaseData.Health > 0) 
                 return;
             
+            _handler.GetInGameData().AddItemCount(EItemType.Gold, ConstData.BaseIncreaseGold);
+            _handler.GetUIHandler().AddGoldCount(ConstData.BaseIncreaseGold);
+            
+            _handler.GetInGameData().AddItemCount(EItemType.Exp, 1);
+            _handler.GetUIHandler().AddExpCount(1);
+            
             OnReturned?.Invoke(this);
-            _handler.GetUIHandler().AddGoldCount(1);
-            _handler.GetUIHandler().AddExpCount(1.5f);
         }
         
 #region EntityBase

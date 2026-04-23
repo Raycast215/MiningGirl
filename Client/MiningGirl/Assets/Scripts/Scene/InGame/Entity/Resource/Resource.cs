@@ -33,12 +33,16 @@ namespace Scene.InGame.Entity.Resource
         
         private void DamageFinish()
         {
-            if (!(BaseData.Health <= 0)) 
+            if (BaseData.Health > 0) 
                 return;
             
-            OnReturned?.Invoke(this);
+            _handler.GetInGameData().AddItemCount(EItemType.Stone, 1);
             _handler.GetUIHandler().AddStoneCount(1);
-            _handler.GetUIHandler().AddExpCount(1.0f);
+            
+            _handler.GetInGameData().AddItemCount(EItemType.Exp, 1);
+            _handler.GetUIHandler().AddExpCount(1);
+            
+            OnReturned?.Invoke(this);
         }
         
         private async UniTask FadeMaterialAsync()

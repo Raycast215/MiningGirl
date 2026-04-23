@@ -13,6 +13,8 @@ namespace Scene.InGame.UI.Growth.Stat
         private TMP_Text nameText;
         [SerializeField] 
         private TMP_Text valueText;
+        [SerializeField] 
+        private TMP_Text costText;
         [SerializeField]
         private Transform buttonGroup;
         [SerializeField] 
@@ -35,6 +37,11 @@ namespace Scene.InGame.UI.Growth.Stat
         public void Set(float statValue)
         {
             valueText.text = $"{statValue:F1}";
+        }
+
+        public void SetCost(int cost)
+        {
+            costText.text = $"{cost}";
         }
 
         private void OnTouchButton()

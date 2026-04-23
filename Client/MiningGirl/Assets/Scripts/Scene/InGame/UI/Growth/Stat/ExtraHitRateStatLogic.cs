@@ -4,10 +4,11 @@ namespace Scene.InGame.UI.Growth.Stat
     {
         protected override EStatType StatType => EStatType.ExtraHitRate;
     
-        public ExtraHitRateStatLogic(StatGrowthInfoUI ui, IInGameDataHandler inGameDataHandler) : base(ui, inGameDataHandler)
+        public ExtraHitRateStatLogic(StatGrowthInfoUI ui, IInGameUIHandler inGameUIHandler, IInGameDataHandler inGameDataDataHandler) : base(ui, inGameUIHandler, inGameDataDataHandler)
         {
             ui.Init("추가타 확률", TryLevelUp);
-            ui.Set(Handler.GetStatData(StatType).Value);
+            ui.Set(DataHandler.GetStatData(StatType).Value);
+            ui.SetCost((int)DataHandler.GetStatData(StatType).Cost);
         }
     }
 }

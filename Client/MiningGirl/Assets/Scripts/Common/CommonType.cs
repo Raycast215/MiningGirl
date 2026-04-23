@@ -40,6 +40,7 @@ public enum EItemType
 {
     Gold,
     Stone,
+    Exp,
 }
 
 public enum EStatType

@@ -69,7 +69,7 @@ namespace Scene.InGame.UI
 #region Test
 
             expTestUIController.Init(this);
-            statGrowthInfoUIController.Init(inGameData);
+            statGrowthInfoUIController.Init(this, inGameData);
 
 #endregion
             

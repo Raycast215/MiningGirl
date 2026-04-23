@@ -59,7 +59,7 @@ namespace Scene.InGame
         private async UniTaskVoid InitAsync()
         {
             _inGameData = new InGameData();
-            _inGameData.Init("1020");
+            _inGameData.Init("1020", inGameUI);
             await UniTask.WaitUntil(() => _inGameData.IsInitialized);
             
             inGameUI.InitAsync(_inGameData).Forget();

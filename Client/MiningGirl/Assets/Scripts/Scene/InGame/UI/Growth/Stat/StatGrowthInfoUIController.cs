@@ -11,16 +11,16 @@ namespace Scene.InGame.UI.Growth.Stat
 
         private Dictionary<EStatType, DamageStatLogicBase> _dic;
         
-        public void Init(IInGameDataHandler inGameDataHandler)
+        public void Init(IInGameUIHandler inGameUIHandler, IInGameDataHandler inGameDataHandler)
         {
             _dic = new Dictionary<EStatType, DamageStatLogicBase>
             {
-                { EStatType.Damage, new DamageStatLogic(uiList[0], inGameDataHandler) },
-                { EStatType.AttackDelay, new AttackDelayStatLogic(uiList[1], inGameDataHandler) },
-                { EStatType.MoveSpeed, new MoveSpeedStatLogic(uiList[2], inGameDataHandler) },
-                { EStatType.CriDamage, new CriDamageStatLogic(uiList[3], inGameDataHandler) },
-                { EStatType.CriRate, new CriRateStatLogic(uiList[4], inGameDataHandler) },
-                { EStatType.ExtraHitRate, new ExtraHitRateStatLogic(uiList[5], inGameDataHandler) },
+                { EStatType.Damage, new DamageStatLogic(uiList[0], inGameUIHandler, inGameDataHandler) },
+                { EStatType.AttackDelay, new AttackDelayStatLogic(uiList[1], inGameUIHandler, inGameDataHandler) },
+                { EStatType.MoveSpeed, new MoveSpeedStatLogic(uiList[2], inGameUIHandler, inGameDataHandler) },
+                { EStatType.CriDamage, new CriDamageStatLogic(uiList[3], inGameUIHandler, inGameDataHandler) },
+                { EStatType.CriRate, new CriRateStatLogic(uiList[4], inGameUIHandler, inGameDataHandler) },
+                { EStatType.ExtraHitRate, new ExtraHitRateStatLogic(uiList[5], inGameUIHandler, inGameDataHandler) },
             };
         }
     }
