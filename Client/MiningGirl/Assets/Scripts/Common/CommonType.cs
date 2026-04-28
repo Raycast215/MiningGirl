@@ -36,6 +36,13 @@ public enum ESkillEffectType
     Draw,
 }
 
+public enum ETextType
+{
+    Int,
+    Float,
+    Percent,
+}
+
 public enum EItemType
 {
     Gold,

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using Scene.InGame.Entity.Data;
@@ -22,18 +23,18 @@ namespace Scene.InGame.Entity.Resource
             InitAsync("Stone", 10).Forget();
             await UniTask.WaitUntil(() => IsInitialized);
 
-            // var posList = GetUIPositionsInRing(Vector3.zero, 2, 10, 30, 2);
-            //
-            // foreach (var pos in posList)
-            // {
-            //     Spawn(pos);
-            // }
-            //
-            // _spawnData = new SpawnData
-            // {
-            //     Count = 3,
-            //     Interval = 10
-            // };
+            var posList = GetUIPositionsInRing(Vector3.zero, 2, 10, 30, 2);
+            
+            foreach (var pos in posList)
+            {
+                Spawn(pos);
+            }
+            
+            _spawnData = new SpawnData
+            {
+                Count = 3,
+                Interval = 10
+            };
         }
 
         public async void ExecuteSpawn()
@@ -41,25 +42,32 @@ namespace Scene.InGame.Entity.Resource
             if (!IsInitialized)
                 return;
 
-            var isBossStage = true;
+            var isBossStage = false;
             
             if (isBossStage)
             {
                 Spawn(new Vector3(0, 10, 0), isBossStage);
                 return;
             }
-            
-            while (true)
+
+            try
             {
-                var targetPos = _handler.GetEntityHandler().GetPlayer().GetPosition();
-                var posList = GetUIPositionsInRing(targetPos, 2, 10, _spawnData.Count, 2);
-                
-                foreach (var pos in posList)
+                while (true)
                 {
-                    Spawn(pos);
-                }
+                    var targetPos = _handler.GetEntityHandler().GetPlayer().GetPosition();
+                    var posList = GetUIPositionsInRing(targetPos, 2, 10, _spawnData.Count, 2);
                 
-                await UniTask.WaitForSeconds(_spawnData.Interval);
+                    foreach (var pos in posList)
+                    {
+                        Spawn(pos);
+                    }
+                
+                    await UniTask.WaitForSeconds(_spawnData.Interval);
+                }
+            }
+            catch (Exception e)
+            {
+                Debug.Log(e);
             }
         }
 

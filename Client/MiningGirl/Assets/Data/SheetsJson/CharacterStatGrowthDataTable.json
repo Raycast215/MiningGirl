@@ -33,9 +33,9 @@
 },
 {
   "// Memo": "치명타 데미지",
-  "GrowthValue": 0.01,
+  "GrowthValue": 0.1,
   "Id": 4,
-  "MaxValue": 10,
+  "MaxValue": 100,
   "MinValue": 0.1,
   "StatType": "CriDamage"
 },

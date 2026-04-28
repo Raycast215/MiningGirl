@@ -84,7 +84,7 @@ namespace Scene.InGame
             
             inGameUI.GameStart();
             resourceController.ExecuteSpawn();
-            // enemyController.ExecuteSpawn();
+            enemyController.ExecuteSpawn();
             IsInitialized = true;
         }
 

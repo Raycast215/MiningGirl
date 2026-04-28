@@ -29,7 +29,7 @@ namespace Scene.InGame.Entity.Enemy
 
         private void DamageFinish()
         {
-            spriteRenderer.color = new Color(0f, 0f, 0f, 1f);
+            spriteRenderer.color = new Color(1f, 1f, 1f, 1f);
 
             if (BaseData.Health > 0) 
                 return;
@@ -49,7 +49,7 @@ namespace Scene.InGame.Entity.Enemy
         {
             base.InitAsync().Forget();
 
-            spriteRenderer.color = new Color(0f, 0f, 0f, 1f);
+            spriteRenderer.color = new Color(1f, 1f, 1f, 1f);
 
             _attackNode = new AttackNode(this);
             
@@ -94,7 +94,7 @@ namespace Scene.InGame.Entity.Enemy
             {
                 _colorTween.Kill();
                 _colorTween = null;
-                spriteRenderer.color = new Color(0f, 0f, 0f, 1f);
+                spriteRenderer.color = new Color(1f, 1f, 1f, 1f);
             }
             
             _colorTween = spriteRenderer

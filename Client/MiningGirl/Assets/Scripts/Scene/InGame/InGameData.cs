@@ -88,7 +88,7 @@ namespace Scene.InGame
             InGameStatDataDic.Add(statType, new InGameStatData
             {
                 StatType = statType,
-                Level = 1,
+                Level = 0,
                 Value = GetValue(statType, row),
                 IsMaxLevel = false,
                 Cost = ConstData.BaseStatLevelUpCost,

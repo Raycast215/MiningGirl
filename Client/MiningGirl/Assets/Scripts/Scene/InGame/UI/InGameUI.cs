@@ -72,14 +72,12 @@ namespace Scene.InGame.UI
             statGrowthInfoUIController.Init(this, inGameData);
 
 #endregion
-            
-            testUI.gameObject.SetActive(false);
+
             IsInitialized = true;
         }
 
         public void GameReady()
         {
-            testUI.gameObject.SetActive(true);
             timerUI.Appear();
         }
 
@@ -99,6 +97,7 @@ namespace Scene.InGame.UI
         public void AddGoldCount(int add)
         {
             goldCountViewerUI.AddCount(add);
+            statGrowthInfoUIController.RefreshUI();
         }
         
         public void AddStoneCount(int add)

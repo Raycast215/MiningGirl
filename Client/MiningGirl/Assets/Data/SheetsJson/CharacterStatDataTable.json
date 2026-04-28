@@ -2,7 +2,7 @@
 {
   "// Memo": "밸런스 타입",
   "AttackDelay": 3,
-  "AttackDistance": 3,
+  "AttackDistance": 1,
   "CriDamage": 0.3,
   "CriRate": 15,
   "Damage": 10,
@@ -13,7 +13,7 @@
 {
   "// Memo": "치명타 타입",
   "AttackDelay": 3,
-  "AttackDistance": 3,
+  "AttackDistance": 1,
   "CriDamage": 1.5,
   "CriRate": 40,
   "Damage": 6,
@@ -24,7 +24,7 @@
 {
   "// Memo": "추가타 타입",
   "AttackDelay": 2.3,
-  "AttackDistance": 3,
+  "AttackDistance": 1,
   "CriDamage": 0.2,
   "CriRate": 10,
   "Damage": 6,

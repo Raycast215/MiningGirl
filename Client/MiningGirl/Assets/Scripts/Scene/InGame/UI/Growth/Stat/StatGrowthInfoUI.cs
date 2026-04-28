@@ -1,6 +1,8 @@
 using System;
 using TMPro;
+using UI.Common;
 using UnityEngine;
+using UnityEngine.Serialization;
 using UnityEngine.UI;
 
 namespace Scene.InGame.UI.Growth.Stat
@@ -8,7 +10,9 @@ namespace Scene.InGame.UI.Growth.Stat
     public class StatGrowthInfoUI : GameInitializer
     {
         private event Action OnButtonTouched;
-        
+
+        [SerializeField] 
+        private TMP_Text levelText;
         [SerializeField] 
         private TMP_Text nameText;
         [SerializeField] 
@@ -18,25 +22,31 @@ namespace Scene.InGame.UI.Growth.Stat
         [SerializeField]
         private Transform buttonGroup;
         [SerializeField] 
-        private Button button;
-        
-        private void Awake()
-        {
-            button.onClick.RemoveAllListeners();
-            button.onClick.AddListener(OnTouchButton);
-        }
+        private ButtonTouch enhanceButton;
+
+        private bool _isEnhanceable;
 
         public void Init(string statNameText, Action onButtonTouched)
         {
+            enhanceButton.GetButton.onClick.RemoveAllListeners();
+            enhanceButton.GetButton.onClick.AddListener(OnTouchButton);
+            
             OnButtonTouched = null;
             OnButtonTouched += onButtonTouched;
-            
-            nameText.text = statNameText;
+
+            if (nameText)
+                nameText.text = statNameText;
         }
 
-        public void Set(float statValue)
+        public void Set(float statValue, ETextType statType)
         {
-            valueText.text = $"{statValue:F1}";
+            valueText.text = statType switch
+            {
+                ETextType.Int => $"{statValue:N0}",
+                ETextType.Float => $"{statValue:0.##}",
+                ETextType.Percent => $"{statValue:0.#}%",
+                _ => $"{statValue}"
+            };
         }
 
         public void SetCost(int cost)
@@ -44,8 +54,31 @@ namespace Scene.InGame.UI.Growth.Stat
             costText.text = $"{cost}";
         }
 
+        public void SetLevel(int level)
+        {
+            levelText.text = $"Lv.{level}";
+        }
+
+        public void SetEnhanceState(bool isEnhanceable)
+        {
+            _isEnhanceable = isEnhanceable;
+            
+            if (_isEnhanceable)
+            {
+                costText.color = Color.white;
+                enhanceButton.SetColor(0);
+                return;
+            }
+            
+            costText.color = Color.red;
+            enhanceButton.SetColor(1);
+        }
+        
         private void OnTouchButton()
         {
+            if (!_isEnhanceable)
+                return;
+            
             OnButtonTouched?.Invoke();
         }
     }
