@@ -1,8 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 
 namespace Data
 {
@@ -10,9 +8,7 @@ namespace Data
     public abstract class DataTableRowBase
     {
         public string Id { get; set; }
-        
-        [JsonConverter(typeof(StringEnumConverter))] 
-        public EVisibleType VisibleType { get; set; }
+        public bool IsVisible { get; set; }
     }
     
     [Serializable]

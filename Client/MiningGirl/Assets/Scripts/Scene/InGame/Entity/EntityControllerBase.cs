@@ -17,8 +17,8 @@ namespace Scene.InGame.Entity
 
         public void Clear()
         {
-            if (_queue == null || _queue.Count == 0)
-                return;
+            // if (_queue == null || _queue.Count == 0 || ActivateList.Count == 0)
+            //     return;
 
             foreach (var entity in ActivateList)
             {
@@ -27,7 +27,6 @@ namespace Scene.InGame.Entity
             }
             
             ActivateList.Clear();
-            _queue.Clear();
         }
 
         public void UpdateEntity()
@@ -49,8 +48,8 @@ namespace Scene.InGame.Entity
         {
             _prefabName = prefabName;
             _count = count;
-            _queue = new Queue<T>();
-            ActivateList = new List<T>();
+            _queue ??= new Queue<T>();
+            ActivateList ??= new List<T>();
             
             for (var i = 0; i < _count; i++)
             {

@@ -1,10 +1,3 @@
-public enum EVisibleType 
-{ 
-    Hide,
-    Show,
-    DevOnly 
-}
-
 public enum EUnitRank
 {
     R, 
@@ -41,6 +34,13 @@ public enum ETextType
     Int,
     Float,
     Percent,
+}
+
+public enum EStageType
+{
+    Default,
+    Skill,
+    Boss,
 }
 
 public enum EItemType

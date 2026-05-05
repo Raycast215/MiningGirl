@@ -33,15 +33,22 @@ namespace Scene.InGame
     public class InGameData : IInGameDataHandler
     {
         public bool IsInitialized { get; private set; }
+        public StageInfoTableRow Row { get; private set; }
+        
         private Dictionary<EStatType, InGameStatData> InGameStatDataDic { get; set; }
         private Dictionary<EItemType, int> ItemCountDic { get; set; }
         private string CharacterId { get; set; }
         private IInGameUIHandler InGameUIHandler { get; set; }
         
-        public void Init(string characterId, IInGameUIHandler uiHandler)
+        public void Init(IInGameUIHandler uiHandler)
         {
-            CharacterId = characterId;
+            if (IsInitialized)
+                return;
+            
+            CharacterId = GameDataManager.Instance.GameStageData.CharacterId;
             InGameUIHandler = uiHandler;
+            
+            Debug.Log(CharacterId);
             
             InitStatData();
             InitItemData();
@@ -100,6 +107,8 @@ namespace Scene.InGame
 
         private float GetValue(EStatType statType, CharacterStatDataRow row)
         {
+            Debug.Log(row == null);
+            
             var value = statType switch
             {
                 EStatType.Damage => row.Damage,
@@ -126,7 +135,12 @@ namespace Scene.InGame
         {
             var statData = InGameStatDataDic[statType];
             var curGold = ItemCountDic[EItemType.Gold];
+
+            // 최대 레벨 체크.
+            if (statData.IsMaxLevel)
+                return false;
             
+            // 구매 가능 상태 체크.
             return statData.Cost <= curGold;
         }
 
@@ -142,6 +156,11 @@ namespace Scene.InGame
             statData.Level += 1;
             // statData.Cost = ConstData.BaseStatLevelUpCost * Mathf.Pow(ConstData.BaseStatLevelUpFactor, statData.Level);
             statData.Cost = Mathf.CeilToInt(ConstData.BaseStatLevelUpCost * Mathf.Pow(ConstData.BaseStatLevelUpFactor, statData.Level));
+
+            if (statData.Value >= statData.MaxValue)
+            {
+                statData.IsMaxLevel = true;
+            }
         }
 
         public float GetItemCount(EItemType itemType)

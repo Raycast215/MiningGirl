@@ -50,19 +50,27 @@ namespace Scene.InGame
         private DamageController damageController;
         
         private InGameData _inGameData;
+        private bool _isGameStarted;
         
         private void Start()
         {
+            var gameData = GameDataManager.Instance.GameStageData;
+
+            gameData.Set("1020", 0, 0);
+            
             InitAsync().Forget();
         }
 
         private async UniTaskVoid InitAsync()
         {
-            _inGameData = new InGameData();
-            _inGameData.Init("1020", inGameUI);
-            await UniTask.WaitUntil(() => _inGameData.IsInitialized);
+            if (!IsInitialized)
+            {
+                _inGameData = new InGameData();
+                _inGameData.Init(inGameUI);
+                await UniTask.WaitUntil(() => _inGameData.IsInitialized);
+            }
             
-            inGameUI.InitAsync(_inGameData).Forget();
+            inGameUI.InitAsync(_inGameData, () => TimeOut().Forget()).Forget();
             await UniTask.WaitUntil(() => inGameUI.IsInitialized);
             
             resourceController.InitAsync(this).Forget();
@@ -86,6 +94,7 @@ namespace Scene.InGame
             resourceController.ExecuteSpawn();
             enemyController.ExecuteSpawn();
             IsInitialized = true;
+            _isGameStarted = true;
         }
 
         private void FixedUpdate()
@@ -93,8 +102,46 @@ namespace Scene.InGame
             if (!IsInitialized)
                 return;
             
-            enemyController.UpdateEntity();
+            if (!_isGameStarted)
+                return;
+            
             playerController.UpdateEntity();
+            enemyController.UpdateEntity();
+        }
+
+        private async UniTaskVoid TimeOut()
+        {
+            var gameData = GameDataManager.Instance.GameStageData;
+            var clearStageRow = gameData.GetRow();
+            
+            gameData.NextStage();
+            await UniTask.WaitForSeconds(2.0f);
+
+            for (var i = 0; i < clearStageRow.ClearRewardTypeList!.Count; i++)
+            {
+                var rewardType = clearStageRow.ClearRewardTypeList[i];
+                var rewardCount = clearStageRow.ClearRewardCountList![i];
+                
+                if (rewardType == EItemType.Gold)
+                {
+                    _inGameData.AddItemCount(rewardType, (int)rewardCount);
+                    inGameUI.AddGoldCount((int)rewardCount);
+                }
+            }
+            
+            Clear();
+            playerController.SetPosition(Vector3.zero);
+            await UniTask.WaitForSeconds(1.0f);
+            
+            InitAsync().Forget();
+        }
+
+        private void Clear()
+        {
+            _isGameStarted = false;
+            
+            enemyController.Clear();
+            resourceController.Clear();
         }
 
 #region IEntityHandler

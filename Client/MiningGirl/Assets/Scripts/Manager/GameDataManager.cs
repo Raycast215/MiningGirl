@@ -15,6 +15,8 @@ namespace Manager
                 return;
             
             GameStageData = new GameStageData();
+            GameStageData.Load();
+            
             ItemDataDic = new Dictionary<string, GameItemData>();
             
             IsInitialized = true;

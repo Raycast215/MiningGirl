@@ -31,6 +31,12 @@ namespace Scene.InGame.UI.Growth.Stat
                 Debug.Log("재화가 부족합니다.");
                 return;
             }
+
+            if (DataHandler.GetStatData(StatType).IsMaxLevel)
+            {
+                Debug.Log("최대레벨!");
+                return;
+            }
             
             // 레벨업 후 데이터 갱신.
             DataHandler.LevelUpStat(StatType);

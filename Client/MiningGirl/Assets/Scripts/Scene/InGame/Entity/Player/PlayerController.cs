@@ -12,6 +12,9 @@ namespace Scene.InGame.Entity.Player
         
         public async UniTaskVoid InitAsync(IInGameHandler handler)
         {
+            if (IsInitialized)
+                return;
+            
             InitAsync("Player", 1).Forget();
             await UniTask.WaitUntil(() => IsInitialized);
 
@@ -31,6 +34,11 @@ namespace Scene.InGame.Entity.Player
             ins.gameObject.SetActive(true);
             
             cursor.Set(ins.transform);
+        }
+
+        public void SetPosition(Vector3 position)
+        {
+            ActivateList[0].transform.position = position;
         }
     }
 }

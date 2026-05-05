@@ -19,6 +19,9 @@ namespace Scene.InGame.Entity.Resource
         
         public async UniTaskVoid InitAsync(IInGameHandler handler)
         {
+            if (IsInitialized)
+                return;
+            
             _handler = handler;
             InitAsync("Stone", 10).Forget();
             await UniTask.WaitUntil(() => IsInitialized);

@@ -10,6 +10,7 @@ namespace Manager
     {
         public CharacterStatDataTable CharacterStatDataTable { get; private set; }
         public CharacterStatGrowthDataTable CharacterStatGrowthDataTable { get; private set; }
+        public StageInfoTable StageInfoTable { get; private set; }
 
         public async UniTaskVoid PreLoadData()
         {
@@ -30,6 +31,9 @@ namespace Manager
             CharacterStatGrowthDataTable =
                 new CharacterStatGrowthDataTable(AddressableSheetsDataManager.GetAll<CharacterStatGrowthDataRow>());
 
+            StageInfoTable =
+                new StageInfoTable(AddressableSheetsDataManager.GetAll<StageInfoTableRow>());
+            
             Debug.Log($"CharacterStatDataRow count = {CharacterStatDataTable.Rows.Count}");
 
             IsInitialized = true;

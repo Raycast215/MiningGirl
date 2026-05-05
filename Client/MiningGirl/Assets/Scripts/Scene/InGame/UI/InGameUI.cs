@@ -1,5 +1,7 @@
+using System;
 using Cysharp.Threading.Tasks;
 using InGame.System;
+using Manager;
 using Scene.InGame.UI.Growth.Stat;
 using Scene.InGame.UI.Level;
 using Scene.InGame.UI.Level.Test;
@@ -49,30 +51,33 @@ namespace Scene.InGame.UI
         
         private InGameLevelData _levelData;
         
-        public async UniTaskVoid InitAsync(InGameData inGameData)
+        public async UniTaskVoid InitAsync(InGameData inGameData, Action stageFinishedCallback)
         {
-            _levelData = new InGameLevelData
+            if (!IsInitialized)
             {
-                Level = 1,
-                Exp = 0,
-                MaxExp = 10
-            };
+                _levelData = new InGameLevelData
+                {
+                    Level = 1,
+                    Exp = 0,
+                    MaxExp = 10
+                };
+                
+                goldCountViewerUI.SetCount(0);
+                stoneCountViewerUI.SetCount(0);
             
-            timerUI.Init(180, null);
-            
-            goldCountViewerUI.SetCount(0);
-            stoneCountViewerUI.SetCount(0);
-            
-            levelGaugeUI.SetValue(0);
-            levelGaugeUI.SetLevel(_levelData.Level);
-
+                levelGaugeUI.SetValue(0);
+                levelGaugeUI.SetLevel(_levelData.Level);
+                
 #region Test
-
-            expTestUIController.Init(this);
-            statGrowthInfoUIController.Init(this, inGameData);
-
+                expTestUIController.Init(this);
+                statGrowthInfoUIController.Init(this, inGameData);
 #endregion
+            }
 
+            var row = GameDataManager.Instance.GameStageData.GetRow();
+            
+            timerUI.Init(row.PlayTime, stageFinishedCallback);
+            
             IsInitialized = true;
         }
 

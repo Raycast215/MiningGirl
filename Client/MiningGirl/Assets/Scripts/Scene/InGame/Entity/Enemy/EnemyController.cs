@@ -22,6 +22,9 @@ namespace Scene.InGame.Entity.Enemy
         
         public void Init(IInGameHandler handler)
         {
+            if (IsInitialized)
+                return;
+            
             _handler = handler;
             InitAsync("Enemy", 10).Forget();
             
