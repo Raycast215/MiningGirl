@@ -17,10 +17,9 @@ namespace Scene.InGame.UI.Growth.Stat
             {
                 { EStatType.Damage, new DamageStatLogic(uiList[0], inGameUIHandler, inGameDataHandler) },
                 { EStatType.AttackDelay, new AttackDelayStatLogic(uiList[1], inGameUIHandler, inGameDataHandler) },
-                { EStatType.MoveSpeed, new MoveSpeedStatLogic(uiList[2], inGameUIHandler, inGameDataHandler) },
-                { EStatType.CriDamage, new CriStatLogic(uiList[3], inGameUIHandler, inGameDataHandler) },
-                { EStatType.CriRate, new CriRateStatLogic(uiList[4], inGameUIHandler, inGameDataHandler) },
-                { EStatType.ExtraHitRate, new ExtraHitRateStatLogic(uiList[5], inGameUIHandler, inGameDataHandler) },
+                { EStatType.CriDamage, new CriStatLogic(uiList[2], inGameUIHandler, inGameDataHandler) },
+                { EStatType.CriRate, new CriRateStatLogic(uiList[3], inGameUIHandler, inGameDataHandler) },
+                { EStatType.ExtraHitRate, new ExtraHitRateStatLogic(uiList[4], inGameUIHandler, inGameDataHandler) },
             };
         }
 
