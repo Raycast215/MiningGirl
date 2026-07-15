@@ -27,7 +27,7 @@ namespace Scene.InGame.UI
         public void AddExpCount(float add);
     }
     
-    public class InGameUI : GameInitializer, IInGameUIHandler
+    public class InGameMonoUI : GameMonoInitializer, IInGameUIHandler
     {
         [Header("Top")]
         [SerializeField] 

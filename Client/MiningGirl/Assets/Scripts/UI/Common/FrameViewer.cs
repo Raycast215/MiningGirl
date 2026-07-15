@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace UI.Common
 {
-    public class FrameViewer : GameInitializer
+    public class FrameViewer : GameMonoInitializer
     {
         [SerializeField]
         private TextMeshProUGUI frameText;

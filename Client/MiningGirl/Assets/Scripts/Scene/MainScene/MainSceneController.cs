@@ -5,6 +5,7 @@ using Scene.MainScene.SubContents;
 using Scene.StartScene.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 namespace Scene.MainScene
 {
@@ -28,10 +29,10 @@ namespace Scene.MainScene
         void ShowShopMenu();
     }
     
-    public class MainSceneController : GameInitializer, IMainBottomMenuHandler
+    public class MainSceneController : GameMonoInitializer, IMainBottomMenuHandler
     {
-        [SerializeField]
-        private TabGame tabGame;
+        [FormerlySerializedAs("tabGame")] [SerializeField]
+        private TabGameMono tabGameMono;
 
         [SerializeField] 
         private List<GameObject> contentsGroupList;
@@ -52,7 +53,7 @@ namespace Scene.MainScene
 
         private async UniTaskVoid Initialize()
         {
-            tabGame.Initialize();
+            tabGameMono.Initialize();
             
             bottomMenuButtonList[(int)ESubContentsType.Shop].Initialize(this, ShowShopMenu);
             bottomMenuButtonList[(int)ESubContentsType.Collection].Initialize(this, ShowCollectionMenu);

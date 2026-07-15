@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace UI.Common
 {
-    public class ButtonTouch : GameInitializer, IPointerEnterHandler, IPointerExitHandler
+    public class ButtonTouch : GameMonoInitializer, IPointerEnterHandler, IPointerExitHandler
     {
         public Button GetButton { get; private set; }
 

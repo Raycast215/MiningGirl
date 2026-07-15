@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace UI.CoverUI
 {
-    public class CoverUI : GameInitializer
+    public class CoverUI : GameMonoInitializer
     {
         [SerializeField] 
         private Image backImage;

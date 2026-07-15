@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace Scene.InGame.UI.Spawn.Test
 {
-    public class EnemySpawnTestUI : GameInitializer
+    public class EnemySpawnTestUI : GameMonoInitializer
     {
         [SerializeField] 
         private Button button;

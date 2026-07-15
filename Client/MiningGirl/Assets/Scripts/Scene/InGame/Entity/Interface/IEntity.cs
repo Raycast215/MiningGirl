@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using UnityEngine;
@@ -6,6 +7,13 @@ namespace Scene.InGame.Entity.Interface
 {
     public interface IEntity
     {
+        string GetId();
+        void SetActiveObject(bool isActive);
+        void SetReleaseCallback(Action<IEntity> callback);
+        
+        
+        
+        
         public UniTaskVoid InitAsync();
         public void UpdateNode();
         

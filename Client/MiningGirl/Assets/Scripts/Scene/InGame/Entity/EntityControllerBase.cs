@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Scene.InGame.Entity
 {
-    public abstract class EntityControllerBase<T> : GameInitializer where T : IEntity
+    public abstract class EntityControllerBase<T> : GameMonoInitializer where T : IEntity
     {
         public List<T> ActivateList { get; private set; }
         

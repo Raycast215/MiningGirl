@@ -10,7 +10,7 @@ using UnityEngine.UI;
 
 namespace Scene.StartScene
 {
-    public class StartSceneController : GameInitializer
+    public class StartSceneController : GameMonoInitializer
     {
         [SerializeField]
         private Button touchButton;

@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace Scene.InGame.UI.Menu
 {
-    public class MenuController : GameInitializer
+    public class MenuController : GameMonoInitializer
     {
         [SerializeField] 
         private Button titleButton;

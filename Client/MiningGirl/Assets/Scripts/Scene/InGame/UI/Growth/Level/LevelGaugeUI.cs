@@ -6,7 +6,7 @@ using UnityEngine.UI;
 
 namespace Scene.InGame.UI.Level
 {
-    public class LevelGaugeUI : GameInitializer
+    public class LevelGaugeUI : GameMonoInitializer
     {
         [SerializeField] 
         private Image sliderUI;

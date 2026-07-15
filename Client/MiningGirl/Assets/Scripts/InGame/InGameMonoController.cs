@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace InGame
 {
-    public class InGameController : GameInitializer
+    public class InGameMonoController : GameMonoInitializer
     {
         
     }

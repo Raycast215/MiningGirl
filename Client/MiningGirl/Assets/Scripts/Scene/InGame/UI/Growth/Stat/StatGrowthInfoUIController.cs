@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Scene.InGame.UI.Growth.Stat
 {
-    public class StatGrowthInfoUIController : GameInitializer
+    public class StatGrowthInfoUIController : GameMonoInitializer
     {
         [SerializeField]
         private List<StatGrowthInfoUI> uiList;

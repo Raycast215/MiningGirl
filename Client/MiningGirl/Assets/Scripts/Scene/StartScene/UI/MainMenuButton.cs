@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace Scene.StartScene.UI
 {
-    public class MainMenuButton : GameInitializer
+    public class MainMenuButton : GameMonoInitializer
     {
         [SerializeField]
         private Animator animator;

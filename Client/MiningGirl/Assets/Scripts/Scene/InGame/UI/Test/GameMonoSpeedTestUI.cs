@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace Scene.InGame.UI.Speed.Test
 {
-    public class GameSpeedTestUI : GameInitializer
+    public class GameMonoSpeedTestUI : GameMonoInitializer
     {
         [SerializeField]
         private TMP_Text textUI;

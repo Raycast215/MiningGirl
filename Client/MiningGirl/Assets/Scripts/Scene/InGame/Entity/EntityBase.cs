@@ -8,7 +8,7 @@ using UnityEngine;
 
 namespace Scene.InGame.Entity
 {
-    public abstract class EntityBase : GameInitializer, IEntity
+    public abstract class EntityBase : GameMonoInitializer, IEntity
     {
         public EntityData BaseData { get; set; }
         

@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Scene.InGame.UI.Cursor
 {
-    public class CursorUI : GameInitializer
+    public class CursorUI : GameMonoInitializer
     {
         [SerializeField] 
         private Transform cursor;

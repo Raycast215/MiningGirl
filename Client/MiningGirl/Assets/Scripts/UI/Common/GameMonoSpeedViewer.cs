@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 namespace UI.Common
 {
-    public class GameSpeedViewer : GameInitializer
+    public class GameMonoSpeedViewer : GameMonoInitializer
     {
         [SerializeField]
         private TMP_Text speedText;

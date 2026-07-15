@@ -8,7 +8,7 @@ namespace System
         Landscape,
     }
     
-    public class CameraController : GameInitializer
+    public class CameraController : GameMonoInitializer
     {
         [SerializeField] 
         private Camera cam;

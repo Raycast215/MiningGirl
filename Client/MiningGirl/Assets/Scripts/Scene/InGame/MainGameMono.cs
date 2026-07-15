@@ -3,13 +3,15 @@ using System.Linq;
 using Cysharp.Threading.Tasks;
 using InGame.temp.System.FloatingDamage;
 using Manager;
-using UnityEngine;
 using Scene.InGame.Entity.Enemy;
+using UnityEngine;
 using Scene.InGame.Entity.Interface;
 using Scene.InGame.Entity.Player;
 using Scene.InGame.Entity.Resource;
+using Scene.InGame.TileSystem;
 using Scene.InGame.UI;
 using Unity.Cinemachine;
+using UnityEngine.Serialization;
 
 namespace Scene.InGame
 {
@@ -29,11 +31,12 @@ namespace Scene.InGame
         public void CameraAnimation();
     }
     
-    public class MainGame : GameInitializer, IInGameHandler, IEntityHandler
+    public class MainGameMono : GameMonoInitializer, IInGameHandler, IEntityHandler
     {
+        [FormerlySerializedAs("inGameUI")]
         [Header("UI")]
         [SerializeField]
-        private InGameUI inGameUI;
+        private InGameMonoUI inGameMonoUI;
 
         [Header("Cam")]
         [SerializeField] 
@@ -49,16 +52,24 @@ namespace Scene.InGame
         [SerializeField]
         private DamageController damageController;
         
+        [Header("Tile Controller")]
+        [SerializeField]
+        private TileController tileController;
+        
         private InGameData _inGameData;
         private bool _isGameStarted;
-        
+       
         private void Start()
         {
             var gameData = GameDataManager.Instance.GameStageData;
-
+        
             gameData.Set("1020", 0, 0);
             
-            InitAsync().Forget();
+            // InitAsync().Forget();
+         
+            CoverUIManager.Instance.CoverUI.Hide().Forget();
+            
+            // tileController.Init();
         }
 
         private async UniTaskVoid InitAsync()
@@ -66,12 +77,12 @@ namespace Scene.InGame
             if (!IsInitialized)
             {
                 _inGameData = new InGameData();
-                _inGameData.Init(inGameUI);
+                _inGameData.Init(inGameMonoUI);
                 await UniTask.WaitUntil(() => _inGameData.IsInitialized);
             }
             
-            inGameUI.InitAsync(_inGameData, () => TimeOut().Forget()).Forget();
-            await UniTask.WaitUntil(() => inGameUI.IsInitialized);
+            inGameMonoUI.InitAsync(_inGameData, () => TimeOut().Forget()).Forget();
+            await UniTask.WaitUntil(() => inGameMonoUI.IsInitialized);
             
             resourceController.InitAsync(this).Forget();
             await UniTask.WaitUntil(() => resourceController.IsInitialized);
@@ -86,11 +97,11 @@ namespace Scene.InGame
             damageController.InitAsync().Forget();
             await UniTask.WaitUntil(() => damageController.IsInitialized);
             
-            inGameUI.GameReady();
+            inGameMonoUI.GameReady();
             CoverUIManager.Instance.CoverUI.Hide().Forget();
             await UniTask.WaitForSeconds(0.5f);
             
-            inGameUI.GameStart();
+            inGameMonoUI.GameStart();
             resourceController.ExecuteSpawn();
             enemyController.ExecuteSpawn();
             IsInitialized = true;
@@ -125,7 +136,7 @@ namespace Scene.InGame
                 if (rewardType == EItemType.Gold)
                 {
                     _inGameData.AddItemCount(rewardType, (int)rewardCount);
-                    inGameUI.AddGoldCount((int)rewardCount);
+                    inGameMonoUI.AddGoldCount((int)rewardCount);
                 }
             }
             
@@ -172,7 +183,7 @@ namespace Scene.InGame
 
         public IInGameUIHandler GetUIHandler()
         {
-            return inGameUI;
+            return inGameMonoUI;
         }
 
         public IInGameDataHandler GetInGameData()

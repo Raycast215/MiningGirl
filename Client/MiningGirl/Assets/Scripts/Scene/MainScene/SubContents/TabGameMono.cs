@@ -8,7 +8,7 @@ using UnityEngine.UI;
 
 namespace Scene.MainScene.SubContents
 {
-    public class TabGame : GameInitializer, IPointerClickHandler
+    public class TabGameMono : GameMonoInitializer, IPointerClickHandler
     {
         [SerializeField] 
         private Slider slider;

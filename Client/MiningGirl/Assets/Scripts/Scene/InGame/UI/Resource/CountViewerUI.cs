@@ -3,7 +3,7 @@ using UnityEngine;
 
 namespace Scene.InGame.UI.Resource
 {
-    public class CountViewerUI : GameInitializer
+    public class CountViewerUI : GameMonoInitializer
     {
         [SerializeField]
         private TMP_Text countText;

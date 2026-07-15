@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace Scene.InGame.UI.Test
 {
-    public class CriticalShowSetUI : GameInitializer
+    public class CriticalShowSetUI : GameMonoInitializer
     {
         [SerializeField]
         private Button button;

@@ -27,7 +27,7 @@ namespace Scene.InGame.Entity.Player
                 AttackDelay = 60,
             };
             
-            ins.SetHandler(handler);
+            // ins.SetHandler(handler);
             ins.InitDirectionEvent(cursor.SetDirection);
             ins.InitAsync().Forget();
             ins.SetPosition(Vector3.zero);

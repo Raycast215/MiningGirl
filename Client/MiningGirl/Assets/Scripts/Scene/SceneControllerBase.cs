@@ -5,7 +5,7 @@ using UnityEngine;
 
 namespace Scene
 { 
-    public abstract class SceneControllerBase : GameInitializer, IDisposable
+    public abstract class SceneControllerBase : GameMonoInitializer, IDisposable
     {
         private CancellationTokenSource _cts;
 

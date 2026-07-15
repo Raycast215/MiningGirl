@@ -4,7 +4,7 @@ using UnityEngine.UI;
 
 namespace Scene.InGame.UI.Level.Test
 {
-    public class ExpTestUI : GameInitializer
+    public class ExpTestUI : GameMonoInitializer
     {
         [SerializeField] 
         private Button button;

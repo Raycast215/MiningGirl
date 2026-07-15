@@ -7,7 +7,7 @@ using UnityEngine.UI;
 
 namespace Scene.InGame.UI.Growth.Stat
 {
-    public class StatGrowthInfoUI : GameInitializer
+    public class StatGrowthInfoUI : GameMonoInitializer
     {
         private event Action OnButtonTouched;
 

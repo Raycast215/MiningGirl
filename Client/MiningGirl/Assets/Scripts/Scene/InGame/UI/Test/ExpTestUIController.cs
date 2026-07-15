@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace Scene.InGame.UI.Level.Test
 {
-    public class ExpTestUIController : GameInitializer
+    public class ExpTestUIController : GameMonoInitializer
     {
         [SerializeField] 
         private ExpTestUI expX1;
