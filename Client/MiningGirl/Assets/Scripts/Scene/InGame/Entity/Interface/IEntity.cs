@@ -8,6 +8,7 @@ namespace Scene.InGame.Entity.Interface
     public interface IEntity
     {
         string GetId();
+        void SetId(string id);
         void SetActiveObject(bool isActive);
         void SetReleaseCallback(Action<IEntity> callback);
         

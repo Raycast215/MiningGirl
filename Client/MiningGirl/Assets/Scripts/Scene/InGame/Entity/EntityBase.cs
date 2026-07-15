@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using BehaviourTree;
 using Cysharp.Threading.Tasks;
@@ -23,7 +24,27 @@ namespace Scene.InGame.Entity
     
 #region IEntity
 
-        public virtual async UniTaskVoid InitAsync()
+public string GetId()
+{
+    throw new NotImplementedException();
+}
+
+public void SetId(string id)
+{
+    throw new NotImplementedException();
+}
+
+public void SetActiveObject(bool isActive)
+{
+    throw new NotImplementedException();
+}
+
+public void SetReleaseCallback(Action<IEntity> callback)
+{
+    throw new NotImplementedException();
+}
+
+public virtual async UniTaskVoid InitAsync()
         {
             MoveNode = new MoveNode(rigidBody, this);
         }
