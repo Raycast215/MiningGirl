@@ -4,26 +4,30 @@ using Scene.InGame.Entity.Interface;
 
 namespace Scene.InGame.Enemy
 {
-    public class EnemySpawner : GameInitializer
+    public class EnemySpawnListController : GameInitializer
     {
-        private event Action<IEntity> OnReleased;
+        private event Action<IEntityObject> OnReleased;
         
-        public List<IEntity> ActivateList { get; private set; }
+        public List<IEntityObject> ActivateList { get; private set; }
 
-        public EnemySpawner Init(Action<IEntity> onReleased)
+        public void Init(Action<IEntityObject> onReleased)
         {
             if (IsInitialized)
-                return this;
+                return;
               
             OnReleased += onReleased;
             
-            ActivateList = new List<IEntity>();
+            ActivateList = new List<IEntityObject>();
             
             IsInitialized = true;
-            return this;
         }
 
-        public void Release(IEntity entity)
+        public void Add(IEntityObject entity)
+        {
+            ActivateList.Add(entity);
+        }
+        
+        public void Remove(IEntityObject entity)
         {
             ActivateList.Remove(entity);
         }

@@ -5,6 +5,18 @@ using UnityEngine;
 
 namespace Scene.InGame.Entity.Interface
 {
+    public interface IEntityObject
+    {
+        string GetId();
+        void SetId(string id);
+        
+        Vector3 GetPosition();
+        void SetPosition(Vector3 position);
+        
+        void SetActiveObject(bool isActive);
+        void SetReleaseCallback(Action<IEntityObject> callback);
+    }
+    
     public interface IEntity
     {
         string GetId();

@@ -26,22 +26,22 @@ namespace Scene.InGame.Entity
 
 public string GetId()
 {
-    throw new NotImplementedException();
+    return "";
 }
 
 public void SetId(string id)
 {
-    throw new NotImplementedException();
+    
 }
 
 public void SetActiveObject(bool isActive)
 {
-    throw new NotImplementedException();
+    gameObject.SetActive(isActive);
 }
 
 public void SetReleaseCallback(Action<IEntity> callback)
 {
-    throw new NotImplementedException();
+    
 }
 
 public virtual async UniTaskVoid InitAsync()

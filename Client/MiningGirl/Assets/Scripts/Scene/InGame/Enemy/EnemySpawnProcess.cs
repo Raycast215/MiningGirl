@@ -1,26 +1,25 @@
 using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
-using Scene.InGame.Entity.Interface;
 using UnityEngine;
 
 namespace Scene.InGame.Enemy
 {
     public class EnemySpawnProcess : GameInitializer, IDisposable
     {
-        private event Func<string, UniTask<IEntity>> OnGet;
+        private event Action OnSpawned;
 
         private CancellationTokenSource _cts;
         private float _time;
         private bool _isRunning;
         private float _timeScale;
         
-        public void Init(Func<string, UniTask<IEntity>> onGet)
+        public void Init(Action onSpawned)
         {
             if (IsInitialized)
                 return;
             
-            OnGet += onGet;
+            OnSpawned += onSpawned;
             
             IsInitialized = true;
         }
@@ -70,8 +69,9 @@ namespace Scene.InGame.Enemy
                
                 if (_time < 0.0f)
                 {
+                    Debug.Log("Time Invoke");
+                    OnSpawned?.Invoke();
                     _time = 10.0f;
-                    Debug.Log("Time!!");
                 }
                     
                 await UniTask.Yield(cancellationToken: _cts.Token);

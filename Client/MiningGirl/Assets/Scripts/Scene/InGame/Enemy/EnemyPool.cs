@@ -9,26 +9,28 @@ namespace Scene.InGame.Enemy
 {
     public class EnemyPool : GameInitializer
     {
-        private event Action<IEntity> OnReleased;
+        private event Action<IEntityObject> OnReleased;
         
-        private Dictionary<string, Queue<IEntity>> _dic;
-        private Transform _parent;
+        private readonly Dictionary<string, Queue<IEntityObject>> _dic;
+        private readonly Transform _parent;
 
-        public EnemyPool Init(Transform parent, Action<IEntity> onReleased)
+        public EnemyPool(Transform parent)
+        {
+            _parent = parent;
+            _dic = new Dictionary<string, Queue<IEntityObject>>();
+        }
+        
+        public void Init(Action<IEntityObject> onReleased)
         {
             if (IsInitialized)
-                return this;
+                return;
             
             OnReleased += onReleased;
             
-            _dic = new Dictionary<string, Queue<IEntity>>();
-            _parent = parent;
-            
             IsInitialized = true;
-            return this;
         }
 
-        public async UniTask<IEntity> Get(string entityId)
+        public async UniTask<IEntityObject> Get(string entityId)
         {
             // 어떤 프리팹이 올지 몰라 미리 생성해두지 않음.(Lazy Pooling)
             // 첫 생성이면, 기본 수량만큼만 생성.
@@ -47,7 +49,7 @@ namespace Scene.InGame.Enemy
             return _dic[entityId].Dequeue();
         }
         
-        public void Release(IEntity entity)
+        public void Release(IEntityObject entity)
         {
             _dic[entity.GetId()].Enqueue(entity);
             entity.SetActiveObject(false);
@@ -59,7 +61,7 @@ namespace Scene.InGame.Enemy
 
             if (!_dic.ContainsKey(entityId))
             {
-                _dic.Add(entityId, new Queue<IEntity>());
+                _dic.Add(entityId, new Queue<IEntityObject>());
 
                 const int count = 10;
                 
@@ -78,7 +80,7 @@ namespace Scene.InGame.Enemy
             void CreateEntity()
             {
                 var ins = UnityEngine.Object.Instantiate(prefab, _parent);
-                var entity = ins.GetComponent<IEntity>();
+                var entity = ins.GetComponent<IEntityObject>();
                 
                 entity.SetActiveObject(false);
                 entity.SetReleaseCallback(Callback);
@@ -87,7 +89,7 @@ namespace Scene.InGame.Enemy
                 _dic[entityId].Enqueue(entity);
             }
             
-            void Callback(IEntity x)
+            void Callback(IEntityObject x)
             {
                 OnReleased?.Invoke(x);
                 Release(x);
