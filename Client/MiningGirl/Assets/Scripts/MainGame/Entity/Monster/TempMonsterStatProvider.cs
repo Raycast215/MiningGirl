@@ -12,7 +12,7 @@ namespace MainGame.Entity.Monster
             ["Slime"] = new MonsterBaseStat
             {
                 MonsterId = "Slime",
-                Hp = 10f,
+                Hp = 3f,
                 Damage = 1f,
                 MoveSpeed = 0.75f, // 기존 1.5f에서 절반으로 낮춤
                 AttackDelay = 1f,
@@ -31,11 +31,11 @@ namespace MainGame.Entity.Monster
             return new MonsterBaseStat
             {
                 MonsterId = monsterId,
-                Hp = 10f,
+                Hp = 3f,
                 Damage = 1f,
                 MoveSpeed = 1f,
                 AttackDelay = 1f,
-                AttackDistance = 0.5f,
+                AttackDistance = 1.2f,
                 GoldReward = 1,
             };
         }

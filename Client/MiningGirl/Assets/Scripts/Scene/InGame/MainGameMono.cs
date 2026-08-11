@@ -93,7 +93,7 @@ namespace Scene.InGame
             enemyController.Init(this);
             await UniTask.WaitUntil(() => enemyController.IsInitialized);
             
-            damageController.InitAsync().Forget();
+            damageController.InitAsync();
             await UniTask.WaitUntil(() => damageController.IsInitialized);
             
             inGameMonoUI.GameReady();

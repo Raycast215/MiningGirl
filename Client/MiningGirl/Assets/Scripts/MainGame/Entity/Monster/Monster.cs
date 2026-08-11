@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using BehaviourTree;
 using Cysharp.Threading.Tasks;
+using DG.Tweening;
 using Scene.InGame.Entity;
 using Scene.InGame.Entity.Interface;
 using UnityEngine;
@@ -11,17 +12,21 @@ namespace MainGame.Entity.Monster
 {
     public class Monster : EntityBase
     {
-        public event Action<Monster> OnDeath;
+        private IMonsterDeathHandler _deathHandler;
 
         private MonsterController _owner;
         private MonsterBaseStat _baseStat;
         private IStageMonsterModifier _stageModifier;
         private IRiskCardMonsterModifier _riskModifier;
+        private IFloatingDamagePresenter _damagePresenter;
         private int _stageIndex;
 
         private float _currentHp;
         private bool _isDead;
 
+        private Tween _posTween;
+        private Tween _colorTween;
+        
         // MonsterController.Spawn()에서 호출됩니다. 스폰 시점마다 스탯/타겟/보정을 다시 세팅합니다.
         public void Setup(
             MonsterController owner,
@@ -29,12 +34,16 @@ namespace MainGame.Entity.Monster
             IStageMonsterModifier stageModifier,
             IRiskCardMonsterModifier riskModifier,
             int stageIndex,
-            IEntity target)
+            IEntity target,
+            IFloatingDamagePresenter damagePresenter = null,
+            IMonsterDeathHandler deathHandler = null)
         {
             _owner = owner;
+            _deathHandler = deathHandler;
             _baseStat = baseStat;
             _stageModifier = stageModifier;
             _riskModifier = riskModifier;
+            _damagePresenter = damagePresenter;
             _stageIndex = stageIndex;
 
             _isDead = false;
@@ -100,11 +109,45 @@ namespace MainGame.Entity.Monster
 
             _currentHp -= damage;
 
+            // 받은 데미지를 몬스터 위치에 플로팅 숫자로 표시합니다.
+            _damagePresenter?.Show(Mathf.RoundToInt(damage), GetPosition(), isCritical);
+
             if (_currentHp <= 0f)
             {
                 _isDead = true;
-                OnDeath?.Invoke(this);
+
+                // 죽으면 진행 중이던 넉백/색상 트윈을 정리하고 색을 원복한 뒤 풀로 반환합니다.
+                // (반환된 오브젝트에 트윈이 남아 재스폰 시 위치/색이 튀는 것을 방지)
+                if (_posTween != null) { _posTween.Kill(); _posTween = null; }
+                if (_colorTween != null) { _colorTween.Kill(); _colorTween = null; }
+                if (spriteRenderer != null) spriteRenderer.color = new Color(1f, 1f, 1f, 1f);
+
+                _deathHandler?.OnMonsterDeath(this);
+                return;
             }
+            
+            if (_posTween != null)
+            {
+                _posTween.Kill();
+                _posTween = null;
+            }
+
+            var playerPos = Target.GetPosition();
+            var myPos = transform.position;
+            var vec = (playerPos - myPos).normalized;
+            
+            _posTween = transform.DOMove(myPos - vec, 0.2f);
+            
+            if (_colorTween != null)
+            {
+                _colorTween.Kill();
+                _colorTween = null;
+                spriteRenderer.color = new Color(1f, 1f, 1f, 1f);
+            }
+            
+            _colorTween = spriteRenderer
+                .DOColor(new Color(1f, 0f, 0f, 1f), 0.2f)
+                .OnComplete(() => spriteRenderer.color = new Color(1f, 1f, 1f, 1f));
         }
 
         public override float GetDamage()

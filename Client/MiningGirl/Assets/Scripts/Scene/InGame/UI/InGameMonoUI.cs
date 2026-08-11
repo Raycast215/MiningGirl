@@ -1,6 +1,7 @@
 using System;
 using Cysharp.Threading.Tasks;
 using InGame.System;
+using MainGame.UI;
 using Manager;
 using Scene.InGame.UI.Growth.Stat;
 using Scene.InGame.UI.Level;
@@ -29,9 +30,10 @@ namespace Scene.InGame.UI
     
     public class InGameMonoUI : GameMonoInitializer, IInGameUIHandler
     {
+        [FormerlySerializedAs("timerUI")]
         [Header("Top")]
         [SerializeField] 
-        private Timer timerUI;
+        private TimerUI timerUIUI;
         [SerializeField]
         private CountViewerUI goldCountViewerUI;
         [SerializeField]
@@ -76,25 +78,25 @@ namespace Scene.InGame.UI
 
             var row = GameDataManager.Instance.GameStageData.GetRow();
             
-            timerUI.Init(row.PlayTime, stageFinishedCallback);
+            timerUIUI.Init(row.PlayTime, stageFinishedCallback);
             
             IsInitialized = true;
         }
 
         public void GameReady()
         {
-            timerUI.Appear();
+            
         }
 
         public void GameStart()
         {
-            timerUI.Execute().Forget();
+            timerUIUI.Execute().Forget();
             LayoutRebuilder.ForceRebuildLayoutImmediate(transform as RectTransform);
         }
 
         private void OnDestroy()
         {
-            timerUI.StopProcess();
+            timerUIUI.StopProcess();
         }
 
 #region IInGameUIHandler

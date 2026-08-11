@@ -20,7 +20,7 @@ namespace Scene.InGame.Entity
         
         protected NodeRunner NodeRunner;
         protected MoveNode MoveNode;
-        private IEntity _target;
+        protected IEntity Target;
     
 #region IEntity
 
@@ -61,12 +61,12 @@ public virtual async UniTaskVoid InitAsync()
 
         public IEntity GetTarget()
         {
-            return _target;
+            return Target;
         }
     
         public void SetTarget(IEntity iEntity)
         {
-            _target = iEntity;
+            Target = iEntity;
         }
     
         public Vector3 GetPosition()

@@ -11,6 +11,11 @@ namespace Utility
 
         private void Awake()
         {
+            Refresh();
+        }
+
+        private void Refresh()
+        {
             _rectTransform = GetComponent<RectTransform>();
             _safeArea = Screen.safeArea;
 
@@ -24,6 +29,11 @@ namespace Utility
 
             _rectTransform.anchorMin = _minAnchor;
             _rectTransform.anchorMax = _maxAnchor;
+        }
+        
+        private void OnRectTransformDimensionsChange()
+        {
+            Refresh();
         }
     }
 }

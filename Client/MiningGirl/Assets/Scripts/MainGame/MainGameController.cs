@@ -1,5 +1,6 @@
 using System.Linq;
 using Cysharp.Threading.Tasks;
+using InGame.temp.System.FloatingDamage;
 using MainGame.Entity.Monster;
 using Manager;
 using Scene.InGame.Entity.Player;
@@ -14,12 +15,23 @@ namespace MainGame
         [SerializeField] 
         private CinemachineCamera cam;
         
+        [Header("UI")]
+        [SerializeField]
+        private MainGameUIController uIController;
+        
+        [Header("Damage Object")]
+        [SerializeField]
+        private DamageController damageController;
+        
         [Header("Entity")]
         [SerializeField]
         private PlayerController playerController;
         [SerializeField]
         private MonsterController monsterController;
         
+        // Next()에서 재시작할 때 재사용하기 위해 플레이어 엔티티를 보관합니다.
+        private Scene.InGame.Entity.Interface.IEntity _playerEntity;
+
         private void Start()
         {
             if (!IsInitialized)
@@ -28,33 +40,60 @@ namespace MainGame
             }
             
             CoverUIManager.Instance.CoverUI.Hide().Forget();
+            
+            uIController.GameStart();
         }
 
         private async UniTask InitAsync()
         {
+            uIController.InitAsync(Next).Forget();
+            await UniTask.WaitUntil(() => uIController.IsInitialized);
+            
+            damageController.InitAsync();
+            await UniTask.WaitUntil(() => damageController.IsInitialized);
+            
             playerController.InitAsync(null).Forget();
             await UniTask.WaitUntil(() => playerController.IsInitialized);
 
-            var playerEntity = playerController.ActivateList.First();
-            cam.Follow = playerEntity.GetTransform();
-
-            // 씬 로드(StartScene -> InGameScene) 과정에서 vcam이 CinemachineBrain보다 먼저
-            // 활성화되면, Brain이 이 vcam을 관리 목록에 등록하지 못해 매 프레임 추적 업데이트가
-            // 돌지 않는 경우가 있습니다(=카메라가 플레이어를 따라가지 않음).
-            // Follow를 지정한 직후 vcam을 한 번 껐다 켜서 Brain에 강제로 재등록시킵니다.
-            var camObject = cam.gameObject;
-            camObject.SetActive(false);
-            camObject.SetActive(true);
-
-            monsterController.Setup();
+            _playerEntity = playerController.ActivateList.First();
+            cam.Follow = _playerEntity.GetTransform();
+            
+            // DamageController를 IFloatingDamagePresenter로 주입 — 몬스터가 피격 시 플로팅 데미지를 띄웁니다.
+            monsterController.Setup(damagePresenter: damageController);
             monsterController.InitControllerAsync().Forget();
             await UniTask.WaitUntil(() => monsterController.IsInitialized);
 
             // 테스트 스폰 — 초기 풀 10개, 2초마다 1마리씩 최대 30마리까지 플레이어 주변에 스폰합니다.
             // (완료를 기다리지 않고 백그라운드로 돌립니다 — 60초짜리 루프라 await하면 초기화가 그만큼 늦어집니다.)
-            monsterController.ExecuteTestSpawn(playerEntity, 0).Forget();
+            monsterController.ExecuteTestSpawn(_playerEntity, 0);
 
             IsInitialized = true;
+        }
+
+        // 다음 스테이지로 넘어갈 때 호출됩니다.
+        // 지금까지 스폰된 몬스터를 모두 풀로 되돌린 뒤, 스폰을 처음부터 다시 시작합니다.
+        private void Next()
+        {
+            if (!IsInitialized)
+                return;
+
+            // 스폰 루프 중지 + 활성 몬스터 전부 풀로 반환
+            monsterController.StopSpawn();
+
+            // 화면에 떠 있는 플로팅 데미지도 모두 풀로 정리
+            damageController.Clear();
+
+            // 스폰을 다시 시작 (내부에서 이전 루프를 정리하고 새로 시작)
+            monsterController.ExecuteTestSpawn(_playerEntity, 0);
+            
+            _playerEntity.GetTransform().position = Vector3.zero;
+            
+            uIController.SetTime();
+            
+            CoverUIManager.Instance.CoverUI.Hide(() =>
+            {
+                uIController.GameStart();
+            }).Forget();
         }
     }
 }

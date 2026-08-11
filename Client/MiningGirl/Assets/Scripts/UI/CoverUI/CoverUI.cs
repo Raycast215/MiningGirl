@@ -56,7 +56,7 @@ namespace UI.CoverUI
                 });
         }
 
-        public async UniTaskVoid Hide()
+        public async UniTaskVoid Hide(Action callback = null)
         {
             await UniTask.WaitUntil(() => IsInitialized);
             await UniTask.WaitUntil(() => _isShowFinished);
@@ -64,7 +64,11 @@ namespace UI.CoverUI
             iconImage.DOFade(0.0f, 0.2f);
             loadingText.DOFade(0.0f, 0.2f);
             backImage.DOFade(0.0f, duration)
-                .OnComplete(() => gameObject.SetActive(false));
+                .OnComplete(() =>
+                {
+                    gameObject.SetActive(false);
+                    callback?.Invoke();
+                });
         }
     }
 }
