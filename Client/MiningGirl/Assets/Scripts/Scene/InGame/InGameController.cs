@@ -6,6 +6,7 @@ using MainGame.Entity.Monster;
 using Manager;
 using Scene.InGame.Entity.Interface;
 using Scene.InGame.Entity.Player;
+using Scene.InGame.Entity.Resource;
 using Unity.Cinemachine;
 using UnityEngine;
 
@@ -30,6 +31,8 @@ namespace Scene.InGame
         private PlayerController playerController;
         [SerializeField]
         private MonsterController monsterController;
+        [SerializeField]
+        private ResourceController resourceController;
         
         // Next()에서 재시작할 때 재사용하기 위해 플레이어 엔티티를 보관합니다.
         private IEntity _playerEntity;
@@ -57,6 +60,14 @@ namespace Scene.InGame
             // (완료를 기다리지 않고 백그라운드로 돌립니다 — 60초짜리 루프라 await하면 초기화가 그만큼 늦어집니다.)
             monsterController.ExecuteTestSpawn(_playerEntity, 0);
 
+            // 광물 — 풀 준비 후 플레이어 시작 위치 주변에 초기 배치하고, 이후 캐이는 만큼 주기적으로 보충합니다.
+            resourceController.Setup(damagePresenter: damageController);
+            resourceController.InitControllerAsync().Forget();
+            await UniTask.WaitUntil(() => resourceController.IsInitialized);
+
+            resourceController.SpawnInitialLayout(Vector3.zero);
+            resourceController.ExecuteSpawn(_playerEntity);
+
             CoverUIManager.Instance.CoverUI.Hide().Forget();
             
             uIController.GameStart();
@@ -77,8 +88,14 @@ namespace Scene.InGame
             // 화면에 떠 있는 플로팅 데미지도 모두 풀로 정리
             damageController.Clear();
 
+            // 광물도 모두 풀로 정리
+            resourceController.StopSpawn();
+
             // 스폰을 다시 시작 (내부에서 이전 루프를 정리하고 새로 시작)
             monsterController.ExecuteTestSpawn(_playerEntity, 0);
+
+            resourceController.SpawnInitialLayout(Vector3.zero);
+            resourceController.ExecuteSpawn(_playerEntity);
             
             _playerEntity.SetPosition(Vector3.zero);
             
