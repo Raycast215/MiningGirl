@@ -97,7 +97,7 @@ private async UniTaskVoid Initialize()
 
             // 테스트 편의를 위해 터치하지 않아도 3초 뒤 자동으로 다음 씬으로 넘어갑니다.
             // 그 전에 터치하면 기존처럼 즉시 넘어갑니다.
-            AutoStartAfterDelay(3.0f).Forget();
+            AutoStartAfterDelay(1.0f).Forget();
         }
 
         private async UniTaskVoid AutoStartAfterDelay(float delaySeconds)
