@@ -15,6 +15,7 @@ namespace MainGame.Entity.Monster
         private IStageMonsterModifier _stageModifier;
         private IRiskCardMonsterModifier _riskModifier;
         private IFloatingDamagePresenter _damagePresenter;
+        private Scene.InGame.Entity.Resource.IResourceProvider _resourceProvider;
 
         // 스폰 루프를 중간에 멈췄다가 다시 시작할 수 있도록 자체 취소 토큰을 관리합니다.
         private CancellationTokenSource _spawnCts;
@@ -25,12 +26,34 @@ namespace MainGame.Entity.Monster
             IMonsterStatProvider statProvider = null,
             IStageMonsterModifier stageModifier = null,
             IRiskCardMonsterModifier riskModifier = null,
-            IFloatingDamagePresenter damagePresenter = null)
+            IFloatingDamagePresenter damagePresenter = null,
+            Scene.InGame.Entity.Resource.IResourceProvider resourceProvider = null)
         {
             _statProvider = statProvider ?? new TempMonsterStatProvider();
             _stageModifier = stageModifier ?? new TempStageMonsterModifier();
             _riskModifier = riskModifier ?? new TempRiskCardMonsterModifier();
             _damagePresenter = damagePresenter;
+            _resourceProvider = resourceProvider;
+        }
+
+        // GetNearbyAvoidTargets()가 매 프레임 새 리스트를 만들지 않도록 재사용하는 버퍼입니다.
+        private readonly System.Collections.Generic.List<IEntity> _avoidBuffer =
+            new System.Collections.Generic.List<IEntity>();
+
+        // 몬스터가 이동 중 피해야 할 장애물(광물) 목록을 반환합니다.
+        // 몬스터끼리의 겹침 보정과는 별개로, MoveNode의 장애물 회피 파라미터(더 넓은 반경/강한 힘)가 적용됩니다.
+        public System.Collections.Generic.IReadOnlyList<IEntity> GetObstacles()
+        {
+            _avoidBuffer.Clear();
+
+            var resources = _resourceProvider?.GetActiveResources();
+            if (resources != null)
+            {
+                for (var i = 0; i < resources.Count; i++)
+                    _avoidBuffer.Add(resources[i]);
+            }
+
+            return _avoidBuffer;
         }
 
         public async UniTaskVoid InitControllerAsync()

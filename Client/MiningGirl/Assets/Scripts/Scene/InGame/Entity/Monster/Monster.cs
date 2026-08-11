@@ -85,7 +85,10 @@ namespace MainGame.Entity.Monster
             // 몬스터끼리 너무 붙어 보이지 않도록 기본값보다 겹침 보정을 넓게 잡습니다.
             MoveNode.SetSeparationDistance(1.0f)
                 .SetSeparationStrength(0.5f)
-                .SetMaxSeparationOffset(0.8f);
+                .SetMaxSeparationOffset(0.8f)
+                // 광물은 몬스터끼리보다 훨씬 넓고 강하게 비껴가도록 별도 파라미터를 적용합니다.
+                .SetObstacleProvider(() => _owner?.GetObstacles())
+                .SetObstacleAvoidance(3.5f, 1.2f, 1.5f);
 
             NodeRunner = new NodeRunner(new SequenceNode(new List<INode>
             {
@@ -99,6 +102,8 @@ namespace MainGame.Entity.Monster
         // (이전에는 .Cast<IEntity>()로 매 프레임/몬스터마다 새 이터레이터를 할당하고 있었습니다 — GC 부담의 원인)
         public override IEnumerable<IEntity> GetNearCheckEntities()
         {
+            // 몬스터끼리의 겹침 보정 대상입니다. 광물은 여기 포함하지 않고,
+            // MoveNode의 장애물 회피(더 넓은 반경/강한 힘)로 따로 처리합니다.
             return _owner?.ActivateList;
         }
 

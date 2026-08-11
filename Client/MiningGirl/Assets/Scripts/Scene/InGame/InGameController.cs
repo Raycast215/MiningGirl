@@ -59,7 +59,8 @@ namespace Scene.InGame
             cam.Follow = _playerEntity.GetTransform();
             
             // DamageController를 IFloatingDamagePresenter로 주입 — 몬스터가 피격 시 플로팅 데미지를 띄웁니다.
-            monsterController.Setup(damagePresenter: damageController);
+            // resourceController를 IResourceProvider로 주입 — 몬스터가 이동 중 광물을 비껴가게 합니다.
+            monsterController.Setup(damagePresenter: damageController, resourceProvider: resourceController);
             monsterController.InitControllerAsync().Forget();
             await UniTask.WaitUntil(() => monsterController.IsInitialized);
 
