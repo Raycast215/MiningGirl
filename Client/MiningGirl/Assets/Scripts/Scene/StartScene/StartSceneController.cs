@@ -50,7 +50,7 @@ namespace Scene.StartScene
             Initialize().Forget();
         }
 
-        private async UniTaskVoid Initialize()
+private async UniTaskVoid Initialize()
         {
             Application.targetFrameRate = 120;
 
@@ -94,10 +94,27 @@ namespace Scene.StartScene
             touchButton.gameObject.SetActive(true);
             
             startText.DOFade(0.1f, 1.0f).SetLoops(-1, LoopType.Yoyo);
+
+            // 테스트 편의를 위해 터치하지 않아도 3초 뒤 자동으로 다음 씬으로 넘어갑니다.
+            // 그 전에 터치하면 기존처럼 즉시 넘어갑니다.
+            AutoStartAfterDelay(3.0f).Forget();
         }
+
+        private async UniTaskVoid AutoStartAfterDelay(float delaySeconds)
+        {
+            await UniTask.WaitForSeconds(delaySeconds);
+            StartGame();
+        }
+
+private bool _hasStarted;
 
         private void StartGame()
         {
+            if (_hasStarted)
+                return;
+
+            _hasStarted = true;
+
             // CoverUIManager.Instance.CoverUI.Show(() => SceneManager.LoadScene("MainScene")).Forget();
             CoverUIManager.Instance.CoverUI.Show(() => SceneManager.LoadScene("InGameScene")).Forget();
         }
