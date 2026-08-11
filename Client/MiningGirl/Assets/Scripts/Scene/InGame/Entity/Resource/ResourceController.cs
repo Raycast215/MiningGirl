@@ -14,15 +14,13 @@ namespace Scene.InGame.Entity.Resource
     
     public class ResourceController : EntityControllerBase<Resource>
     {
-        private IInGameHandler _handler;
         private SpawnData _spawnData;
         
-        public async UniTaskVoid InitAsync(IInGameHandler handler)
+        public async UniTaskVoid InitAsync()
         {
             if (IsInitialized)
                 return;
             
-            _handler = handler;
             InitAsync("Stone", 10).Forget();
             await UniTask.WaitUntil(() => IsInitialized);
 
@@ -49,13 +47,13 @@ namespace Scene.InGame.Entity.Resource
             {
                 while (true)
                 {
-                    var targetPos = _handler.GetEntityHandler().GetPlayer().GetPosition();
-                    var posList = GetUIPositionsInRing(targetPos, 2, 10, _spawnData.Count, 2);
+                    //var targetPos = _handler.GetEntityHandler().GetPlayer().GetPosition();
+                    //var posList = GetUIPositionsInRing(targetPos, 2, 10, _spawnData.Count, 2);
                 
-                    foreach (var pos in posList)
-                    {
-                        Spawn(pos);
-                    }
+                    // foreach (var pos in posList)
+                    // {
+                    //     Spawn(pos);
+                    // }
                 
                     await UniTask.WaitForSeconds(_spawnData.Interval);
                 }
@@ -95,7 +93,7 @@ namespace Scene.InGame.Entity.Resource
                 };
             }
             
-            ins.SetHandler(_handler, x => Return(x as Resource));
+            //ins.SetHandler(_handler, x => Return(x as Resource));
             ins.InitAsync().Forget();
             ins.SetPosition(pos);
             ins.gameObject.SetActive(true);

@@ -1,6 +1,6 @@
 using Cysharp.Threading.Tasks;
+using MainGame.Entity.Player.Cursor;
 using Scene.InGame.Entity.Data;
-using Scene.InGame.UI.Cursor;
 using UnityEngine;
 
 namespace Scene.InGame.Entity.Player
@@ -10,7 +10,7 @@ namespace Scene.InGame.Entity.Player
         [SerializeField]
         private CursorUI cursor;
         
-        public async UniTaskVoid InitAsync(IInGameHandler handler)
+        public async UniTaskVoid InitAsync()
         {
             if (IsInitialized)
                 return;

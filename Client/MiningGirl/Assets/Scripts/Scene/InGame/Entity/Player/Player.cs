@@ -12,14 +12,13 @@ namespace Scene.InGame.Entity.Player
     {
         private event Action<Vector3> OnDirectionEvent;
         
-        private IInGameHandler _handler;
         private AttackNode _attackNode;
         private SearchTargetNode _targetSearchNode;
         
-        public void SetHandler(IInGameHandler handler)
-        {
-            _handler = handler;
-        }
+        // public void SetHandler(IInGameHandler handler)
+        // {
+        //     _handler = handler;
+        // }
 
         public void InitDirectionEvent(Action<Vector3> onDirectionEvent)
         {
@@ -64,37 +63,44 @@ namespace Scene.InGame.Entity.Player
         
         public override float GetDamage()
         {
-            return _handler.GetInGameData().GetStatData(EStatType.Damage).Value;
+            return 0;
+            //  return _handler.GetInGameData().GetStatData(EStatType.Damage).Value;
         }
 
         public override float GetAttackDistance()
         {
-            return _handler.GetInGameData().GetStatData(EStatType.AttackDistance).Value;
+            return 0;
+            // return _handler.GetInGameData().GetStatData(EStatType.AttackDistance).Value;
         }
 
         public override float GetAttackDelay()
         {
-            return _handler.GetInGameData().GetStatData(EStatType.AttackDelay).Value;
+            return 0;
+            // return _handler.GetInGameData().GetStatData(EStatType.AttackDelay).Value;
         }
 
         public override float GetMoveSpeed()
         {
-            return _handler.GetInGameData().GetStatData(EStatType.MoveSpeed).Value;
+            return 0;
+            //  return _handler.GetInGameData().GetStatData(EStatType.MoveSpeed).Value;
         }
 
         public override float GetCriDamage()
         {
-            return _handler.GetInGameData().GetStatData(EStatType.CriDamage).Value;
+            return 0;
+            // return _handler.GetInGameData().GetStatData(EStatType.CriDamage).Value;
         }
 
         public override float GetCriRate()
         {
-            return _handler.GetInGameData().GetStatData(EStatType.CriRate).Value;
+            return 0;
+            // return _handler.GetInGameData().GetStatData(EStatType.CriRate).Value;
         }
 
         public override float GetExtraHitRate()
         {
-            return _handler.GetInGameData().GetStatData(EStatType.ExtraHitRate).Value;
+            return 0;
+            // return _handler.GetInGameData().GetStatData(EStatType.ExtraHitRate).Value;
         }
 
 #endregion

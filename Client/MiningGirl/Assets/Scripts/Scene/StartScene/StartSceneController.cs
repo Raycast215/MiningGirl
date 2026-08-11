@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
 using Manager;
@@ -26,19 +24,9 @@ namespace Scene.StartScene
         private GameObject startObject;
         [SerializeField]
         private TMP_Text startText;
-
-        [Header("BG")]
-        [SerializeField] 
-        private Image bgImage;
-        [SerializeField] 
-        private Image logoImage;
-        [SerializeField] 
-        private List<Sprite> bgImageList;
-        [SerializeField] 
-        private List<Sprite> logoImageList;
-
-        private int _index;
         
+        private bool _hasStarted;
+
         private void Awake()
         {
             touchButton.onClick.RemoveAllListeners();
@@ -50,7 +38,7 @@ namespace Scene.StartScene
             Initialize().Forget();
         }
 
-private async UniTaskVoid Initialize()
+        private async UniTaskVoid Initialize()
         {
             Application.targetFrameRate = 120;
 
@@ -69,18 +57,16 @@ private async UniTaskVoid Initialize()
             text.text = "데이터 초기화...";
             slider.value = 0;
             await UniTask.Yield();
-
-            GameDataManager.Instance.PreLoadData().Forget();
+            
             DataTableManager.Instance.PreLoadData().Forget();
             CoverUIManager.Instance.PreLoadData();
             SoundManager.Instance.PreLoadData();
             
             await UniTask.WaitUntil(() => DataTableManager.Instance.IsInitialized);
             await UniTask.WaitUntil(() => CoverUIManager.Instance.IsInitialized);
-            await UniTask.WaitUntil(() => GameDataManager.Instance.IsInitialized);
             await UniTask.WaitUntil(() => SoundManager.Instance.IsInitialized);
 
-            SoundManager.Instance.PlayBgm("Bgm_1", 1, true);
+            SoundManager.Instance.PlayBgm("Bgm_1");
             
             slider.DOValue(1.0f, 1.0f);
             await UniTask.WaitForSeconds(1.0f);
@@ -105,35 +91,15 @@ private async UniTaskVoid Initialize()
             await UniTask.WaitForSeconds(delaySeconds);
             StartGame();
         }
-
-private bool _hasStarted;
-
+        
         private void StartGame()
         {
             if (_hasStarted)
                 return;
 
             _hasStarted = true;
-
-            // CoverUIManager.Instance.CoverUI.Show(() => SceneManager.LoadScene("MainScene")).Forget();
+            
             CoverUIManager.Instance.CoverUI.Show(() => SceneManager.LoadScene("InGameScene")).Forget();
         }
-
-#region BGChange
-
-        public void ChangeBg()
-        {
-            _index = Utility.Util.ClampIndex(_index + 1, 0, bgImageList.Count - 1);
-            
-            bgImage.sprite = bgImageList[_index];
-            logoImage.sprite = logoImageList[_index];
-        }
-
-        public void MoveToTestScene()
-        {
-            SceneManager.LoadScene("InfoScene");
-        }
-
-#endregion
     }
 }

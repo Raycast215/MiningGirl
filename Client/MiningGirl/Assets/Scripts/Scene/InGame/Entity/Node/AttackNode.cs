@@ -1,12 +1,9 @@
-
 using System;
 using System.Threading;
 using BehaviourTree;
 using Cysharp.Threading.Tasks;
-using InGame.Player;
 using Manager;
 using Scene.InGame.Entity.Interface;
-using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace Scene.InGame.Entity.Node

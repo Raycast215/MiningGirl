@@ -14,7 +14,7 @@ namespace Scene.InGame.Entity.Resource
         private const string ShaderFade = "_AddColorFade";
         
         private event Action<IEntity> OnReturned;
-        private IInGameHandler _handler;
+        // private IInGameHandler _handler;
         private Material _material;
 
         private void Start()
@@ -23,24 +23,24 @@ namespace Scene.InGame.Entity.Resource
             _material.SetFloat(AddColorFade, 0.0f);
         }
         
-        public void SetHandler(IInGameHandler handler, Action<IEntity> onReturned)
-        {
-            _handler = handler;
-
-            OnReturned = null;
-            OnReturned += onReturned;
-        }
+        // public void SetHandler(IInGameHandler handler, Action<IEntity> onReturned)
+        // {
+        //     _handler = handler;
+        //
+        //     OnReturned = null;
+        //     OnReturned += onReturned;
+        // }
         
         private void DamageFinish()
         {
             if (BaseData.Health > 0) 
                 return;
             
-            _handler.GetInGameData().AddItemCount(EItemType.Stone, 1);
-            _handler.GetUIHandler().AddStoneCount(1);
-            
-            _handler.GetInGameData().AddItemCount(EItemType.Exp, 1);
-            _handler.GetUIHandler().AddExpCount(1);
+            // _handler.GetInGameData().AddItemCount(EItemType.Stone, 1);
+            // _handler.GetUIHandler().AddStoneCount(1);
+            //
+            // _handler.GetInGameData().AddItemCount(EItemType.Exp, 1);
+            // _handler.GetUIHandler().AddExpCount(1);
             
             OnReturned?.Invoke(this);
         }
@@ -88,21 +88,22 @@ namespace Scene.InGame.Entity.Resource
 
         public override IEnumerable<IEntity> GetNearCheckEntities()
         {
-            var ret = _handler.GetEntityHandler().GetResourceList();
-            
-            return ret;
+            // var ret = _handler.GetEntityHandler().GetResourceList();
+            //
+            // return ret;
+            return null;
         }
 
         public override void Hit(float damage, bool isCritical)
         {
-            _handler.ShowDamageFloatingText((int)damage, transform.position, isCritical);
+            // _handler.ShowDamageFloatingText((int)damage, transform.position, isCritical);
             
             if (BaseData.Health <= 0)
                 return;
             
             if (isCritical)
             {
-                _handler.CameraAnimation();
+                // _handler.CameraAnimation();
                 Time.timeScale = 0.2f;
             }
             
