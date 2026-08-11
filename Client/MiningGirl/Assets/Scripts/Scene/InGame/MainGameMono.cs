@@ -33,7 +33,6 @@ namespace Scene.InGame
     
     public class MainGameMono : GameMonoInitializer, IInGameHandler, IEntityHandler
     {
-        [FormerlySerializedAs("inGameUI")]
         [Header("UI")]
         [SerializeField]
         private InGameMonoUI inGameMonoUI;
@@ -61,13 +60,13 @@ namespace Scene.InGame
        
         private void Start()
         {
-            var gameData = GameDataManager.Instance.GameStageData;
+            // var gameData = GameDataManager.Instance.GameStageData;
         
-            gameData.Set("1020", 0, 0);
+            // gameData.Set("1020", 0, 0);
             
             // InitAsync().Forget();
          
-            CoverUIManager.Instance.CoverUI.Hide().Forget();
+            // CoverUIManager.Instance.CoverUI.Hide().Forget();
             
             // tileController.Init();
         }

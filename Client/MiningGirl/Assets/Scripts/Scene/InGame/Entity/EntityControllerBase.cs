@@ -61,11 +61,14 @@ namespace Scene.InGame.Entity
             IsInitialized = true;
         }
         
-        protected T Get()
+// 큐가 비어 있으면 새 인스턴스가 만들어질 때까지 실제로 기다린 뒤 꺼내줍니다.
+        // (기존에는 Create()를 fire-and-forget으로 던지고 바로 Dequeue를 시도해서
+        //  로드가 끝나기 전이면 InvalidOperationException이 발생했습니다.)
+        protected async UniTask<T> Get()
         {
             if (_queue == null || _queue.Count == 0)
             {
-                Create().Forget();
+                await Create();
             }
 
             var entity = _queue!.Dequeue();
@@ -74,7 +77,7 @@ namespace Scene.InGame.Entity
             return entity;
         }
         
-        private async UniTaskVoid Create()
+private async UniTask Create()
         {
             try
             {

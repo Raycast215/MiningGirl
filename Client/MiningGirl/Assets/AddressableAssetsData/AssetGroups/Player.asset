@@ -27,6 +27,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - Player
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f4bf80f4312173e4a8374cf65fd299e7
+    m_Address: Monster
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Player
+    FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 768474f74753eb84289176247933f264, type: 2}
   m_SchemaSet:

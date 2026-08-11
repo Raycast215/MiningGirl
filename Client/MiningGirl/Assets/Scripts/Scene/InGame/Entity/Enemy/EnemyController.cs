@@ -62,9 +62,9 @@ namespace Scene.InGame.Entity.Enemy
             }
         }
         
-        private void Spawn(Vector3 pos, IEntity entity)
+        private async UniTaskVoid Spawn(Vector3 pos, IEntity entity)
         {
-            var ins = Get();
+            var ins = await Get();
                 
             ins.BaseData = new EntityData
             {

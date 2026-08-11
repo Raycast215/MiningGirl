@@ -33,15 +33,15 @@ namespace Scene.InGame.Entity.Player
         {
             base.InitAsync().Forget();
             
-            _attackNode = new AttackNode(this);
-            _targetSearchNode = new SearchTargetNode(this, _handler.GetEntityHandler());
-            
-            NodeRunner = new NodeRunner(new SequenceNode(new List<INode>()
-            {
-                new ActionNode(_targetSearchNode.ProcessNode),
-                new ActionNode(MoveNode.ProcessNode),
-                new ActionNode(_attackNode.ProcessNode),
-            }));
+            // _attackNode = new AttackNode(this);
+            // _targetSearchNode = new SearchTargetNode(this, _handler.GetEntityHandler());
+            //
+            // NodeRunner = new NodeRunner(new SequenceNode(new List<INode>()
+            // {
+            //     new ActionNode(_targetSearchNode.ProcessNode),
+            //     new ActionNode(MoveNode.ProcessNode),
+            //     new ActionNode(_attackNode.ProcessNode),
+            // }));
             
             IsInitialized = true;
         }

@@ -44,15 +44,7 @@ namespace Scene.InGame.Entity.Resource
         {
             if (!IsInitialized)
                 return;
-
-            var isBossStage = false;
             
-            if (isBossStage)
-            {
-                Spawn(new Vector3(0, 10, 0), isBossStage);
-                return;
-            }
-
             try
             {
                 while (true)
@@ -74,9 +66,9 @@ namespace Scene.InGame.Entity.Resource
             }
         }
 
-        private void Spawn(Vector3 pos, bool isBossStage = false)
+        private async UniTaskVoid Spawn(Vector3 pos, bool isBossStage = false)
         {
-            var ins = Get();
+            var ins = await Get();
 
             if (isBossStage)
             {
@@ -103,8 +95,6 @@ namespace Scene.InGame.Entity.Resource
                 };
             }
             
-            
-                
             ins.SetHandler(_handler, x => Return(x as Resource));
             ins.InitAsync().Forget();
             ins.SetPosition(pos);
@@ -173,9 +163,9 @@ namespace Scene.InGame.Entity.Resource
         
         private bool IsFarEnough(Vector3 candidate, List<Vector3> existingPoints, float minDistanceSqr)
         {
-            for (int i = 0; i < existingPoints.Count; i++)
+            foreach (var vec in existingPoints)
             {
-                var diff = candidate - existingPoints[i];
+                var diff = candidate - vec;
                 
                 diff.z = 0f;
 
