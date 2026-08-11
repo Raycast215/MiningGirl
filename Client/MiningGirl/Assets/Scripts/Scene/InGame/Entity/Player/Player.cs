@@ -30,6 +30,14 @@ namespace Scene.InGame.Entity.Player
             OnDirectionEvent += onDirectionEvent;
         }
 
+        // 스테이지 재시작(Next) 등으로 판이 리셋될 때 호출합니다.
+        // 진행 중이던 채굴 공격을 취소하고 현재 타겟을 비워, 다음 프레임에 새 광물을 다시 탐색하게 합니다.
+        public void ResetBehaviour()
+        {
+            _attackNode?.Dispose();
+            SetTarget(null);
+        }
+
         // (테스트용) 현재 타겟 광물을 제외한 나머지 활성 광물 중 하나를 무작위로 골라 타겟으로 지정합니다.
         // SearchTargetNode는 타겟이 살아있으면 유지하므로, 여기서 강제로 바꾼 타겟 쪽으로 이동하게 됩니다.
         public void MoveToRandomResource()
@@ -69,11 +77,15 @@ namespace Scene.InGame.Entity.Player
             // 시퀀스: 타겟(가장 가까운 광물) 탐색 → 그 타겟을 향해 이동.
             // (채굴 공격 노드는 다음 단계에서 이어붙일 예정이라 지금은 이동까지만 연결합니다.)
             _targetSearchNode = new SearchTargetNode(this, _resourceProvider);
+            _attackNode = new AttackNode(this);
 
+            // 시퀀스: 타겟(가장 가까운 광물) 탐색 → 그 타겟을 향해 이동 → 사거리 안에 들면 채굴(공격).
+            // MoveNode는 도달 전엔 Running을 돌려 시퀀스를 멈추므로, AttackNode는 광물에 도착한 뒤에만 실행됩니다.
             NodeRunner = new NodeRunner(new SequenceNode(new List<INode>
             {
                 new ActionNode(_targetSearchNode.ProcessNode),
                 new ActionNode(MoveNode.ProcessNode),
+                new ActionNode(_attackNode.ProcessNode),
             }));
 
             IsInitialized = true;
@@ -97,8 +109,8 @@ namespace Scene.InGame.Entity.Player
         
         public override float GetDamage()
         {
-            return 0;
-            //  return _handler.GetInGameData().GetStatData(EStatType.Damage).Value;
+            // 임시 고정값 — 나중에 캐릭터 스탯 데이터(엑셀)와 연결 예정.
+            return 1f;
         }
 
         public override float GetAttackDistance()
@@ -109,8 +121,8 @@ namespace Scene.InGame.Entity.Player
 
         public override float GetAttackDelay()
         {
-            return 0;
-            // return _handler.GetInGameData().GetStatData(EStatType.AttackDelay).Value;
+            // 채굴 1회 간격(초). 임시 고정값 — 나중에 캐릭터 스탯 데이터(엑셀)와 연결 예정.
+            return 2f;
         }
 
         public override float GetMoveSpeed()

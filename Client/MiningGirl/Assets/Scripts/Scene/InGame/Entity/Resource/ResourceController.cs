@@ -14,7 +14,7 @@ namespace Scene.InGame.Entity.Resource
 
         [Header("Reward")]
         [SerializeField]
-        private float resourceMaxHp = 100f;
+        private float resourceMaxHp = 3f;
         [SerializeField]
         private int stoneReward = 1;
         [SerializeField]

@@ -115,10 +115,21 @@ namespace Scene.InGame.Entity.Node
         
         private bool IsValidAttackTarget(IEntity target)
         {
-            return _entity != null
-                   && _entity.GetActiveState()
-                   && target != null
-                   && target.GetActiveState();
+            if (_entity == null || !_entity.GetActiveState())
+                return false;
+
+            if (target == null || !target.GetActiveState())
+                return false;
+
+            // 사거리 체크 — 대기(WaitForSeconds) 도중 타겟이 풀 재사용으로 다른 위치에 재활성화되거나
+            // 플레이어가 멀어졌을 수 있으므로, 타격 직전에 실제로 사거리 안에 있는지 확인합니다.
+            // (이 검증이 없으면 재시작 등으로 멀리 있는 대상이 '맞는' 현상이 생깁니다.)
+            var sqrDist = (target.GetPosition() - _entity.GetPosition()).sqrMagnitude;
+            // MoveNode가 멈추는 사거리와 정확히 같게 잡으면 경계에서 미세하게 어긋나 공격이 씹힐 수 있어
+            // 약간의 여유(1.5배)를 둡니다.
+            var attackDist = _entity.GetAttackDistance() * 1.5f;
+
+            return sqrDist <= attackDist * attackDist;
         }
         
 #region IDisposable
@@ -128,6 +139,10 @@ namespace Scene.InGame.Entity.Node
             _cts?.Cancel();
             _cts?.Dispose();
             _cts = null;
+
+            // 진행 중이던 공격 상태를 초기화해서, 리셋 후 다음 공격이 정상적으로 다시 시작되게 합니다.
+            IsPlaying = false;
+            IsAttackDone = false;
         }
 
 #endregion

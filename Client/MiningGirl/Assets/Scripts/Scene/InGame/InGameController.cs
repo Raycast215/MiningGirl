@@ -102,6 +102,10 @@ namespace Scene.InGame
             // 광물도 모두 풀로 정리
             resourceController.StopSpawn();
 
+            // 플레이어의 진행 중이던 채굴/타겟을 초기화 — 방금 풀로 되돌린 광물을 계속 때리는 것을 방지합니다.
+            if (_playerEntity is Scene.InGame.Entity.Player.Player player)
+                player.ResetBehaviour();
+
             // 스폰을 다시 시작 (내부에서 이전 루프를 정리하고 새로 시작)
             monsterController.ExecuteTestSpawn(_playerEntity, 0);
 
