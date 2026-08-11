@@ -10,32 +10,26 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
-  m_Name: Player
-  m_EditorClassIdentifier: 
-  m_GroupName: Player
-  m_GUID: 9a4e360b289f09049b898af453d04f1c
+  m_Name: Entity
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: Entity
+  m_GUID: a01e9bced178c5046b9d3935aa6b59b6
   m_SerializeEntries:
   - m_GUID: a49fcba4b65d2874c9cba8ab8c5d5d12
     m_Address: Player
     m_ReadOnly: 0
     m_SerializedLabels:
-    - Player
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: ab5b92c0d0a34ca49a848aa773c0b261
-    m_Address: Player_001
-    m_ReadOnly: 0
-    m_SerializedLabels:
-    - Player
+    - Entity
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: f4bf80f4312173e4a8374cf65fd299e7
     m_Address: Monster
     m_ReadOnly: 0
     m_SerializedLabels:
-    - Player
+    - Entity
     FlaggedDuringContentUpdateRestriction: 0
   m_ReadOnly: 0
   m_Settings: {fileID: 11400000, guid: 768474f74753eb84289176247933f264, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: 2ad3c2d573113334eacbd3c43cd7370d, type: 2}
-    - {fileID: 11400000, guid: daf38077ada638543be7ce8baf46a721, type: 2}
+    - {fileID: 11400000, guid: 734b77b9fee204743a6261a68c1ce693, type: 2}
+    - {fileID: 11400000, guid: d2924b02d82a75644a4864ef0e2e623f, type: 2}

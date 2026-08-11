@@ -3,6 +3,7 @@ using Cysharp.Threading.Tasks;
 using InGame.temp.System.FloatingDamage;
 using MainGame.Entity.Monster;
 using Manager;
+using Scene.InGame.Entity.Interface;
 using Scene.InGame.Entity.Player;
 using Unity.Cinemachine;
 using UnityEngine;
@@ -30,7 +31,7 @@ namespace MainGame
         private MonsterController monsterController;
         
         // Next()에서 재시작할 때 재사용하기 위해 플레이어 엔티티를 보관합니다.
-        private Scene.InGame.Entity.Interface.IEntity _playerEntity;
+        private IEntity _playerEntity;
 
         private void Start()
         {
@@ -38,10 +39,6 @@ namespace MainGame
             {
                 InitAsync().Forget();
             }
-            
-            CoverUIManager.Instance.CoverUI.Hide().Forget();
-            
-            uIController.GameStart();
         }
 
         private async UniTask InitAsync()
@@ -67,6 +64,10 @@ namespace MainGame
             // (완료를 기다리지 않고 백그라운드로 돌립니다 — 60초짜리 루프라 await하면 초기화가 그만큼 늦어집니다.)
             monsterController.ExecuteTestSpawn(_playerEntity, 0);
 
+            CoverUIManager.Instance.CoverUI.Hide().Forget();
+            
+            uIController.GameStart();
+            
             IsInitialized = true;
         }
 
@@ -86,7 +87,7 @@ namespace MainGame
             // 스폰을 다시 시작 (내부에서 이전 루프를 정리하고 새로 시작)
             monsterController.ExecuteTestSpawn(_playerEntity, 0);
             
-            _playerEntity.GetTransform().position = Vector3.zero;
+            _playerEntity.SetPosition(Vector3.zero);
             
             uIController.SetTime();
             
