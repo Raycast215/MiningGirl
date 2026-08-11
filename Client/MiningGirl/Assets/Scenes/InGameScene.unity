@@ -2363,12 +2363,12 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1293548452}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1474361844}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1293548455
 MonoBehaviour:
@@ -2708,7 +2708,7 @@ GameObject:
   - component: {fileID: 1474361844}
   - component: {fileID: 1474361845}
   m_Layer: 0
-  m_Name: MainGame
+  m_Name: InGame
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -2722,7 +2722,7 @@ Transform:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1474361843}
   serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
@@ -2733,8 +2733,9 @@ Transform:
   - {fileID: 1997294318}
   - {fileID: 1816489774}
   - {fileID: 1922045483}
+  - {fileID: 1293548454}
   - {fileID: 1958127751}
-  m_Father: {fileID: 0}
+  m_Father: {fileID: 1684147186}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1474361845
 MonoBehaviour:
@@ -3013,12 +3014,12 @@ GameObject:
   - component: {fileID: 1684147186}
   - component: {fileID: 1684147185}
   m_Layer: 0
-  m_Name: InGameSceneController
+  m_Name: SceneController
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!114 &1684147185
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3031,6 +3032,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2292ed91a92280d48adc640f590bfdf5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  inGameController: {fileID: 1474361845}
 --- !u!4 &1684147186
 Transform:
   m_ObjectHideFlags: 0
@@ -3043,7 +3045,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 1474361844}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1727871299
@@ -3185,9 +3188,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: abaec2732dc319d4c817f8cee8dd527b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::LevelGaugeUI
-  <IsInitialized>k__BackingField: 0
-  sliderUI: {fileID: 0}
-  levelText: {fileID: 1929914177}
 --- !u!1 &1749932420
 GameObject:
   m_ObjectHideFlags: 0
@@ -4403,9 +4403,7 @@ SceneRoots:
   m_ObjectHideFlags: 0
   m_Roots:
   - {fileID: 961569642}
-  - {fileID: 1684147186}
-  - {fileID: 1293548454}
   - {fileID: 3237947779511917681}
   - {fileID: 1250520696}
   - {fileID: 463340404}
-  - {fileID: 1474361844}
+  - {fileID: 1684147186}

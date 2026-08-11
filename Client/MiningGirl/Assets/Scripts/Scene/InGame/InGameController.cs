@@ -1,6 +1,7 @@
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using InGame.temp.System.FloatingDamage;
+using MainGame;
 using MainGame.Entity.Monster;
 using Manager;
 using Scene.InGame.Entity.Interface;
@@ -8,9 +9,9 @@ using Scene.InGame.Entity.Player;
 using Unity.Cinemachine;
 using UnityEngine;
 
-namespace MainGame
+namespace Scene.InGame
 {
-    public class MainGameController : GameMonoInitializer
+    public class InGameController : GameMonoInitializer
     {
         [Header("Cam")]
         [SerializeField] 
@@ -33,15 +34,7 @@ namespace MainGame
         // Next()에서 재시작할 때 재사용하기 위해 플레이어 엔티티를 보관합니다.
         private IEntity _playerEntity;
 
-        private void Start()
-        {
-            if (!IsInitialized)
-            {
-                InitAsync().Forget();
-            }
-        }
-
-        private async UniTask InitAsync()
+        public async UniTask InitAsync()
         {
             uIController.InitAsync(Next).Forget();
             await UniTask.WaitUntil(() => uIController.IsInitialized);
