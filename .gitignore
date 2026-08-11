@@ -98,3 +98,13 @@ InitTestScene*.unity*
 
 # Auto-generated scenes by play mode tests
 /[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+# Android keystore files (서명용 개인키 - 저장소에 커밋 금지)
+*.keystore
+
+# Unity 에디터 개인 설정 / 레이아웃 (사용자별 파일, 커밋 불필요)
+EditorUserSettings.asset
+/[Uu]ser[Ss]ettings/Layouts/default-6000.dwlt
+
+# Unity/MSBuild 중간 산출물 (하위 폴더 포함, 예: Client/MiningGirl/obj)
+**/[Oo]bj/
