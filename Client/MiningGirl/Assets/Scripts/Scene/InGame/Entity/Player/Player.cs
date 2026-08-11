@@ -29,6 +29,35 @@ namespace Scene.InGame.Entity.Player
             OnDirectionEvent = null;
             OnDirectionEvent += onDirectionEvent;
         }
+
+        // (테스트용) 현재 타겟 광물을 제외한 나머지 활성 광물 중 하나를 무작위로 골라 타겟으로 지정합니다.
+        // SearchTargetNode는 타겟이 살아있으면 유지하므로, 여기서 강제로 바꾼 타겟 쪽으로 이동하게 됩니다.
+        public void MoveToRandomResource()
+        {
+            var resources = _resourceProvider?.GetActiveResources();
+            if (resources == null || resources.Count == 0)
+                return;
+
+            var current = GetTarget();
+
+            // 현재 타겟을 제외한 활성 광물 후보를 모읍니다.
+            var candidates = new List<IEntity>(resources.Count);
+            foreach (var resource in resources)
+            {
+                if (resource == null || !resource.GetActiveState())
+                    continue;
+                if (resource == current)
+                    continue;
+
+                candidates.Add(resource);
+            }
+
+            if (candidates.Count == 0)
+                return;
+
+            var pick = candidates[UnityEngine.Random.Range(0, candidates.Count)];
+            SetTarget(pick);
+        }
         
 #region EntityBase
 

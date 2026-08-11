@@ -78,6 +78,14 @@ namespace Scene.InGame
             IsInitialized = true;
         }
 
+        // (테스트 버튼용) 현재 타겟 광물을 제외한 무작위 광물로 플레이어가 이동하게 합니다.
+        // 씬의 Test 버튼 onClick에 이 메서드를 연결합니다.
+        public void OnClickMoveToRandomResource()
+        {
+            if (_playerEntity is Scene.InGame.Entity.Player.Player player)
+                player.MoveToRandomResource();
+        }
+
         // 다음 스테이지로 넘어갈 때 호출됩니다.
         // 지금까지 스폰된 몬스터를 모두 풀로 되돌린 뒤, 스폰을 처음부터 다시 시작합니다.
         private void Next()
