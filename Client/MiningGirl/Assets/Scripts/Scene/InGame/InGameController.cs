@@ -44,8 +44,15 @@ namespace Scene.InGame
             
             damageController.InitAsync();
             await UniTask.WaitUntil(() => damageController.IsInitialized);
-            
-            playerController.InitAsync().Forget();
+
+            // 광물 컨트롤러를 먼저 준비합니다 — 플레이어가 이 컨트롤러를 광물 공급자(IResourceProvider)로
+            // 주입받아 가장 가까운 광물을 탐색하기 때문에, 플레이어 초기화보다 앞서 준비되어야 합니다.
+            resourceController.Setup(damagePresenter: damageController);
+            resourceController.InitControllerAsync().Forget();
+            await UniTask.WaitUntil(() => resourceController.IsInitialized);
+
+            // 플레이어 — 광물 공급자를 주입해서 행동 트리(가장 가까운 광물로 이동)를 구성합니다.
+            playerController.InitAsync(resourceController).Forget();
             await UniTask.WaitUntil(() => playerController.IsInitialized);
 
             _playerEntity = playerController.ActivateList.First();
@@ -60,11 +67,7 @@ namespace Scene.InGame
             // (완료를 기다리지 않고 백그라운드로 돌립니다 — 60초짜리 루프라 await하면 초기화가 그만큼 늦어집니다.)
             monsterController.ExecuteTestSpawn(_playerEntity, 0);
 
-            // 광물 — 풀 준비 후 플레이어 시작 위치 주변에 초기 배치하고, 이후 캐이는 만큼 주기적으로 보충합니다.
-            resourceController.Setup(damagePresenter: damageController);
-            resourceController.InitControllerAsync().Forget();
-            await UniTask.WaitUntil(() => resourceController.IsInitialized);
-
+            // 광물 초기 배치 후, 이후 캐이는 만큼 주기적으로 보충하는 루프를 시작합니다.
             resourceController.SpawnInitialLayout(Vector3.zero);
             resourceController.ExecuteSpawn(_playerEntity);
 

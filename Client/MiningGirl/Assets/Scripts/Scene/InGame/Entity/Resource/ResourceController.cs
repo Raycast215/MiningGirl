@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Scene.InGame.Entity.Resource
 {
-    public class ResourceController : EntityControllerBase<Resource>, IResourceDepletedHandler
+    public class ResourceController : EntityControllerBase<Resource>, IResourceDepletedHandler, IResourceProvider
     {
         [SerializeField]
         private string prefabName = "Stone";
@@ -130,6 +130,24 @@ namespace Scene.InGame.Entity.Resource
         public void OnResourceDepleted(Resource resource)
         {
             Return(resource);
+        }
+
+        // GetActiveResources()가 매번 새 리스트를 만들지 않도록 재사용하는 버퍼입니다.
+        private readonly List<IEntity> _activeResourceBuffer = new List<IEntity>();
+
+        // IResourceProvider 구현 — 현재 활성 광물 목록을 IEntity 형태로 제공합니다.
+        // (플레이어의 SearchTargetNode가 가장 가까운 광물을 찾는 데 사용합니다.)
+        public IReadOnlyList<IEntity> GetActiveResources()
+        {
+            _activeResourceBuffer.Clear();
+
+            if (ActivateList != null)
+            {
+                foreach (var resource in ActivateList)
+                    _activeResourceBuffer.Add(resource);
+            }
+
+            return _activeResourceBuffer;
         }
 
         // Resource.Hit()에서 채굴 완료 시 호출됩니다. 실제 지급 여부는 rewardHandler 쪽 책임입니다.

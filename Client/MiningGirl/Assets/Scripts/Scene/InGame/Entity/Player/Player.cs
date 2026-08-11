@@ -14,11 +14,15 @@ namespace Scene.InGame.Entity.Player
         
         private AttackNode _attackNode;
         private SearchTargetNode _targetSearchNode;
-        
-        // public void SetHandler(IInGameHandler handler)
-        // {
-        //     _handler = handler;
-        // }
+
+        private Resource.IResourceProvider _resourceProvider;
+
+        // 플레이어가 어떤 광물들을 대상으로 삼을지(가장 가까운 것 탐색) 공급자를 주입합니다.
+        // InitAsync() 전에 호출되어야 행동 트리 구성 시점에 반영됩니다.
+        public void SetResourceProvider(Resource.IResourceProvider resourceProvider)
+        {
+            _resourceProvider = resourceProvider;
+        }
 
         public void InitDirectionEvent(Action<Vector3> onDirectionEvent)
         {
@@ -32,16 +36,17 @@ namespace Scene.InGame.Entity.Player
         {
             base.InitAsync().Forget();
             
-            // _attackNode = new AttackNode(this);
-            // _targetSearchNode = new SearchTargetNode(this, _handler.GetEntityHandler());
-            //
-            // NodeRunner = new NodeRunner(new SequenceNode(new List<INode>()
-            // {
-            //     new ActionNode(_targetSearchNode.ProcessNode),
-            //     new ActionNode(MoveNode.ProcessNode),
-            //     new ActionNode(_attackNode.ProcessNode),
-            // }));
-            
+            // 가장 가까운 광물을 찾아 그 쪽으로 이동하는 행동 트리를 구성합니다.
+            // 시퀀스: 타겟(가장 가까운 광물) 탐색 → 그 타겟을 향해 이동.
+            // (채굴 공격 노드는 다음 단계에서 이어붙일 예정이라 지금은 이동까지만 연결합니다.)
+            _targetSearchNode = new SearchTargetNode(this, _resourceProvider);
+
+            NodeRunner = new NodeRunner(new SequenceNode(new List<INode>
+            {
+                new ActionNode(_targetSearchNode.ProcessNode),
+                new ActionNode(MoveNode.ProcessNode),
+            }));
+
             IsInitialized = true;
         }
         
@@ -69,8 +74,8 @@ namespace Scene.InGame.Entity.Player
 
         public override float GetAttackDistance()
         {
-            return 0;
-            // return _handler.GetInGameData().GetStatData(EStatType.AttackDistance).Value;
+            // 타겟(광물)에 이 거리 이하로 가까워지면 이동을 멈춥니다(=채굴 사거리).
+            return BaseData?.MoveToMinDistance ?? 0f;
         }
 
         public override float GetAttackDelay()
@@ -81,8 +86,7 @@ namespace Scene.InGame.Entity.Player
 
         public override float GetMoveSpeed()
         {
-            return 0;
-            //  return _handler.GetInGameData().GetStatData(EStatType.MoveSpeed).Value;
+            return BaseData?.MoveSpeed ?? 0f;
         }
 
         public override float GetCriDamage()
