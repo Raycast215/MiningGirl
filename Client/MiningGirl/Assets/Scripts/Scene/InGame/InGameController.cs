@@ -86,9 +86,9 @@ namespace Scene.InGame
                 player.MoveToRandomResource();
         }
 
-        // 다음 스테이지로 넘어갈 때 호출됩니다.
-        // 지금까지 스폰된 몬스터를 모두 풀로 되돌린 뒤, 스폰을 처음부터 다시 시작합니다.
-        private void Next()
+        // 다음 스테이지로 넘어갈 때(또는 Reset 버튼) 호출됩니다.
+        // 지금까지 스폰된 몬스터/광물을 모두 풀로 되돌린 뒤, 처음부터 다시 시작합니다.
+        public void Next()
         {
             if (!IsInitialized)
                 return;
