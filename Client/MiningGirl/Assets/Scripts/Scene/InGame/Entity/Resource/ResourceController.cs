@@ -29,6 +29,9 @@ namespace Scene.InGame.Entity.Resource
         private float spawnInterval = 2f;
         [SerializeField]
         private float minDistanceBetween = 2f;
+        [Tooltip("초기 배치 시 중심점(캐릭터)에서 이 거리 이내에는 광물을 생성하지 않습니다. 캐릭터 발밑에 광물이 겹쳐 생기는 것을 방지합니다.")]
+        [SerializeField]
+        private float centerClearRadius = 3f;
         [Tooltip("화면 밖 스폰 시, 화면 절반 크기 대비 얼마나 더 밖으로 나가서 스폰할지 비율입니다. " +
                  "절대 유닛이 아니라 비율을 쓰는 이유는 폰/태블릿 등 화면 비율이 달라도 일관되게 화면 밖에 스폰되도록 하기 위함입니다.")]
         [SerializeField]
@@ -173,6 +176,7 @@ namespace Scene.InGame.Entity.Resource
 
             maxTryPerPoint = Mathf.Max(1, maxTryPerPoint);
             var minDistanceSqr = minDistanceBetweenPoints * minDistanceBetweenPoints;
+            var centerClearSqr = centerClearRadius * centerClearRadius;
 
             for (var i = 0; i < count; i++)
             {
@@ -182,6 +186,11 @@ namespace Scene.InGame.Entity.Resource
                 {
                     var x = Random.Range(-halfWidth, halfWidth);
                     var y = Random.Range(-halfHeight, halfHeight);
+
+                    // 중심(캐릭터)에서 centerClearRadius 이내인 후보는 버립니다.
+                    if (x * x + y * y < centerClearSqr)
+                        continue;
+
                     var candidate = center + new Vector3(x, y, 0f);
 
                     if (IsFarEnough(candidate, positions, minDistanceSqr))
