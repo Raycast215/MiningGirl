@@ -3355,7 +3355,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainGame.Entity.Monster.MonsterController
   prefabName: Monster
-  testSpawnOffscreenMargin: 1
+  testSpawnOffscreenMargin: 7
   testSpawnInterval: 1
   testMaxSpawnCount: 30
 --- !u!4 &1816489774

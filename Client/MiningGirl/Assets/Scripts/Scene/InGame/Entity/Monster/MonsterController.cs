@@ -63,7 +63,10 @@ namespace MainGame.Entity.Monster
 
         [Header("Test Spawn")]
         [SerializeField]
-        private float testSpawnOffscreenMargin = 1f;
+        [Tooltip("화면 절반 크기 대비 비율로 여백을 둡니다. 예: 0.5 = 화면 절반 크기의 50%만큼 화면 밖에서 스폰. " +
+                 "절대 유닛 값 대신 비율을 쓰는 이유: 화면 비율(세로로 좁은 폰 vs 정사각형에 가까운 태블릿)이 달라도 " +
+                 "좌우/상하 진입 타이밍이 기기와 무관하게 일관되게 느껴지도록 하기 위함입니다.")]
+        private float testSpawnOffscreenMarginRatio = 0.5f;
         [SerializeField]
         private float testSpawnInterval = 2f;
         [SerializeField]
@@ -114,11 +117,16 @@ namespace MainGame.Entity.Monster
         }
 
         // 현재 해상도(카메라 뷰) 바깥쪽 테두리 중 임의의 한 지점에 스폰합니다.
+        // 여백은 절대 유닛이 아니라 각 축(가로/세로) 자기 화면 크기의 비율로 계산해서,
+        // 화면 비율이 다른 기기(폰/태블릿)에서도 진입 타이밍이 비슷하게 느껴지도록 합니다.
         private Vector3 GetRandomOffscreenPosition(Vector3 center)
         {
             var cam = Camera.main;
-            var halfHeight = cam.orthographicSize + testSpawnOffscreenMargin;
-            var halfWidth = halfHeight * cam.aspect + testSpawnOffscreenMargin;
+            var screenHalfHeight = cam.orthographicSize;
+            var screenHalfWidth = screenHalfHeight * cam.aspect;
+
+            var halfHeight = screenHalfHeight * (1f + testSpawnOffscreenMarginRatio);
+            var halfWidth = screenHalfWidth * (1f + testSpawnOffscreenMarginRatio);
 
             float x, y;
 
