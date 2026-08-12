@@ -11,7 +11,7 @@
   "InvincibleDuration": 2,
   "MaxHealth": 11,
   "MoveSpeed": 2,
-  "StartSkillTypeList": null
+  "StartSkillTypeList": "ResourceMineGold"
 },
 {
   "// Memo": "치명타 타입",
