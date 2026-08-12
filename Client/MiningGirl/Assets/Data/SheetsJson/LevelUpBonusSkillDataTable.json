@@ -1,9 +1,9 @@
 [
 {
   "Desc": "채굴 데미지가 {0} 증가합니다.",
+  "EffectType": "MiningDamage",
   "EffectValue": 1,
   "Id": 1000,
-  "EffectType": "MiningDamage",
   "MaxLevel": 15,
   "Name": "채굴 데미지 증가",
   "ValueType": "Add",
@@ -11,9 +11,9 @@
 },
 {
   "Desc": "채굴 속도가 {0}% 증가합니다.",
+  "EffectType": "MiningSpeed",
   "EffectValue": 0.1,
   "Id": 1001,
-  "EffectType": "MiningSpeed",
   "MaxLevel": 15,
   "Name": "채굴 속도 증가",
   "ValueType": "Mul",
@@ -21,9 +21,9 @@
 },
 {
   "Desc": "이동 속도가 {0}% 증가합니다.",
-  "EffectValue": 0.1,
-  "Id": 1002,
   "EffectType": "MoveSpeed",
+  "EffectValue": 0.05,
+  "Id": 1002,
   "MaxLevel": 15,
   "Name": "이동 속도 증가",
   "ValueType": "Mul",
@@ -31,9 +31,9 @@
 },
 {
   "Desc": "적 처치 시 골드가 {0} 증가합니다.",
+  "EffectType": "MonsterKillGold",
   "EffectValue": 1,
   "Id": 2000,
-  "EffectType": "MonsterKillGold",
   "MaxLevel": 15,
   "Name": "적 처치 골드 증가",
   "ValueType": "Add",
@@ -41,9 +41,9 @@
 },
 {
   "Desc": "광물 채굴 시 획득 골드가 {0} 증가합니다.",
+  "EffectType": "ResourceMineGold",
   "EffectValue": 1,
   "Id": 3000,
-  "EffectType": "ResourceMineGold",
   "MaxLevel": 15,
   "Name": "광물 채굴 골드 증가",
   "ValueType": "Add",
@@ -51,9 +51,9 @@
 },
 {
   "Desc": "골드를 {0} 즉시 획득합니다.",
+  "EffectType": "InstantGold",
   "EffectValue": 10,
   "Id": 4000,
-  "EffectType": "InstantGold",
   "MaxLevel": -1,
   "Name": "골드 획득",
   "ValueType": "Add",
@@ -61,9 +61,9 @@
 },
 {
   "Desc": "경험치를 {0} 즉시 획득합니다.",
+  "EffectType": "InstantExp",
   "EffectValue": 10,
   "Id": 4001,
-  "EffectType": "InstantExp",
   "MaxLevel": -1,
   "Name": "경험치 획득",
   "ValueType": "Add",
