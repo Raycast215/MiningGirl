@@ -1,5 +1,8 @@
 using System;
+using System.Collections.Generic;
+using System.Text;
 using Data;
+using Manager;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -64,7 +67,73 @@ namespace MainGame.UI
             // (확률 옆에 괄호로 붙이면 확률이 150%인 것처럼 읽혀서 분리했습니다.)
             return $"채굴 데미지 {V(row.Damage)}   채굴 주기 {V(row.AttackDelay, "초")}   이동속도 {V(row.MoveSpeed)}\n" +
                    $"치명타 확률 {V(row.CriRate, "%")}   치명타 데미지 +{V(Mathf.RoundToInt(row.CriDamage * 100f), "%")}   추가타 확률 {V(row.ExtraHitRate, "%")}\n" +
-                   $"체력 {V(row.MaxHealth)}   피격 무적 시간 {V(row.InvincibleDuration, "초")}";
+                   $"체력 {V(row.MaxHealth)}   피격 무적 시간 {V(row.InvincibleDuration, "초")}" +
+                   BuildStartSkillText(row, hex);
+        }
+
+        // 캐릭터가 미리 들고 시작하는 스킬을 '이름 Lv.N' 형태로 보여줍니다.
+        // 같은 타입이 여러 번 들어 있으면 그 개수가 곧 시작 레벨입니다.
+        private string BuildStartSkillText(CharacterStatDataRow row, string hex)
+        {
+            var types = row?.StartSkillTypeList;
+            if (types == null || types.Count == 0)
+                return string.Empty;
+
+            var table = DataTableManager.Instance?.LevelUpBonusSkillDataTable;
+            if (table?.Rows == null)
+                return string.Empty;
+
+            // 등장 순서를 유지하면서 타입별 개수를 셉니다.
+            var order = new List<ELevelUpBonusEffectType>();
+            var counts = new Dictionary<ELevelUpBonusEffectType, int>();
+
+            foreach (var type in types)
+            {
+                if (counts.ContainsKey(type))
+                {
+                    counts[type]++;
+                    continue;
+                }
+
+                counts[type] = 1;
+                order.Add(type);
+            }
+
+            var text = new StringBuilder();
+
+            foreach (var type in order)
+            {
+                LevelUpBonusSkillDataTableRow found = null;
+
+                foreach (var skill in table.Rows)
+                {
+                    if (skill.EffectType != type)
+                        continue;
+
+                    found = skill;
+                    break;
+                }
+
+                if (found == null)
+                    continue;
+
+                if (text.Length > 0)
+                    text.Append("   ");
+
+                // 시트에 최대 레벨보다 많이 적혀 있어도 실제 부여는 최대 레벨까지만 되므로
+                // 표시도 최대 레벨을 넘지 않게 잘라줍니다.
+                var level = counts[type];
+                if (found.MaxLevel >= 0)
+                    level = Mathf.Min(level, found.MaxLevel);
+
+                // 스킬 이름과 레벨을 통째로 강조합니다.
+                text.Append($"<color=#{hex}>{found.Name} Lv.{level}</color>");
+            }
+
+            if (text.Length == 0)
+                return string.Empty;
+
+            return $"\n시작 스킬 {text}";
         }
 
         public void SetVisible(bool visible)

@@ -1,5 +1,7 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
+using Newtonsoft.Json;
 
 namespace Data
 {
@@ -18,6 +20,10 @@ namespace Data
         public float MaxHealth { get; set; }
         // 피격 후 무적 시간(초)
         public float InvincibleDuration { get; set; }
+
+        // 시작 시 미리 1레벨 받고 시작할 레벨업 스킬 타입들 (콤마 구분)
+        [JsonConverter(typeof(ListFromStringConverter<ELevelUpBonusEffectType>))]
+        public List<ELevelUpBonusEffectType>? StartSkillTypeList { get; set; }
     }
     
     public class CharacterStatDataTable : DataTableBase<CharacterStatDataRow>

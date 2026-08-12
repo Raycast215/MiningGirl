@@ -2,6 +2,7 @@ using System;
 using Data;
 using MainGame.Bonus;
 using MainGame.Entity;
+using Manager;
 using Scene.InGame.Entity.Resource;
 using UnityEngine;
 
@@ -33,6 +34,55 @@ namespace Scene.InGame
         {
             StatContext.SetCharacter(row);
             Debug.Log($"[CharacterSelect] 적용 — Id={row?.Id}");
+
+            ApplyStartSkills(row);
+        }
+
+        // 캐릭터가 들고 시작하는 레벨업 스킬을 1레벨씩 미리 부여합니다.
+        // 시트의 StartSkillTypeList(EffectType 콤마 구분)에 적힌 타입을 보너스 테이블에서 찾아 적용합니다.
+        private void ApplyStartSkills(CharacterStatDataRow row)
+        {
+            var types = row?.StartSkillTypeList;
+            if (types == null || types.Count == 0)
+                return;
+
+            var table = DataTableManager.Instance?.LevelUpBonusSkillDataTable;
+            if (table?.Rows == null)
+            {
+                Debug.LogError("[CharacterSelect] 보너스 테이블이 로드되지 않아 시작 스킬을 적용하지 못했습니다.");
+                return;
+            }
+
+            foreach (var type in types)
+            {
+                LevelUpBonusSkillDataTableRow found = null;
+
+                foreach (var skill in table.Rows)
+                {
+                    if (skill.EffectType != type)
+                        continue;
+
+                    found = skill;
+                    break;
+                }
+
+                if (found == null)
+                {
+                    Debug.LogWarning($"[CharacterSelect] 시작 스킬 타입 {type} 에 해당하는 보너스 스킬이 없습니다.");
+                    continue;
+                }
+
+                // 최대 레벨을 넘겨서 부여하지 않습니다.
+                // (시트에 같은 타입을 MaxLevel보다 많이 적어둔 경우를 막습니다.)
+                if (!_bonusState.CanAcquire(found.Id, found.MaxLevel))
+                {
+                    Debug.LogWarning($"[CharacterSelect] 시작 스킬 {found.Name} 이(가) 최대 레벨({found.MaxLevel})에 도달해 더 부여하지 않습니다.");
+                    continue;
+                }
+
+                ApplyBonus(found);
+                Debug.Log($"[CharacterSelect] 시작 스킬 부여 — {found.Name} Lv.{_bonusState.GetLevel(found.Id)}");
+            }
         }
 
         private Action<int> _onGoldGranted;

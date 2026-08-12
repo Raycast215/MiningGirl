@@ -8,6 +8,7 @@
   "Damage": 10,
   "ExtraHitRate": 10,
   "Id": 1000,
+  "StartSkillTypeList": "ResourceMineGold",
   "InvincibleDuration": 2,
   "MaxHealth": 10,
   "MoveSpeed": 2
@@ -21,6 +22,7 @@
   "Damage": 6,
   "ExtraHitRate": 5,
   "Id": 1010,
+  "StartSkillTypeList": null,
   "InvincibleDuration": 1.5,
   "MaxHealth": 8,
   "MoveSpeed": 2
@@ -34,6 +36,7 @@
   "Damage": 6,
   "ExtraHitRate": 30,
   "Id": 1020,
+  "StartSkillTypeList": null,
   "InvincibleDuration": 2.5,
   "MaxHealth": 12,
   "MoveSpeed": 2
