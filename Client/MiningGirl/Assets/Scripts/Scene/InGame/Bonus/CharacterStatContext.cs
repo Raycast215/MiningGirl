@@ -29,7 +29,7 @@ namespace MainGame.Bonus
         public float GetMaxHealth()
         {
             var baseValue = BaseStat?.MaxHealth ?? 10f;
-            return Mathf.Max(1f, baseValue + (Bonus?.MaxHealthAdd ?? 0f));
+            return Mathf.Max(1f, (baseValue + (Bonus?.MaxHealthAdd ?? 0f)) * (Bonus?.MaxHealthMultiplier ?? 1f));
         }
 
         // 피격 후 무적 시간(초)
@@ -42,7 +42,7 @@ namespace MainGame.Bonus
         public float GetDamage()
         {
             var baseValue = BaseStat?.Damage ?? 1f;
-            return baseValue + (Bonus?.MiningDamageAdd ?? 0f);
+            return (baseValue + (Bonus?.MiningDamageAdd ?? 0f)) * (Bonus?.MiningDamageMultiplier ?? 1f);
         }
 
         // 채굴 주기(초). 속도 보너스가 오르면 짧아집니다.
@@ -69,21 +69,21 @@ namespace MainGame.Bonus
         public float GetCriRate()
         {
             var baseValue = BaseStat?.CriRate ?? 0f;
-            return Mathf.Clamp(baseValue * (Bonus?.CriRateMultiplier ?? 1f), 0f, 100f);
+            return Mathf.Clamp((baseValue + (Bonus?.CriRateAdd ?? 0f)) * (Bonus?.CriRateMultiplier ?? 1f), 0f, 100f);
         }
 
         // 치명타 추가 배율. 0.3이면 데미지의 1.3배가 됩니다.
         public float GetCriDamage()
         {
             var baseValue = BaseStat?.CriDamage ?? 0f;
-            return baseValue * (Bonus?.CriDamageMultiplier ?? 1f);
+            return (baseValue + (Bonus?.CriDamageAdd ?? 0f)) * (Bonus?.CriDamageMultiplier ?? 1f);
         }
 
         // 추가타 확률(%). 한 번의 채굴이 두 번 들어갈 확률입니다. 100%를 넘지 않게 제한합니다.
         public float GetExtraHitRate()
         {
             var baseValue = BaseStat?.ExtraHitRate ?? 0f;
-            return Mathf.Clamp(baseValue * (Bonus?.ExtraHitRateMultiplier ?? 1f), 0f, 100f);
+            return Mathf.Clamp((baseValue + (Bonus?.ExtraHitRateAdd ?? 0f)) * (Bonus?.ExtraHitRateMultiplier ?? 1f), 0f, 100f);
         }
     }
 }

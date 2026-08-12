@@ -79,13 +79,31 @@ namespace MainGame.Bonus
             if (row == null)
                 return string.Empty;
 
-            var value = row.ValueType == EEffectValueType.Mul
+            // 퍼센트로 보여줄 스탯인지는 ValueType이 아니라 EffectType으로 판단합니다.
+            // (Add로 바뀌어도 '10%'처럼 보여야 하는 항목들이 있습니다.)
+            var value = IsPercentStat(row.EffectType)
                 ? Mathf.RoundToInt(row.EffectValue * 100f).ToString()
                 : FormatNumber(row.EffectValue);
 
             var highlighted = $"<color={HighlightColorHex}>{value}</color>";
 
             return string.Format(row.Desc, highlighted);
+        }
+
+        // 값이 비율(0.1 = 10%)로 저장되는 스탯들
+        private static bool IsPercentStat(ELevelUpBonusEffectType type)
+        {
+            switch (type)
+            {
+                case ELevelUpBonusEffectType.MiningSpeed:
+                case ELevelUpBonusEffectType.MoveSpeed:
+                case ELevelUpBonusEffectType.CriDamage:
+                case ELevelUpBonusEffectType.CriRate:
+                case ELevelUpBonusEffectType.ExtraHitRate:
+                    return true;
+            }
+
+            return false;
         }
 
         private static string FormatNumber(float value)

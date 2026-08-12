@@ -8,8 +8,8 @@
   "Damage": 10,
   "ExtraHitRate": 10,
   "Id": 1000,
-  "MaxHealth": 10,
   "InvincibleDuration": 2,
+  "MaxHealth": 10,
   "MoveSpeed": 2
 },
 {
@@ -21,8 +21,8 @@
   "Damage": 6,
   "ExtraHitRate": 5,
   "Id": 1010,
-  "MaxHealth": 8,
   "InvincibleDuration": 1.5,
+  "MaxHealth": 8,
   "MoveSpeed": 2
 },
 {
@@ -34,8 +34,8 @@
   "Damage": 6,
   "ExtraHitRate": 30,
   "Id": 1020,
-  "MaxHealth": 12,
   "InvincibleDuration": 2.5,
+  "MaxHealth": 12,
   "MoveSpeed": 2
 }
 ]

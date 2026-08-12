@@ -36,7 +36,7 @@
   "Id": 1003,
   "MaxLevel": 15,
   "Name": "치명타 데미지 증가",
-  "ValueType": "Mul",
+  "ValueType": "Add",
   "Weight": 30
 },
 {
@@ -46,7 +46,7 @@
   "Id": 1004,
   "MaxLevel": 15,
   "Name": "치명타 확률 증가",
-  "ValueType": "Mul",
+  "ValueType": "Add",
   "Weight": 30
 },
 {
@@ -56,7 +56,7 @@
   "Id": 1005,
   "MaxLevel": 15,
   "Name": "추가타 확률 증가",
-  "ValueType": "Mul",
+  "ValueType": "Add",
   "Weight": 30
 },
 {
