@@ -65,14 +65,11 @@ namespace Scene.InGame.Entity.Node
             
             try
             {
-                // 여기서 사거리를 다시 검사하지 않습니다.
-                // MoveNode가 사거리 도달(Success)을 확인한 뒤에야 이 노드가 실행되는데,
-                // 진입 시점에 한 번 더 검사하면 광물의 피격 흔들림 트윈이나 미세한 위치 변화로
-                // 판정이 어긋나는 순간 return -> 다음 프레임 재시작이 되어
-                // 공격 대기(2초)가 처음부터 다시 시작되는 문제가 있었습니다.
-                // (엉뚱한 대상이 맞는 것은 아래 '타격 직전' 검사로 충분히 막힙니다.)
-                await UniTask.WaitForSeconds(_entity.GetAttackDelay(), cancellationToken: _cts.Token);
-                
+                // '공격 후 대기(후딜)' 방식입니다.
+                // 사거리에 도달하면 곧바로 한 번 타격하고, 그 뒤에 다음 공격까지 대기합니다.
+                // (이전의 '대기 후 공격(선딜)' 방식은 도착 직후 아무 반응이 없어 답답했고,
+                //  타겟을 옮길 때마다 대기 시간을 새로 지불해야 했으며,
+                //  대기 도중 판정이 어긋나면 타이머가 리셋되어 첫 타격이 지연되는 문제가 있었습니다.)
                 if (!IsValidAttackTarget(target))
                     return;
                 
@@ -98,6 +95,9 @@ namespace Scene.InGame.Entity.Node
                     target.Hit(damage, isCritical);
                     SoundManager.Instance.PlaySfx("Hit1");
                 }
+
+                // 타격이 끝난 뒤 다음 공격까지 대기합니다(쿨다운).
+                await UniTask.WaitForSeconds(_entity.GetAttackDelay(), cancellationToken: _cts.Token);
                 
                 IsAttackDone = true;
             }
