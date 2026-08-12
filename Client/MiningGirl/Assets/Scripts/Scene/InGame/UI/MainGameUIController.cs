@@ -7,10 +7,15 @@ using UnityEngine;
 
 namespace MainGame
 {
-    public class MainGameUIController : GameMonoInitializer, IExpRewardHandler
+    public class MainGameUIController : GameMonoInitializer, IExpRewardHandler, Scene.InGame.Entity.Resource.IResourceRewardHandler
     {
         private event Action OnNextGameExecuted;
         private Action<int, Action> _onLevelUp;
+
+        // 이번 런에서 누적된 골드. 스테이지 재시작(Next)에도 초기화되지 않습니다.
+        private int _gold;
+
+        public int Gold => _gold;
         
         [SerializeField]
         [Tooltip("스테이지 제한 시간(초)")]
@@ -22,6 +27,9 @@ namespace MainGame
         private CostUI costUI;
         [SerializeField]
         private LevelExpUI levelExpUI;
+        [SerializeField]
+        [Tooltip("채굴로 획득한 골드를 표시합니다")]
+        private Scene.InGame.UI.Resource.CountViewerUI goldCountViewer;
         [SerializeField]
         private LevelUpBonusSelectPopup levelUpBonusPopup;
 
@@ -35,6 +43,10 @@ namespace MainGame
             timerUI.Init(stageTimeSeconds, GameFinish);
             costUI.Init();
             levelExpUI.Init(OnLevelUp);
+
+            // 골드는 런 전체에서 누적되므로 여기(최초 진입)에서만 0으로 시작합니다.
+            _gold = 0;
+            goldCountViewer.SetCount(_gold);
             
             IsInitialized = true;
         }
@@ -72,6 +84,21 @@ namespace MainGame
             }
 
             _onLevelUp.Invoke(newLevel, onContinue);
+        }
+
+        // IResourceRewardHandler 구현 — 광물을 다 캐면 골드를 지급합니다.
+        public void OnResourceMined(int stoneReward, int expReward)
+        {
+            AddGold(stoneReward);
+        }
+
+        public void AddGold(int amount)
+        {
+            if (amount <= 0)
+                return;
+
+            _gold += amount;
+            goldCountViewer.AddCount(amount);
         }
 
         // IExpRewardHandler 구현 — 몬스터 처치 등에서 경험치를 지급받습니다.

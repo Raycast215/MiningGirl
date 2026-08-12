@@ -48,7 +48,7 @@ namespace Scene.InGame
 
             // 광물 컨트롤러를 먼저 준비합니다 — 플레이어가 이 컨트롤러를 광물 공급자(IResourceProvider)로
             // 주입받아 가장 가까운 광물을 탐색하기 때문에, 플레이어 초기화보다 앞서 준비되어야 합니다.
-            resourceController.Setup(damagePresenter: damageController);
+            resourceController.Setup(damagePresenter: damageController, rewardHandler: uIController);
             resourceController.InitControllerAsync().Forget();
             await UniTask.WaitUntil(() => resourceController.IsInitialized);
 
