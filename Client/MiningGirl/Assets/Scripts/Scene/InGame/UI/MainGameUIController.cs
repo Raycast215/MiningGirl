@@ -64,7 +64,8 @@ namespace MainGame
             stageUI.NextStage();
             timerUI.SetTime(stageTimeSeconds);
             costUI.SetCost(0);
-            levelExpUI.Reset();
+            // 레벨/경험치는 런 전체에서 유지되므로 스테이지 재시작 시 초기화하지 않습니다.
+            // (최초 진입 시 levelExpUI.Init()에서만 1레벨로 시작합니다.)
         }
 
         public void GameStart()
