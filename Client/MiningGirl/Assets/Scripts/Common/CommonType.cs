@@ -60,3 +60,9 @@ public enum EStatType
     CriRate,
     ExtraHitRate,
 }
+
+public enum EEffectValueType
+{
+    Add, // 합연산
+    Mul, // 곱연산
+}

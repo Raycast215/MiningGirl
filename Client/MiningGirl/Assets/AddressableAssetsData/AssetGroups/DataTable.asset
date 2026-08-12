@@ -15,6 +15,12 @@ MonoBehaviour:
   m_GroupName: DataTable
   m_GUID: 90aba12d87883cc43ab74248d1336724
   m_SerializeEntries:
+  - m_GUID: 1823301c702b9c342b283537bcf67f70
+    m_Address: LevelUpBonusSkillDataTable
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - DataTable
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 544b4f21281496a4b9a94079aacbfba2
     m_Address: StageInfoTable
     m_ReadOnly: 0

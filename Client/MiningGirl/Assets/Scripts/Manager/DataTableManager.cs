@@ -11,6 +11,7 @@ namespace Manager
         public CharacterStatDataTable CharacterStatDataTable { get; private set; }
         public CharacterStatGrowthDataTable CharacterStatGrowthDataTable { get; private set; }
         public StageInfoTable StageInfoTable { get; private set; }
+        public LevelUpBonusSkillDataTable LevelUpBonusSkillDataTable { get; private set; }
 
         public async UniTaskVoid PreLoadData()
         {
@@ -33,6 +34,9 @@ namespace Manager
 
             StageInfoTable =
                 new StageInfoTable(AddressableSheetsDataManager.GetAll<StageInfoTableRow>());
+            
+            LevelUpBonusSkillDataTable =
+                new LevelUpBonusSkillDataTable(AddressableSheetsDataManager.GetAll<LevelUpBonusSkillDataTableRow>());
             
             Debug.Log($"CharacterStatDataRow count = {CharacterStatDataTable.Rows.Count}");
 

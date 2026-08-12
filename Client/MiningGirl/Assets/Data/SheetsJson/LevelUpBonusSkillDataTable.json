@@ -1,0 +1,65 @@
+[
+{
+  "Desc": "채굴 데미지가 {0} 증가합니다.",
+  "EffectValue": 1,
+  "Id": 1000,
+  "MaxLevel": 15,
+  "Name": "채굴 데미지 증가",
+  "ValueType": "Add",
+  "Weight": 100
+},
+{
+  "Desc": "채굴 속도가 {0}% 증가합니다.",
+  "EffectValue": 0.1,
+  "Id": 1001,
+  "MaxLevel": 15,
+  "Name": "채굴 속도 증가",
+  "ValueType": "Mul",
+  "Weight": 100
+},
+{
+  "Desc": "이동 속도가 {0}% 증가합니다.",
+  "EffectValue": 0.1,
+  "Id": 1002,
+  "MaxLevel": 15,
+  "Name": "이동 속도 증가",
+  "ValueType": "Mul",
+  "Weight": 100
+},
+{
+  "Desc": "적 처치 시 골드가 {0} 증가합니다.",
+  "EffectValue": 1,
+  "Id": 2000,
+  "MaxLevel": 15,
+  "Name": "적 처치 골드 증가",
+  "ValueType": "Add",
+  "Weight": 100
+},
+{
+  "Desc": "광물 채굴 시 획득 골드가 {0} 증가합니다.",
+  "EffectValue": 1,
+  "Id": 3000,
+  "MaxLevel": 15,
+  "Name": "광물 채굴 골드 증가",
+  "ValueType": "Add",
+  "Weight": 100
+},
+{
+  "Desc": "골드를 {0} 즉시 획득합니다.",
+  "EffectValue": 10,
+  "Id": 4000,
+  "MaxLevel": -1,
+  "Name": "골드 획득",
+  "ValueType": "Add",
+  "Weight": 100
+},
+{
+  "Desc": "경험치를 {0} 즉시 획득합니다.",
+  "EffectValue": 10,
+  "Id": 4001,
+  "MaxLevel": -1,
+  "Name": "경험치 획득",
+  "ValueType": "Add",
+  "Weight": 100
+}
+]
