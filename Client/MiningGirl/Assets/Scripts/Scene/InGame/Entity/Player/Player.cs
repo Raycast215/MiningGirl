@@ -18,12 +18,12 @@ namespace Scene.InGame.Entity.Player
         private SearchTargetNode _targetSearchNode;
 
         private Resource.IResourceProvider _resourceProvider;
-        private global::MainGame.Bonus.LevelUpBonusState _bonusState;
+        private global::MainGame.Bonus.CharacterStatContext _statContext;
 
-        // 레벨업 보너스 누적 상태를 주입합니다(스탯 계산에 반영).
-        public void SetBonusState(global::MainGame.Bonus.LevelUpBonusState state)
+        // 선택한 캐릭터 스탯 + 레벨업 보너스를 담은 컨텍스트를 주입합니다.
+        public void SetStatContext(global::MainGame.Bonus.CharacterStatContext context)
         {
-            _bonusState = state;
+            _statContext = context;
         }
 
         [Header("Battle")]
@@ -261,47 +261,45 @@ namespace Scene.InGame.Entity.Player
         
         public override float GetDamage()
         {
-            // 기본 채굴 데미지 + 레벨업 보너스 합연산
-            var bonus = _bonusState?.MiningDamageAdd ?? 0f;
-            return 1f + bonus;
+            // 캐릭터 기본 공격력 + 레벨업 보너스
+            return _statContext?.GetDamage() ?? 1f;
         }
 
         public override float GetAttackDistance()
         {
             // 타겟(광물)에 이 거리 이하로 가까워지면 이동을 멈춥니다(=채굴 사거리).
-            return BaseData?.MoveToMinDistance ?? 0f;
+            return _statContext != null && _statContext.HasStat
+                ? _statContext.GetAttackDistance()
+                : BaseData?.MoveToMinDistance ?? 0f;
         }
 
         public override float GetAttackDelay()
         {
             // 채굴 1회 간격(초). 채굴 속도 보너스가 오르면 간격이 짧아집니다.
-            var speed = _bonusState?.MiningSpeedMultiplier ?? 1f;
-            return Mathf.Max(0.2f, 2f / Mathf.Max(0.01f, speed));
+            return _statContext?.GetAttackDelay() ?? 2f;
         }
 
         public override float GetMoveSpeed()
         {
-            var baseSpeed = BaseData?.MoveSpeed ?? 0f;
-            var mul = _bonusState?.MoveSpeedMultiplier ?? 1f;
-            return baseSpeed * mul;
+            return _statContext?.GetMoveSpeed() ?? BaseData?.MoveSpeed ?? 0f;
         }
 
+        // 치명타 시 추가 배율(0.3이면 1.3배)
         public override float GetCriDamage()
         {
-            return 0;
-            // return _handler.GetInGameData().GetStatData(EStatType.CriDamage).Value;
+            return _statContext?.GetCriDamage() ?? 0f;
         }
 
+        // 치명타 확률(%)
         public override float GetCriRate()
         {
-            return 0;
-            // return _handler.GetInGameData().GetStatData(EStatType.CriRate).Value;
+            return _statContext?.GetCriRate() ?? 0f;
         }
 
+        // 추가타 확률(%) — 한 번의 채굴이 두 번 들어갈 확률
         public override float GetExtraHitRate()
         {
-            return 0;
-            // return _handler.GetInGameData().GetStatData(EStatType.ExtraHitRate).Value;
+            return _statContext?.GetExtraHitRate() ?? 0f;
         }
 
 #endregion

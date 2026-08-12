@@ -59,7 +59,7 @@ namespace Scene.InGame
             await UniTask.WaitUntil(() => resourceController.IsInitialized);
 
             // 플레이어 — 광물 공급자를 주입해서 행동 트리(가장 가까운 광물로 이동)를 구성합니다.
-            playerController.InitAsync(resourceController, levelUpController.BonusState).Forget();
+            playerController.InitAsync(resourceController, levelUpController.StatContext).Forget();
             await UniTask.WaitUntil(() => playerController.IsInitialized);
 
             _playerEntity = playerController.ActivateList.First();
@@ -74,7 +74,20 @@ namespace Scene.InGame
             // 광물만 미리 화면에 깔아둡니다. 실제 게임 진행(스폰 루프/이동/채굴)은 GameStart()에서 시작합니다.
             resourceController.SpawnInitialLayout(Vector3.zero);
 
-            CoverUIManager.Instance.CoverUI.Hide(() => GameStart().Forget()).Forget();
+            // 캐릭터를 아직 고르지 않았다면(=씬 첫 시작) 선택 팝업부터 띄웁니다.
+            // 재시작(Next)에서는 이미 고른 캐릭터와 강화 상태를 그대로 씁니다.
+            if (!levelUpController.HasCharacter)
+            {
+                uIController.ShowCharacterSelect(row =>
+                {
+                    levelUpController.SetCharacter(row);
+                    CoverUIManager.Instance.CoverUI.Hide(() => GameStart().Forget()).Forget();
+                });
+            }
+            else
+            {
+                CoverUIManager.Instance.CoverUI.Hide(() => GameStart().Forget()).Forget();
+            }
             
             IsInitialized = true;
         }
@@ -208,7 +221,20 @@ namespace Scene.InGame
             
                 uIController.SetTime();
                 
+                // 캐릭터를 아직 고르지 않았다면(=씬 첫 시작) 선택 팝업부터 띄웁니다.
+            // 재시작(Next)에서는 이미 고른 캐릭터와 강화 상태를 그대로 씁니다.
+            if (!levelUpController.HasCharacter)
+            {
+                uIController.ShowCharacterSelect(row =>
+                {
+                    levelUpController.SetCharacter(row);
+                    CoverUIManager.Instance.CoverUI.Hide(() => GameStart().Forget()).Forget();
+                });
+            }
+            else
+            {
                 CoverUIManager.Instance.CoverUI.Hide(() => GameStart().Forget()).Forget();
+            }
             }).Forget();
         }
     }

@@ -21,6 +21,20 @@ namespace Scene.InGame
         private readonly LevelUpBonusState _bonusState = new LevelUpBonusState();
         public LevelUpBonusState BonusState => _bonusState;
 
+        // 선택한 캐릭터 기본 스탯 + 보너스를 합쳐 최종 스탯을 계산합니다.
+        private CharacterStatContext _statContext;
+        public CharacterStatContext StatContext => _statContext ??= new CharacterStatContext(_bonusState);
+
+        // 이미 캐릭터를 골랐는지 (재시작 시 다시 묻지 않기 위한 판단)
+        public bool HasCharacter => StatContext.HasStat;
+
+        // 캐릭터 선택 시 호출합니다. 재시작 때는 호출하지 않아 선택과 강화가 유지됩니다.
+        public void SetCharacter(CharacterStatDataRow row)
+        {
+            StatContext.SetCharacter(row);
+            Debug.Log($"[CharacterSelect] 적용 — Id={row?.Id}");
+        }
+
         private Action<int> _onGoldGranted;
         private Action<int> _onExpGranted;
 

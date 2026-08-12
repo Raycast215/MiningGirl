@@ -34,6 +34,8 @@ namespace MainGame
         private Scene.InGame.UI.Resource.CountViewerUI goldCountViewer;
         [SerializeField]
         private LevelUpBonusSelectPopup levelUpBonusPopup;
+        [SerializeField]
+        private CharacterSelectPopup characterSelectPopup;
 
         public async UniTask InitAsync(Action onNextGameExecuted, Action<int, Action> onLevelUp = null)
         {
@@ -107,6 +109,12 @@ namespace MainGame
         public void ShowLevelUpBonus(int level, LevelUpBonusState state, Action<LevelUpBonusSkillDataTableRow> onSelected)
         {
             levelUpBonusPopup.Show(level, state, onSelected);
+        }
+
+        // 캐릭터 선택 팝업을 띄웁니다. 선택된 캐릭터 데이터가 onSelected로 전달됩니다.
+        public void ShowCharacterSelect(Action<CharacterStatDataRow> onSelected)
+        {
+            characterSelectPopup.Show(onSelected);
         }
 
         // 아직 보여줄 레벨업이 남아 있는지 (팝업 이후 게임 재개 판단용)

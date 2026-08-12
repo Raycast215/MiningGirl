@@ -14,7 +14,7 @@ namespace Scene.InGame.Entity.Player
         // GameStart() 전에는 플레이어가 움직이거나 채굴하지 않도록 행동 트리 구동을 막습니다.
         private bool _isBehaviourRunning;
         
-        public async UniTaskVoid InitAsync(IResourceProvider resourceProvider = null, global::MainGame.Bonus.LevelUpBonusState bonusState = null)
+        public async UniTaskVoid InitAsync(IResourceProvider resourceProvider = null, global::MainGame.Bonus.CharacterStatContext statContext = null)
         {
             if (IsInitialized)
                 return;
@@ -34,7 +34,7 @@ namespace Scene.InGame.Entity.Player
             // 행동 트리(InitAsync 내부)가 구성되기 전에 광물 공급자를 먼저 주입해야
             // SearchTargetNode가 공급자를 제대로 참조합니다.
             ins.SetResourceProvider(resourceProvider);
-            ins.SetBonusState(bonusState);
+            ins.SetStatContext(statContext);
             // 프리팹 안에 붙어 있는 머리 위 체력바를 상태 표시로 연결합니다.
             var statusView = ins.GetComponentInChildren<global::UI.Common.PlayerStatusBarView>(true);
             if (statusView != null)
