@@ -26,6 +26,8 @@ namespace MainGame
         [SerializeField]
         private TimerUI timerUI;
         [SerializeField]
+        private StageUI stageUI;
+        [SerializeField]
         private CostUI costUI;
         [SerializeField]
         private LevelExpUI levelExpUI;
@@ -45,6 +47,7 @@ namespace MainGame
             _onLevelUp = onLevelUp;
             
             timerUI.Init(stageTimeSeconds, GameFinish);
+            stageUI.Init();
             costUI.Init();
             levelExpUI.Init(OnLevelUp);
 
@@ -55,8 +58,10 @@ namespace MainGame
             IsInitialized = true;
         }
 
+        // 스테이지를 넘기고 시간을 초기화합니다(재시작 경로).
         public void SetTime()
         {
+            stageUI.NextStage();
             timerUI.SetTime(stageTimeSeconds);
             costUI.SetCost(0);
             levelExpUI.Reset();
@@ -116,6 +121,9 @@ namespace MainGame
         {
             characterSelectPopup.Show(onSelected);
         }
+
+        // 현재 스테이지 번호
+        public int Stage => stageUI.Stage;
 
         // 아직 보여줄 레벨업이 남아 있는지 (팝업 이후 게임 재개 판단용)
         public bool HasPendingLevelUp => levelExpUI.HasPendingLevelUp;
