@@ -16,6 +16,11 @@ namespace MainGame.Entity.Monster
         private IRiskCardMonsterModifier _riskModifier;
         private IFloatingDamagePresenter _damagePresenter;
         private Scene.InGame.Entity.Resource.IResourceProvider _resourceProvider;
+        private IExpRewardHandler _expRewardHandler;
+
+        [SerializeField]
+        [Tooltip("몬스터 1마리 처치 시 지급할 경험치 (테스트용 고정값)")]
+        private int expPerKill = 1;
 
         // GameStart() 전에는 몬스터가 움직이지 않도록 행동 트리 구동을 막습니다.
         private bool _isBehaviourRunning;
@@ -30,13 +35,15 @@ namespace MainGame.Entity.Monster
             IStageMonsterModifier stageModifier = null,
             IRiskCardMonsterModifier riskModifier = null,
             IFloatingDamagePresenter damagePresenter = null,
-            Scene.InGame.Entity.Resource.IResourceProvider resourceProvider = null)
+            Scene.InGame.Entity.Resource.IResourceProvider resourceProvider = null,
+            IExpRewardHandler expRewardHandler = null)
         {
             _statProvider = statProvider ?? new TempMonsterStatProvider();
             _stageModifier = stageModifier ?? new TempStageMonsterModifier();
             _riskModifier = riskModifier ?? new TempRiskCardMonsterModifier();
             _damagePresenter = damagePresenter;
             _resourceProvider = resourceProvider;
+            _expRewardHandler = expRewardHandler;
         }
 
         // GetNearbyAvoidTargets()가 매 프레임 새 리스트를 만들지 않도록 재사용하는 버퍼입니다.
@@ -187,6 +194,8 @@ namespace MainGame.Entity.Monster
         // IMonsterDeathHandler 구현 — 몬스터가 죽으면 호출되어 풀로 반환합니다.
         public void OnMonsterDeath(Monster monster)
         {
+            _expRewardHandler?.OnExpGained(expPerKill);
+
             Return(monster);
         }
 

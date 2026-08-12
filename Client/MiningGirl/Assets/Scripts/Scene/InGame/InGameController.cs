@@ -60,7 +60,7 @@ namespace Scene.InGame
             
             // DamageController를 IFloatingDamagePresenter로 주입 — 몬스터가 피격 시 플로팅 데미지를 띄웁니다.
             // resourceController를 IResourceProvider로 주입 — 몬스터가 이동 중 광물을 비껴가게 합니다.
-            monsterController.Setup(damagePresenter: damageController, resourceProvider: resourceController);
+            monsterController.Setup(damagePresenter: damageController, resourceProvider: resourceController, expRewardHandler: uIController);
             monsterController.InitControllerAsync().Forget();
             await UniTask.WaitUntil(() => monsterController.IsInitialized);
 
@@ -114,6 +114,17 @@ namespace Scene.InGame
         {
             if (_playerEntity is Player player)
                 player.MoveToRandomResource();
+        }
+
+        // (테스트 버튼용) 경험치를 즉시 지급합니다.
+        public void OnClickAddExp1()
+        {
+            uIController.OnExpGained(1);
+        }
+
+        public void OnClickAddExp5()
+        {
+            uIController.OnExpGained(5);
         }
 
         // 다음 스테이지로 넘어갈 때(또는 Reset 버튼) 호출됩니다.
