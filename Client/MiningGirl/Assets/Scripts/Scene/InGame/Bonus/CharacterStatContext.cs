@@ -52,22 +52,25 @@ namespace MainGame.Bonus
             return BaseStat?.AttackDistance ?? 1f;
         }
 
-        // 치명타 확률(%). 데이터는 15 = 15% 형태입니다.
+        // 치명타 확률(%). 데이터는 15 = 15% 형태입니다. 100%를 넘지 않게 제한합니다.
         public float GetCriRate()
         {
-            return BaseStat?.CriRate ?? 0f;
+            var baseValue = BaseStat?.CriRate ?? 0f;
+            return Mathf.Clamp(baseValue * (Bonus?.CriRateMultiplier ?? 1f), 0f, 100f);
         }
 
         // 치명타 추가 배율. 0.3이면 데미지의 1.3배가 됩니다.
         public float GetCriDamage()
         {
-            return BaseStat?.CriDamage ?? 0f;
+            var baseValue = BaseStat?.CriDamage ?? 0f;
+            return baseValue * (Bonus?.CriDamageMultiplier ?? 1f);
         }
 
-        // 추가타 확률(%). 한 번의 채굴이 두 번 들어갈 확률입니다.
+        // 추가타 확률(%). 한 번의 채굴이 두 번 들어갈 확률입니다. 100%를 넘지 않게 제한합니다.
         public float GetExtraHitRate()
         {
-            return BaseStat?.ExtraHitRate ?? 0f;
+            var baseValue = BaseStat?.ExtraHitRate ?? 0f;
+            return Mathf.Clamp(baseValue * (Bonus?.ExtraHitRateMultiplier ?? 1f), 0f, 100f);
         }
     }
 }

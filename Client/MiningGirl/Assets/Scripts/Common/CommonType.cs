@@ -75,6 +75,10 @@ public enum ELevelUpBonusEffectType
     MiningDamage,       // 채굴 데미지
     MiningSpeed,        // 채굴 속도
     MoveSpeed,          // 이동 속도
+    CriDamage,          // 크리티털 데미지
+    CriRate,            // 크리티컬 확률
+    ExtraHitRate,       // 추가타 확률
+    
     MonsterKillGold,    // 적 처치 시 획득 골드
     ResourceMineGold,   // 광물 채굴 시 획득 골드
     InstantGold,        // 즉시 골드 획득

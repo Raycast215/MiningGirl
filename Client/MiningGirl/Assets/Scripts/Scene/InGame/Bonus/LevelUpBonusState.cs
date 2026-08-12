@@ -15,6 +15,12 @@ namespace MainGame.Bonus
         public float MiningSpeedMultiplier { get; private set; } = 1f;
         // 이동 속도 배율
         public float MoveSpeedMultiplier { get; private set; } = 1f;
+        // 치명타 데미지 배율 (기본 CriDamage에 곱해집니다)
+        public float CriDamageMultiplier { get; private set; } = 1f;
+        // 치명타 확률 배율
+        public float CriRateMultiplier { get; private set; } = 1f;
+        // 추가타 확률 배율
+        public float ExtraHitRateMultiplier { get; private set; } = 1f;
         // 적 처치 시 추가 골드
         public int MonsterKillGoldAdd { get; private set; }
         // 광물 채굴 시 추가 골드
@@ -42,6 +48,9 @@ namespace MainGame.Bonus
             MiningDamageAdd = 0f;
             MiningSpeedMultiplier = 1f;
             MoveSpeedMultiplier = 1f;
+            CriDamageMultiplier = 1f;
+            CriRateMultiplier = 1f;
+            ExtraHitRateMultiplier = 1f;
             MonsterKillGoldAdd = 0;
             ResourceMineGoldAdd = 0;
 
@@ -69,6 +78,18 @@ namespace MainGame.Bonus
 
                 case ELevelUpBonusEffectType.MoveSpeed:
                     MoveSpeedMultiplier *= 1f + row.EffectValue;
+                    break;
+
+                case ELevelUpBonusEffectType.CriDamage:
+                    CriDamageMultiplier *= 1f + row.EffectValue;
+                    break;
+
+                case ELevelUpBonusEffectType.CriRate:
+                    CriRateMultiplier *= 1f + row.EffectValue;
+                    break;
+
+                case ELevelUpBonusEffectType.ExtraHitRate:
+                    ExtraHitRateMultiplier *= 1f + row.EffectValue;
                     break;
 
                 case ELevelUpBonusEffectType.MonsterKillGold:
