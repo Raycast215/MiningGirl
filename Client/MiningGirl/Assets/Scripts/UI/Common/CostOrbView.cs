@@ -1,3 +1,4 @@
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -31,6 +32,22 @@ namespace UI.Common
         [SerializeField]
         private Color overchargeTextColor = new Color(0.937f, 0.624f, 0.153f, 1f);
 
+        [Header("Animation")]
+        [SerializeField]
+        [Tooltip("코스트 숫자가 바뀔 때 튀어오르는 크기")]
+        private float punchScale = 0.22f;
+        [SerializeField]
+        private float punchDuration = 0.3f;
+        [SerializeField]
+        [Tooltip("진동 횟수. 1이면 한 번 두둥하고 정리됩니다.")]
+        private int punchVibrato = 1;
+        [SerializeField]
+        [Range(0f, 1f)]
+        private float punchElasticity = 0.6f;
+        [SerializeField]
+        [Tooltip("비우면 오브 전체가 튑니다. 숫자만 튀게 하려면 CostText를 넣으세요.")]
+        private Transform punchTarget;
+
         [Header("Preview (인스펙터에서 값을 바꾸면 즉시 반영됩니다)")]
         [SerializeField]
         private int cost = 6;
@@ -42,22 +59,32 @@ namespace UI.Common
 
         // 런타임에서 코스트 값을 갱신할 때 호출합니다.
         // currentCost: 현재 보유 코스트 / progress: 다음 1까지의 진행도(0~1) / max: 최대치
-        public void SetValue(int currentCost, float progress, int max)
+        // 숫자가 실제로 바뀐 순간에만 연출을 재생하기 위한 이전 값입니다.
+        private int _shownCost = int.MinValue;
+        private Tween _punchTween;
+
+        // immediate가 true면 연출 없이 값만 반영합니다(리셋 등).
+        public void SetValue(int currentCost, float progress, int max, bool immediate = false)
         {
             cost = currentCost;
             chargeProgress = progress;
             maxCost = max;
 
-            Apply();
+            Apply(immediate);
         }
 
         private void Awake()
         {
-            Apply();
+            Apply(true);
         }
 
-        private void Apply()
+        private void Apply(bool immediate = false)
         {
+            // 숫자가 실제로 바뀐 순간에만 두둥 연출을 재생합니다.
+            // (회복 진행도 때문에 Apply는 매 프레임 호출되므로 값 비교가 필요합니다.)
+            var costChanged = !immediate && _shownCost != int.MinValue && _shownCost != cost;
+            _shownCost = cost;
+
             var isOvercharged = cost > maxCost;
             var mainColor = isOvercharged ? overchargeColor : fillColor;
 
@@ -83,6 +110,31 @@ namespace UI.Common
                 costText.text = cost.ToString();
                 costText.color = isOvercharged ? overchargeTextColor : textColor;
             }
+
+            if (costChanged)
+                PlayPunch();
+        }
+
+        // 코스트 숫자가 바뀔 때 살짝 튀어오르는 연출입니다.
+        private void PlayPunch()
+        {
+            if (!Application.isPlaying)
+                return;
+
+            var target = punchTarget != null ? punchTarget : transform;
+
+            // 이전 연출이 남아 있으면 스케일이 누적되므로 정리하고 원래 크기로 되돌립니다.
+            _punchTween?.Kill();
+            target.localScale = Vector3.one;
+
+            _punchTween = target.DOPunchScale(Vector3.one * punchScale, punchDuration, punchVibrato, punchElasticity)
+                .SetEase(Ease.OutQuad);
+        }
+
+        private void OnDestroy()
+        {
+            _punchTween?.Kill();
+            _punchTween = null;
         }
 
 #if UNITY_EDITOR
@@ -91,7 +143,7 @@ namespace UI.Common
             if (maxCost < 1)
                 maxCost = 1;
 
-            Apply();
+            Apply(true);
         }
 #endif
     }

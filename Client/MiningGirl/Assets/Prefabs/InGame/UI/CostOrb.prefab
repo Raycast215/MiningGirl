@@ -61,6 +61,11 @@ MonoBehaviour:
   textColor: {r: 1, g: 1, b: 1, a: 1}
   overchargeColor: {r: 0.937, g: 0.624, b: 0.153, a: 1}
   overchargeTextColor: {r: 0.937, g: 0.624, b: 0.153, a: 1}
+  punchScale: 0.22
+  punchDuration: 0.3
+  punchVibrato: 1
+  punchElasticity: 0.6
+  punchTarget: {fileID: 1262784748125707874}
   cost: 6
   chargeProgress: 0.35
   maxCost: 10

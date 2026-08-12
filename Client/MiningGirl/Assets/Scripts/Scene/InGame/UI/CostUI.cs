@@ -48,7 +48,8 @@ namespace MainGame.UI
             _regenTimer = 0.0f;
             _cts = new CancellationTokenSource();
 
-            UpdateView();
+            // 리셋은 연출 없이 즉시 반영합니다.
+            UpdateView(true);
         }
 
         public void StopProcess()
@@ -128,14 +129,14 @@ namespace MainGame.UI
             UpdateView();
         }
 
-        private void UpdateView()
+        private void UpdateView(bool immediate = false)
         {
             if (orbView == null)
                 return;
 
             var progress = regenInterval <= 0.0f ? 0.0f : Mathf.Clamp01(_regenTimer / regenInterval);
 
-            orbView.SetValue(Cost, progress, maxCost);
+            orbView.SetValue(Cost, progress, maxCost, immediate);
         }
 
         private void OnDestroy()
