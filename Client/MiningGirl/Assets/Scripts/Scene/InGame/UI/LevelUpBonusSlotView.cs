@@ -61,11 +61,12 @@ namespace MainGame.UI
                 }
                 else
                 {
-                    // 아직 획득 전이면 Lv.0으로 시작합니다.
-                    levelText.text = $"Lv.{currentLevel} / {row.MaxLevel}";
+                    // 이번에 획득하면 도달할 레벨을 표시합니다(1부터 시작).
+                    var nextLevel = currentLevel + 1;
+                    levelText.text = $"Lv.{nextLevel} / {row.MaxLevel}";
 
                     // 이번에 선택하면 최대 레벨에 도달하는 경우 강조합니다.
-                    levelText.color = currentLevel + 1 >= row.MaxLevel ? maxLevelColor : levelColor;
+                    levelText.color = nextLevel >= row.MaxLevel ? maxLevelColor : levelColor;
                 }
             }
         }

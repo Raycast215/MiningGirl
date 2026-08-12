@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using DG.Tweening;
@@ -24,6 +25,15 @@ namespace Scene.InGame.Entity.Resource
         private Material _material;
         private Tween _shakeTween;
         private CancellationTokenSource _fadeCts;
+        private CancellationTokenSource _hitStopCts;
+
+        [Header("Critical Hit Stop")]
+        [SerializeField]
+        [Tooltip("크리티컬 시 느려지는 정도(1이면 슬로우 없음)")]
+        private float hitStopScale = 0.35f;
+        [SerializeField]
+        [Tooltip("히트스톱 지속 시간(실제 시간 기준, 초)")]
+        private float hitStopDuration = 0.06f;
 
         private void Start()
         {
@@ -102,9 +112,43 @@ namespace Scene.InGame.Entity.Resource
                 _material.SetFloat(AddColorFade, end);
         }
 
-        private void Effect()
+        // 크리티컬 히트스톱.
+        //
+        // 주의: 예전에는 Invoke(nameof(Effect), 0.1f)로 복구했는데,
+        // Invoke는 '스케일된 시간'을 쓰기 때문에 timeScale이 0.2면 실제로는 0.5초가 걸렸습니다.
+        // 크리티컬이 자주 터지면 슬로우가 계속 이어져 게임이 느려진 것처럼 보였습니다.
+        // 그래서 실제 시간(ignoreTimeScale) 기준으로 정확히 복구합니다.
+        private async UniTaskVoid PlayHitStop()
         {
+            _hitStopCts?.Cancel();
+            _hitStopCts?.Dispose();
+            _hitStopCts = new CancellationTokenSource();
+
+            var token = _hitStopCts.Token;
+
+            Time.timeScale = hitStopScale;
+
+            try
+            {
+                await UniTask.WaitForSeconds(hitStopDuration, ignoreTimeScale: true, cancellationToken: token);
+            }
+            catch (Exception _)
+            {
+                return;
+            }
+
             Time.timeScale = 1.0f;
+        }
+
+        private void OnDisable()
+        {
+            // 풀로 돌아갈 때 슬로우가 걸린 채 남지 않도록 정리합니다.
+            _hitStopCts?.Cancel();
+            _hitStopCts?.Dispose();
+            _hitStopCts = null;
+
+            if (!Mathf.Approximately(Time.timeScale, 1.0f))
+                Time.timeScale = 1.0f;
         }
 
 #region EntityBase
@@ -132,10 +176,9 @@ namespace Scene.InGame.Entity.Resource
 
             _damagePresenter?.Show(Mathf.RoundToInt(damage), GetPosition(), isCritical);
 
+            // 크리티컬 시 짧은 히트스톱(슬로우). 실제 시간 기준으로 복구합니다.
             if (isCritical)
-                Time.timeScale = 0.2f;
-
-            Invoke(nameof(Effect), 0.1f);
+                PlayHitStop().Forget();
 
             BaseData.Health -= damage;
 

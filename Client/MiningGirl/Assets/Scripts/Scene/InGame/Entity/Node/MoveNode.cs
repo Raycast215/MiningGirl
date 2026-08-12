@@ -187,10 +187,28 @@ namespace Scene.InGame.Entity.Node
                 finalDir.Normalize();
 
             // 프레임 간 방향이 급변해서 떨리는 것을 막기 위해 이전 방향에서 부드럽게 보간합니다.
-            if (_lastMoveDir.sqrMagnitude < 0.0001f)
+            //
+            // 단, 회전 속도가 이동 속도를 못 따라가면 타겟 주위를 원을 그리며 맴돌게 됩니다.
+            // (최소 선회 반경 = 이동속도 / 회전속도 이므로, 이 값이 사거리보다 크면 영영 도달하지 못합니다.)
+            // 그래서 이동 속도에 비례해 회전 속도를 끌어올려 반경이 항상 사거리 안쪽이 되게 합니다.
+            var moveSpeed = Mathf.Max(0.01f, _entity.GetMoveSpeed());
+            var stopDistance = Mathf.Max(0.01f, _entity.GetAttackDistance());
+            var requiredTurnSpeed = moveSpeed / stopDistance * 2f;
+            var turnSpeed = Mathf.Max(_dirSmoothSpeed, requiredTurnSpeed);
+
+            if (dist <= stopDistance * 2f)
+            {
+                // 거의 다 왔으면 스무딩 없이 곧장 파고듭니다(맴돌기 방지).
                 _lastMoveDir = finalDir;
+            }
+            else if (_lastMoveDir.sqrMagnitude < 0.0001f)
+            {
+                _lastMoveDir = finalDir;
+            }
             else
-                _lastMoveDir = Vector3.Slerp(_lastMoveDir, finalDir, Time.deltaTime * _dirSmoothSpeed).normalized;
+            {
+                _lastMoveDir = Vector3.Slerp(_lastMoveDir, finalDir, Time.deltaTime * turnSpeed).normalized;
+            }
 
             finalDir = _lastMoveDir;
 
