@@ -10,6 +10,7 @@ namespace MainGame
     public class MainGameUIController : GameMonoInitializer, IExpRewardHandler
     {
         private event Action OnNextGameExecuted;
+        private Action<int, Action> _onLevelUp;
         
         [SerializeField]
         private TimerUI timerUI;
@@ -17,11 +18,15 @@ namespace MainGame
         private CostUI costUI;
         [SerializeField]
         private LevelExpUI levelExpUI;
+        [SerializeField]
+        private LevelUpBonusSelectPopup levelUpBonusPopup;
 
-        public async UniTask InitAsync(Action onNextGameExecuted)
+        public async UniTask InitAsync(Action onNextGameExecuted, Action<int, Action> onLevelUp = null)
         {
             OnNextGameExecuted = null;
             OnNextGameExecuted += onNextGameExecuted;
+
+            _onLevelUp = onLevelUp;
             
             timerUI.Init(30, GameFinish);
             costUI.Init();
@@ -50,15 +55,41 @@ namespace MainGame
 
         // 레벨업 시 호출됩니다. 한 번에 여러 레벨이 올라도 레벨당 한 번씩 호출됩니다.
         // TODO: 추후 이 시점에 레벨업 보너스 선택 UI를 띄웁니다.
-        private void OnLevelUp(int newLevel)
+        // 레벨업 연출이 한 단계 끝난 시점에 호출됩니다.
+        // onContinue를 호출해야 다음 레벨 연출이 이어집니다.
+        private void OnLevelUp(int newLevel, Action onContinue)
         {
-            Debug.Log($"[LevelUp] Lv.{newLevel} 달성 — 보너스 선택 UI 예정");
+            Debug.Log($"[LevelUp] Lv.{newLevel} 달성");
+
+            if (_onLevelUp == null)
+            {
+                onContinue?.Invoke();
+                return;
+            }
+
+            _onLevelUp.Invoke(newLevel, onContinue);
         }
 
         // IExpRewardHandler 구현 — 몬스터 처치 등에서 경험치를 지급받습니다.
         public void OnExpGained(int amount)
         {
             levelExpUI.AddExp(amount);
+        }
+
+        // 레벨업 보너스 팝업을 띄웁니다. 선택이 끝나면 onSelected가 호출됩니다.
+        public void ShowLevelUpBonus(int level, Action<int> onSelected)
+        {
+            levelUpBonusPopup.Show(level, onSelected);
+        }
+
+        // 아직 보여줄 레벨업이 남아 있는지 (팝업 이후 게임 재개 판단용)
+        public bool HasPendingLevelUp => levelExpUI.HasPendingLevelUp;
+
+        // 팝업 등으로 게임을 멈출 때 타이머와 코스트 회복을 함께 멈춥니다.
+        public void SetPaused(bool paused)
+        {
+            timerUI.SetPaused(paused);
+            costUI.SetPaused(paused);
         }
 
         public void GameFinish()

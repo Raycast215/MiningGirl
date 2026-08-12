@@ -27,6 +27,7 @@ namespace MainGame.UI
         public bool IsOvercharged => Cost > maxCost;
 
         private float _regenTimer;
+        private bool _isPaused;
         private CancellationTokenSource _cts;
 
         public void Init(Action<int> onCostChanged = null)
@@ -52,6 +53,12 @@ namespace MainGame.UI
             UpdateView(true);
         }
 
+        // 팝업 등으로 게임을 잠시 멈출 때 사용합니다(보유 코스트는 유지됩니다).
+        public void SetPaused(bool paused)
+        {
+            _isPaused = paused;
+        }
+
         public void StopProcess()
         {
             Dispose();
@@ -67,6 +74,9 @@ namespace MainGame.UI
                 while (true)
                 {
                     await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken: _cts.Token);
+
+                    if (_isPaused)
+                        continue;
 
                     // 최대치를 넘은 상태에서는 자연 회복을 멈춥니다.
                     // (오버차지 감소 처리는 보스전 작업 시 여기에 추가 예정)

@@ -105,7 +105,7 @@ namespace Scene.InGame.Entity.Resource
 
             while (!token.IsCancellationRequested)
             {
-                if (ActivateList != null && ActivateList.Count < maxCount)
+                if (!_isPaused && ActivateList != null && ActivateList.Count < maxCount)
                 {
                     var pos = GetRandomOffscreenPosition(target.GetPosition(), minDistanceSqr);
                     if (pos.HasValue)
@@ -114,6 +114,14 @@ namespace Scene.InGame.Entity.Resource
 
                 await UniTask.WaitForSeconds(spawnInterval, cancellationToken: token);
             }
+        }
+
+        // 팝업 등으로 잠시 멈출 때 사용합니다. 보충 스폰이 멈추고, 배치된 광물은 유지됩니다.
+        private bool _isPaused;
+
+        public void SetBehaviourPaused(bool paused)
+        {
+            _isPaused = paused;
         }
 
         // 스폰 루프를 멈추고, 지금까지 활성화된 광물을 모두 풀로 되돌립니다.

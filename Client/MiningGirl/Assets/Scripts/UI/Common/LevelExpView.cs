@@ -1,3 +1,4 @@
+using System;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
@@ -5,10 +6,9 @@ using UnityEngine.UI;
 
 namespace UI.Common
 {
-    // 레벨과 경험치 진행도를 표시하는 뷰.
-    // 값 계산은 하지 않고, 전달받은 값을 그리기만 합니다.
-    // 경험치 바는 트윈으로 부드럽게 채워지고, 레벨업 시에는 끝까지 찬 뒤
-    // 0으로 돌아가 남은 양을 이어서 채웁니다.
+    // 레벨과 경험치를 '그리기만' 하는 뷰.
+    // 레벨업 연출의 진행 순서는 바깥(LevelExpUI)에서 단계별로 지시합니다.
+    // 그래야 보너스 선택 팝업이 뜬 동안 바를 멈춰둘 수 있습니다.
     public class LevelExpView : MonoBehaviour
     {
         [Header("References")]
@@ -38,9 +38,6 @@ namespace UI.Common
         private float minFillDuration = 0.3f;
         [SerializeField]
         private Ease fillEase = Ease.InOutSine;
-        [SerializeField]
-        [Tooltip("한 번에 여러 레벨이 올랐을 때 재생할 최대 연출 횟수. 넘는 만큼은 건너뜁니다.")]
-        private int maxLevelUpAnimations = 3;
 
         [Header("Preview (인스펙터에서 값을 바꾸면 즉시 반영됩니다)")]
         [SerializeField]
@@ -50,115 +47,118 @@ namespace UI.Common
         [SerializeField]
         private int requiredExp = 10;
 
-        // 화면에 '실제로 표시된' 레벨. 레벨업 연출이 한 바퀴 돌 때마다 올라갑니다.
-        // 요청된 level과 분리해야, 같은 프레임에 경험치가 여러 번 들어와도
-        // 연출이 취소되지 않고 이어집니다.
-        private int _displayedLevel = -1;
         private Tween _fillTween;
 
-        // 런타임에서 값을 갱신할 때 호출합니다.
-        // immediate가 true면 트윈 없이 즉시 반영합니다(리셋 등).
-        public void SetValue(int newLevel, int exp, int required, bool immediate = false)
+        public void SetLevelText(int value)
         {
-            level = newLevel;
+            level = value;
+
+            if (levelText != null)
+            {
+                levelText.text = $"Lv.{value}";
+                levelText.color = textColor;
+            }
+        }
+
+        public void SetExpText(int exp, int required)
+        {
             currentExp = exp;
             requiredExp = required;
 
-            Apply(immediate);
-        }
-
-        private void Awake()
-        {
-            Apply(true);
-        }
-
-        private void Apply(bool immediate)
-        {
-            if (barTrack != null)
-                barTrack.color = trackColor;
-
             if (expText != null)
             {
-                expText.text = $"{currentExp} / {requiredExp}";
+                expText.text = $"{exp} / {required}";
                 expText.color = textColor;
             }
+        }
 
-            if (levelText != null)
-                levelText.color = textColor;
+        // 트윈 없이 즉시 반영합니다(리셋 등).
+        public void SetImmediate(int newLevel, int exp, int required)
+        {
+            KillTween();
+
+            SetLevelText(newLevel);
+            SetExpText(exp, required);
+            ApplyColors();
 
             if (barFill != null)
-                barFill.color = fillColor;
+                barFill.fillAmount = GetRatio(exp, required);
+        }
 
-            var target = requiredExp <= 0 ? 0f : Mathf.Clamp01((float)currentExp / requiredExp);
+        // 지정한 비율까지 바를 채웁니다. 끝나면 onComplete가 호출됩니다.
+        public void PlayFillTo(float ratio, Action onComplete = null)
+        {
+            ApplyColors();
 
-            if (immediate || !Application.isPlaying || barFill == null)
+            if (barFill == null || !Application.isPlaying)
             {
-                KillTween();
-
                 if (barFill != null)
-                    barFill.fillAmount = target;
+                    barFill.fillAmount = Mathf.Clamp01(ratio);
 
-                SetLevelText(level);
-                _displayedLevel = level;
+                onComplete?.Invoke();
                 return;
             }
 
             KillTween();
 
-            if (_displayedLevel < 0)
-                _displayedLevel = level;
+            var target = Mathf.Clamp01(ratio);
+            var delta = Mathf.Abs(target - barFill.fillAmount);
 
-            // 표시된 레벨보다 요청된 레벨이 높으면 레벨업 연출을 재생합니다.
-            if (level > _displayedLevel)
+            _fillTween = barFill.DOFillAmount(target, GetDuration(delta))
+                .SetEase(fillEase)
+                .OnComplete(() => onComplete?.Invoke());
+        }
+
+        // 바를 끝까지 채운 뒤 0으로 되돌립니다(레벨업 한 단계).
+        public void PlayLevelUpStep(Action onComplete = null)
+        {
+            ApplyColors();
+
+            if (barFill == null || !Application.isPlaying)
             {
-                var seq = DOTween.Sequence();
-                var current = barFill.fillAmount;
-                var wrapCount = Mathf.Min(level - _displayedLevel, Mathf.Max(1, maxLevelUpAnimations));
+                if (barFill != null)
+                    barFill.fillAmount = 0f;
 
-                for (var i = 0; i < wrapCount; i++)
+                onComplete?.Invoke();
+                return;
+            }
+
+            KillTween();
+
+            var current = barFill.fillAmount;
+
+            _fillTween = barFill.DOFillAmount(1f, GetDuration(1f - current))
+                .SetEase(fillEase)
+                .OnComplete(() =>
                 {
-                    var from = i == 0 ? current : 0f;
-
-                    seq.Append(barFill.DOFillAmount(1f, GetDuration(1f - from)).SetEase(fillEase));
-                    seq.AppendCallback(() =>
-                    {
-                        barFill.fillAmount = 0f;
-                        _displayedLevel++;
-                        SetLevelText(_displayedLevel);
-                    });
-                }
-
-                // 연출을 건너뛴 레벨이 있으면 마지막에 숫자만 맞춥니다.
-                seq.AppendCallback(() =>
-                {
-                    _displayedLevel = level;
-                    SetLevelText(level);
+                    barFill.fillAmount = 0f;
+                    onComplete?.Invoke();
                 });
+        }
 
-                seq.Append(barFill.DOFillAmount(target, GetDuration(target)).SetEase(fillEase));
+        public void StopAnimation()
+        {
+            KillTween();
+        }
 
-                _fillTween = seq;
-            }
-            else
-            {
-                SetLevelText(level);
-                _displayedLevel = level;
+        public float GetRatio(int exp, int required)
+        {
+            return required <= 0 ? 0f : Mathf.Clamp01((float)exp / required);
+        }
 
-                var delta = Mathf.Abs(target - barFill.fillAmount);
-                _fillTween = barFill.DOFillAmount(target, GetDuration(delta)).SetEase(fillEase);
-            }
+        private void ApplyColors()
+        {
+            if (barTrack != null)
+                barTrack.color = trackColor;
+
+            if (barFill != null)
+                barFill.color = fillColor;
         }
 
         // 변화량이 작아도 최소 시간은 보장하고, 클수록 fillDuration에 가까워집니다.
         private float GetDuration(float delta)
         {
             return Mathf.Lerp(minFillDuration, fillDuration, Mathf.Clamp01(delta));
-        }
-
-        private void SetLevelText(int value)
-        {
-            if (levelText != null)
-                levelText.text = $"Lv.{value}";
         }
 
         private void KillTween()
@@ -181,7 +181,8 @@ namespace UI.Common
             if (level < 1)
                 level = 1;
 
-            Apply(true);
+            if (!Application.isPlaying)
+                SetImmediate(level, currentExp, requiredExp);
         }
 #endif
     }

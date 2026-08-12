@@ -128,7 +128,7 @@ namespace MainGame.Entity.Monster
         {
             while (!token.IsCancellationRequested)
             {
-                if (ActivateList != null && ActivateList.Count < testMaxSpawnCount)
+                if (_isBehaviourRunning && ActivateList != null && ActivateList.Count < testMaxSpawnCount)
                 {
                     var pos = GetRandomOffscreenPosition(target.GetPosition());
                     await Spawn("Slime", pos, target, stageIndex);
@@ -136,6 +136,12 @@ namespace MainGame.Entity.Monster
 
                 await UniTask.WaitForSeconds(testSpawnInterval, cancellationToken: token);
             }
+        }
+
+        // 팝업 등으로 잠시 멈출 때 사용합니다. 스폰과 이동이 모두 멈추고, 활성 몬스터는 유지됩니다.
+        public void SetBehaviourPaused(bool paused)
+        {
+            _isBehaviourRunning = !paused;
         }
 
         // 스폰 루프를 멈추고, 지금까지 활성화된 몬스터를 모두 풀로 되돌립니다.

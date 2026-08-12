@@ -1,3 +1,4 @@
+using System;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using InGame.temp.System.FloatingDamage;
@@ -39,7 +40,7 @@ namespace Scene.InGame
 
         public async UniTask InitAsync()
         {
-            uIController.InitAsync(Next).Forget();
+            uIController.InitAsync(Next, OnLevelUp).Forget();
             await UniTask.WaitUntil(() => uIController.IsInitialized);
             
             damageController.InitAsync();
@@ -122,9 +123,48 @@ namespace Scene.InGame
             uIController.OnExpGained(1);
         }
 
+        public void OnClickAddExp100()
+        {
+            uIController.OnExpGained(100);
+        }
+
         public void OnClickAddExp5()
         {
             uIController.OnExpGained(5);
+        }
+
+        // 레벨업 연출이 한 단계 끝날 때마다 호출됩니다.
+        // 팝업을 띄우고, 선택이 끝나면 onContinue로 다음 레벨 연출을 이어갑니다.
+        private bool _isLevelUpSequenceActive;
+
+        private void OnLevelUp(int newLevel, Action onContinue)
+        {
+            if (!_isLevelUpSequenceActive)
+            {
+                _isLevelUpSequenceActive = true;
+                SetGamePaused(true);
+            }
+
+            uIController.ShowLevelUpBonus(newLevel, _ =>
+            {
+                // 다음 레벨 연출을 이어가고, 더 보여줄 레벨이 없으면 게임을 재개합니다.
+                onContinue?.Invoke();
+
+                if (uIController.HasPendingLevelUp)
+                    return;
+
+                _isLevelUpSequenceActive = false;
+                SetGamePaused(false);
+            });
+        }
+
+        // 팝업이 떠 있는 동안 타이머와 모든 엔티티의 행동을 멈춥니다.
+        private void SetGamePaused(bool paused)
+        {
+            uIController.SetPaused(paused);
+            playerController.SetBehaviourPaused(paused);
+            monsterController.SetBehaviourPaused(paused);
+            resourceController.SetBehaviourPaused(paused);
         }
 
         // 다음 스테이지로 넘어갈 때(또는 Reset 버튼) 호출됩니다.

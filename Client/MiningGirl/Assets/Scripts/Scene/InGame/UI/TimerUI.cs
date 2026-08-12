@@ -18,6 +18,7 @@ namespace MainGame.UI
         private TMP_Text timerText;
         
         private float _time;
+        private bool _isPaused;
         private CancellationTokenSource _cts;
         private RectTransform _rect;
         
@@ -41,6 +42,12 @@ namespace MainGame.UI
             UpdateTime();
         }
 
+        // 팝업 등으로 게임을 잠시 멈출 때 사용합니다(진행 시간은 보존됩니다).
+        public void SetPaused(bool paused)
+        {
+            _isPaused = paused;
+        }
+
         public void StopProcess()
         {
             Dispose();
@@ -55,7 +62,8 @@ namespace MainGame.UI
             {
                 while (_time > 0.0f)
                 {
-                    _time -= Time.deltaTime;
+                    if (!_isPaused)
+                        _time -= Time.deltaTime;
                     await UniTask.Yield(PlayerLoopTiming.Update, cancellationToken: _cts.Token);
                     UpdateTime();
                 }

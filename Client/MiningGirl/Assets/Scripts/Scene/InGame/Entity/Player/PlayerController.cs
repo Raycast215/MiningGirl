@@ -53,6 +53,12 @@ namespace Scene.InGame.Entity.Player
             _isBehaviourRunning = true;
         }
 
+        // 팝업 등으로 잠시 멈출 때 사용합니다. 타겟/진행 상태는 그대로 유지됩니다.
+        public void SetBehaviourPaused(bool paused)
+        {
+            _isBehaviourRunning = !paused;
+        }
+
         // 게임 정지(리셋 등) — 행동 트리 구동을 멈춥니다.
         public void StopBehaviour()
         {
