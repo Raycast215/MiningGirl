@@ -94,7 +94,7 @@ namespace Scene.InGame
         // 이 시점부터 몬스터가 스폰/이동하고, 플레이어가 광물을 탐색·이동·채굴합니다.
         private async UniTaskVoid GameStart()
         {
-            await UniTask.WaitForSeconds(1.0f);
+            await UniTask.WaitForSeconds(0.5f);
             
             uIController.GameStart();
 
