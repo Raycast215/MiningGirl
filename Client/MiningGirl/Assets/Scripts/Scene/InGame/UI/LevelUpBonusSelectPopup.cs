@@ -1,4 +1,5 @@
 using System;
+using Cysharp.Threading.Tasks;
 using System.Collections.Generic;
 using Data;
 using MainGame.Bonus;
@@ -25,6 +26,13 @@ namespace MainGame.UI
         [Tooltip("한 번에 제시할 후보 수")]
         private int slotCount = 3;
 
+        [Header("Input")]
+        [SerializeField]
+        [Tooltip("팝업이 뜬 직후 이 시간(초) 동안 클릭을 막습니다. 몬스터를 연타하다 레벨업하면 그 탭이 버튼으로 들어가는 것을 방지합니다.")]
+        private float inputBlockDuration = 0.4f;
+        [SerializeField]
+        private CanvasGroup canvasGroup;
+
         private Action<LevelUpBonusSkillDataTableRow> _onSelected;
         private readonly List<LevelUpBonusSkillDataTableRow> _current = new List<LevelUpBonusSkillDataTableRow>();
         private readonly List<LevelUpBonusSlotView> _slots = new List<LevelUpBonusSlotView>();
@@ -43,6 +51,8 @@ namespace MainGame.UI
             BuildSlots(state);
 
             gameObject.SetActive(true);
+
+            BlockInputTemporarily().Forget();
         }
 
         public void Hide()
@@ -78,6 +88,29 @@ namespace MainGame.UI
                 slot.SetVisible(true);
                 slot.SetData(row, state.GetLevel(row.Id), () => Select(index));
             }
+        }
+
+        // 팝업이 뜬 직후 잠깐 클릭을 막습니다.
+        private async UniTaskVoid BlockInputTemporarily()
+        {
+            if (canvasGroup == null)
+                canvasGroup = GetComponent<CanvasGroup>();
+
+            if (canvasGroup == null || inputBlockDuration <= 0f)
+                return;
+
+            canvasGroup.interactable = false;
+
+            try
+            {
+                await UniTask.WaitForSeconds(inputBlockDuration, cancellationToken: this.GetCancellationTokenOnDestroy());
+            }
+            catch (Exception _)
+            {
+                return;
+            }
+
+            canvasGroup.interactable = true;
         }
 
         private void Select(int index)

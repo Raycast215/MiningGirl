@@ -3067,6 +3067,7 @@ MonoBehaviour:
   monsterController: {fileID: 1816489773}
   resourceController: {fileID: 1922045484}
   levelUpController: {fileID: 1474361846}
+  touchController: {fileID: 1578654204}
 --- !u!114 &1474361846
 MonoBehaviour:
   m_ObjectHideFlags: 0

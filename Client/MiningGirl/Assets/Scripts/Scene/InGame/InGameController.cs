@@ -37,6 +37,9 @@ namespace Scene.InGame
         [SerializeField]
         [Tooltip("레벨업 보너스와 보상 지급을 관리합니다")]
         private LevelUpController levelUpController;
+        [SerializeField]
+        [Tooltip("터치 공격 입력 (팝업 중 정지용)")]
+        private Scene.InGame.Entity.Touch.TouchEntityController touchController;
         
         // Next()에서 재시작할 때 재사용하기 위해 플레이어 엔티티를 보관합니다.
         private IEntity _playerEntity;
@@ -187,6 +190,9 @@ namespace Scene.InGame
             playerController.SetBehaviourPaused(paused);
             monsterController.SetBehaviourPaused(paused);
             resourceController.SetBehaviourPaused(paused);
+
+            if (touchController != null)
+                touchController.SetPaused(paused);
         }
 
         // 다음 스테이지로 넘어갈 때(또는 Reset 버튼) 호출됩니다.

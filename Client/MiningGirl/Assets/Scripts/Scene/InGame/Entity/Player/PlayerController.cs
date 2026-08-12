@@ -93,16 +93,22 @@ namespace Scene.InGame.Entity.Player
             if (ActivateList == null)
                 return;
 
-            // 무적/다운 시간은 행동 정지 여부와 무관하게 흘러야 합니다.
-            foreach (var player in ActivateList)
-                player.UpdateStatus(Time.deltaTime);
-
+            // 정지 중에는 이동뿐 아니라 무적/다운 시간과 깜빡임 연출도 함께 멈춥니다.
             if (!_isBehaviourRunning)
             {
                 foreach (var player in ActivateList)
+                {
                     player.StopMove();
+                    player.SetStatusPaused(true);
+                }
 
                 return;
+            }
+
+            foreach (var player in ActivateList)
+            {
+                player.SetStatusPaused(false);
+                player.UpdateStatus(Time.deltaTime);
             }
 
             // 쓰러진 동안에는 이동/채굴을 멈춥니다.

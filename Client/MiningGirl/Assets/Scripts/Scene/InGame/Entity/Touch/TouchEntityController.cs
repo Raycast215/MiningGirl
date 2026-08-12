@@ -11,8 +11,19 @@ namespace Scene.InGame.Entity.Touch
         [SerializeField] 
         private LayerMask targetLayer;
 
+        // 팝업 등으로 게임이 멈춘 동안에는 터치 공격도 막습니다.
+        private bool _isPaused;
+
+        public void SetPaused(bool paused)
+        {
+            _isPaused = paused;
+        }
+
         private void Update()
         {
+            if (_isPaused)
+                return;
+
             // PC + 모바일 공통 입력 처리
             if (IsTouchDown())
             {

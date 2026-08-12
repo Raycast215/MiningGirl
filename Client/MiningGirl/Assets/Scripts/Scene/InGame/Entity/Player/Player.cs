@@ -78,6 +78,26 @@ namespace Scene.InGame.Entity.Player
             RefreshStatus();
         }
 
+        // 팝업 등으로 게임이 멈춘 동안 깜빡임 연출도 함께 멈춥니다.
+        // (DOTween은 우리가 만든 정지 플래그와 무관하게 계속 돌기 때문에 직접 멈춰야 합니다.)
+        private bool _isStatusPaused;
+
+        public void SetStatusPaused(bool paused)
+        {
+            if (_isStatusPaused == paused)
+                return;
+
+            _isStatusPaused = paused;
+
+            if (_blinkTween == null || !_blinkTween.IsActive())
+                return;
+
+            if (paused)
+                _blinkTween.Pause();
+            else
+                _blinkTween.Play();
+        }
+
         // 매 프레임 무적/다운 시간을 흘려보냅니다. PlayerController.Update에서 호출합니다.
         public void UpdateStatus(float deltaTime)
         {

@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 8848870868927825239}
   - component: {fileID: 4775716346721123719}
+  - component: {fileID: 6744115122623968399}
   m_Layer: 5
   m_Name: LevelUpBonusSelectPopup
   m_TagString: Untagged
@@ -55,6 +56,20 @@ MonoBehaviour:
   slotPrefab: {fileID: 416064360021157814, guid: 1709ecf3df0aca4459380477b40ed68f, type: 3}
   slotRoot: {fileID: 8900169824788848782}
   slotCount: 3
+  inputBlockDuration: 0.4
+  canvasGroup: {fileID: 6744115122623968399}
+--- !u!225 &6744115122623968399
+CanvasGroup:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 101571698827292084}
+  m_Enabled: 1
+  m_Alpha: 1
+  m_Interactable: 1
+  m_BlocksRaycasts: 1
+  m_IgnoreParentGroups: 0
 --- !u!1 &465321908455075429
 GameObject:
   m_ObjectHideFlags: 0
