@@ -36,8 +36,9 @@ namespace Scene.InGame.Entity.Player
         [Tooltip("체력이 0이 되면 이 시간 동안 이동/채굴을 멈춥니다(초)")]
         private float downDuration = 3f;
         [SerializeField]
-        [Tooltip("쓰러진 뒤 회복될 체력")]
-        private float reviveHealth = 1f;
+        [Range(0.05f, 1f)]
+        [Tooltip("쓰러진 뒤 회복될 체력 비율(최대 체력 대비). 0.3이면 30%로 일어납니다.")]
+        private float reviveHealthRatio = 0.3f;
 
         // 남은 무적 시간 / 남은 다운 시간
         private float _invincibleTimer;
@@ -119,8 +120,9 @@ namespace Scene.InGame.Entity.Player
 
                 if (_downTimer <= 0f)
                 {
-                    // 쓰러진 시간이 끝나면 최소 체력으로 일어납니다.
-                    BaseData.Health = reviveHealth;
+                    // 쓰러진 시간이 끝나면 최대 체력의 일정 비율로 일어납니다.
+                    // (고정 1로 일어나면 곧바로 다시 쓰러지는 반복이 생겨 비율로 바꿨습니다.)
+                    BaseData.Health = Mathf.Max(1f, MaxHealth * reviveHealthRatio);
                     _invincibleTimer = GetInvincibleDuration();
                     PlayBlink();
                 }
