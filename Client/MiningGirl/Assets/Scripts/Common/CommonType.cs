@@ -66,3 +66,17 @@ public enum EEffectValueType
     Add, // 합연산
     Mul, // 곱연산
 }
+// 레벨업 보너스가 무엇에 작용하는지 나타냅니다.
+// 코드는 Id가 아니라 이 타입만 보고 동작하므로,
+// 같은 타입의 스킬을 시트에 추가할 때는 코드 수정이 필요 없습니다.
+public enum ELevelUpBonusEffectType
+{
+    None,
+    MiningDamage,       // 채굴 데미지
+    MiningSpeed,        // 채굴 속도
+    MoveSpeed,          // 이동 속도
+    MonsterKillGold,    // 적 처치 시 획득 골드
+    ResourceMineGold,   // 광물 채굴 시 획득 골드
+    InstantGold,        // 즉시 골드 획득
+    InstantExp,         // 즉시 경험치 획득
+}

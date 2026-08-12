@@ -18,6 +18,13 @@ namespace Scene.InGame.Entity.Player
         private SearchTargetNode _targetSearchNode;
 
         private Resource.IResourceProvider _resourceProvider;
+        private global::MainGame.Bonus.LevelUpBonusState _bonusState;
+
+        // 레벨업 보너스 누적 상태를 주입합니다(스탯 계산에 반영).
+        public void SetBonusState(global::MainGame.Bonus.LevelUpBonusState state)
+        {
+            _bonusState = state;
+        }
 
         [Header("Battle")]
         [SerializeField]
@@ -254,8 +261,9 @@ namespace Scene.InGame.Entity.Player
         
         public override float GetDamage()
         {
-            // 임시 고정값 — 나중에 캐릭터 스탯 데이터(엑셀)와 연결 예정.
-            return 1f;
+            // 기본 채굴 데미지 + 레벨업 보너스 합연산
+            var bonus = _bonusState?.MiningDamageAdd ?? 0f;
+            return 1f + bonus;
         }
 
         public override float GetAttackDistance()
@@ -266,13 +274,16 @@ namespace Scene.InGame.Entity.Player
 
         public override float GetAttackDelay()
         {
-            // 채굴 1회 간격(초). 임시 고정값 — 나중에 캐릭터 스탯 데이터(엑셀)와 연결 예정.
-            return 2f;
+            // 채굴 1회 간격(초). 채굴 속도 보너스가 오르면 간격이 짧아집니다.
+            var speed = _bonusState?.MiningSpeedMultiplier ?? 1f;
+            return Mathf.Max(0.2f, 2f / Mathf.Max(0.01f, speed));
         }
 
         public override float GetMoveSpeed()
         {
-            return BaseData?.MoveSpeed ?? 0f;
+            var baseSpeed = BaseData?.MoveSpeed ?? 0f;
+            var mul = _bonusState?.MoveSpeedMultiplier ?? 1f;
+            return baseSpeed * mul;
         }
 
         public override float GetCriDamage()

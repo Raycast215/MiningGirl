@@ -1,71 +1,46 @@
 using System;
+using System.Collections.Generic;
+using Data;
+using MainGame.Bonus;
 using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
 
 namespace MainGame.UI
 {
     // 레벨업 시 보너스를 선택하는 팝업.
-    // 지금은 임시 항목 3개만 제공하고, 선택하면 콜백으로 인덱스를 넘긴 뒤 스스로 닫힙니다.
+    // 선택 항목은 프리팹(LevelUpBonusSlotView)을 필요한 개수만큼 생성해서 재사용합니다.
     public class LevelUpBonusSelectPopup : MonoBehaviour
     {
-        [Serializable]
-        public class BonusSlot
-        {
-            public Button button;
-            public TextMeshProUGUI titleText;
-            public TextMeshProUGUI descText;
-        }
-
         [SerializeField]
         private TextMeshProUGUI levelText;
+
+        [Header("Slots")]
         [SerializeField]
-        private BonusSlot[] slots = new BonusSlot[3];
-
+        [Tooltip("선택 항목 프리팹")]
+        private LevelUpBonusSlotView slotPrefab;
         [SerializeField]
-        [Tooltip("임시 보너스 이름 (슬롯 수와 같아야 합니다)")]
-        private string[] tempBonusNames = { "채굴 속도 증가", "터치 데미지 증가", "코스트 회복 가속" };
+        [Tooltip("선택 항목이 생성될 부모")]
+        private Transform slotRoot;
         [SerializeField]
-        [Tooltip("임시 보너스 설명")]
-        private string[] tempBonusDescs = { "광물을 더 빠르게 캡니다", "터치 공격이 강해집니다", "코스트가 더 빨리 찹니다" };
+        [Tooltip("한 번에 제시할 후보 수")]
+        private int slotCount = 3;
 
-        private Action<int> _onSelected;
+        private Action<LevelUpBonusSkillDataTableRow> _onSelected;
+        private readonly List<LevelUpBonusSkillDataTableRow> _current = new List<LevelUpBonusSkillDataTableRow>();
+        private readonly List<LevelUpBonusSlotView> _slots = new List<LevelUpBonusSlotView>();
 
-        // 주의: 여기서 SetActive(false)를 호출하면 안 됩니다.
-        // 오브젝트가 비활성으로 시작하므로 Awake는 '처음 켜지는 순간'에 실행되는데,
-        // 거기서 다시 끄면 Show()로 켜자마자 꺼져버립니다.
-        private void Awake()
-        {
-            BindButtons();
-        }
-
-        private void BindButtons()
-        {
-            if (slots == null)
-                return;
-
-            for (var i = 0; i < slots.Length; i++)
-            {
-                var slot = slots[i];
-                if (slot == null || slot.button == null)
-                    continue;
-
-                var index = i;
-                slot.button.onClick.RemoveAllListeners();
-                slot.button.onClick.AddListener(() => Select(index));
-            }
-        }
-
-        // 팝업을 띄웁니다. onSelected는 선택된 보너스 인덱스를 받습니다.
-        public void Show(int level, Action<int> onSelected)
+        // 팝업을 띄웁니다. 후보는 현재 획득 상태를 기준으로 뽑습니다.
+        public void Show(int level, LevelUpBonusState state, Action<LevelUpBonusSkillDataTableRow> onSelected)
         {
             _onSelected = onSelected;
 
             if (levelText != null)
                 levelText.text = $"Lv.{level} 보너스 선택";
 
-            ApplyTempBonusTexts();
-            BindButtons();
+            _current.Clear();
+            _current.AddRange(LevelUpBonusPicker.Pick(state, slotCount));
+
+            BuildSlots(state);
 
             gameObject.SetActive(true);
         }
@@ -75,36 +50,50 @@ namespace MainGame.UI
             gameObject.SetActive(false);
         }
 
-        private void ApplyTempBonusTexts()
+        private void BuildSlots(LevelUpBonusState state)
         {
-            if (slots == null)
-                return;
-
-            for (var i = 0; i < slots.Length; i++)
+            if (slotPrefab == null || slotRoot == null)
             {
-                var slot = slots[i];
-                if (slot == null)
+                Debug.LogError("[LevelUpBonus] 슬롯 프리팹 또는 부모가 연결되지 않았습니다.");
+                return;
+            }
+
+            // 부족한 만큼만 새로 만들고, 나머지는 재사용합니다.
+            while (_slots.Count < _current.Count)
+                _slots.Add(Instantiate(slotPrefab, slotRoot));
+
+            for (var i = 0; i < _slots.Count; i++)
+            {
+                var slot = _slots[i];
+
+                if (i >= _current.Count)
+                {
+                    slot.SetVisible(false);
                     continue;
+                }
 
-                if (slot.titleText != null)
-                    slot.titleText.text = tempBonusNames != null && i < tempBonusNames.Length ? tempBonusNames[i] : $"보너스 {i + 1}";
+                var row = _current[i];
+                var index = i;
 
-                if (slot.descText != null)
-                    slot.descText.text = tempBonusDescs != null && i < tempBonusDescs.Length ? tempBonusDescs[i] : string.Empty;
+                slot.SetVisible(true);
+                slot.SetData(row, state.GetLevel(row.Id), () => Select(index));
             }
         }
 
         private void Select(int index)
         {
-            var name = tempBonusNames != null && index < tempBonusNames.Length ? tempBonusNames[index] : $"보너스 {index + 1}";
-            Debug.Log($"[LevelUpBonus] 선택됨 — index={index} ({name})");
+            if (index < 0 || index >= _current.Count)
+                return;
+
+            var row = _current[index];
+            Debug.Log($"[LevelUpBonus] 선택됨 — Id={row.Id} ({row.Name})");
 
             var callback = _onSelected;
             _onSelected = null;
 
             Hide();
 
-            callback?.Invoke(index);
+            callback?.Invoke(row);
         }
     }
 }

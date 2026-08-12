@@ -34,6 +34,9 @@ namespace Scene.InGame
         private MonsterController monsterController;
         [SerializeField]
         private ResourceController resourceController;
+        [SerializeField]
+        [Tooltip("레벨업 보너스와 보상 지급을 관리합니다")]
+        private LevelUpController levelUpController;
         
         // Next()에서 재시작할 때 재사용하기 위해 플레이어 엔티티를 보관합니다.
         private IEntity _playerEntity;
@@ -41,6 +44,9 @@ namespace Scene.InGame
         public async UniTask InitAsync()
         {
             uIController.InitAsync(Next, OnLevelUp).Forget();
+
+            // 보상/보너스 지급 경로를 UI 컨트롤러에 연결합니다.
+            levelUpController.Init(uIController.AddGold, uIController.AddExp);
             await UniTask.WaitUntil(() => uIController.IsInitialized);
             
             damageController.InitAsync();
@@ -48,12 +54,12 @@ namespace Scene.InGame
 
             // 광물 컨트롤러를 먼저 준비합니다 — 플레이어가 이 컨트롤러를 광물 공급자(IResourceProvider)로
             // 주입받아 가장 가까운 광물을 탐색하기 때문에, 플레이어 초기화보다 앞서 준비되어야 합니다.
-            resourceController.Setup(damagePresenter: damageController, rewardHandler: uIController);
+            resourceController.Setup(damagePresenter: damageController, rewardHandler: levelUpController);
             resourceController.InitControllerAsync().Forget();
             await UniTask.WaitUntil(() => resourceController.IsInitialized);
 
             // 플레이어 — 광물 공급자를 주입해서 행동 트리(가장 가까운 광물로 이동)를 구성합니다.
-            playerController.InitAsync(resourceController).Forget();
+            playerController.InitAsync(resourceController, levelUpController.BonusState).Forget();
             await UniTask.WaitUntil(() => playerController.IsInitialized);
 
             _playerEntity = playerController.ActivateList.First();
@@ -61,7 +67,7 @@ namespace Scene.InGame
             
             // DamageController를 IFloatingDamagePresenter로 주입 — 몬스터가 피격 시 플로팅 데미지를 띄웁니다.
             // resourceController를 IResourceProvider로 주입 — 몬스터가 이동 중 광물을 비껴가게 합니다.
-            monsterController.Setup(damagePresenter: damageController, resourceProvider: resourceController, expRewardHandler: uIController);
+            monsterController.Setup(damagePresenter: damageController, resourceProvider: resourceController, expRewardHandler: levelUpController);
             monsterController.InitControllerAsync().Forget();
             await UniTask.WaitUntil(() => monsterController.IsInitialized);
 
@@ -120,17 +126,17 @@ namespace Scene.InGame
         // (테스트 버튼용) 경험치를 즉시 지급합니다.
         public void OnClickAddExp1()
         {
-            uIController.OnExpGained(1);
+            uIController.AddExp(1);
         }
 
         public void OnClickAddExp100()
         {
-            uIController.OnExpGained(100);
+            uIController.AddExp(100);
         }
 
         public void OnClickAddExp5()
         {
-            uIController.OnExpGained(5);
+            uIController.AddExp(5);
         }
 
         // 레벨업 연출이 한 단계 끝날 때마다 호출됩니다.
@@ -145,8 +151,11 @@ namespace Scene.InGame
                 SetGamePaused(true);
             }
 
-            uIController.ShowLevelUpBonus(newLevel, _ =>
+            uIController.ShowLevelUpBonus(newLevel, levelUpController.BonusState, row =>
             {
+                // 선택한 보너스를 적용합니다.
+                levelUpController.ApplyBonus(row);
+
                 // 다음 레벨 연출을 이어가고, 더 보여줄 레벨이 없으면 게임을 재개합니다.
                 onContinue?.Invoke();
 

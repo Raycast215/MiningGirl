@@ -1,5 +1,7 @@
 using System;
 using Cysharp.Threading.Tasks;
+using Data;
+using MainGame.Bonus;
 using MainGame.Entity;
 using MainGame.UI;
 using Manager;
@@ -7,7 +9,7 @@ using UnityEngine;
 
 namespace MainGame
 {
-    public class MainGameUIController : GameMonoInitializer, IExpRewardHandler, Scene.InGame.Entity.Resource.IResourceRewardHandler
+    public class MainGameUIController : GameMonoInitializer
     {
         private event Action OnNextGameExecuted;
         private Action<int, Action> _onLevelUp;
@@ -16,7 +18,7 @@ namespace MainGame
         private int _gold;
 
         public int Gold => _gold;
-        
+
         [SerializeField]
         [Tooltip("스테이지 제한 시간(초)")]
         private float stageTimeSeconds = 60f;
@@ -86,12 +88,6 @@ namespace MainGame
             _onLevelUp.Invoke(newLevel, onContinue);
         }
 
-        // IResourceRewardHandler 구현 — 광물을 다 캐면 골드를 지급합니다.
-        public void OnResourceMined(int stoneReward, int expReward)
-        {
-            AddGold(stoneReward);
-        }
-
         public void AddGold(int amount)
         {
             if (amount <= 0)
@@ -101,16 +97,16 @@ namespace MainGame
             goldCountViewer.AddCount(amount);
         }
 
-        // IExpRewardHandler 구현 — 몬스터 처치 등에서 경험치를 지급받습니다.
-        public void OnExpGained(int amount)
+        // 경험치 지급(외부 컨트롤러가 호출)
+        public void AddExp(int amount)
         {
             levelExpUI.AddExp(amount);
         }
 
-        // 레벨업 보너스 팝업을 띄웁니다. 선택이 끝나면 onSelected가 호출됩니다.
-        public void ShowLevelUpBonus(int level, Action<int> onSelected)
+        // 레벨업 보너스 팝업을 띄웁니다. 선택된 보너스는 onSelected로 전달됩니다.
+        public void ShowLevelUpBonus(int level, LevelUpBonusState state, Action<LevelUpBonusSkillDataTableRow> onSelected)
         {
-            levelUpBonusPopup.Show(level, onSelected);
+            levelUpBonusPopup.Show(level, state, onSelected);
         }
 
         // 아직 보여줄 레벨업이 남아 있는지 (팝업 이후 게임 재개 판단용)

@@ -16,6 +16,9 @@ namespace Data
         public int Weight { get; set; }
         [JsonConverter(typeof(StringEnumConverter))]
         public EEffectValueType ValueType { get; set; }
+        // 이 보너스가 무엇에 작용하는지. 코드는 Id 대신 이 값을 보고 동작합니다.
+        [JsonConverter(typeof(StringEnumConverter))]
+        public ELevelUpBonusEffectType EffectType { get; set; }
         public int MaxLevel { get; set; }
     }
     
