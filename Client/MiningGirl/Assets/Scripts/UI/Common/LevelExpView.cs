@@ -7,8 +7,8 @@ namespace UI.Common
 {
     // 레벨과 경험치 진행도를 표시하는 뷰.
     // 값 계산은 하지 않고, 전달받은 값을 그리기만 합니다.
-    // 경험치 바는 뚝뚝 끊기지 않도록 트윈으로 채워지고,
-    // 레벨업 시에는 끝까지 찬 뒤 0으로 돌아가 남은 양을 이어서 채웁니다.
+    // 경험치 바는 트윈으로 부드럽게 채워지고, 레벨업 시에는 끝까지 찬 뒤
+    // 0으로 돌아가 남은 양을 이어서 채웁니다.
     public class LevelExpView : MonoBehaviour
     {
         [Header("References")]
@@ -38,6 +38,9 @@ namespace UI.Common
         private float minFillDuration = 0.3f;
         [SerializeField]
         private Ease fillEase = Ease.InOutSine;
+        [SerializeField]
+        [Tooltip("한 번에 여러 레벨이 올랐을 때 재생할 최대 연출 횟수. 넘는 만큼은 건너뜁니다.")]
+        private int maxLevelUpAnimations = 3;
 
         [Header("Preview (인스펙터에서 값을 바꾸면 즉시 반영됩니다)")]
         [SerializeField]
@@ -47,7 +50,10 @@ namespace UI.Common
         [SerializeField]
         private int requiredExp = 10;
 
-        private int _shownLevel = -1;
+        // 화면에 '실제로 표시된' 레벨. 레벨업 연출이 한 바퀴 돌 때마다 올라갑니다.
+        // 요청된 level과 분리해야, 같은 프레임에 경험치가 여러 번 들어와도
+        // 연출이 취소되지 않고 이어집니다.
+        private int _displayedLevel = -1;
         private Tween _fillTween;
 
         // 런타임에서 값을 갱신할 때 호출합니다.
@@ -80,12 +86,11 @@ namespace UI.Common
             if (levelText != null)
                 levelText.color = textColor;
 
-            var target = requiredExp <= 0 ? 0f : Mathf.Clamp01((float)currentExp / requiredExp);
-
             if (barFill != null)
                 barFill.color = fillColor;
 
-            // 에디터(비실행) 상태이거나 즉시 반영이면 트윈 없이 값만 세팅합니다.
+            var target = requiredExp <= 0 ? 0f : Mathf.Clamp01((float)currentExp / requiredExp);
+
             if (immediate || !Application.isPlaying || barFill == null)
             {
                 KillTween();
@@ -94,26 +99,42 @@ namespace UI.Common
                     barFill.fillAmount = target;
 
                 SetLevelText(level);
-                _shownLevel = level;
+                _displayedLevel = level;
                 return;
             }
 
             KillTween();
 
-            var leveledUp = _shownLevel >= 0 && level > _shownLevel;
+            if (_displayedLevel < 0)
+                _displayedLevel = level;
 
-            if (leveledUp)
+            // 표시된 레벨보다 요청된 레벨이 높으면 레벨업 연출을 재생합니다.
+            if (level > _displayedLevel)
             {
-                // 가득 채운 뒤 0으로 되돌리고, 남은 양을 이어서 채웁니다.
-                var current = barFill.fillAmount;
                 var seq = DOTween.Sequence();
+                var current = barFill.fillAmount;
+                var wrapCount = Mathf.Min(level - _displayedLevel, Mathf.Max(1, maxLevelUpAnimations));
 
-                seq.Append(barFill.DOFillAmount(1f, GetDuration(1f - current)).SetEase(fillEase));
+                for (var i = 0; i < wrapCount; i++)
+                {
+                    var from = i == 0 ? current : 0f;
+
+                    seq.Append(barFill.DOFillAmount(1f, GetDuration(1f - from)).SetEase(fillEase));
+                    seq.AppendCallback(() =>
+                    {
+                        barFill.fillAmount = 0f;
+                        _displayedLevel++;
+                        SetLevelText(_displayedLevel);
+                    });
+                }
+
+                // 연출을 건너뛴 레벨이 있으면 마지막에 숫자만 맞춥니다.
                 seq.AppendCallback(() =>
                 {
-                    barFill.fillAmount = 0f;
+                    _displayedLevel = level;
                     SetLevelText(level);
                 });
+
                 seq.Append(barFill.DOFillAmount(target, GetDuration(target)).SetEase(fillEase));
 
                 _fillTween = seq;
@@ -121,12 +142,11 @@ namespace UI.Common
             else
             {
                 SetLevelText(level);
+                _displayedLevel = level;
 
                 var delta = Mathf.Abs(target - barFill.fillAmount);
                 _fillTween = barFill.DOFillAmount(target, GetDuration(delta)).SetEase(fillEase);
             }
-
-            _shownLevel = level;
         }
 
         // 변화량이 작아도 최소 시간은 보장하고, 클수록 fillDuration에 가까워집니다.

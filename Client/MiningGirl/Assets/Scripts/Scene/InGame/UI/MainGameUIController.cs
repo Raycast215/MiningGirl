@@ -25,7 +25,7 @@ namespace MainGame
             
             timerUI.Init(30, GameFinish);
             costUI.Init();
-            levelExpUI.Init();
+            levelExpUI.Init(OnLevelUp);
             
             IsInitialized = true;
         }
@@ -47,6 +47,13 @@ namespace MainGame
         public bool CanAffordCost(int amount) => costUI.CanAfford(amount);
         public bool TrySpendCost(int amount) => costUI.TrySpend(amount);
         public void AddCost(int amount, bool allowOvercharge = false) => costUI.Add(amount, allowOvercharge);
+
+        // 레벨업 시 호출됩니다. 한 번에 여러 레벨이 올라도 레벨당 한 번씩 호출됩니다.
+        // TODO: 추후 이 시점에 레벨업 보너스 선택 UI를 띄웁니다.
+        private void OnLevelUp(int newLevel)
+        {
+            Debug.Log($"[LevelUp] Lv.{newLevel} 달성 — 보너스 선택 UI 예정");
+        }
 
         // IExpRewardHandler 구현 — 몬스터 처치 등에서 경험치를 지급받습니다.
         public void OnExpGained(int amount)
