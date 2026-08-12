@@ -98,6 +98,23 @@ public virtual async UniTaskVoid InitAsync()
         
         public abstract IEnumerable<IEntity> GetNearCheckEntities();
         public abstract void Hit(float damage, bool isCritical);
+
+        // 기본적으로 모든 엔티티는 공격 대상이 됩니다. 필요하면 파생 클래스에서 막습니다.
+        // 이동을 즉시 멈춥니다.
+        // MovePosition으로 움직이기 때문에 노드 실행만 멈추면 리지드바디에 남은 속도로 계속 미끄러집니다.
+        public void StopMove()
+        {
+            if (rigidBody == null)
+                return;
+
+            rigidBody.linearVelocity = Vector3.zero;
+            rigidBody.angularVelocity = Vector3.zero;
+        }
+
+        public virtual bool IsAttackable()
+        {
+            return GetActiveState();
+        }
         
         public abstract float GetDamage();
         public abstract float GetAttackDistance();

@@ -1,3 +1,4 @@
+using Scene.InGame.Entity.Node;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,6 +14,7 @@ namespace MainGame.Entity.Monster
     public class Monster : EntityBase
     {
         private IMonsterDeathHandler _deathHandler;
+        private AttackNode _attackNode;
 
         private MonsterController _owner;
         private MonsterBaseStat _baseStat;
@@ -80,8 +82,7 @@ namespace MainGame.Entity.Monster
         {
             base.InitAsync().Forget();
 
-            // 몬스터는 항상 타겟(플레이어)을 향해 이동만 하면 되므로, 별도 타겟 탐색 없이
-            // 이동 노드만 시퀀스로 연결합니다. 공격 노드는 필요해지면 이어서 추가합니다.
+            // 몬스터는 스폰 시 지정된 타겟(플레이어)을 향해 이동하다가 사거리에 들면 공격합니다.
             // 몬스터끼리 너무 붙어 보이지 않도록 기본값보다 겹침 보정을 넓게 잡습니다.
             MoveNode.SetSeparationDistance(1.0f)
                 .SetSeparationStrength(0.5f)
@@ -90,9 +91,13 @@ namespace MainGame.Entity.Monster
                 .SetObstacleProvider(() => _owner?.GetObstacles())
                 .SetObstacleAvoidance(3.5f, 1.2f, 1.5f);
 
+            _attackNode = new AttackNode(this);
+
+            // 이동으로 사거리에 들어가면 공격합니다.
             NodeRunner = new NodeRunner(new SequenceNode(new List<INode>
             {
                 new ActionNode(MoveNode.ProcessNode),
+                new ActionNode(_attackNode.ProcessNode),
             }));
 
             IsInitialized = true;
@@ -127,6 +132,7 @@ namespace MainGame.Entity.Monster
                 if (_colorTween != null) { _colorTween.Kill(); _colorTween = null; }
                 if (spriteRenderer != null) spriteRenderer.color = new Color(1f, 1f, 1f, 1f);
 
+                _attackNode?.Dispose();
                 _deathHandler?.OnMonsterDeath(this);
                 return;
             }

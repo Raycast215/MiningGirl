@@ -34,6 +34,12 @@ namespace Scene.InGame.Entity.Player
             // 행동 트리(InitAsync 내부)가 구성되기 전에 광물 공급자를 먼저 주입해야
             // SearchTargetNode가 공급자를 제대로 참조합니다.
             ins.SetResourceProvider(resourceProvider);
+            // 프리팹 안에 붙어 있는 머리 위 체력바를 상태 표시로 연결합니다.
+            var statusView = ins.GetComponentInChildren<global::UI.Common.PlayerStatusBarView>(true);
+            if (statusView != null)
+                ins.SetStatusPresenter(statusView);
+
+            ins.ResetHealth();
             ins.InitDirectionEvent(cursor.SetDirection);
             ins.InitAsync().Forget();
             ins.SetPosition(Vector3.zero);
@@ -45,6 +51,16 @@ namespace Scene.InGame.Entity.Player
         public void SetPosition(Vector3 position)
         {
             ActivateList[0].transform.position = position;
+        }
+
+        // 스테이지 재시작 시 체력과 무적/다운 상태를 초기화합니다.
+        public void ResetPlayerHealth()
+        {
+            if (ActivateList == null)
+                return;
+
+            foreach (var player in ActivateList)
+                player.ResetHealth();
         }
 
         // 게임 시작 — 이 시점부터 플레이어가 광물을 탐색/이동/채굴합니다.
@@ -72,8 +88,32 @@ namespace Scene.InGame.Entity.Player
         // (MonsterController와 동일하게, 이게 없으면 NodeRunner가 구성만 되고 실행되지 않습니다.)
         private void Update()
         {
-            if (!_isBehaviourRunning)
+            // 초기화 전(풀 생성 전)에는 목록이 없으므로 건너뜁니다.
+            if (ActivateList == null)
                 return;
+
+            // 무적/다운 시간은 행동 정지 여부와 무관하게 흘러야 합니다.
+            foreach (var player in ActivateList)
+                player.UpdateStatus(Time.deltaTime);
+
+            if (!_isBehaviourRunning)
+            {
+                foreach (var player in ActivateList)
+                    player.StopMove();
+
+                return;
+            }
+
+            // 쓰러진 동안에는 이동/채굴을 멈춥니다.
+            // (MovePosition 이동이라 남은 속도까지 없애야 미끄러지지 않습니다.)
+            foreach (var player in ActivateList)
+            {
+                if (!player.IsDown)
+                    continue;
+
+                player.StopMove();
+                return;
+            }
 
             UpdateEntity();
         }

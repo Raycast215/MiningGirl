@@ -1,6 +1,8 @@
 using System;
+using System.Threading;
 using System.Collections.Generic;
 using BehaviourTree;
+using DG.Tweening;
 using Cysharp.Threading.Tasks;
 using Scene.InGame.Entity.Interface;
 using Scene.InGame.Entity.Node;
@@ -16,6 +18,116 @@ namespace Scene.InGame.Entity.Player
         private SearchTargetNode _targetSearchNode;
 
         private Resource.IResourceProvider _resourceProvider;
+
+        [Header("Battle")]
+        [SerializeField]
+        private float maxHealth = 10f;
+        [SerializeField]
+        [Tooltip("피격 후 무적 시간(초)")]
+        private float invincibleDuration = 2f;
+        [SerializeField]
+        [Tooltip("체력이 0이 되면 이 시간 동안 이동/채굴을 멈춥니다(초)")]
+        private float downDuration = 3f;
+        [SerializeField]
+        [Tooltip("쓰러진 뒤 회복될 체력")]
+        private float reviveHealth = 1f;
+
+        // 남은 무적 시간 / 남은 다운 시간
+        private float _invincibleTimer;
+        private float _downTimer;
+
+        private Tween _blinkTween;
+        private IPlayerStatusPresenter _statusPresenter;
+
+        public float MaxHealth => maxHealth;
+        public float Health => BaseData?.Health ?? 0f;
+        public bool IsInvincible => _invincibleTimer > 0f;
+        public bool IsDown => _downTimer > 0f;
+        // 쓰러진 뒤 회복까지 남은 비율 (게이지는 이 값을 표시합니다)
+        public float DownRatio => downDuration <= 0f ? 0f : Mathf.Clamp01(_downTimer / downDuration);
+        public float InvincibleRatio => invincibleDuration <= 0f ? 0f : Mathf.Clamp01(_invincibleTimer / invincibleDuration);
+        public float HealthRatio => maxHealth <= 0f ? 0f : Mathf.Clamp01(Health / maxHealth);
+
+        // 체력/무적 표시를 담당하는 뷰를 주입합니다.
+        public void SetStatusPresenter(IPlayerStatusPresenter presenter)
+        {
+            _statusPresenter = presenter;
+            RefreshStatus();
+        }
+
+        // 체력을 초기 상태로 되돌립니다.
+        public void ResetHealth()
+        {
+            if (BaseData != null)
+            {
+                BaseData.MaxHealth = maxHealth;
+                BaseData.Health = maxHealth;
+            }
+
+            _invincibleTimer = 0f;
+            _downTimer = 0f;
+
+            StopBlink();
+            RefreshStatus();
+        }
+
+        // 매 프레임 무적/다운 시간을 흘려보냅니다. PlayerController.Update에서 호출합니다.
+        public void UpdateStatus(float deltaTime)
+        {
+            if (_invincibleTimer > 0f)
+            {
+                _invincibleTimer = Mathf.Max(0f, _invincibleTimer - deltaTime);
+
+                if (_invincibleTimer <= 0f)
+                    StopBlink();
+            }
+
+            if (_downTimer > 0f)
+            {
+                _downTimer = Mathf.Max(0f, _downTimer - deltaTime);
+
+                if (_downTimer <= 0f)
+                {
+                    // 쓰러진 시간이 끝나면 최소 체력으로 일어납니다.
+                    BaseData.Health = reviveHealth;
+                    _invincibleTimer = invincibleDuration;
+                    PlayBlink();
+                }
+            }
+
+            RefreshStatus();
+        }
+
+        private void RefreshStatus()
+        {
+            _statusPresenter?.SetStatus(HealthRatio, DownRatio, IsDown);
+        }
+
+        private void PlayBlink()
+        {
+            StopBlink();
+
+            if (spriteRenderer == null)
+                return;
+
+            // 무적 동안 깜빡입니다.
+            _blinkTween = spriteRenderer.DOFade(0.25f, 0.12f)
+                .SetLoops(-1, LoopType.Yoyo)
+                .SetEase(Ease.Linear);
+        }
+
+        private void StopBlink()
+        {
+            _blinkTween?.Kill();
+            _blinkTween = null;
+
+            if (spriteRenderer != null)
+            {
+                var c = spriteRenderer.color;
+                c.a = 1f;
+                spriteRenderer.color = c;
+            }
+        }
 
         // 플레이어가 어떤 광물들을 대상으로 삼을지(가장 가까운 것 탐색) 공급자를 주입합니다.
         // InitAsync() 전에 호출되어야 행동 트리 구성 시점에 반영됩니다.
@@ -98,7 +210,40 @@ namespace Scene.InGame.Entity.Player
 
         public override void Hit(float damage, bool isCritical)
         {
-         
+            // 무적 중이거나 이미 쓰러져 있으면 피해를 받지 않습니다.
+            if (IsInvincible || IsDown)
+                return;
+
+            if (BaseData == null)
+                return;
+
+            BaseData.Health -= damage;
+
+            if (BaseData.Health <= 0f)
+            {
+                // 쓰러짐 — 이동/채굴이 멈추고, downDuration 뒤에 최소 체력으로 일어납니다.
+                BaseData.Health = 0f;
+                _downTimer = downDuration;
+                _invincibleTimer = 0f;
+
+                _attackNode?.Dispose();
+                StopMove();
+                StopBlink();
+            }
+            else
+            {
+                // 피격 — 무적 시간이 붙고 그동안 스프라이트가 깜빡입니다.
+                _invincibleTimer = invincibleDuration;
+                PlayBlink();
+            }
+
+            RefreshStatus();
+        }
+
+        // 쓰러져 있거나 무적인 동안에는 몬스터가 공격 대상으로 삼지 않습니다.
+        public override bool IsAttackable()
+        {
+            return GetActiveState() && !IsDown && !IsInvincible;
         }
 
         public override void SetDirection(Vector3 direction)

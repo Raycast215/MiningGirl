@@ -43,6 +43,9 @@ namespace Scene.InGame.Entity.Interface
 
         public IEnumerable<IEntity> GetNearCheckEntities();
         public void Hit(float damage, bool isCritical);
+
+        // 지금 공격 대상이 될 수 있는지. (예: 플레이어가 쓰러져 있으면 몬스터가 때리지 않습니다)
+        public bool IsAttackable();
         
         
         public float GetDamage();

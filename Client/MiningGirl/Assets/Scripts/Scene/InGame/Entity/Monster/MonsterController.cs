@@ -227,7 +227,15 @@ namespace MainGame.Entity.Monster
             // GameStart() 전에는 몬스터가 움직이지 않도록 행동 트리 구동을 막습니다.
             // (렌더러 가시성 처리는 정지 중에도 계속 적용합니다.)
             if (_isBehaviourRunning)
+            {
                 UpdateEntity();
+            }
+            else if (ActivateList != null)
+            {
+                // 정지 중에는 남은 속도로 미끄러지지 않도록 멈춥니다.
+                foreach (var monster in ActivateList)
+                    monster.StopMove();
+            }
 
             UpdateMonsterVisibility();
         }

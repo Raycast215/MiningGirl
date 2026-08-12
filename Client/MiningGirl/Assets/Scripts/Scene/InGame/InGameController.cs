@@ -189,6 +189,9 @@ namespace Scene.InGame
                 // (방금 풀로 되돌린 광물을 계속 때리는 것을 방지합니다.)
                 playerController.StopBehaviour();
 
+                // 체력과 무적/다운 상태도 초기화합니다.
+                playerController.ResetPlayerHealth();
+
                 // 광물만 다시 깔아둡니다. 실제 진행 재개는 아래 GameStart()에서 합니다.
                 resourceController.SpawnInitialLayout(Vector3.zero);
             

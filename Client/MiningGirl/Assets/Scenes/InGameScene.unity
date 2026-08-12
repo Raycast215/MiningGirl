@@ -804,6 +804,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0b1bdfa01c0a577439ff51869fec731a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainGameUIController
+  stageTimeSeconds: 60
   timerUI: {fileID: 1102530197}
   costUI: {fileID: 437661765}
   levelExpUI: {fileID: 1118632404}
@@ -1207,7 +1208,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1214.7722, y: -393}
+  m_AnchoredPosition: {x: 951.34314, y: -393}
   m_SizeDelta: {x: 160, y: 100}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &178150750
@@ -1647,7 +1648,7 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 24.85
+  m_fontSize: 19.8
   m_fontSizeBase: 53
   m_fontWeight: 400
   m_enableAutoSizing: 1
@@ -2000,7 +2001,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1214.7722, y: -250}
+  m_AnchoredPosition: {x: 951.34314, y: -250}
   m_SizeDelta: {x: 160, y: 100}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &452707297
@@ -2133,7 +2134,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1214.7722, y: -822}
+  m_AnchoredPosition: {x: 951.34314, y: -822}
   m_SizeDelta: {x: 160, y: 100}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &455467756
@@ -3334,7 +3335,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1214.7722, y: -536}
+  m_AnchoredPosition: {x: 951.34314, y: -536}
   m_SizeDelta: {x: 160, y: 100}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &1106357016
@@ -4955,7 +4956,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 1214.7722, y: -679}
+  m_AnchoredPosition: {x: 951.34314, y: -679}
   m_SizeDelta: {x: 160, y: 100}
   m_Pivot: {x: 1, y: 0.5}
 --- !u!114 &1606792438

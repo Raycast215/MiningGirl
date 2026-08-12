@@ -13,6 +13,10 @@ namespace MainGame
         private Action<int, Action> _onLevelUp;
         
         [SerializeField]
+        [Tooltip("스테이지 제한 시간(초)")]
+        private float stageTimeSeconds = 60f;
+
+        [SerializeField]
         private TimerUI timerUI;
         [SerializeField]
         private CostUI costUI;
@@ -28,7 +32,7 @@ namespace MainGame
 
             _onLevelUp = onLevelUp;
             
-            timerUI.Init(30, GameFinish);
+            timerUI.Init(stageTimeSeconds, GameFinish);
             costUI.Init();
             levelExpUI.Init(OnLevelUp);
             
@@ -37,7 +41,7 @@ namespace MainGame
 
         public void SetTime()
         {
-            timerUI.SetTime(30);
+            timerUI.SetTime(stageTimeSeconds);
             costUI.SetCost(0);
             levelExpUI.Reset();
         }

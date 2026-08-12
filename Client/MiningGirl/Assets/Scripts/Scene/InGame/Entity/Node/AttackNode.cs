@@ -124,6 +124,10 @@ namespace Scene.InGame.Entity.Node
             if (target == null || !target.GetActiveState())
                 return false;
 
+            // 대상이 지금 맞을 수 있는 상태인지 확인합니다(쓰러진 플레이어 등은 제외).
+            if (!target.IsAttackable())
+                return false;
+
             // 사거리 체크 — 대기(WaitForSeconds) 도중 타겟이 풀 재사용으로 다른 위치에 재활성화되거나
             // 플레이어가 멀어졌을 수 있으므로, 타격 직전에 실제로 사거리 안에 있는지 확인합니다.
             // (이 검증이 없으면 재시작 등으로 멀리 있는 대상이 '맞는' 현상이 생깁니다.)
