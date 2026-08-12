@@ -8,10 +8,10 @@
   "Damage": 10,
   "ExtraHitRate": 10,
   "Id": 1000,
-  "StartSkillTypeList": "ResourceMineGold",
   "InvincibleDuration": 2,
-  "MaxHealth": 10,
-  "MoveSpeed": 2
+  "MaxHealth": 11,
+  "MoveSpeed": 2,
+  "StartSkillTypeList": null
 },
 {
   "// Memo": "치명타 타입",
@@ -22,10 +22,10 @@
   "Damage": 6,
   "ExtraHitRate": 5,
   "Id": 1010,
-  "StartSkillTypeList": null,
-  "InvincibleDuration": 1.5,
-  "MaxHealth": 8,
-  "MoveSpeed": 2
+  "InvincibleDuration": 1.7,
+  "MaxHealth": 10,
+  "MoveSpeed": 2,
+  "StartSkillTypeList": null
 },
 {
   "// Memo": "추가타 타입",
@@ -36,9 +36,9 @@
   "Damage": 6,
   "ExtraHitRate": 30,
   "Id": 1020,
-  "StartSkillTypeList": null,
   "InvincibleDuration": 2.5,
   "MaxHealth": 12,
-  "MoveSpeed": 2
+  "MoveSpeed": 2,
+  "StartSkillTypeList": null
 }
 ]
