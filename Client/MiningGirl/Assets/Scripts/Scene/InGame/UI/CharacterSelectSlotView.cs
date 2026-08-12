@@ -60,8 +60,11 @@ namespace MainGame.UI
                 return $"<color=#{hex}>{text}{suffix}</color>";
             }
 
-            return $"공격력 {V(row.Damage)}   주기 {V(row.AttackDelay, "초")}   이동 {V(row.MoveSpeed)}\n" +
-                   $"치명타 {V(row.CriRate, "%")} (+{V(Mathf.RoundToInt(row.CriDamage * 100f), "%")})   추가타 {V(row.ExtraHitRate, "%")}";
+            // 치명타 데미지는 '추가 배율'이라 +표기로 따로 보여줍니다.
+            // (확률 옆에 괄호로 붙이면 확률이 150%인 것처럼 읽혀서 분리했습니다.)
+            return $"채굴 데미지 {V(row.Damage)}   채굴 주기 {V(row.AttackDelay, "초")}   이동속도 {V(row.MoveSpeed)}\n" +
+                   $"치명타 확률 {V(row.CriRate, "%")}   치명타 데미지 +{V(Mathf.RoundToInt(row.CriDamage * 100f), "%")}   추가타 확률 {V(row.ExtraHitRate, "%")}\n" +
+                   $"체력 {V(row.MaxHealth)}   피격 무적 시간 {V(row.InvincibleDuration, "초")}";
         }
 
         public void SetVisible(bool visible)

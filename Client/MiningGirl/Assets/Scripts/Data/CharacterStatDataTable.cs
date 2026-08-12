@@ -14,6 +14,10 @@ namespace Data
         public float CriDamage { get; set; }
         public float CriRate { get; set; }
         public float ExtraHitRate { get; set; }
+        // 최대 체력
+        public float MaxHealth { get; set; }
+        // 피격 후 무적 시간(초)
+        public float InvincibleDuration { get; set; }
     }
     
     public class CharacterStatDataTable : DataTableBase<CharacterStatDataRow>

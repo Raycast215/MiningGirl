@@ -46,14 +46,16 @@ namespace Scene.InGame.Entity.Player
         private Tween _blinkTween;
         private IPlayerStatusPresenter _statusPresenter;
 
-        public float MaxHealth => maxHealth;
+        // 최대 체력·무적 시간은 캐릭터 데이터에서 옵니다(없으면 인스펙터 값 사용).
+        public float MaxHealth => _statContext != null && _statContext.HasStat ? _statContext.GetMaxHealth() : maxHealth;
+        private float GetInvincibleDuration() => _statContext != null && _statContext.HasStat ? _statContext.GetInvincibleDuration() : invincibleDuration;
         public float Health => BaseData?.Health ?? 0f;
         public bool IsInvincible => _invincibleTimer > 0f;
         public bool IsDown => _downTimer > 0f;
         // 쓰러진 뒤 회복까지 남은 비율 (게이지는 이 값을 표시합니다)
         public float DownRatio => downDuration <= 0f ? 0f : Mathf.Clamp01(_downTimer / downDuration);
-        public float InvincibleRatio => invincibleDuration <= 0f ? 0f : Mathf.Clamp01(_invincibleTimer / invincibleDuration);
-        public float HealthRatio => maxHealth <= 0f ? 0f : Mathf.Clamp01(Health / maxHealth);
+        public float InvincibleRatio => GetInvincibleDuration() <= 0f ? 0f : Mathf.Clamp01(_invincibleTimer / GetInvincibleDuration());
+        public float HealthRatio => MaxHealth <= 0f ? 0f : Mathf.Clamp01(Health / MaxHealth);
 
         // 체력/무적 표시를 담당하는 뷰를 주입합니다.
         public void SetStatusPresenter(IPlayerStatusPresenter presenter)
@@ -67,8 +69,8 @@ namespace Scene.InGame.Entity.Player
         {
             if (BaseData != null)
             {
-                BaseData.MaxHealth = maxHealth;
-                BaseData.Health = maxHealth;
+                BaseData.MaxHealth = MaxHealth;
+                BaseData.Health = MaxHealth;
             }
 
             _invincibleTimer = 0f;
@@ -101,6 +103,8 @@ namespace Scene.InGame.Entity.Player
         // 매 프레임 무적/다운 시간을 흘려보냅니다. PlayerController.Update에서 호출합니다.
         public void UpdateStatus(float deltaTime)
         {
+            SyncMaxHealth();
+
             if (_invincibleTimer > 0f)
             {
                 _invincibleTimer = Mathf.Max(0f, _invincibleTimer - deltaTime);
@@ -117,12 +121,31 @@ namespace Scene.InGame.Entity.Player
                 {
                     // 쓰러진 시간이 끝나면 최소 체력으로 일어납니다.
                     BaseData.Health = reviveHealth;
-                    _invincibleTimer = invincibleDuration;
+                    _invincibleTimer = GetInvincibleDuration();
                     PlayBlink();
                 }
             }
 
             RefreshStatus();
+        }
+
+        // 레벨업으로 최대 체력이 늘어나면 그 증가분만큼 현재 체력도 함께 회복시킵니다.
+        private void SyncMaxHealth()
+        {
+            if (BaseData == null)
+                return;
+
+            var max = MaxHealth;
+            if (Mathf.Approximately(BaseData.MaxHealth, max))
+                return;
+
+            var delta = max - BaseData.MaxHealth;
+            BaseData.MaxHealth = max;
+
+            if (delta > 0f)
+                BaseData.Health = Mathf.Min(max, BaseData.Health + delta);
+            else
+                BaseData.Health = Mathf.Min(BaseData.Health, max);
         }
 
         private void RefreshStatus()
@@ -260,7 +283,7 @@ namespace Scene.InGame.Entity.Player
             else
             {
                 // 피격 — 무적 시간이 붙고 그동안 스프라이트가 깜빡입니다.
-                _invincibleTimer = invincibleDuration;
+                _invincibleTimer = GetInvincibleDuration();
                 PlayBlink();
             }
 

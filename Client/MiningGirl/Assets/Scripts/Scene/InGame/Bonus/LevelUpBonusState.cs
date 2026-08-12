@@ -21,6 +21,8 @@ namespace MainGame.Bonus
         public float CriRateMultiplier { get; private set; } = 1f;
         // 추가타 확률 배율
         public float ExtraHitRateMultiplier { get; private set; } = 1f;
+        // 최대 체력 합연산 누적치
+        public float MaxHealthAdd { get; private set; }
         // 적 처치 시 추가 골드
         public int MonsterKillGoldAdd { get; private set; }
         // 광물 채굴 시 추가 골드
@@ -51,6 +53,7 @@ namespace MainGame.Bonus
             CriDamageMultiplier = 1f;
             CriRateMultiplier = 1f;
             ExtraHitRateMultiplier = 1f;
+            MaxHealthAdd = 0f;
             MonsterKillGoldAdd = 0;
             ResourceMineGoldAdd = 0;
 
@@ -90,6 +93,10 @@ namespace MainGame.Bonus
 
                 case ELevelUpBonusEffectType.ExtraHitRate:
                     ExtraHitRateMultiplier *= 1f + row.EffectValue;
+                    break;
+
+                case ELevelUpBonusEffectType.MaxHealth:
+                    MaxHealthAdd += row.EffectValue;
                     break;
 
                 case ELevelUpBonusEffectType.MonsterKillGold:
