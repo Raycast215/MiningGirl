@@ -64,26 +64,55 @@ namespace Scene.InGame
             monsterController.InitControllerAsync().Forget();
             await UniTask.WaitUntil(() => monsterController.IsInitialized);
 
-            // 테스트 스폰 — 초기 풀 10개, 2초마다 1마리씩 최대 30마리까지 플레이어 주변에 스폰합니다.
-            // (완료를 기다리지 않고 백그라운드로 돌립니다 — 60초짜리 루프라 await하면 초기화가 그만큼 늦어집니다.)
-            monsterController.ExecuteTestSpawn(_playerEntity, 0);
-
-            // 광물 초기 배치 후, 이후 캐이는 만큼 주기적으로 보충하는 루프를 시작합니다.
+            // 광물만 미리 화면에 깔아둡니다. 실제 게임 진행(스폰 루프/이동/채굴)은 GameStart()에서 시작합니다.
             resourceController.SpawnInitialLayout(Vector3.zero);
-            resourceController.ExecuteSpawn(_playerEntity);
 
-            CoverUIManager.Instance.CoverUI.Hide().Forget();
-            
-            uIController.GameStart();
+            CoverUIManager.Instance.CoverUI.Hide(() => GameStart().Forget()).Forget();
             
             IsInitialized = true;
+        }
+
+        // 플레이어를 지정 위치로 즉시 이동시키고, 카메라도 보간 없이 그 자리로 스냅합니다.
+        // (그냥 위치만 바꾸면 Cinemachine이 이전 위치에서 부드럽게 따라오면서 이동 과정이 보입니다.)
+        private void WarpPlayer(Vector3 position)
+        {
+            var before = _playerEntity.GetPosition();
+            _playerEntity.SetPosition(position);
+            var delta = position - before;
+
+            if (cam == null)
+                return;
+
+            // 타겟이 순간이동했음을 알려 카메라가 같은 delta만큼 즉시 따라가게 합니다.
+            cam.OnTargetObjectWarped(_playerEntity.GetTransform(), delta);
+
+            // 댐핑 등 이전 프레임 상태를 무효화해 다음 갱신에서 보간 없이 자리를 잡게 합니다.
+            cam.PreviousStateIsValid = false;
+        }
+
+        // 실제 게임 진행을 시작합니다.
+        // 이 시점부터 몬스터가 스폰/이동하고, 플레이어가 광물을 탐색·이동·채굴합니다.
+        private async UniTaskVoid GameStart()
+        {
+            await UniTask.WaitForSeconds(1.0f);
+            
+            uIController.GameStart();
+
+            // 몬스터 스폰 루프 시작 (내부에서 몬스터 이동/공격도 함께 켜집니다)
+            monsterController.ExecuteTestSpawn(_playerEntity, 0);
+
+            // 광물 보충 루프 시작 (초기 배치는 InitAsync/Next에서 이미 끝난 상태)
+            resourceController.ExecuteSpawn(_playerEntity);
+
+            // 플레이어 행동 트리(광물 탐색 → 이동 → 채굴) 시작
+            playerController.StartBehaviour();
         }
 
         // (테스트 버튼용) 현재 타겟 광물을 제외한 무작위 광물로 플레이어가 이동하게 합니다.
         // 씬의 Test 버튼 onClick에 이 메서드를 연결합니다.
         public void OnClickMoveToRandomResource()
         {
-            if (_playerEntity is Scene.InGame.Entity.Player.Player player)
+            if (_playerEntity is Player player)
                 player.MoveToRandomResource();
         }
 
@@ -94,32 +123,29 @@ namespace Scene.InGame
             if (!IsInitialized)
                 return;
 
-            // 스폰 루프 중지 + 활성 몬스터 전부 풀로 반환
-            monsterController.StopSpawn();
-
-            // 화면에 떠 있는 플로팅 데미지도 모두 풀로 정리
-            damageController.Clear();
-
-            // 광물도 모두 풀로 정리
-            resourceController.StopSpawn();
-
-            // 플레이어의 진행 중이던 채굴/타겟을 초기화 — 방금 풀로 되돌린 광물을 계속 때리는 것을 방지합니다.
-            if (_playerEntity is Scene.InGame.Entity.Player.Player player)
-                player.ResetBehaviour();
-
-            // 스폰을 다시 시작 (내부에서 이전 루프를 정리하고 새로 시작)
-            monsterController.ExecuteTestSpawn(_playerEntity, 0);
-
-            resourceController.SpawnInitialLayout(Vector3.zero);
-            resourceController.ExecuteSpawn(_playerEntity);
-            
-            _playerEntity.SetPosition(Vector3.zero);
-            
-            uIController.SetTime();
-            
-            CoverUIManager.Instance.CoverUI.Hide(() =>
+            CoverUIManager.Instance.CoverUI.Show(() => 
             {
-                uIController.GameStart();
+                // 스폰 루프 중지 + 활성 몬스터 전부 풀로 반환
+                monsterController.StopSpawn();
+
+                // 화면에 떠 있는 플로팅 데미지도 모두 풀로 정리
+                damageController.Clear();
+
+                // 광물도 모두 풀로 정리
+                resourceController.StopSpawn();
+
+                // 플레이어 행동 정지 + 진행 중이던 채굴/타겟 초기화
+                // (방금 풀로 되돌린 광물을 계속 때리는 것을 방지합니다.)
+                playerController.StopBehaviour();
+
+                // 광물만 다시 깔아둡니다. 실제 진행 재개는 아래 GameStart()에서 합니다.
+                resourceController.SpawnInitialLayout(Vector3.zero);
+            
+                WarpPlayer(Vector3.zero);
+            
+                uIController.SetTime();
+                
+                CoverUIManager.Instance.CoverUI.Hide(() => GameStart().Forget()).Forget();
             }).Forget();
         }
     }

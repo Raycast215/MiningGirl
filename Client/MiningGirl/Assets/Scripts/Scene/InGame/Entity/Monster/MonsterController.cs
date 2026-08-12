@@ -17,6 +17,9 @@ namespace MainGame.Entity.Monster
         private IFloatingDamagePresenter _damagePresenter;
         private Scene.InGame.Entity.Resource.IResourceProvider _resourceProvider;
 
+        // GameStart() 전에는 몬스터가 움직이지 않도록 행동 트리 구동을 막습니다.
+        private bool _isBehaviourRunning;
+
         // 스폰 루프를 중간에 멈췄다가 다시 시작할 수 있도록 자체 취소 토큰을 관리합니다.
         private CancellationTokenSource _spawnCts;
 
@@ -102,6 +105,9 @@ namespace MainGame.Entity.Monster
         {
             // 이전 루프가 돌고 있다면 정리하고 새로 시작합니다.
             StopSpawn();
+
+            // 스폰 시작 = 몬스터 이동/공격 시작
+            _isBehaviourRunning = true;
             _spawnCts = CancellationTokenSource.CreateLinkedTokenSource(this.GetCancellationTokenOnDestroy());
 
             SpawnLoop(target, stageIndex, _spawnCts.Token).Forget();
@@ -128,6 +134,8 @@ namespace MainGame.Entity.Monster
         // 스폰 루프를 멈추고, 지금까지 활성화된 몬스터를 모두 풀로 되돌립니다.
         public void StopSpawn()
         {
+            _isBehaviourRunning = false;
+
             if (_spawnCts != null)
             {
                 _spawnCts.Cancel();
@@ -201,7 +209,11 @@ namespace MainGame.Entity.Monster
 
         private void Update()
         {
-            UpdateEntity();
+            // GameStart() 전에는 몬스터가 움직이지 않도록 행동 트리 구동을 막습니다.
+            // (렌더러 가시성 처리는 정지 중에도 계속 적용합니다.)
+            if (_isBehaviourRunning)
+                UpdateEntity();
+
             UpdateMonsterVisibility();
         }
 

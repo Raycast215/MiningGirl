@@ -35,11 +35,8 @@ namespace MainGame
         
         public void GameFinish()
         {
-            CoverUIManager.Instance.CoverUI.Show(() =>
-            {
-                OnNextGameExecuted?.Invoke();
-                Debug.Log("게임 종료");
-            }).Forget();
+            OnNextGameExecuted?.Invoke();
+            Debug.Log("게임 종료");
         }
     }
 }
