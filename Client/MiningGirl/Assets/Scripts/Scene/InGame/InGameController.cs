@@ -41,6 +41,9 @@ namespace Scene.InGame
         [Tooltip("터치 공격 입력 (팝업 중 정지용)")]
         private Scene.InGame.Entity.Touch.TouchEntityController touchController;
         [SerializeField]
+        [Tooltip("손패 카드 (드래그 앤 드롭)")]
+        private MainGame.Card.CardHandController cardHandController;
+        [SerializeField]
         [Tooltip("일시정지 테스트 버튼의 라벨 (선택)")]
         private TMPro.TMP_Text pauseButtonText;
         
@@ -53,6 +56,10 @@ namespace Scene.InGame
 
             // 보상/보너스 지급 경로를 UI 컨트롤러에 연결합니다.
             levelUpController.Init(uIController.AddGold, uIController.AddExp);
+
+            // 손패 카드 초기화
+            if (cardHandController != null)
+                cardHandController.Init(uIController.CanAffordCost, uIController.TrySpendCost);
             await UniTask.WaitUntil(() => uIController.IsInitialized);
             
             damageController.InitAsync();
@@ -132,6 +139,10 @@ namespace Scene.InGame
 
             // 플레이어 행동 트리(광물 탐색 → 이동 → 채굴) 시작
             playerController.StartBehaviour();
+
+            // 손패를 좌측부터 순차로 깔아줍니다.
+            if (cardHandController != null)
+                cardHandController.StartHand();
         }
 
         // (테스트 버튼용) 현재 타겟 광물을 제외한 무작위 광물로 플레이어가 이동하게 합니다.
@@ -228,6 +239,10 @@ namespace Scene.InGame
             // 떠 있는 플로팅 데미지 연출도 함께 멈춥니다.
             if (damageController != null)
                 damageController.SetPaused(paused);
+
+            // 정지 중에는 카드도 만질 수 없게 합니다.
+            if (cardHandController != null)
+                cardHandController.SetPaused(paused);
         }
 
         // 다음 스테이지로 넘어갈 때(또는 Reset 버튼) 호출됩니다.
@@ -239,6 +254,10 @@ namespace Scene.InGame
 
             CoverUIManager.Instance.CoverUI.Show(() => 
             {
+                // 화면이 덮인 동안 손패를 감춥니다(밝아질 때 이전 카드가 보이지 않도록).
+                if (cardHandController != null)
+                    cardHandController.HideHand();
+
                 // 스폰 루프 중지 + 활성 몬스터 전부 풀로 반환
                 monsterController.StopSpawn();
 
