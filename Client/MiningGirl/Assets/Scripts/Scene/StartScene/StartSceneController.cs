@@ -42,6 +42,10 @@ namespace Scene.StartScene
         {
             Application.targetFrameRate = 120;
 
+            // 플레이 중 화면이 꺼지지 않도록 합니다.
+            // 자동 채굴이라 손을 대지 않는 시간이 길어서, 기본 설정이면 화면이 꺼져버립니다.
+            Screen.sleepTimeout = SleepTimeout.NeverSleep;
+
             // 메인씬 재진입 시 예외.
             if (CoverUIManager.Instance.CoverUI != null && CoverUIManager.Instance.CoverUI.gameObject.activeInHierarchy)
             {
