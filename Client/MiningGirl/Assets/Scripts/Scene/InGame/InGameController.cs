@@ -40,6 +40,9 @@ namespace Scene.InGame
         [SerializeField]
         [Tooltip("터치 공격 입력 (팝업 중 정지용)")]
         private Scene.InGame.Entity.Touch.TouchEntityController touchController;
+        [SerializeField]
+        [Tooltip("일시정지 테스트 버튼의 라벨 (선택)")]
+        private TMPro.TMP_Text pauseButtonText;
         
         // Next()에서 재시작할 때 재사용하기 위해 플레이어 엔티티를 보관합니다.
         private IEntity _playerEntity;
@@ -140,6 +143,34 @@ namespace Scene.InGame
         }
 
         // (테스트 버튼용) 경험치를 즉시 지급합니다.
+        // 수동 일시정지 상태 (테스트 버튼용)
+        private bool _isManualPaused;
+        public bool IsManualPaused => _isManualPaused;
+
+        // 일시정지 <-> 재개 토글.
+        // 레벨업 팝업이 떠 있는 동안에는 그쪽이 정지를 제어하므로 무시합니다.
+        public void OnClickTogglePause()
+        {
+            if (!IsInitialized)
+                return;
+
+            if (_isLevelUpSequenceActive)
+            {
+                Debug.Log("[Pause] 레벨업 진행 중에는 일시정지를 사용할 수 없습니다.");
+                return;
+            }
+
+            _isManualPaused = !_isManualPaused;
+            SetGamePaused(_isManualPaused);
+            UpdatePauseButtonText();
+        }
+
+        private void UpdatePauseButtonText()
+        {
+            if (pauseButtonText != null)
+                pauseButtonText.text = _isManualPaused ? "재개" : "일시정지";
+        }
+
         public void OnClickAddExp1()
         {
             uIController.AddExp(1);
@@ -193,6 +224,10 @@ namespace Scene.InGame
 
             if (touchController != null)
                 touchController.SetPaused(paused);
+
+            // 떠 있는 플로팅 데미지 연출도 함께 멈춥니다.
+            if (damageController != null)
+                damageController.SetPaused(paused);
         }
 
         // 다음 스테이지로 넘어갈 때(또는 Reset 버튼) 호출됩니다.
@@ -215,6 +250,10 @@ namespace Scene.InGame
 
                 // 플레이어 행동 정지 + 진행 중이던 채굴/타겟 초기화
                 // (방금 풀로 되돌린 광물을 계속 때리는 것을 방지합니다.)
+                // 재시작 시 수동 일시정지는 해제합니다.
+                _isManualPaused = false;
+                UpdatePauseButtonText();
+
                 playerController.StopBehaviour();
 
                 // 체력과 무적/다운 상태도 초기화합니다.

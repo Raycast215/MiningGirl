@@ -13,6 +13,8 @@ namespace InGame.temp.System.FloatingDamage
         private TMP_Text damageText;
 
         private Tween _damageTween;
+        private Tween _scaleTween;
+        private bool _isPaused;
         
         public void Init(int damage, Vector3 position, Action<Damage> onReleased, bool isCritical = false)
         {
@@ -33,14 +35,40 @@ namespace InGame.temp.System.FloatingDamage
             if (isCritical)
             {
                 transform.localScale = Vector3.one * 3.0f;
-                transform.DOScale(Vector3.one, 0.5f).SetDelay(0.1f);
+                _scaleTween?.Kill();
+                _scaleTween = transform.DOScale(Vector3.one, 0.5f).SetDelay(0.1f);
             }
             else
             {
                 transform.localScale = Vector3.one;
             }
+
+            // 정지 중에 생성되면 곧바로 멈춘 상태로 시작합니다.
+            ApplyPause();
         }
         
+        // 게임이 멈춘 동안 떠오르는 연출도 함께 멈춥니다.
+        // (DOTween은 프로젝트의 정지 플래그와 무관하게 돌기 때문에 직접 제어해야 합니다.)
+        public void SetPaused(bool paused)
+        {
+            _isPaused = paused;
+            ApplyPause();
+        }
+
+        private void ApplyPause()
+        {
+            if (_isPaused)
+            {
+                _damageTween?.Pause();
+                _scaleTween?.Pause();
+            }
+            else
+            {
+                _damageTween?.Play();
+                _scaleTween?.Play();
+            }
+        }
+
         private void Clear()
         {
             gameObject.SetActive(false);
@@ -56,6 +84,8 @@ namespace InGame.temp.System.FloatingDamage
 
             _damageTween?.Kill();
             _damageTween = null;
+            _scaleTween?.Kill();
+            _scaleTween = null;
             Clear();
         }
     }

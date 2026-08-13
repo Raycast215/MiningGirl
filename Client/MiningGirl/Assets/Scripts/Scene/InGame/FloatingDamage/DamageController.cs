@@ -11,6 +11,9 @@ namespace InGame.temp.System.FloatingDamage
         private int poolCount = 10;
         
         private Queue<Damage> _queue;
+
+        // 게임이 멈춘 동안 플로팅 데미지 연출도 멈춥니다.
+        private bool _isPaused;
         
         public void InitAsync()
         {
@@ -41,8 +44,25 @@ namespace InGame.temp.System.FloatingDamage
             }
       
             dmg.Init(damage, pos, PoolRelease, isCritical);
+
+            if (_isPaused)
+                dmg.SetPaused(true);
         }
         
+        // 화면에 떠 있는 모든 플로팅 데미지의 연출을 멈추거나 재개합니다.
+        public void SetPaused(bool paused)
+        {
+            _isPaused = paused;
+
+            foreach (var damage in GetComponentsInChildren<Damage>(true))
+            {
+                if (!damage.gameObject.activeSelf)
+                    continue;
+
+                damage.SetPaused(paused);
+            }
+        }
+
         private void LoadDamageObject()
         {
             _queue ??= new Queue<Damage>();
