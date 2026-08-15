@@ -23,6 +23,7 @@ namespace MainGame.Card
                 { ESkillType.ExpGainUp,     new ExpGainUpSkillEffect() },
 
                 { ESkillType.Heal,          new HealSkillEffect() },
+                { ESkillType.TargetChange,  new TargetChangeSkillEffect() },
             };
 
         public static ISkillCardEffect Get(ESkillType type)

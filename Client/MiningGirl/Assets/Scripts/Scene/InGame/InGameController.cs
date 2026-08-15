@@ -158,14 +158,6 @@ namespace Scene.InGame
                 cardHandController.StartHand();
         }
 
-        // (테스트 버튼용) 현재 타겟 광물을 제외한 무작위 광물로 플레이어가 이동하게 합니다.
-        // 씬의 Test 버튼 onClick에 이 메서드를 연결합니다.
-        public void OnClickMoveToRandomResource()
-        {
-            if (_playerEntity is Player player)
-                player.MoveToRandomResource();
-        }
-
         // (테스트 버튼용) 경험치를 즉시 지급합니다.
         // 수동 일시정지 상태 (테스트 버튼용)
         private bool _isManualPaused;
@@ -195,19 +187,9 @@ namespace Scene.InGame
                 pauseButtonText.text = _isManualPaused ? "▶" : "II";
         }
 
-        public void OnClickAddExp1()
-        {
-            uIController.AddExp(1);
-        }
-
         public void OnClickAddExp100()
         {
             uIController.AddExp(100);
-        }
-
-        public void OnClickAddExp5()
-        {
-            uIController.AddExp(5);
         }
 
         // 레벨업 연출이 한 단계 끝날 때마다 호출됩니다.

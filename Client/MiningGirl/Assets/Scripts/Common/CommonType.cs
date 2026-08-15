@@ -96,5 +96,7 @@ public enum ESkillType
     MiningSpeedUp,  // 채굴속도 증가
     GoldGainUp,     // 골드 획득량 증가
     ExpGainUp,      // 경험치 획득량 증가
-    Heal            // 체력 회복
+    
+    Heal,           // 체력 회복
+    TargetChange,   // 근처 광물로 이동
 }

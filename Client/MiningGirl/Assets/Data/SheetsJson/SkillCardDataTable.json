@@ -1,5 +1,6 @@
 [
 {
+  "AssetId": "Skill_Icon_1003",
   "Cost": 3,
   "Desc": "주변의 적을 밀쳐내고 데미지 {0} 공격",
   "DurationTime": -1,
@@ -12,6 +13,7 @@
   "Weight": 100
 },
 {
+  "AssetId": null,
   "Cost": 1,
   "Desc": "가까운 적 하나를 데미지 {0} 공격",
   "DurationTime": -1,
@@ -24,6 +26,7 @@
   "Weight": 100
 },
 {
+  "AssetId": null,
   "Cost": 3,
   "Desc": "가까운 적 하나를 데미지 {0} 두번 공격",
   "DurationTime": -1,
@@ -36,9 +39,10 @@
   "Weight": 100
 },
 {
+  "AssetId": null,
   "Cost": 3,
   "Desc": "{1}초 동안 이동속도 {0}% 증가",
-  "DurationTime": 5,
+  "DurationTime": 10,
   "EffectRange": -1,
   "EffectValue": 10,
   "Id": 2000,
@@ -48,9 +52,10 @@
   "Weight": 100
 },
 {
+  "AssetId": null,
   "Cost": 3,
   "Desc": "{1}초 동안 채굴속도 {0}% 증가",
-  "DurationTime": 5,
+  "DurationTime": 10,
   "EffectRange": -1,
   "EffectValue": 10,
   "Id": 2001,
@@ -60,9 +65,10 @@
   "Weight": 100
 },
 {
+  "AssetId": null,
   "Cost": 3,
   "Desc": "{1}초 동안 골드 획득량 {0}% 증가",
-  "DurationTime": 5,
+  "DurationTime": 10,
   "EffectRange": -1,
   "EffectValue": 10,
   "Id": 2002,
@@ -72,9 +78,10 @@
   "Weight": 100
 },
 {
+  "AssetId": null,
   "Cost": 3,
   "Desc": "{1}초 동안 경험치 획득량 {0}% 증가",
-  "DurationTime": 5,
+  "DurationTime": 10,
   "EffectRange": -1,
   "EffectValue": 10,
   "Id": 2003,
@@ -84,6 +91,7 @@
   "Weight": 100
 },
 {
+  "AssetId": null,
   "Cost": 3,
   "Desc": "체력 {0}% 회복",
   "DurationTime": -1,
@@ -93,6 +101,19 @@
   "Name": "힐",
   "SkillCategoryType": "Assist",
   "SkillType": "Heal",
+  "Weight": 100
+},
+{
+  "AssetId": null,
+  "Cost": 3,
+  "Desc": "근처 광물로 이동",
+  "DurationTime": -1,
+  "EffectRange": -1,
+  "EffectValue": -1,
+  "Id": 3001,
+  "Name": "이동",
+  "SkillCategoryType": "Assist",
+  "SkillType": "TargetChange",
   "Weight": 100
 }
 ]

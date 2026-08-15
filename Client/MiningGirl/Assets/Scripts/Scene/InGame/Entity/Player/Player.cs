@@ -226,49 +226,81 @@ namespace Scene.InGame.Entity.Player
             SetTarget(null);
         }
 
-        // (테스트용) 현재 타겟 광물을 제외한 나머지 활성 광물 중 하나를 무작위로 골라 타겟으로 지정합니다.
-        // SearchTargetNode는 타겟이 살아있으면 유지하므로, 여기서 강제로 바꾼 타겟 쪽으로 이동하게 됩니다.
-        public void MoveToRandomResource()
+        // '이동' 카드용 — 현재 타겟을 제외하고 '가장 안전한 광물'로 타겟을 바꿉니다.
+        //
+        // 안전도는 광물 주변 몬스터 수로 판단하고, 같으면 가까운 쪽을 고릅니다.
+        // 화면 밖 광물도 후보에 포함합니다(도망칠 때는 근처가 이미 위험하기 때문).
+        // 옮길 곳이 없으면 false를 돌려주고, 카드는 소모되지 않습니다.
+        public bool MoveToSafestResource(IReadOnlyList<IEntity> monsters, float dangerRadius)
         {
             var resources = _resourceProvider?.GetActiveResources();
             if (resources == null || resources.Count == 0)
-                return;
+                return false;
 
             var current = GetTarget();
+            var origin = GetPosition();
 
-            // 현재 타겟을 제외한 활성 광물 후보를 모읍니다.
-            var candidates = new List<IEntity>(resources.Count);
+            IEntity best = null;
+            var bestDanger = int.MaxValue;
+            var bestDistance = float.MaxValue;
+
             foreach (var resource in resources)
             {
                 if (resource == null || !resource.GetActiveState())
                     continue;
+
                 if (resource == current)
                     continue;
 
-                candidates.Add(resource);
+                var pos = resource.GetPosition();
+
+                // 이 광물 주변의 몬스터 수 = 위험도
+                var danger = 0;
+                if (monsters != null)
+                {
+                    foreach (var monster in monsters)
+                    {
+                        if (monster == null || !monster.GetActiveState())
+                            continue;
+
+                        if (Vector3.Distance(pos, monster.GetPosition()) <= dangerRadius)
+                            danger++;
+                    }
+                }
+
+                var distance = Vector3.Distance(origin, pos);
+
+                // 더 안전한 곳 우선, 같으면 더 가까운 곳
+                if (danger > bestDanger)
+                    continue;
+
+                if (danger == bestDanger && distance >= bestDistance)
+                    continue;
+
+                best = resource;
+                bestDanger = danger;
+                bestDistance = distance;
             }
 
-            if (candidates.Count == 0)
-                return;
+            if (best == null)
+                return false;
 
-            var pick = candidates[UnityEngine.Random.Range(0, candidates.Count)];
-            SetTarget(pick);
+            SetTarget(best);
+
+            return true;
         }
-        
+
 #region EntityBase
 
         public override async UniTaskVoid InitAsync()
         {
             base.InitAsync().Forget();
-            
-            // 가장 가까운 광물을 찾아 그 쪽으로 이동하는 행동 트리를 구성합니다.
-            // 시퀀스: 타겟(가장 가까운 광물) 탐색 → 그 타겟을 향해 이동.
-            // (채굴 공격 노드는 다음 단계에서 이어붙일 예정이라 지금은 이동까지만 연결합니다.)
+
+            // 가장 가까운 광물을 찾아 이동하고, 사거리에 들면 채굴하는 행동 트리입니다.
+            // MoveNode는 도달 전엔 Running을 돌려 시퀀스를 멈추므로 AttackNode는 도착 후에만 실행됩니다.
             _targetSearchNode = new SearchTargetNode(this, _resourceProvider);
             _attackNode = new AttackNode(this);
 
-            // 시퀀스: 타겟(가장 가까운 광물) 탐색 → 그 타겟을 향해 이동 → 사거리 안에 들면 채굴(공격).
-            // MoveNode는 도달 전엔 Running을 돌려 시퀀스를 멈추므로, AttackNode는 광물에 도착한 뒤에만 실행됩니다.
             NodeRunner = new NodeRunner(new SequenceNode(new List<INode>
             {
                 new ActionNode(_targetSearchNode.ProcessNode),

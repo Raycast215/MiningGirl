@@ -124,6 +124,37 @@ namespace MainGame.Card
             HideRemoveUIImmediate();
         }
 
+        private void Update()
+        {
+            if (!IsInitialized)
+                return;
+
+            RefreshAvailability();
+        }
+
+        // 평소에는 '코스트가 되는지'만 갱신합니다.
+        // 대상 유무까지 보면 몬스터가 화면을 드나들 때마다 카드가 깜빡입니다.
+        private void RefreshAvailability()
+        {
+            foreach (var card in cards)
+            {
+                if (card == null)
+                    continue;
+
+                var cost = GetCardCost(card);
+
+                card.SetAvailable(!_isPaused && CanAfford(cost));
+            }
+        }
+
+        private int GetCardCost(CardView card)
+        {
+            if (_cardData.TryGetValue(card, out var row) && row != null && row.Cost > 0)
+                return row.Cost;
+
+            return useCost;
+        }
+
         // 게임 시작 시점에 손패를 좌측부터 순차로 깔아줍니다.
         public void StartHand()
         {
@@ -179,6 +210,11 @@ namespace MainGame.Card
 
             _draggingCard = card;
 
+            // 코스트가 모자란 카드를 잡으면 짧게 흔들어 알려줍니다.
+            // (끌어서 버리는 건 가능하므로 드래그 자체를 막지는 않습니다.)
+            if (!CanAfford(GetCardCost(card)))
+                card.PlayUnavailableShake();
+
             // 다른 카드는 잠가서 두 번째 손가락이 다른 카드를 집지 못하게 합니다.
             SetOthersInteractable(card, false);
 
@@ -191,10 +227,15 @@ namespace MainGame.Card
                 return;
 
             // 아래로 충분히 끌어내렸으면 안내 UI를 띄웁니다.
-            if (IsDiscardDrag(card))
+            var isDiscard = IsDiscardDrag(card);
+
+            if (isDiscard)
                 ShowRemoveUI();
             else
                 HideRemoveUI();
+
+            // 끌고 있는 동안에만 '지금 놓으면 되는지'를 프레임 색으로 알려줍니다.
+            card.SetDragFeedback(isDiscard ? CanAfford(discardCost) : CanUseNow(card));
         }
 
         private void OnDragEnd(CardView card)
@@ -222,7 +263,7 @@ namespace MainGame.Card
                 {
                     Debug.Log($"[Card] 버리기 실패 — 코스트 부족 (필요 {discardCost})");
 
-                    card.ReturnHome();
+                    card.PlayFail("코스트 부족");
                     return;
                 }
 
@@ -302,6 +343,20 @@ namespace MainGame.Card
             return RectTransformUtility.WorldToScreenPoint(cam, card.Contents.position);
         }
 
+        // 지금 이 카드를 쓸 수 있는지(코스트 + 대상 조건)
+        private bool CanUseNow(CardView card)
+        {
+            if (!_cardData.TryGetValue(card, out var row) || row == null)
+                return false;
+
+            if (!CanAfford(GetCardCost(card)))
+                return false;
+
+            var effect = SkillCardEffectFactory.Get(row.SkillType);
+
+            return effect != null && effect.CanExecute(_skillContext, row);
+        }
+
         // 카드 사용 시도. 순서가 중요합니다.
         //  1) 효과를 쓸 수 있는 상황인지 확인 (예: 때릴 적이 화면에 있는지)
         //  2) 코스트 확인·소모
@@ -325,7 +380,7 @@ namespace MainGame.Card
             {
                 Debug.Log($"[Card] 사용 실패 — {row.Name} 를 쓸 대상/조건이 없습니다.");
 
-                card.ReturnHome();
+                card.PlayFail("대상 없음");
                 return;
             }
 
@@ -335,7 +390,7 @@ namespace MainGame.Card
             {
                 Debug.Log($"[Card] 사용 실패 — 코스트 부족 (필요 {cost})");
 
-                card.ReturnHome();
+                card.PlayFail("코스트 부족");
                 return;
             }
 
@@ -397,6 +452,9 @@ namespace MainGame.Card
                 card.SetCardData(row);
             else
                 card.SetContent($"CARD {_drawCount}", "-");
+
+            // 새 카드의 코스트로 먼저 판정해야 드로우 페이드가 올바른 밝기로 끝납니다.
+            card.SetAvailable(!_isPaused && CanAfford(GetCardCost(card)));
 
             if (playAnimation)
                 card.PlayDraw(delay);

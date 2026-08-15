@@ -1,5 +1,7 @@
+#nullable enable
 using System;
 using System.Collections.Generic;
+using JetBrains.Annotations;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
@@ -20,6 +22,7 @@ namespace Data
         public float EffectRange { get; set; }
         public float EffectValue { get; set; }
         public int Weight { get; set; }
+        public string AssetId { get; set; }
     }
     
     public class SkillCardDataTable : DataTableBase<SkillCardDataTableRow>
