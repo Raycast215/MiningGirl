@@ -99,4 +99,7 @@ public enum ESkillType
     
     Heal,           // 체력 회복
     TargetChange,   // 근처 광물로 이동
+    CostUp,         // 코스트 즉시 획득
+    FireBall,       // 놓은 자리에 불덩이 소환(지속 피해)
+    SpecialResource,// 놓은 자리에 황금 광물 소환
 }

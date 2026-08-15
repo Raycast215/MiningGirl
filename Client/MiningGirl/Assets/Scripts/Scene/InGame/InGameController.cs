@@ -69,7 +69,9 @@ namespace Scene.InGame
                     getMonsters: () => monsterController.ActivateList.ConvertAll(m => (Scene.InGame.Entity.Interface.IEntity)m),
                     buffs: levelUpController.StatContext.Buffs,
                     healPlayerByRatio: playerController.HealPlayerByRatio,
-                    camera: Camera.main);
+                    camera: Camera.main,
+                    addCost: amount => uIController.AddCost(amount),
+                    spawnSpecialResource: SpawnSpecialResource);
 
                 cardHandController.Init(uIController.CanAffordCost, uIController.TrySpendCost, skillContext);
             }
@@ -153,9 +155,31 @@ namespace Scene.InGame
             // 플레이어 행동 트리(광물 탐색 → 이동 → 채굴) 시작
             playerController.StartBehaviour();
 
-            // 손패를 좌측부터 순차로 깔아줍니다.
+
+        // 손패를 좌측부터 순차로 깔아줍니다.
             if (cardHandController != null)
                 cardHandController.StartHand();
+        }
+
+        // '특수 광물' 카드용 — 지정한 자리에 광물을 소환하고 바로 그것을 캐러 가게 합니다.
+        private void SpawnSpecialResource(Vector3 position)
+        {
+            SpawnSpecialResourceAsync(position).Forget();
+        }
+
+        private async UniTaskVoid SpawnSpecialResourceAsync(Vector3 position)
+        {
+            var resource = await resourceController.Spawn(position);
+
+            if (resource == null)
+            {
+                Debug.LogWarning("[Card] 특수 광물을 소환하지 못했습니다.");
+                return;
+            }
+
+            // 소환한 광물을 즉시 채굴 타겟으로 지정합니다.
+            if (_playerEntity is Player player)
+                player.SetTarget(resource);
         }
 
         // (테스트 버튼용) 경험치를 즉시 지급합니다.

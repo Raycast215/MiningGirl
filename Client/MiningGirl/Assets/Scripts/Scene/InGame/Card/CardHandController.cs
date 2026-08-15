@@ -352,6 +352,9 @@ namespace MainGame.Card
             if (!CanAfford(GetCardCost(card)))
                 return false;
 
+            // 소환 계열 스킬이 '놓은 자리'를 알 수 있게 먼저 알려줍니다.
+            _skillContext?.SetDropScreenPosition(GetScreenPosition(card));
+
             var effect = SkillCardEffectFactory.Get(row.SkillType);
 
             return effect != null && effect.CanExecute(_skillContext, row);
@@ -373,6 +376,9 @@ namespace MainGame.Card
                 card.ReturnHome();
                 return;
             }
+
+            // 소환 계열 스킬이 '놓은 자리'를 알 수 있게 먼저 알려줍니다.
+            _skillContext?.SetDropScreenPosition(GetScreenPosition(card));
 
             var effect = SkillCardEffectFactory.Get(row.SkillType);
 

@@ -24,6 +24,9 @@ namespace MainGame.Card
 
                 { ESkillType.Heal,          new HealSkillEffect() },
                 { ESkillType.TargetChange,  new TargetChangeSkillEffect() },
+                { ESkillType.CostUp,        new CostUpSkillEffect() },
+                { ESkillType.FireBall,      new FireBallSkillEffect() },
+                { ESkillType.SpecialResource, new SpecialResourceSkillEffect() },
             };
 
         public static ISkillCardEffect Get(ESkillType type)

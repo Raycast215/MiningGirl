@@ -29,13 +29,48 @@ namespace MainGame.Card
         // 카메라 (화면 안 판정용)
         public Camera Camera { get; }
 
+        // 카드를 놓은 지점(월드 좌표). 소환 계열 스킬이 씁니다.
+        // 드롭 위치를 못 구하면 플레이어 위치로 대체됩니다.
+        public Vector3 DropWorldPosition { get; private set; }
+
+        // 코스트 지급 (코스트 카드용)
+        public Action<int> AddCost { get; }
+
+        // 지정한 위치에 광물을 소환하고, 캐릭터가 그것을 우선 채굴하게 합니다.
+        public Action<Vector3> SpawnSpecialResource { get; }
+
+        // 카드를 놓은 화면 좌표를 월드 좌표로 바꿔 기억합니다.
+        public void SetDropScreenPosition(Vector2 screenPosition)
+        {
+            var player = Player;
+            var fallback = player != null ? player.GetPosition() : Vector3.zero;
+
+            if (Camera == null)
+            {
+                DropWorldPosition = fallback;
+                return;
+            }
+
+            // 2D라 카메라와 게임 평면의 거리를 깊이로 씁니다.
+            var depth = Mathf.Abs(Camera.transform.position.z - fallback.z);
+            var world = Camera.ScreenToWorldPoint(new Vector3(screenPosition.x, screenPosition.y, depth));
+
+            world.z = fallback.z;
+
+            DropWorldPosition = world;
+        }
+
         public SkillCardContext(
             Func<IEntity> getPlayer,
             Func<IReadOnlyList<IEntity>> getMonsters,
             TemporaryBuffState buffs,
             Action<float> healPlayerByRatio,
-            Camera camera)
+            Camera camera,
+            Action<int> addCost = null,
+            Action<Vector3> spawnSpecialResource = null)
         {
+            AddCost = addCost;
+            SpawnSpecialResource = spawnSpecialResource;
             _getPlayer = getPlayer;
             GetMonsters = getMonsters;
             Buffs = buffs;

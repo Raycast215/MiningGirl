@@ -21,6 +21,10 @@ namespace MainGame.UI
         [Tooltip("코스트 1이 차오르는 데 걸리는 시간(초)")]
         private float regenInterval = 3.0f;
 
+        [SerializeField]
+        [Tooltip("스테이지 후반에 적용되는 회복 속도 배율(2면 두 배 빨라짐)")]
+        private float lateStageSpeedMultiplier = 2f;
+
         // 현재 보유 코스트
         public int Cost { get; private set; }
         // 최대치를 초과한 상태인지 (보스전 오버차지)
@@ -28,6 +32,9 @@ namespace MainGame.UI
 
         private float _regenTimer;
         private bool _isPaused;
+
+        // 후반 가속이 켜졌는지
+        private bool _isSpeedUp;
         private CancellationTokenSource _cts;
 
         public void Init(Action<int> onCostChanged = null)
@@ -43,6 +50,9 @@ namespace MainGame.UI
         // 코스트를 지정 값으로 초기화합니다(스테이지 시작/리셋 등).
         public void SetCost(int cost)
         {
+            // 스테이지가 새로 시작되면 가속도 초기화됩니다.
+            _isSpeedUp = false;
+
             Dispose();
 
             Cost = Mathf.Max(0, cost);
@@ -89,9 +99,11 @@ namespace MainGame.UI
 
                     _regenTimer += Time.deltaTime;
 
-                    while (_regenTimer >= regenInterval && Cost < maxCost)
+                    var interval = CurrentRegenInterval;
+
+                    while (_regenTimer >= interval && Cost < maxCost)
                     {
-                        _regenTimer -= regenInterval;
+                        _regenTimer -= interval;
                         Cost++;
                         OnCostChanged?.Invoke(Cost);
                     }
@@ -104,6 +116,33 @@ namespace MainGame.UI
                 // 취소되면 조용히 종료합니다.
             }
         }
+
+        // 지금 적용 중인 회복 간격. 후반에는 배율만큼 짧아집니다.
+        private float CurrentRegenInterval
+        {
+            get
+            {
+                if (!_isSpeedUp)
+                    return regenInterval;
+
+                var multiplier = Mathf.Max(0.01f, lateStageSpeedMultiplier);
+
+                return Mathf.Max(0.05f, regenInterval / multiplier);
+            }
+        }
+
+        // 스테이지 후반 코스트 가속을 켜고 끕니다.
+        public void SetSpeedUp(bool value)
+        {
+            if (_isSpeedUp == value)
+                return;
+
+            _isSpeedUp = value;
+
+            Debug.Log($"[Cost] 회복 가속 {(value ? "ON" : "OFF")} — 간격 {CurrentRegenInterval:F2}초");
+        }
+
+        public bool IsSpeedUp => _isSpeedUp;
 
         // 코스트가 충분한지 확인합니다(카드 사용 가능 여부 판단용).
         public bool CanAfford(int amount)

@@ -29,6 +29,11 @@ namespace MainGame
         private StageUI stageUI;
         [SerializeField]
         private BuffListUI buffListUI;
+
+        [SerializeField]
+        [Tooltip("이 진행도를 넘기면 코스트 회복이 빨라집니다(0.5 = 절반 경과)")]
+        [Range(0f, 1f)]
+        private float costSpeedUpProgress = 0.5f;
         [SerializeField]
         private CostUI costUI;
         [SerializeField]
@@ -123,6 +128,16 @@ namespace MainGame
         public void ShowCharacterSelect(Action<CharacterStatDataRow> onSelected)
         {
             characterSelectPopup.Show(onSelected);
+        }
+
+        // 스테이지가 절반을 넘기면 코스트 회복을 가속합니다.
+        // 후반에 몬스터가 몰릴수록 카드를 더 자주 쓸 수 있게 하려는 의도입니다.
+        private void Update()
+        {
+            if (!IsInitialized || timerUI == null || costUI == null)
+                return;
+
+            costUI.SetSpeedUp(timerUI.Progress >= costSpeedUpProgress);
         }
 
         // 카드 버프 표시를 시작합니다.

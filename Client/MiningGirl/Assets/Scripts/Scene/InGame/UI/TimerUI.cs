@@ -19,6 +19,12 @@ namespace MainGame.UI
         
         private float _time;
         private bool _isPaused;
+
+        // 스테이지 전체 시간(진행도 계산용)
+        private float _totalTime;
+
+        // 0(시작) ~ 1(종료)까지의 진행도
+        public float Progress => _totalTime <= 0f ? 0f : Mathf.Clamp01(1f - _time / _totalTime);
         private CancellationTokenSource _cts;
         private RectTransform _rect;
         
@@ -37,6 +43,7 @@ namespace MainGame.UI
             Dispose();
             
             _time = time;
+            _totalTime = time;
             _cts = new CancellationTokenSource();
             
             UpdateTime();
