@@ -10,6 +10,9 @@ namespace MainGame.Bonus
         public CharacterStatDataRow BaseStat { get; private set; }
         public LevelUpBonusState Bonus { get; }
 
+        // 카드로 걸리는 일시 버프. 영구 성장(Bonus)과 계층이 다릅니다.
+        public TemporaryBuffState Buffs { get; } = new TemporaryBuffState();
+
         public CharacterStatContext(LevelUpBonusState bonus)
         {
             Bonus = bonus;
@@ -23,6 +26,18 @@ namespace MainGame.Bonus
         public void SetCharacter(CharacterStatDataRow row)
         {
             BaseStat = row;
+        }
+
+        // 카드 버프로 인한 골드 획득 배율
+        public float GetGoldGainMultiplier()
+        {
+            return Buffs.GetMultiplier(TemporaryBuffState.EBuffType.GoldGain);
+        }
+
+        // 카드 버프로 인한 경험치 획득 배율
+        public float GetExpGainMultiplier()
+        {
+            return Buffs.GetMultiplier(TemporaryBuffState.EBuffType.ExpGain);
         }
 
         // 최대 체력 = 캐릭터 기본값 + 레벨업 합연산
@@ -49,7 +64,10 @@ namespace MainGame.Bonus
         public float GetAttackDelay()
         {
             var baseValue = BaseStat?.AttackDelay ?? 2f;
-            var speed = Mathf.Max(0.01f, Bonus?.MiningSpeedMultiplier ?? 1f);
+
+            var speed = Mathf.Max(0.01f,
+                (Bonus?.MiningSpeedMultiplier ?? 1f)
+                * Buffs.GetMultiplier(TemporaryBuffState.EBuffType.MiningSpeed));
 
             return Mathf.Max(0.2f, baseValue / speed);
         }
@@ -57,7 +75,10 @@ namespace MainGame.Bonus
         public float GetMoveSpeed()
         {
             var baseValue = BaseStat?.MoveSpeed ?? 1f;
-            return baseValue * (Bonus?.MoveSpeedMultiplier ?? 1f);
+
+            return baseValue
+                   * (Bonus?.MoveSpeedMultiplier ?? 1f)
+                   * Buffs.GetMultiplier(TemporaryBuffState.EBuffType.MoveSpeed);
         }
 
         public float GetAttackDistance()

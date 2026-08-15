@@ -37,8 +37,13 @@ namespace Scene.InGame.Entity.Player
         private float downDuration = 3f;
         [SerializeField]
         [Range(0.05f, 1f)]
-        [Tooltip("쓰러진 뒤 회복될 체력 비율(최대 체력 대비). 0.3이면 30%로 일어납니다.")]
-        private float reviveHealthRatio = 0.3f;
+        [Tooltip("쓰러진 뒤 회복될 체력 비율(최대 체력 대비). 0.1이면 10%로 일어납니다.")]
+        private float reviveHealthRatio = 0.1f;
+
+        [SerializeField]
+        [Range(1f, 4f)]
+        [Tooltip("기상 직후 무적 시간 배율. 체력이 적게 회복되는 대신 빠져나갈 시간을 줍니다.")]
+        private float reviveInvincibleMultiplier = 2f;
 
         // 남은 무적 시간 / 남은 다운 시간
         private float _invincibleTimer;
@@ -101,10 +106,27 @@ namespace Scene.InGame.Entity.Player
                 _blinkTween.Play();
         }
 
+        // 최대 체력 대비 비율만큼 회복합니다(회복 카드용).
+        // 쓰러져 있는 동안에는 회복해도 일어나지 않으므로 무시합니다.
+        public void HealByRatio(float ratio)
+        {
+            if (BaseData == null || ratio <= 0f || IsDown)
+                return;
+
+            var amount = MaxHealth * ratio;
+
+            BaseData.Health = Mathf.Min(MaxHealth, BaseData.Health + amount);
+
+            RefreshStatus();
+        }
+
         // 매 프레임 무적/다운 시간을 흘려보냅니다. PlayerController.Update에서 호출합니다.
         public void UpdateStatus(float deltaTime)
         {
             SyncMaxHealth();
+
+            // 카드 버프 지속시간도 함께 흘려보냅니다(정지 중에는 호출되지 않음).
+            _statContext?.Buffs?.Update(deltaTime);
 
             if (_invincibleTimer > 0f)
             {
@@ -123,7 +145,9 @@ namespace Scene.InGame.Entity.Player
                     // 쓰러진 시간이 끝나면 최대 체력의 일정 비율로 일어납니다.
                     // (고정 1로 일어나면 곧바로 다시 쓰러지는 반복이 생겨 비율로 바꿨습니다.)
                     BaseData.Health = Mathf.Max(1f, MaxHealth * reviveHealthRatio);
-                    _invincibleTimer = GetInvincibleDuration();
+
+                    // 체력은 조금만 회복되지만, 그만큼 무적 시간을 길게 줘서 빠져나갈 틈을 만듭니다.
+                    _invincibleTimer = GetInvincibleDuration() * reviveInvincibleMultiplier;
                     PlayBlink();
                 }
             }

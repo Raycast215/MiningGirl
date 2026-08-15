@@ -27,6 +27,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - DataTable
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5b882d54e39d8234bbefbee55bd2848f
+    m_Address: SkillCardDataTable
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - DataTable
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 6003c4fe78e3e3145a7ff0d770ccc648
     m_Address: CharacterStatGrowthDataTable
     m_ReadOnly: 0

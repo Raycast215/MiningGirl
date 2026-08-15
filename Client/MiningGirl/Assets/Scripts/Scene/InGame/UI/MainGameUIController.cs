@@ -28,6 +28,8 @@ namespace MainGame
         [SerializeField]
         private StageUI stageUI;
         [SerializeField]
+        private BuffListUI buffListUI;
+        [SerializeField]
         private CostUI costUI;
         [SerializeField]
         private LevelExpUI levelExpUI;
@@ -121,6 +123,13 @@ namespace MainGame
         public void ShowCharacterSelect(Action<CharacterStatDataRow> onSelected)
         {
             characterSelectPopup.Show(onSelected);
+        }
+
+        // 카드 버프 표시를 시작합니다.
+        public void InitBuffList(MainGame.Bonus.TemporaryBuffState buffs)
+        {
+            if (buffListUI != null)
+                buffListUI.Init(buffs);
         }
 
         // 현재 스테이지 번호

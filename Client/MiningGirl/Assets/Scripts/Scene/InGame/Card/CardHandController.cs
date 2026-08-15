@@ -1,4 +1,6 @@
 using System;
+using Data;
+using Manager;
 using System.Collections.Generic;
 using InGame.System.Skill.UI;
 using UnityEngine;
@@ -72,16 +74,23 @@ namespace MainGame.Card
         // 지금 끌고 있는 카드. 멀티터치로 두 장이 동시에 끌리지 않도록 한 장만 허용합니다.
         private CardView _draggingCard;
 
+        // 카드마다 지금 들고 있는 스킬 데이터
+        private readonly Dictionary<CardView, SkillCardDataTableRow> _cardData = new Dictionary<CardView, SkillCardDataTableRow>();
+
+        // 스킬 효과 실행에 필요한 것들
+        private SkillCardContext _skillContext;
+
         private int _drawCount;
         private bool _isPaused;
 
-        public void Init(Func<int, bool> canAffordCost = null, Func<int, bool> trySpendCost = null)
+        public void Init(Func<int, bool> canAffordCost = null, Func<int, bool> trySpendCost = null, SkillCardContext skillContext = null)
         {
             if (IsInitialized)
                 return;
 
             _canAffordCost = canAffordCost;
             _trySpendCost = trySpendCost;
+            _skillContext = skillContext;
 
             if (canvas == null)
                 canvas = GetComponentInParent<Canvas>();
@@ -223,20 +232,10 @@ namespace MainGame.Card
                 return;
             }
 
-            // 위로 충분히 끌어올림 → 사용 (아직 카드 효과가 없어 코스트만 소모)
+            // 위로 충분히 끌어올림 → 사용
             if (deltaY >= Screen.height * useDragRatio)
             {
-                if (!TrySpend(useCost))
-                {
-                    Debug.Log($"[Card] 사용 실패 — 코스트 부족 (필요 {useCost})");
-
-                    card.ReturnHome();
-                    return;
-                }
-
-                Debug.Log($"[Card] 사용 — 슬롯 {card.SlotIndex} (코스트 -{useCost})");
-
-                card.PlayConsume(false, () => OnCardConsumed(card));
+                TryUseCard(card);
                 return;
             }
 
@@ -303,6 +302,50 @@ namespace MainGame.Card
             return RectTransformUtility.WorldToScreenPoint(cam, card.Contents.position);
         }
 
+        // 카드 사용 시도. 순서가 중요합니다.
+        //  1) 효과를 쓸 수 있는 상황인지 확인 (예: 때릴 적이 화면에 있는지)
+        //  2) 코스트 확인·소모
+        //  3) 효과 실행
+        // 1이나 2에서 걸리면 카드도 코스트도 소모되지 않고 제자리로 돌아갑니다.
+        private void TryUseCard(CardView card)
+        {
+            _cardData.TryGetValue(card, out var row);
+
+            if (row == null)
+            {
+                Debug.LogWarning("[Card] 카드 데이터가 없어 사용할 수 없습니다.");
+
+                card.ReturnHome();
+                return;
+            }
+
+            var effect = SkillCardEffectFactory.Get(row.SkillType);
+
+            if (effect == null || !effect.CanExecute(_skillContext, row))
+            {
+                Debug.Log($"[Card] 사용 실패 — {row.Name} 를 쓸 대상/조건이 없습니다.");
+
+                card.ReturnHome();
+                return;
+            }
+
+            var cost = row.Cost > 0 ? row.Cost : useCost;
+
+            if (!TrySpend(cost))
+            {
+                Debug.Log($"[Card] 사용 실패 — 코스트 부족 (필요 {cost})");
+
+                card.ReturnHome();
+                return;
+            }
+
+            effect.Execute(_skillContext, row);
+
+            Debug.Log($"[Card] 사용 — {row.Name} (코스트 -{cost})");
+
+            card.PlayConsume(false, () => OnCardConsumed(card));
+        }
+
         // 손패 전체를 좌측부터 순차적으로 깔아줍니다(게임 시작 / 스테이지 재시작).
         private void DealAll()
         {
@@ -342,15 +385,49 @@ namespace MainGame.Card
             _order.Add(card);
         }
 
-        // 새 카드를 뽑아 슬롯을 채웁니다. 데이터가 붙기 전까지는 번호만 매깁니다.
+        // 새 카드를 뽑아 슬롯을 채웁니다. 스킬 카드 테이블에서 가중치로 고릅니다.
         private void DrawTo(CardView card, bool playAnimation, float delay = 0f)
         {
             _drawCount++;
 
-            card.SetContent($"CARD {_drawCount}", UnityEngine.Random.Range(1, 6).ToString());
+            var row = PickRandomCard();
+            _cardData[card] = row;
+
+            if (row != null)
+                card.SetCardData(row);
+            else
+                card.SetContent($"CARD {_drawCount}", "-");
 
             if (playAnimation)
                 card.PlayDraw(delay);
+        }
+
+        // 가중치 기반으로 카드 한 장을 고릅니다.
+        private SkillCardDataTableRow PickRandomCard()
+        {
+            var table = DataTableManager.Instance?.SkillCardDataTable;
+            if (table?.Rows == null || table.Rows.Count == 0)
+                return null;
+
+            var total = 0;
+            foreach (var row in table.Rows)
+                total += Mathf.Max(0, row.Weight);
+
+            if (total <= 0)
+                return table.Rows[UnityEngine.Random.Range(0, table.Rows.Count)];
+
+            var pick = UnityEngine.Random.Range(0, total);
+            var acc = 0;
+
+            foreach (var row in table.Rows)
+            {
+                acc += Mathf.Max(0, row.Weight);
+
+                if (pick < acc)
+                    return row;
+            }
+
+            return table.Rows[table.Rows.Count - 1];
         }
 
         private void ShowRemoveUI()

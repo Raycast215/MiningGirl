@@ -1,8 +1,10 @@
 using System;
+using Data;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 namespace MainGame.Card
 {
@@ -23,6 +25,19 @@ namespace MainGame.Card
         private TMP_Text nameText;
         [SerializeField]
         private TMP_Text costText;
+        [SerializeField]
+        private TMP_Text descText;
+
+        [Header("Frame")]
+        [SerializeField]
+        [Tooltip("카드 타입별로 색이 바뀌는 테두리")]
+        private Image frameImage;
+        [SerializeField]
+        private Sprite attackFrame;
+        [SerializeField]
+        private Sprite assistFrame;
+        [SerializeField]
+        private Sprite supportFrame;
 
         [Header("Motion")]
         [SerializeField]
@@ -79,7 +94,7 @@ namespace MainGame.Card
             _isInteractable = value;
         }
 
-        // 카드 내용 표시. 데이터가 붙기 전까지는 임시 문자열을 받습니다.
+        // 카드 내용 표시. 데이터가 없을 때(테스트)는 문자열만 넣습니다.
         public void SetContent(string cardName, string cost)
         {
             if (nameText != null)
@@ -87,6 +102,56 @@ namespace MainGame.Card
 
             if (costText != null)
                 costText.text = cost;
+        }
+
+        // 스킬 카드 데이터를 그대로 반영합니다(이름 / 코스트 / 설명 / 타입별 프레임).
+        public void SetCardData(SkillCardDataTableRow row)
+        {
+            if (row == null)
+                return;
+
+            SetContent(row.Name, row.Cost.ToString());
+
+            if (descText != null)
+                descText.text = BuildDescription(row);
+
+            ApplyFrame(row.SkillCategoryType);
+        }
+
+        // 설명문의 {0}은 효과 값, {1}은 지속시간입니다.
+        private string BuildDescription(SkillCardDataTableRow row)
+        {
+            if (string.IsNullOrEmpty(row.Desc))
+                return string.Empty;
+
+            var value = FormatNumber(row.EffectValue);
+            var duration = FormatNumber(row.DurationTime);
+
+            return string.Format(row.Desc, value, duration);
+        }
+
+        private static string FormatNumber(float value)
+        {
+            return Mathf.Approximately(value, Mathf.Round(value))
+                ? Mathf.RoundToInt(value).ToString()
+                : value.ToString("0.##");
+        }
+
+        private void ApplyFrame(ESkillCategoryType category)
+        {
+            if (frameImage == null)
+                return;
+
+            var sprite = category switch
+            {
+                ESkillCategoryType.Attack => attackFrame,
+                ESkillCategoryType.Assist => assistFrame,
+                ESkillCategoryType.Support => supportFrame,
+                _ => attackFrame
+            };
+
+            if (sprite != null)
+                frameImage.sprite = sprite;
         }
 
         // 아직 드로우되지 않은 상태로 감춥니다.

@@ -126,6 +126,23 @@ namespace Scene.InGame
             Debug.Log($"[LevelUpBonus] 적용 — Id={row.Id} ({row.Name}) 레벨={_bonusState.GetLevel(row.Id)}");
         }
 
+        // 카드 버프(골드/경험치 획득량 증가)를 지급 직전에 곱합니다.
+        private int ApplyGoldBuff(int amount)
+        {
+            if (amount <= 0)
+                return amount;
+
+            return Mathf.RoundToInt(amount * StatContext.GetGoldGainMultiplier());
+        }
+
+        private int ApplyExpBuff(int amount)
+        {
+            if (amount <= 0)
+                return amount;
+
+            return Mathf.RoundToInt(amount * StatContext.GetExpGainMultiplier());
+        }
+
 #region 보상 수신
 
         // IExpRewardHandler 구현 — 몬스터 처치 시 호출됩니다.
@@ -133,15 +150,15 @@ namespace Scene.InGame
         {
             // 적 처치 보너스 골드가 있으면 함께 지급합니다.
             if (_bonusState.MonsterKillGoldAdd > 0)
-                _onGoldGranted?.Invoke(_bonusState.MonsterKillGoldAdd);
+                _onGoldGranted?.Invoke(ApplyGoldBuff(_bonusState.MonsterKillGoldAdd));
 
-            _onExpGranted?.Invoke(amount);
+            _onExpGranted?.Invoke(ApplyExpBuff(amount));
         }
 
         // IResourceRewardHandler 구현 — 광물을 다 캐면 호출됩니다.
         public void OnResourceMined(int stoneReward, int expReward)
         {
-            _onGoldGranted?.Invoke(stoneReward + _bonusState.ResourceMineGoldAdd);
+            _onGoldGranted?.Invoke(ApplyGoldBuff(stoneReward + _bonusState.ResourceMineGoldAdd));
         }
 
 #endregion

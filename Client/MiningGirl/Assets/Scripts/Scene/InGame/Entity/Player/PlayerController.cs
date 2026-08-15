@@ -54,6 +54,16 @@ namespace Scene.InGame.Entity.Player
             ActivateList[0].transform.position = position;
         }
 
+        // 회복 카드용 — 살아있는 플레이어를 비율만큼 회복시킵니다.
+        public void HealPlayerByRatio(float ratio)
+        {
+            if (ActivateList == null)
+                return;
+
+            foreach (var player in ActivateList)
+                player.HealByRatio(ratio);
+        }
+
         // 스테이지 재시작 시 체력과 무적/다운 상태를 초기화합니다.
         public void ResetPlayerHealth()
         {

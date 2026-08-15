@@ -57,9 +57,22 @@ namespace Scene.InGame
             // 보상/보너스 지급 경로를 UI 컨트롤러에 연결합니다.
             levelUpController.Init(uIController.AddGold, uIController.AddExp);
 
+            // 카드 버프 표시 시작
+            uIController.InitBuffList(levelUpController.StatContext.Buffs);
+
             // 손패 카드 초기화
             if (cardHandController != null)
-                cardHandController.Init(uIController.CanAffordCost, uIController.TrySpendCost);
+            {
+                // 스킬 카드가 효과를 실행할 때 필요한 것들을 묶어 넘깁니다.
+                var skillContext = new MainGame.Card.SkillCardContext(
+                    getPlayer: () => _playerEntity,
+                    getMonsters: () => monsterController.ActivateList.ConvertAll(m => (Scene.InGame.Entity.Interface.IEntity)m),
+                    buffs: levelUpController.StatContext.Buffs,
+                    healPlayerByRatio: playerController.HealPlayerByRatio,
+                    camera: Camera.main);
+
+                cardHandController.Init(uIController.CanAffordCost, uIController.TrySpendCost, skillContext);
+            }
             await UniTask.WaitUntil(() => uIController.IsInitialized);
             
             damageController.InitAsync();

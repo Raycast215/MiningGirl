@@ -166,7 +166,8 @@ MonoBehaviour:
   maxHealth: 10
   invincibleDuration: 2
   downDuration: 3
-  reviveHealthRatio: 0.3
+  reviveHealthRatio: 0.1
+  reviveInvincibleMultiplier: 2
 --- !u!54 &5407890307930734773
 Rigidbody:
   m_ObjectHideFlags: 0

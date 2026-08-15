@@ -14,13 +14,6 @@ public enum ESkillRank
     Special // 스페셜
 }
 
-public enum ESkillType
-{
-    Attack, // 공격형
-    Assist, // 보조형
-    Support // 서포트형
-}
-
 public enum ESkillEffectType
 {
     TargetHit,
@@ -84,4 +77,24 @@ public enum ELevelUpBonusEffectType
     ResourceMineGold,   // 광물 채굴 시 획득 골드
     InstantGold,        // 즉시 골드 획득
     InstantExp,         // 즉시 경험치 획득
+}
+
+public enum ESkillCategoryType
+{
+    Attack, // 공격형
+    Assist, // 보조형
+    Support // 서포트형
+}
+
+public enum ESkillType
+{
+    AirShot,        // 주변 적 공격 + 넉백
+    Strike,         // 단일 공격
+    DoubleAttack,   // 단일 2회 공격
+
+    MoveSpeedUp,    // 이동속도 증가
+    MiningSpeedUp,  // 채굴속도 증가
+    GoldGainUp,     // 골드 획득량 증가
+    ExpGainUp,      // 경험치 획득량 증가
+    Heal            // 체력 회복
 }

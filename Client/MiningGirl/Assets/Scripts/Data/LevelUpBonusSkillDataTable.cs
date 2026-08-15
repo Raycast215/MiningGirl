@@ -9,7 +9,6 @@ namespace Data
     [DataFile("LevelUpBonusSkillDataTable")]  
     public class LevelUpBonusSkillDataTableRow : DataTableRowBase
     {
-       
         public string Name { get; set; }
         public string Desc { get; set; }
         public float EffectValue { get; set; }
