@@ -179,7 +179,7 @@ namespace Scene.InGame
         private void UpdatePauseButtonText()
         {
             if (pauseButtonText != null)
-                pauseButtonText.text = _isManualPaused ? "재개" : "일시정지";
+                pauseButtonText.text = _isManualPaused ? "▶" : "II";
         }
 
         public void OnClickAddExp1()

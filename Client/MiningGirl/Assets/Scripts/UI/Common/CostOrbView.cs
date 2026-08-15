@@ -6,7 +6,7 @@ using UnityEngine.UI;
 namespace UI.Common
 {
     // 코스트 표시 오브.
-    // 링은 다음 1 코스트가 채워지기까지의 진행도를 나타내고(초당 1 회복 = 링 한 바퀴 1초),
+    // 링은 다음 1 코스트가 채워지기까지의 진행도를 나타내고(링 10칸 = 코스트 10),
     // 최대치를 초과하면(보스전 오버차지) 색과 외곽선으로 구분됩니다.
     public class CostOrbView : MonoBehaviour
     {
@@ -17,6 +17,14 @@ namespace UI.Common
         private Image ringFill;
         [SerializeField]
         private Image overchargeOutline;
+
+        [Header("Ring Sprites")]
+        [SerializeField]
+        [Tooltip("칸마다 색이 밝아지는 기본 링")]
+        private Sprite ringFillGradientSprite;
+        [SerializeField]
+        [Tooltip("최대치일 때 쓰는 링 — 전 칸이 마지막 밝기 색")]
+        private Sprite ringFillFullSprite;
         [SerializeField]
         private TextMeshProUGUI costText;
 
@@ -95,8 +103,25 @@ namespace UI.Common
             {
                 ringFill.color = mainColor;
 
-                // 최대치 이상이면 링을 꽉 채우고, 그 아래면 다음 1까지의 진행도를 표시합니다.
-                ringFill.fillAmount = cost >= maxCost ? 1f : Mathf.Clamp01(chargeProgress);
+                // 링은 10칸으로 나뉜 코스트 게이지입니다.
+                // 보유 코스트만큼 칸이 차고, 회복 중인 다음 한 칸이 점점 채워집니다.
+                // (최대치 이상이면 꽉 찬 상태로 둡니다.)
+                var isFull = cost >= maxCost;
+
+                // 최대치에 도달하면 그라데이션 대신 '가장 밝은 색으로 꽉 찬' 링으로 바꿉니다.
+                var targetSprite = isFull ? ringFillFullSprite : ringFillGradientSprite;
+                if (targetSprite != null && ringFill.sprite != targetSprite)
+                    ringFill.sprite = targetSprite;
+
+                if (isFull)
+                {
+                    ringFill.fillAmount = 1f;
+                }
+                else
+                {
+                    var perSegment = maxCost <= 0 ? 0f : 1f / maxCost;
+                    ringFill.fillAmount = Mathf.Clamp01(cost * perSegment + Mathf.Clamp01(chargeProgress) * perSegment);
+                }
             }
 
             if (overchargeOutline != null)

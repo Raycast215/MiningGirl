@@ -69,6 +69,9 @@ namespace MainGame.Card
         // 현재 손패 순서(좌 -> 우). 카드가 빠지면 남은 카드가 앞으로 당겨집니다.
         private readonly List<CardView> _order = new List<CardView>();
 
+        // 지금 끌고 있는 카드. 멀티터치로 두 장이 동시에 끌리지 않도록 한 장만 허용합니다.
+        private CardView _draggingCard;
+
         private int _drawCount;
         private bool _isPaused;
 
@@ -144,7 +147,10 @@ namespace MainGame.Card
             }
 
             if (paused)
+            {
+                _draggingCard = null;
                 HideRemoveUI();
+            }
         }
 
         // 손패 전체를 새로 드로우합니다(스테이지 재시작 등).
@@ -161,6 +167,11 @@ namespace MainGame.Card
         {
             if (_isPaused)
                 return;
+
+            _draggingCard = card;
+
+            // 다른 카드는 잠가서 두 번째 손가락이 다른 카드를 집지 못하게 합니다.
+            SetOthersInteractable(card, false);
 
             _dragStartScreenPos[card] = GetScreenPosition(card);
         }
@@ -179,6 +190,12 @@ namespace MainGame.Card
 
         private void OnDragEnd(CardView card)
         {
+            _draggingCard = null;
+
+            // 잠갔던 다른 카드를 다시 풀어줍니다.
+            if (!_isPaused)
+                SetOthersInteractable(card, true);
+
             HideRemoveUI();
 
             if (_isPaused)
@@ -248,6 +265,18 @@ namespace MainGame.Card
                 return true;
 
             return _canAffordCost.Invoke(amount);
+        }
+
+        // 지정한 카드를 제외한 나머지의 입력 허용 여부를 바꿉니다.
+        private void SetOthersInteractable(CardView except, bool value)
+        {
+            foreach (var card in cards)
+            {
+                if (card == null || card == except)
+                    continue;
+
+                card.SetInteractable(value);
+            }
         }
 
         // 처음 잡은 위치에서 세로로 얼마나 이동했는지 (양수=위로, 음수=아래로)
