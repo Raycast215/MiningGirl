@@ -37,6 +37,18 @@ namespace MainGame.Card
             else
                 Debug.LogWarning("[Deck] 기본 덱 데이터를 찾지 못했습니다.");
 
+            // 시작 덱 장수가 게임 상수와 어긋나면 알려줍니다.
+            // (시트 수정 중 카드를 빠뜨리거나 중복으로 넣는 실수를 잡기 위함)
+            var constants = DataTableManager.Instance?.GameConstantDataTable;
+
+            if (constants != null)
+            {
+                var expected = constants.GetInt(EGameConstantType.CardDeckSize, _cards.Count);
+
+                if (expected != _cards.Count)
+                    Debug.LogWarning($"[Deck] 시작 덱이 {_cards.Count}장인데 설정값은 {expected}장입니다.");
+            }
+
             ResetPiles();
         }
 

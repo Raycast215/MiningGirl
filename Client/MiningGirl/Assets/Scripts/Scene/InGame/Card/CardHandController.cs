@@ -60,6 +60,14 @@ namespace MainGame.Card
         [Tooltip("카드를 버리고 새로 뽑을 때 소모하는 코스트")]
         private int discardCost = 1;
 
+        // 카드 리롤(버리기) 비용은 게임 상수 테이블에서 가져옵니다(없으면 인스펙터 값).
+        private int GetDiscardCost()
+        {
+            var table = DataTableManager.Instance?.GameConstantDataTable;
+
+            return table != null ? table.GetInt(EGameConstantType.CardRerollCost, discardCost) : discardCost;
+        }
+
         private readonly Dictionary<CardView, Vector2> _dragStartScreenPos = new Dictionary<CardView, Vector2>();
         // 코스트 확인/소모는 UI 컨트롤러에 위임합니다(LevelUpController와 같은 주입 방식).
         private Func<int, bool> _canAffordCost;
@@ -247,7 +255,7 @@ namespace MainGame.Card
                 HideRemoveUI();
 
             // 끌고 있는 동안에만 '지금 놓으면 되는지'를 프레임 색으로 알려줍니다.
-            card.SetDragFeedback(isDiscard ? CanAfford(discardCost) : CanUseNow(card));
+            card.SetDragFeedback(isDiscard ? CanAfford(GetDiscardCost()) : CanUseNow(card));
         }
 
         private void OnDragEnd(CardView card)
@@ -271,9 +279,9 @@ namespace MainGame.Card
             // 아래로 충분히 끌어내림 → 버리고 새로 뽑기
             if (deltaY <= -Screen.height * discardDragRatio)
             {
-                if (!TrySpend(discardCost))
+                if (!TrySpend(GetDiscardCost()))
                 {
-                    Debug.Log($"[Card] 버리기 실패 — 코스트 부족 (필요 {discardCost})");
+                    Debug.Log($"[Card] 버리기 실패 — 코스트 부족 (필요 {GetDiscardCost()})");
 
                     card.PlayFail("코스트 부족");
                     return;

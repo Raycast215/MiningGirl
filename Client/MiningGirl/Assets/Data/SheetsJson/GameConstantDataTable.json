@@ -19,14 +19,26 @@
 },
 {
   "ConstantType": "MonsterSpawnCount",
-  "Desc": "몬스터 기본 스폰 수",
+  "Desc": "몬스터 최대 소환 수",
   "Id": 3,
   "Value": 10
 },
 {
   "ConstantType": "ResourceSpawnCount",
-  "Desc": "광물 기본 스폰 수",
+  "Desc": "광물 초기 소환 수 겸 최대 수량",
   "Id": 4,
   "Value": 10
+},
+{
+  "ConstantType": "MonsterSpawnInterval",
+  "Desc": "몬스터 스폰 간격(초)",
+  "Id": 5,
+  "Value": 2
+},
+{
+  "ConstantType": "ResourceSpawnInterval",
+  "Desc": "광물 스폰 간격(초)",
+  "Id": 6,
+  "Value": 2
 }
 ]

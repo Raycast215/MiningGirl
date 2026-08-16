@@ -23,8 +23,25 @@ namespace Scene.InGame.Entity.Resource
         [Header("Spawn")]
         [SerializeField]
         private int initialCount = 10;
+
+        // 광물 초기 소환 수 겸 최대 수량(게임 상수 테이블, 없으면 인스펙터 값).
+        // 나중에 레벨업 보너스로 이 최대치를 올릴 예정입니다.
+        // 스폰 간격(게임 상수 테이블, 없으면 인스펙터 값)
+        private float GetSpawnInterval()
+        {
+            var table = Manager.DataTableManager.Instance?.GameConstantDataTable;
+
+            return table != null ? table.GetValue(EGameConstantType.ResourceSpawnInterval, spawnInterval) : spawnInterval;
+        }
+
+        private int GetInitialCount()
+        {
+            var table = Manager.DataTableManager.Instance?.GameConstantDataTable;
+
+            return table != null ? table.GetInt(EGameConstantType.ResourceSpawnCount, initialCount) : initialCount;
+        }
         [SerializeField]
-        private int maxCount = 30;
+        private int maxCount = 30;   // 상수 테이블이 없을 때만 쓰이는 폴백
         [SerializeField]
         private float spawnInterval = 2f;
         [SerializeField]
@@ -58,14 +75,14 @@ namespace Scene.InGame.Entity.Resource
             if (IsInitialized)
                 return;
 
-            InitAsync(prefabName, initialCount).Forget();
+            InitAsync(prefabName, GetInitialCount()).Forget();
             await UniTask.WaitUntil(() => IsInitialized);
         }
 
         // 게임 시작 시점 — 화면 안(카메라 뷰)에 서로 겹치지 않게 초기 광물을 배치합니다.
         public void SpawnInitialLayout(Vector3 center)
         {
-            var posList = GetRandomPositionsOnScreen(center, initialCount, minDistanceBetween);
+            var posList = GetRandomPositionsOnScreen(center, GetInitialCount(), minDistanceBetween);
 
             foreach (var pos in posList)
                 Spawn(pos).Forget();
@@ -85,7 +102,7 @@ namespace Scene.InGame.Entity.Resource
             return resource;
         }
 
-        // target(보통 플레이어) 기준으로, 광물이 maxCount 미만이면 spawnInterval 간격으로
+        // target(보통 플레이어) 기준으로, 광물이 최대 수량 미만이면 spawnInterval 간격으로
         // 화면 밖 랜덤 위치에 하나씩(기존 광물과 겹치지 않게) 채워 넣습니다.
         public void ExecuteSpawn(IEntity target)
         {
@@ -105,14 +122,16 @@ namespace Scene.InGame.Entity.Resource
 
             while (!token.IsCancellationRequested)
             {
-                if (!_isPaused && ActivateList != null && ActivateList.Count < maxCount)
-                {
-                    var pos = GetRandomOffscreenPosition(target.GetPosition(), minDistanceSqr);
-                    if (pos.HasValue)
-                        await Spawn(pos.Value);
-                }
+                // 먼저 기다린 뒤 보충합니다(첫 보충도 간격만큼 지난 뒤).
+                await UniTask.WaitForSeconds(GetSpawnInterval(), cancellationToken: token);
 
-                await UniTask.WaitForSeconds(spawnInterval, cancellationToken: token);
+                if (_isPaused || ActivateList == null || ActivateList.Count >= GetInitialCount())
+                    continue;
+
+                var pos = GetRandomOffscreenPosition(target.GetPosition(), minDistanceSqr);
+
+                if (pos.HasValue)
+                    await Spawn(pos.Value);
             }
         }
 

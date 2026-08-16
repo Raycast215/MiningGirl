@@ -23,6 +23,15 @@ namespace MainGame
         [Tooltip("스테이지 제한 시간(초)")]
         private float stageTimeSeconds = 60f;
 
+        // 스테이지 제한 시간은 게임 상수 테이블에서 가져옵니다.
+        // 테이블에 값이 없으면 인스펙터 값으로 대체합니다.
+        private float GetStageTime()
+        {
+            var table = Manager.DataTableManager.Instance?.GameConstantDataTable;
+
+            return table != null ? table.GetValue(EGameConstantType.StageTime, stageTimeSeconds) : stageTimeSeconds;
+        }
+
         [SerializeField]
         private TimerUI timerUI;
         [SerializeField]
@@ -53,7 +62,7 @@ namespace MainGame
 
             _onLevelUp = onLevelUp;
             
-            timerUI.Init(stageTimeSeconds, GameFinish);
+            timerUI.Init(GetStageTime(), GameFinish);
             stageUI.Init();
             costUI.Init();
             levelExpUI.Init(OnLevelUp);
@@ -69,7 +78,7 @@ namespace MainGame
         public void SetTime()
         {
             stageUI.NextStage();
-            timerUI.SetTime(stageTimeSeconds);
+            timerUI.SetTime(GetStageTime());
             costUI.SetCost(0);
             // 레벨/경험치는 런 전체에서 유지되므로 스테이지 재시작 시 초기화하지 않습니다.
             // (최초 진입 시 levelExpUI.Init()에서만 1레벨로 시작합니다.)

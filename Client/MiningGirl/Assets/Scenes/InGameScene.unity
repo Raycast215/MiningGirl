@@ -470,6 +470,7 @@ MonoBehaviour:
   timerUI: {fileID: 1102530197}
   stageUI: {fileID: 1650454908}
   buffListUI: {fileID: 1670383196}
+  costSpeedUpProgress: 0.5
   costUI: {fileID: 437661765}
   levelExpUI: {fileID: 1118632404}
   goldCountViewer: {fileID: 1509125007}
@@ -1282,6 +1283,7 @@ MonoBehaviour:
   orbView: {fileID: 437661764}
   maxCost: 10
   regenInterval: 3
+  lateStageSpeedMultiplier: 2
 --- !u!1 &455467754
 GameObject:
   m_ObjectHideFlags: 0
@@ -3687,7 +3689,7 @@ MonoBehaviour:
   prefabName: Monster
   expPerKill: 1
   testSpawnOffscreenMarginRatio: 0.5
-  testSpawnInterval: 1
+  testSpawnInterval: 2
   testMaxSpawnCount: 30
 --- !u!4 &1816489774
 Transform:

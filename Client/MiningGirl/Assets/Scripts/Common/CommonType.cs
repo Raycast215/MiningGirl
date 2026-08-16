@@ -92,8 +92,11 @@ public enum EGameConstantType
     StageTime,          // 스테이지 제한 시간(초)
     CardDeckSize,       // 시작 덱 장수
     CardRerollCost,     // 카드 리롤(버리기) 비용
-    MonsterSpawnCount,  // 몬스터 기본 스폰 수
-    ResourceSpawnCount, // 광물 기본 스폰 수
+    MonsterSpawnCount,  // 몬스터 최대 소환 수(레벨업 보너스로 상향 예정)
+    ResourceSpawnCount, // 광물 초기 소환 수 겸 최대 수량(레벨업 보너스로 상향 예정)
+
+    MonsterSpawnInterval,  // 몬스터 스폰 간격(초)
+    ResourceSpawnInterval, // 광물 스폰 간격(초)
 }
 
 public enum ESkillType

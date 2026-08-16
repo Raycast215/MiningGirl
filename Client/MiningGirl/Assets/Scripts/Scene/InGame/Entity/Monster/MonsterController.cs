@@ -103,9 +103,27 @@ namespace MainGame.Entity.Monster
         [SerializeField]
         private float testSpawnInterval = 2f;
         [SerializeField]
-        private int testMaxSpawnCount = 30;
+        private int testMaxSpawnCount = 30;   // 상수 테이블이 없을 때만 쓰이는 폴백
 
-        // 테스트용 스폰 루프 — 현재 살아있는 몬스터 수를 확인해서, 최대치(testMaxSpawnCount) 미만이면
+        // 스폰 간격(게임 상수 테이블, 없으면 인스펙터 값)
+        private float GetSpawnInterval()
+        {
+            var table = Manager.DataTableManager.Instance?.GameConstantDataTable;
+
+            return table != null ? table.GetValue(EGameConstantType.MonsterSpawnInterval, testSpawnInterval) : testSpawnInterval;
+        }
+
+        // 몬스터 최대 소환 수(게임 상수 테이블, 없으면 인스펙터 값).
+        // 스폰 간격마다 한 마리씩 이 수까지 채우고, 죽어서 빈자리가 생기면 다시 채웁니다.
+        // 나중에 레벨업 보너스로 이 최대치를 올릴 예정입니다.
+        private int GetMaxSpawnCount()
+        {
+            var table = Manager.DataTableManager.Instance?.GameConstantDataTable;
+
+            return table != null ? table.GetInt(EGameConstantType.MonsterSpawnCount, testMaxSpawnCount) : testMaxSpawnCount;
+        }
+
+        // 테스트용 스폰 루프 — 현재 살아있는 몬스터 수를 확인해서, 최대치 미만이면
         // testSpawnInterval 간격으로 계속 채워 넣습니다. 몬스터가 죽어 풀에 반환되면 빈 자리가 생기고,
         // 이 루프가 그 자리를 다시 채우므로 상시 일정 수의 몬스터가 유지됩니다.
         public void ExecuteTestSpawn(IEntity target, int stageIndex)
@@ -120,7 +138,7 @@ namespace MainGame.Entity.Monster
             SpawnLoop(target, stageIndex, _spawnCts.Token).Forget();
         }
 
-        // 현재 살아있는 몬스터 수를 확인해서, 최대치(testMaxSpawnCount) 미만이면
+        // 현재 살아있는 몬스터 수를 확인해서, 최대치 미만이면
         // testSpawnInterval 간격으로 계속 채워 넣습니다. 몬스터가 죽어 풀에 반환되면 빈 자리가 생기고,
         // 이 루프가 그 자리를 다시 채우므로 상시 일정 수의 몬스터가 유지됩니다.
         // 토큰이 취소되면(=StopSpawn / 오브젝트 파괴) 루프가 안전하게 종료됩니다.
@@ -128,13 +146,16 @@ namespace MainGame.Entity.Monster
         {
             while (!token.IsCancellationRequested)
             {
-                if (_isBehaviourRunning && ActivateList != null && ActivateList.Count < testMaxSpawnCount)
-                {
-                    var pos = GetRandomOffscreenPosition(target.GetPosition());
-                    await Spawn("Slime", pos, target, stageIndex);
-                }
+                // 먼저 기다린 뒤 스폰합니다. 시작하자마자 한 마리가 나오지 않고
+                // 첫 몬스터도 간격만큼 지난 뒤에 등장합니다.
+                await UniTask.WaitForSeconds(GetSpawnInterval(), cancellationToken: token);
 
-                await UniTask.WaitForSeconds(testSpawnInterval, cancellationToken: token);
+                if (!_isBehaviourRunning || ActivateList == null || ActivateList.Count >= GetMaxSpawnCount())
+                    continue;
+
+                var pos = GetRandomOffscreenPosition(target.GetPosition());
+
+                await Spawn("Slime", pos, target, stageIndex);
             }
         }
 
