@@ -12,6 +12,7 @@ namespace Manager
         public LevelUpBonusSkillDataTable LevelUpBonusSkillDataTable { get; private set; }
         public SkillCardDataTable SkillCardDataTable { get; private set; }
         public DefaultSkillCardDataTable DefaultSkillCardDataTable { get; private set; }
+        public GameConstantDataTable GameConstantDataTable { get; private set; }
 
         public async UniTaskVoid PreLoadData()
         {
@@ -43,6 +44,9 @@ namespace Manager
 
             DefaultSkillCardDataTable =
                 new DefaultSkillCardDataTable(AddressableSheetsDataManager.GetAll<DefaultSkillCardDataTableRow>());
+
+            GameConstantDataTable =
+                new GameConstantDataTable(AddressableSheetsDataManager.GetAll<GameConstantDataTableRow>());
 
             Debug.Log($"CharacterStatDataRow count = {CharacterStatDataTable.Rows.Count}");
 

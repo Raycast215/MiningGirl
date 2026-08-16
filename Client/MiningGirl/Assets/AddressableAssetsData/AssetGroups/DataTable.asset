@@ -45,6 +45,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - DataTable
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 74b6af8aee5e77e4aa61d9e70c6a4ea1
+    m_Address: GameConstantDataTable
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - DataTable
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: c4cb4a9532eefc1459259f7aa25c5c0b
     m_Address: CharacterStatDataTable
     m_ReadOnly: 0

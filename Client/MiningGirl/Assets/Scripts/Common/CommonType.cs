@@ -86,6 +86,16 @@ public enum ESkillCategoryType
     Support // 서포트형
 }
 
+// 게임 전역 상수. 값은 GameConstantDataTable에서 옵니다.
+public enum EGameConstantType
+{
+    StageTime,          // 스테이지 제한 시간(초)
+    CardDeckSize,       // 시작 덱 장수
+    CardRerollCost,     // 카드 리롤(버리기) 비용
+    MonsterSpawnCount,  // 몬스터 기본 스폰 수
+    ResourceSpawnCount, // 광물 기본 스폰 수
+}
+
 public enum ESkillType
 {
     AirShot,        // 주변 적 공격 + 넉백

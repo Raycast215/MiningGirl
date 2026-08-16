@@ -1,0 +1,32 @@
+[
+{
+  "ConstantType": "StageTime",
+  "Desc": "스테이지 제한 시간(초)",
+  "Id": 0,
+  "Value": 120
+},
+{
+  "ConstantType": "CardDeckSize",
+  "Desc": "시작 덱 장수",
+  "Id": 1,
+  "Value": 10
+},
+{
+  "ConstantType": "CardRerollCost",
+  "Desc": "카드 리롤(버리기) 비용",
+  "Id": 2,
+  "Value": 1
+},
+{
+  "ConstantType": "MonsterSpawnCount",
+  "Desc": "몬스터 기본 스폰 수",
+  "Id": 3,
+  "Value": 10
+},
+{
+  "ConstantType": "ResourceSpawnCount",
+  "Desc": "광물 기본 스폰 수",
+  "Id": 4,
+  "Value": 10
+}
+]
