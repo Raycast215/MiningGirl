@@ -262,6 +262,9 @@ namespace Scene.InGame
             // 정지 중에는 카드도 만질 수 없게 합니다.
             if (cardHandController != null)
                 cardHandController.SetPaused(paused);
+
+            // 카드로 소환된 불덩이도 함께 멈춥니다(지속시간도 같이 멈춤).
+            MainGame.Card.Effects.FireBallObject.SetPausedAll(paused);
         }
 
         // 다음 스테이지로 넘어갈 때(또는 Reset 버튼) 호출됩니다.
@@ -283,6 +286,9 @@ namespace Scene.InGame
                 // 화면에 떠 있는 플로팅 데미지도 모두 풀로 정리
                 damageController.Clear();
 
+                // 카드로 소환된 불덩이도 정리(정지 상태도 함께 해제)
+                MainGame.Card.Effects.FireBallObject.ClearAll();
+
                 // 광물도 모두 풀로 정리
                 resourceController.StopSpawn();
 
@@ -290,6 +296,10 @@ namespace Scene.InGame
                 // (방금 풀로 되돌린 광물을 계속 때리는 것을 방지합니다.)
                 // 재시작 시 수동 일시정지는 해제합니다.
                 _isManualPaused = false;
+
+                // 레벨업 연출이 진행 중이던 상태로 재시작하면 플래그가 남아
+                // 이후 일시정지 버튼이 계속 무시되므로 함께 초기화합니다.
+                _isLevelUpSequenceActive = false;
                 UpdatePauseButtonText();
 
                 playerController.StopBehaviour();

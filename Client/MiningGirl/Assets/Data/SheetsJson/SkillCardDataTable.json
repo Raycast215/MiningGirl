@@ -131,7 +131,7 @@
 },
 {
   "AssetId": "Skill_Icon_2000",
-  "Cost": 1,
+  "Cost": 0,
   "Desc": "코스트 {0} 증가",
   "DurationTime": -1,
   "EffectRange": -1,

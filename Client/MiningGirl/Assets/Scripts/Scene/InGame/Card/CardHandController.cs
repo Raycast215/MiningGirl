@@ -147,10 +147,12 @@ namespace MainGame.Card
             }
         }
 
+        // 카드에 매겨진 코스트. 0도 유효한 값이므로 '값이 없을 때'만 기본값으로 대체합니다.
+        // (0을 빈 값으로 취급하면 공짜 카드가 기본 코스트로 막혀버립니다.)
         private int GetCardCost(CardView card)
         {
-            if (_cardData.TryGetValue(card, out var row) && row != null && row.Cost > 0)
-                return row.Cost;
+            if (_cardData.TryGetValue(card, out var row) && row != null)
+                return Mathf.Max(0, row.Cost);
 
             return useCost;
         }
@@ -390,7 +392,7 @@ namespace MainGame.Card
                 return;
             }
 
-            var cost = row.Cost > 0 ? row.Cost : useCost;
+            var cost = GetCardCost(card);
 
             if (!TrySpend(cost))
             {
