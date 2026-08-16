@@ -80,6 +80,9 @@ namespace MainGame.Card
         // 스킬 효과 실행에 필요한 것들
         private SkillCardContext _skillContext;
 
+        // 런 전체에서 유지되는 덱(드로우/버린 더미 포함)
+        public SkillDeck Deck { get; } = new SkillDeck();
+
         private int _drawCount;
         private bool _isPaused;
 
@@ -158,8 +161,15 @@ namespace MainGame.Card
         }
 
         // 게임 시작 시점에 손패를 좌측부터 순차로 깔아줍니다.
+        // 스테이지 시작 — 덱을 준비하고 손패를 깝니다.
         public void StartHand()
         {
+            // 첫 스테이지에서만 기본 덱을 만들고, 이후에는 카드를 모두 되돌려 섞습니다.
+            if (Deck.DeckCount == 0)
+                Deck.InitFromDefaultTable();
+            else
+                Deck.ResetPiles();
+
             DealAll();
         }
 
@@ -431,6 +441,10 @@ namespace MainGame.Card
         // 남은 카드는 좌측으로 당겨지고, 빠진 카드는 새 카드가 되어 맨 우측에 들어옵니다.
         private void OnCardConsumed(CardView card)
         {
+            // 사용했든 버렸든 덱의 '버린 더미'로 돌아갑니다.
+            if (_cardData.TryGetValue(card, out var used) && used != null)
+                Deck.Discard(used.Id);
+
             _order.Remove(card);
 
             // 남은 카드들을 앞 슬롯으로 밀어줍니다.
@@ -468,32 +482,10 @@ namespace MainGame.Card
                 card.PlayDraw(delay);
         }
 
-        // 가중치 기반으로 카드 한 장을 고릅니다.
+        // 덱에서 카드 한 장을 뽑습니다.
         private SkillCardDataTableRow PickRandomCard()
         {
-            var table = DataTableManager.Instance?.SkillCardDataTable;
-            if (table?.Rows == null || table.Rows.Count == 0)
-                return null;
-
-            var total = 0;
-            foreach (var row in table.Rows)
-                total += Mathf.Max(0, row.Weight);
-
-            if (total <= 0)
-                return table.Rows[UnityEngine.Random.Range(0, table.Rows.Count)];
-
-            var pick = UnityEngine.Random.Range(0, total);
-            var acc = 0;
-
-            foreach (var row in table.Rows)
-            {
-                acc += Mathf.Max(0, row.Weight);
-
-                if (pick < acc)
-                    return row;
-            }
-
-            return table.Rows[table.Rows.Count - 1];
+            return Deck.Draw();
         }
 
         private void ShowRemoveUI()
