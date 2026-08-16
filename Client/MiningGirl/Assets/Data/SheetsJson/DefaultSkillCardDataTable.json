@@ -1,0 +1,32 @@
+[
+{
+  "Count": 1,
+  "Id": 0,
+  "SkillId": 1000
+},
+{
+  "Count": 3,
+  "Id": 1,
+  "SkillId": 1001
+},
+{
+  "Count": 3,
+  "Id": 2,
+  "SkillId": 1002
+},
+{
+  "Count": 1,
+  "Id": 3,
+  "SkillId": 2002
+},
+{
+  "Count": 1,
+  "Id": 4,
+  "SkillId": 3000
+},
+{
+  "Count": 1,
+  "Id": 5,
+  "SkillId": 3001
+}
+]
