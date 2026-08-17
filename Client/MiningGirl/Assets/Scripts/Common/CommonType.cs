@@ -62,8 +62,26 @@ public enum EEffectValueType
 // 레벨업 보너스가 무엇에 작용하는지 나타냅니다.
 // 코드는 Id가 아니라 이 타입만 보고 동작하므로,
 // 같은 타입의 스킬을 시트에 추가할 때는 코드 수정이 필요 없습니다.
+// 강화 팝업의 탭 구분
+public enum EUpgradeTabType
+{
+    Character,  // 캐릭터 스탯·스태미나
+    Monster,    // 몬스터 수량·효율 (리스크를 사서 수입을 늘림)
+    Resource,   // 광물 수량·효율
+    Etc,        // 코스트·손패·밀치기·클리어 보상 같은 규칙 항목
+}
+
 public enum ELevelUpBonusEffectType
 {
+    MaxStamina,        // 최대 스태미나
+    MiningStaminaCost, // 채굴 1회 소모 감소
+    HitStaminaCost,    // 피격 1회 소모 감소
+    MonsterMaxCount,   // 몬스터 최대 수
+    ResourceMaxCount,  // 광물 수량
+    StageClearGold,    // 클리어 보상 골드
+    HandSize,          // 손패 장수
+    CostRegen,         // 코스트 회복 속도
+
     None,
     MiningDamage,       // 채굴 데미지
     MiningSpeed,        // 채굴 속도
@@ -76,7 +94,6 @@ public enum ELevelUpBonusEffectType
     MonsterKillGold,    // 적 처치 시 획득 골드
     ResourceMineGold,   // 광물 채굴 시 획득 골드
     InstantGold,        // 즉시 골드 획득
-    InstantExp,         // 즉시 경험치 획득
 }
 
 public enum ESkillCategoryType
@@ -108,7 +125,6 @@ public enum ESkillType
     MoveSpeedUp,    // 이동속도 증가
     MiningSpeedUp,  // 채굴속도 증가
     GoldGainUp,     // 골드 획득량 증가
-    ExpGainUp,      // 경험치 획득량 증가
     
     Heal,           // 체력 회복
     TargetChange,   // 근처 광물로 이동

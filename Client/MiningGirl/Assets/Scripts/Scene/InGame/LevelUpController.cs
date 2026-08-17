@@ -16,7 +16,7 @@ namespace Scene.InGame
     //  - 선택한 보너스의 즉시 효과(골드/경험치) 실행
     //
     // 표시(UI)는 직접 하지 않고 MainGameUIController에 위임합니다.
-    public class LevelUpController : MonoBehaviour, IExpRewardHandler, IResourceRewardHandler
+    public class LevelUpController : MonoBehaviour, IResourceRewardHandler
     {
         // 이번 런에서 획득한 보너스 누적 상태
         private readonly LevelUpBonusState _bonusState = new LevelUpBonusState();
@@ -86,13 +86,19 @@ namespace Scene.InGame
         }
 
         private Action<int> _onGoldGranted;
-        private Action<int> _onExpGranted;
 
         // onGoldGranted / onExpGranted: 실제 지급을 수행할 대상(UI 컨트롤러)을 연결합니다.
-        public void Init(Action<int> onGoldGranted, Action<int> onExpGranted)
+        // 광물을 하나 캘 때마다 알립니다(클리어 조건인 채굴량 집계용)
+        private Action _onResourceMined;
+
+        public void SetResourceMinedHandler(Action handler)
+        {
+            _onResourceMined = handler;
+        }
+
+        public void Init(Action<int> onGoldGranted)
         {
             _onGoldGranted = onGoldGranted;
-            _onExpGranted = onExpGranted;
         }
 
         // 런을 처음부터 다시 시작할 때 보너스를 모두 비웁니다.
@@ -115,10 +121,6 @@ namespace Scene.InGame
                 case ELevelUpBonusEffectType.InstantGold:
                     _onGoldGranted?.Invoke(Mathf.RoundToInt(row.EffectValue));
                     break;
-
-                case ELevelUpBonusEffectType.InstantExp:
-                    _onExpGranted?.Invoke(Mathf.RoundToInt(row.EffectValue));
-                    break;
             }
 
             _bonusState.Acquire(row);
@@ -135,30 +137,19 @@ namespace Scene.InGame
             return Mathf.RoundToInt(amount * StatContext.GetGoldGainMultiplier());
         }
 
-        private int ApplyExpBuff(int amount)
-        {
-            if (amount <= 0)
-                return amount;
-
-            return Mathf.RoundToInt(amount * StatContext.GetExpGainMultiplier());
-        }
+        
 
 #region 보상 수신
 
-        // IExpRewardHandler 구현 — 몬스터 처치 시 호출됩니다.
-        public void OnExpGained(int amount)
-        {
-            // 적 처치 보너스 골드가 있으면 함께 지급합니다.
-            if (_bonusState.MonsterKillGoldAdd > 0)
-                _onGoldGranted?.Invoke(ApplyGoldBuff(_bonusState.MonsterKillGoldAdd));
-
-            _onExpGranted?.Invoke(ApplyExpBuff(amount));
-        }
+        
 
         // IResourceRewardHandler 구현 — 광물을 다 캐면 호출됩니다.
         public void OnResourceMined(int stoneReward, int expReward)
         {
             _onGoldGranted?.Invoke(ApplyGoldBuff(stoneReward + _bonusState.ResourceMineGoldAdd));
+
+            // 채굴량은 보상과 별개로 하나씩 셉니다(클리어 조건).
+            _onResourceMined?.Invoke();
         }
 
 #endregion

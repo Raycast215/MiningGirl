@@ -34,6 +34,12 @@ namespace MainGame.Bonus
         public float ExtraHitRateMultiplier { get; private set; } = 1f;
 
         // 최대 체력
+        // 스태미나 계열 — 소모 감소는 값이 클수록 덜 깎이므로 '감소량'으로 누적합니다.
+        public float MaxStaminaAdd { get; private set; }
+        public float MaxStaminaMultiplier { get; private set; } = 1f;
+        public float MiningStaminaCostReduce { get; private set; }
+        public float HitStaminaCostReduce { get; private set; }
+
         public float MaxHealthAdd { get; private set; }
         public float MaxHealthMultiplier { get; private set; } = 1f;
 
@@ -70,6 +76,11 @@ namespace MainGame.Bonus
             CriRateMultiplier = 1f;
             ExtraHitRateAdd = 0f;
             ExtraHitRateMultiplier = 1f;
+            MaxStaminaAdd = 0f;
+            MaxStaminaMultiplier = 1f;
+            MiningStaminaCostReduce = 0f;
+            HitStaminaCostReduce = 0f;
+
             MaxHealthAdd = 0f;
             MaxHealthMultiplier = 1f;
             MonsterKillGoldAdd = 0;
@@ -120,6 +131,19 @@ namespace MainGame.Bonus
                 case ELevelUpBonusEffectType.ExtraHitRate:
                     if (isAdd) ExtraHitRateAdd += value * 100f;
                     else ExtraHitRateMultiplier *= 1f + value;
+                    break;
+
+                case ELevelUpBonusEffectType.MaxStamina:
+                    if (isAdd) MaxStaminaAdd += value;
+                    else MaxStaminaMultiplier *= 1f + value;
+                    break;
+
+                case ELevelUpBonusEffectType.MiningStaminaCost:
+                    MiningStaminaCostReduce += value;
+                    break;
+
+                case ELevelUpBonusEffectType.HitStaminaCost:
+                    HitStaminaCostReduce += value;
                     break;
 
                 case ELevelUpBonusEffectType.MaxHealth:

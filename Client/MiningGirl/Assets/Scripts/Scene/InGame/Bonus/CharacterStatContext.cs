@@ -35,10 +35,6 @@ namespace MainGame.Bonus
         }
 
         // 카드 버프로 인한 경험치 획득 배율
-        public float GetExpGainMultiplier()
-        {
-            return Buffs.GetMultiplier(TemporaryBuffState.EBuffType.ExpGain);
-        }
 
         // 최대 체력 = 캐릭터 기본값 + 레벨업 합연산
         public float GetMaxHealth()

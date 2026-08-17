@@ -32,22 +32,16 @@ namespace Scene.InGame.Entity.Player
         [SerializeField]
         [Tooltip("피격 후 무적 시간(초)")]
         private float invincibleDuration = 2f;
-        [SerializeField]
-        [Tooltip("체력이 0이 되면 이 시간 동안 이동/채굴을 멈춥니다(초)")]
-        private float downDuration = 3f;
-        [SerializeField]
-        [Range(0.05f, 1f)]
-        [Tooltip("쓰러진 뒤 회복될 체력 비율(최대 체력 대비). 0.1이면 10%로 일어납니다.")]
-        private float reviveHealthRatio = 0.1f;
-
-        [SerializeField]
-        [Range(1f, 4f)]
-        [Tooltip("기상 직후 무적 시간 배율. 체력이 적게 회복되는 대신 빠져나갈 시간을 줍니다.")]
-        private float reviveInvincibleMultiplier = 2f;
-
-        // 남은 무적 시간 / 남은 다운 시간
+        // 남은 무적 시간
         private float _invincibleTimer;
-        private float _downTimer;
+
+        // 체력이 0이 되면 호출됩니다(스테이지 재시작).
+        // 부활은 없앴습니다 — 사망이 곧 스테이지 실패입니다.
+        private Action _onDead;
+
+        // 실제로 피해를 입은 순간 호출됩니다(무적으로 무시된 경우는 제외).
+        private Action _onDamaged;
+        private bool _isDead;
 
         private Tween _blinkTween;
         private IPlayerStatusPresenter _statusPresenter;
@@ -57,9 +51,18 @@ namespace Scene.InGame.Entity.Player
         private float GetInvincibleDuration() => _statContext != null && _statContext.HasStat ? _statContext.GetInvincibleDuration() : invincibleDuration;
         public float Health => BaseData?.Health ?? 0f;
         public bool IsInvincible => _invincibleTimer > 0f;
-        public bool IsDown => _downTimer > 0f;
-        // 쓰러진 뒤 회복까지 남은 비율 (게이지는 이 값을 표시합니다)
-        public float DownRatio => downDuration <= 0f ? 0f : Mathf.Clamp01(_downTimer / downDuration);
+        public bool IsDead => _isDead;
+
+        // 사망 시 호출할 콜백을 등록합니다.
+        public void SetDeadHandler(Action handler)
+        {
+            _onDead = handler;
+        }
+
+        public void SetDamagedHandler(Action handler)
+        {
+            _onDamaged = handler;
+        }
         public float InvincibleRatio => GetInvincibleDuration() <= 0f ? 0f : Mathf.Clamp01(_invincibleTimer / GetInvincibleDuration());
         public float HealthRatio => MaxHealth <= 0f ? 0f : Mathf.Clamp01(Health / MaxHealth);
 
@@ -80,7 +83,7 @@ namespace Scene.InGame.Entity.Player
             }
 
             _invincibleTimer = 0f;
-            _downTimer = 0f;
+            _isDead = false;
 
             StopBlink();
             RefreshStatus();
@@ -110,7 +113,7 @@ namespace Scene.InGame.Entity.Player
         // 쓰러져 있는 동안에는 회복해도 일어나지 않으므로 무시합니다.
         public void HealByRatio(float ratio)
         {
-            if (BaseData == null || ratio <= 0f || IsDown)
+            if (BaseData == null || ratio <= 0f || _isDead)
                 return;
 
             var amount = MaxHealth * ratio;
@@ -134,22 +137,6 @@ namespace Scene.InGame.Entity.Player
 
                 if (_invincibleTimer <= 0f)
                     StopBlink();
-            }
-
-            if (_downTimer > 0f)
-            {
-                _downTimer = Mathf.Max(0f, _downTimer - deltaTime);
-
-                if (_downTimer <= 0f)
-                {
-                    // 쓰러진 시간이 끝나면 최대 체력의 일정 비율로 일어납니다.
-                    // (고정 1로 일어나면 곧바로 다시 쓰러지는 반복이 생겨 비율로 바꿨습니다.)
-                    BaseData.Health = Mathf.Max(1f, MaxHealth * reviveHealthRatio);
-
-                    // 체력은 조금만 회복되지만, 그만큼 무적 시간을 길게 줘서 빠져나갈 틈을 만듭니다.
-                    _invincibleTimer = GetInvincibleDuration() * reviveInvincibleMultiplier;
-                    PlayBlink();
-                }
             }
 
             RefreshStatus();
@@ -176,7 +163,7 @@ namespace Scene.InGame.Entity.Player
 
         private void RefreshStatus()
         {
-            _statusPresenter?.SetStatus(HealthRatio, DownRatio, IsDown);
+            _statusPresenter?.SetStatus(HealthRatio, InvincibleRatio, IsInvincible);
         }
 
         private void PlayBlink()
@@ -318,8 +305,8 @@ namespace Scene.InGame.Entity.Player
 
         public override void Hit(float damage, bool isCritical)
         {
-            // 무적 중이거나 이미 쓰러져 있으면 피해를 받지 않습니다.
-            if (IsInvincible || IsDown)
+            // 무적 중이거나 이미 죽었으면 피해를 받지 않습니다.
+            if (IsInvincible || _isDead)
                 return;
 
             if (BaseData == null)
@@ -327,16 +314,23 @@ namespace Scene.InGame.Entity.Player
 
             BaseData.Health -= damage;
 
+            // 피격도 스태미나를 씁니다(무적으로 무시된 경우는 여기까지 오지 않습니다).
+            _onDamaged?.Invoke();
+
             if (BaseData.Health <= 0f)
             {
-                // 쓰러짐 — 이동/채굴이 멈추고, downDuration 뒤에 최소 체력으로 일어납니다.
+                // 사망 — 부활 없이 스테이지가 실패합니다.
                 BaseData.Health = 0f;
-                _downTimer = downDuration;
                 _invincibleTimer = 0f;
+                _isDead = true;
 
                 _attackNode?.Dispose();
                 StopMove();
                 StopBlink();
+                RefreshStatus();
+
+                _onDead?.Invoke();
+                return;
             }
             else
             {
@@ -348,10 +342,10 @@ namespace Scene.InGame.Entity.Player
             RefreshStatus();
         }
 
-        // 쓰러져 있거나 무적인 동안에는 몬스터가 공격 대상으로 삼지 않습니다.
+        // 죽었거나 무적인 동안에는 몬스터가 공격 대상으로 삼지 않습니다.
         public override bool IsAttackable()
         {
-            return GetActiveState() && !IsDown && !IsInvincible;
+            return GetActiveState() && !_isDead && !IsInvincible;
         }
 
         public override void SetDirection(Vector3 direction)

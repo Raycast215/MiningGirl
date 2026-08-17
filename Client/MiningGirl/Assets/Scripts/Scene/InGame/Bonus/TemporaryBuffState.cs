@@ -16,7 +16,6 @@ namespace MainGame.Bonus
             MoveSpeed,
             MiningSpeed,
             GoldGain,
-            ExpGain,
         }
 
         private class Entry

@@ -12,7 +12,6 @@ namespace MainGame
     public class MainGameUIController : GameMonoInitializer
     {
         private event Action OnNextGameExecuted;
-        private Action<int, Action> _onLevelUp;
 
         // 이번 런에서 누적된 골드. 스테이지 재시작(Next)에도 초기화되지 않습니다.
         private int _gold;
@@ -23,6 +22,51 @@ namespace MainGame
         [Tooltip("스테이지 제한 시간(초)")]
         private float stageTimeSeconds = 60f;
 
+        [SerializeField]
+        private TimerUI timerUI;
+        [SerializeField]
+        private StageUI stageUI;
+        [SerializeField]
+        private BuffListUI buffListUI;
+
+        [SerializeField]
+        private StaminaUI staminaUI;
+        [SerializeField]
+        private MiningProgressUI miningProgressUI;
+
+        [SerializeField]
+        [Tooltip("이 진행도를 넘기면 코스트 회복이 빨라집니다(0.5 = 절반 경과)")]
+        [Range(0f, 1f)]
+        private float costSpeedUpProgress = 0.5f;
+        [SerializeField]
+        private CostUI costUI;
+        [SerializeField]
+        [Tooltip("채굴로 획득한 골드를 표시합니다")]
+        private Scene.InGame.UI.Resource.CountViewerUI goldCountViewer;
+        [SerializeField]
+        private CharacterSelectPopup characterSelectPopup;
+
+        public async UniTask InitAsync(Action onNextGameExecuted)
+        {
+            OnNextGameExecuted = null;
+            OnNextGameExecuted += onNextGameExecuted;
+
+            timerUI.Init(GetStageTime(), GameFinish);
+            stageUI.Init();
+            costUI.Init();
+
+            // 새 클리어 조건: 목표 채굴량을 채우면 스테이지 종료
+            staminaUI?.Init();
+            miningProgressUI?.Init(GameFinish);
+            miningProgressUI?.SetGoalByStage(Stage);
+
+            // 골드는 런 전체에서 누적되므로 여기(최초 진입)에서만 0으로 시작합니다.
+            _gold = 0;
+            goldCountViewer.SetCount(_gold);
+
+            IsInitialized = true;
+        }
+
         // 스테이지 제한 시간은 게임 상수 테이블에서 가져옵니다.
         // 테이블에 값이 없으면 인스펙터 값으로 대체합니다.
         private float GetStageTime()
@@ -32,56 +76,17 @@ namespace MainGame
             return table != null ? table.GetValue(EGameConstantType.StageTime, stageTimeSeconds) : stageTimeSeconds;
         }
 
-        [SerializeField]
-        private TimerUI timerUI;
-        [SerializeField]
-        private StageUI stageUI;
-        [SerializeField]
-        private BuffListUI buffListUI;
-
-        [SerializeField]
-        [Tooltip("이 진행도를 넘기면 코스트 회복이 빨라집니다(0.5 = 절반 경과)")]
-        [Range(0f, 1f)]
-        private float costSpeedUpProgress = 0.5f;
-        [SerializeField]
-        private CostUI costUI;
-        [SerializeField]
-        private LevelExpUI levelExpUI;
-        [SerializeField]
-        [Tooltip("채굴로 획득한 골드를 표시합니다")]
-        private Scene.InGame.UI.Resource.CountViewerUI goldCountViewer;
-        [SerializeField]
-        private LevelUpBonusSelectPopup levelUpBonusPopup;
-        [SerializeField]
-        private CharacterSelectPopup characterSelectPopup;
-
-        public async UniTask InitAsync(Action onNextGameExecuted, Action<int, Action> onLevelUp = null)
+        // 스테이지가 새로 시작될 때 호출합니다(advanceStage가 false면 같은 스테이지 재도전).
+        public void SetTime(bool advanceStage = true)
         {
-            OnNextGameExecuted = null;
-            OnNextGameExecuted += onNextGameExecuted;
+            if (advanceStage)
+                stageUI.NextStage();
 
-            _onLevelUp = onLevelUp;
-            
-            timerUI.Init(GetStageTime(), GameFinish);
-            stageUI.Init();
-            costUI.Init();
-            levelExpUI.Init(OnLevelUp);
-
-            // 골드는 런 전체에서 누적되므로 여기(최초 진입)에서만 0으로 시작합니다.
-            _gold = 0;
-            goldCountViewer.SetCount(_gold);
-            
-            IsInitialized = true;
-        }
-
-        // 스테이지를 넘기고 시간을 초기화합니다(재시작 경로).
-        public void SetTime()
-        {
-            stageUI.NextStage();
             timerUI.SetTime(GetStageTime());
             costUI.SetCost(0);
-            // 레벨/경험치는 런 전체에서 유지되므로 스테이지 재시작 시 초기화하지 않습니다.
-            // (최초 진입 시 levelExpUI.Init()에서만 1레벨로 시작합니다.)
+
+            staminaUI?.Reset();
+            miningProgressUI?.SetGoalByStage(Stage);
         }
 
         public void GameStart()
@@ -89,29 +94,12 @@ namespace MainGame
             timerUI.Execute().Forget();
             costUI.Execute().Forget();
         }
-        
-        // 카드 사용 등 외부에서 코스트를 다룰 때 쓰는 진입점입니다.
+
         public bool CanAffordCost(int amount) => costUI.CanAfford(amount);
         public bool TrySpendCost(int amount) => costUI.TrySpend(amount);
         public void AddCost(int amount, bool allowOvercharge = false) => costUI.Add(amount, allowOvercharge);
 
-        // 레벨업 시 호출됩니다. 한 번에 여러 레벨이 올라도 레벨당 한 번씩 호출됩니다.
-        // TODO: 추후 이 시점에 레벨업 보너스 선택 UI를 띄웁니다.
-        // 레벨업 연출이 한 단계 끝난 시점에 호출됩니다.
-        // onContinue를 호출해야 다음 레벨 연출이 이어집니다.
-        private void OnLevelUp(int newLevel, Action onContinue)
-        {
-            Debug.Log($"[LevelUp] Lv.{newLevel} 달성");
-
-            if (_onLevelUp == null)
-            {
-                onContinue?.Invoke();
-                return;
-            }
-
-            _onLevelUp.Invoke(newLevel, onContinue);
-        }
-
+        // 골드 획득(양수만 받습니다). 소모는 TrySpendGold를 씁니다.
         public void AddGold(int amount)
         {
             if (amount <= 0)
@@ -119,18 +107,6 @@ namespace MainGame
 
             _gold += amount;
             goldCountViewer.AddCount(amount);
-        }
-
-        // 경험치 지급(외부 컨트롤러가 호출)
-        public void AddExp(int amount)
-        {
-            levelExpUI.AddExp(amount);
-        }
-
-        // 레벨업 보너스 팝업을 띄웁니다. 선택된 보너스는 onSelected로 전달됩니다.
-        public void ShowLevelUpBonus(int level, LevelUpBonusState state, Action<LevelUpBonusSkillDataTableRow> onSelected)
-        {
-            levelUpBonusPopup.Show(level, state, onSelected);
         }
 
         // 캐릭터 선택 팝업을 띄웁니다. 선택된 캐릭터 데이터가 onSelected로 전달됩니다.
@@ -143,10 +119,14 @@ namespace MainGame
         // 후반에 몬스터가 몰릴수록 카드를 더 자주 쓸 수 있게 하려는 의도입니다.
         private void Update()
         {
-            if (!IsInitialized || timerUI == null || costUI == null)
+            if (!IsInitialized || costUI == null)
                 return;
 
-            costUI.SetSpeedUp(timerUI.Progress >= costSpeedUpProgress);
+            // 제한 시간이 사라졌으므로 채굴 진행도를 기준으로 후반 가속을 판단합니다.
+            var progress = miningProgressUI != null ? miningProgressUI.Progress
+                : (timerUI != null ? timerUI.Progress : 0f);
+
+            costUI.SetSpeedUp(progress >= costSpeedUpProgress);
         }
 
         // 카드 버프 표시를 시작합니다.
@@ -160,12 +140,57 @@ namespace MainGame
         public int Stage => stageUI.Stage;
 
         // 아직 보여줄 레벨업이 남아 있는지 (팝업 이후 게임 재개 판단용)
-        public bool HasPendingLevelUp => levelExpUI.HasPendingLevelUp;
+        // 광물을 하나 캘 때마다 호출합니다(클리어 조건).
+        // 강화 구매에 쓸 골드를 소모합니다. 모자라면 아무것도 하지 않고 false를 돌려줍니다.
+        public bool TrySpendGold(int amount)
+        {
+            if (amount <= 0)
+                return true;
+
+            if (Gold < amount)
+                return false;
+
+            // AddGold는 획득 전용(양수만 받음)이라 소모는 직접 처리합니다.
+            _gold -= amount;
+            goldCountViewer.SetCount(_gold);
+
+            return true;
+        }
+
+        public void AddMinedCount(int amount = 1)
+        {
+            miningProgressUI?.Add(amount);
+
+            // 채굴은 스태미나를 씁니다. 많이 캘수록 몬스터를 버틸 여력이 줄어듭니다.
+            for (var i = 0; i < amount; i++)
+                staminaUI?.ConsumeByMining();
+        }
+
+        // 몬스터에게 맞았을 때 호출합니다.
+        public void ConsumeStaminaByHit()
+        {
+            staminaUI?.ConsumeByHit();
+        }
+
+        // 스태미나가 바닥났을 때 실행할 처리를 등록합니다.
+        // 강화 보정치 조회를 스태미나에 넘겨줍니다.
+        public void SetStaminaBonusProvider(System.Func<(float, float, float, float)> provider)
+        {
+            staminaUI?.SetBonusProvider(provider);
+        }
+
+        public void SetStaminaEmptyHandler(System.Action handler)
+        {
+            staminaUI?.SetEmptyHandler(handler);
+        }
+
 
         // 팝업 등으로 게임을 멈출 때 타이머와 코스트 회복을 함께 멈춥니다.
         public void SetPaused(bool paused)
         {
             timerUI.SetPaused(paused);
+            staminaUI?.SetPaused(paused);
+            miningProgressUI?.SetPaused(paused);
             costUI.SetPaused(paused);
         }
 

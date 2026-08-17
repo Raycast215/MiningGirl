@@ -23,8 +23,6 @@ namespace MainGame.UI
         private Color miningSpeedColor = new Color(1f, 0.72f, 0.30f);
         [SerializeField]
         private Color goldGainColor = new Color(1f, 0.85f, 0.35f);
-        [SerializeField]
-        private Color expGainColor = new Color(0.55f, 0.90f, 0.45f);
 
         private readonly List<BuffIconView> _icons = new List<BuffIconView>();
         private readonly List<KeyValuePair<TemporaryBuffState.EBuffType, float>> _buffer =
@@ -79,7 +77,6 @@ namespace MainGame.UI
                 case TemporaryBuffState.EBuffType.MoveSpeed: return moveSpeedColor;
                 case TemporaryBuffState.EBuffType.MiningSpeed: return miningSpeedColor;
                 case TemporaryBuffState.EBuffType.GoldGain: return goldGainColor;
-                case TemporaryBuffState.EBuffType.ExpGain: return expGainColor;
             }
 
             return Color.white;

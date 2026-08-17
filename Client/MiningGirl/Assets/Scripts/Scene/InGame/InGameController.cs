@@ -52,10 +52,13 @@ namespace Scene.InGame
 
         public async UniTask InitAsync()
         {
-            uIController.InitAsync(Next, OnLevelUp).Forget();
+            uIController.InitAsync(() => ShowUpgradeThen(true, () => Next())).Forget();
 
             // 보상/보너스 지급 경로를 UI 컨트롤러에 연결합니다.
-            levelUpController.Init(uIController.AddGold, uIController.AddExp);
+            levelUpController.Init(uIController.AddGold);
+
+            // 광물을 캘 때마다 채굴 진행도(클리어 조건)를 올립니다.
+            levelUpController.SetResourceMinedHandler(() => uIController.AddMinedCount());
 
             // 카드 버프 표시 시작
             uIController.InitBuffList(levelUpController.StatContext.Buffs);
@@ -95,7 +98,7 @@ namespace Scene.InGame
             
             // DamageController를 IFloatingDamagePresenter로 주입 — 몬스터가 피격 시 플로팅 데미지를 띄웁니다.
             // resourceController를 IResourceProvider로 주입 — 몬스터가 이동 중 광물을 비껴가게 합니다.
-            monsterController.Setup(damagePresenter: damageController, resourceProvider: resourceController, expRewardHandler: levelUpController);
+            monsterController.Setup(damagePresenter: damageController, resourceProvider: resourceController);
             monsterController.InitControllerAsync().Forget();
             await UniTask.WaitUntil(() => monsterController.IsInitialized);
 
@@ -155,6 +158,46 @@ namespace Scene.InGame
             // 플레이어 행동 트리(광물 탐색 → 이동 → 채굴) 시작
             playerController.StartBehaviour();
 
+            // 죽으면 같은 스테이지를 다시 시작합니다.
+            playerController.SetDeadHandler(() => RestartStage());
+
+            // 피격 시 스태미나 소모, 스태미나가 바닥나면 스테이지 재시작
+            playerController.SetDamagedHandler(() => uIController.ConsumeStaminaByHit());
+            uIController.SetStaminaEmptyHandler(() => RestartStage());
+
+            // 강화 팝업: 번 골드를 스테이지 사이에 쓰는 창구
+            upgradePopup?.Init(
+                getGold: () => uIController.Gold,
+                trySpendGold: uIController.TrySpendGold,
+                getLevel: row => levelUpController.BonusState.GetLevel(row.Id.ToString()),
+                onPurchase: row => levelUpController.ApplyBonus(row));
+
+            // 강화로 올린 스태미나 보정치를 연결합니다.
+            uIController.SetStaminaBonusProvider(() =>
+            {
+                var bonus = levelUpController.BonusState;
+
+                return (bonus.MaxStaminaAdd, bonus.MaxStaminaMultiplier,
+                    bonus.MiningStaminaCostReduce, bonus.HitStaminaCostReduce);
+            });
+
+            // 터치 사거리 판정 기준(캐릭터 위치)을 넘겨줍니다.
+            if (touchController != null)
+                touchController.SetPlayerPositionProvider(() => _playerEntity != null ? _playerEntity.GetPosition() : Vector3.zero);
+
+            // 밀치기 대상(활성 몬스터) 조회를 넘겨줍니다.
+            if (touchController != null)
+                touchController.SetMonsterProvider(() =>
+                    monsterController.ActivateList.ConvertAll(m => (Scene.InGame.Entity.Interface.IEntity)m));
+
+            // 새 스테이지에서는 밀치기를 바로 쓸 수 있게 합니다.
+            if (touchController != null)
+                touchController.ResetCooldown();
+
+            // 새 스테이지가 시작됐으니 재시작 잠금을 풉니다.
+            _isRestarting = false;
+            _isStageEnding = false;
+
 
         // 손패를 좌측부터 순차로 깔아줍니다.
             if (cardHandController != null)
@@ -182,23 +225,11 @@ namespace Scene.InGame
                 player.SetTarget(resource);
         }
 
-        // (테스트 버튼용) 경험치를 즉시 지급합니다.
-        // 수동 일시정지 상태 (테스트 버튼용)
-        private bool _isManualPaused;
-        public bool IsManualPaused => _isManualPaused;
-
-        // 일시정지 <-> 재개 토글.
-        // 레벨업 팝업이 떠 있는 동안에는 그쪽이 정지를 제어하므로 무시합니다.
+        // 테스트 버튼용 일시정지 토글.
         public void OnClickTogglePause()
         {
             if (!IsInitialized)
                 return;
-
-            if (_isLevelUpSequenceActive)
-            {
-                Debug.Log("[Pause] 레벨업 진행 중에는 일시정지를 사용할 수 없습니다.");
-                return;
-            }
 
             _isManualPaused = !_isManualPaused;
             SetGamePaused(_isManualPaused);
@@ -209,39 +240,6 @@ namespace Scene.InGame
         {
             if (pauseButtonText != null)
                 pauseButtonText.text = _isManualPaused ? "▶" : "II";
-        }
-
-        public void OnClickAddExp100()
-        {
-            uIController.AddExp(100);
-        }
-
-        // 레벨업 연출이 한 단계 끝날 때마다 호출됩니다.
-        // 팝업을 띄우고, 선택이 끝나면 onContinue로 다음 레벨 연출을 이어갑니다.
-        private bool _isLevelUpSequenceActive;
-
-        private void OnLevelUp(int newLevel, Action onContinue)
-        {
-            if (!_isLevelUpSequenceActive)
-            {
-                _isLevelUpSequenceActive = true;
-                SetGamePaused(true);
-            }
-
-            uIController.ShowLevelUpBonus(newLevel, levelUpController.BonusState, row =>
-            {
-                // 선택한 보너스를 적용합니다.
-                levelUpController.ApplyBonus(row);
-
-                // 다음 레벨 연출을 이어가고, 더 보여줄 레벨이 없으면 게임을 재개합니다.
-                onContinue?.Invoke();
-
-                if (uIController.HasPendingLevelUp)
-                    return;
-
-                _isLevelUpSequenceActive = false;
-                SetGamePaused(false);
-            });
         }
 
         // 팝업이 떠 있는 동안 타이머와 모든 엔티티의 행동을 멈춥니다.
@@ -269,7 +267,58 @@ namespace Scene.InGame
 
         // 다음 스테이지로 넘어갈 때(또는 Reset 버튼) 호출됩니다.
         // 지금까지 스폰된 몬스터/광물을 모두 풀로 되돌린 뒤, 처음부터 다시 시작합니다.
-        public void Next()
+        // 캐릭터가 죽으면 같은 스테이지를 처음부터 다시 합니다.
+        // 레벨·경험치·골드·강화는 런 단위로 유지되므로 재도전할수록 유리해집니다.
+        public void RestartStage()
+        {
+            if (_isRestarting)
+                return;
+
+            _isRestarting = true;
+
+            // 실패해도 번 골드로 강화할 수 있습니다.
+            ShowUpgradeThen(false, () => Next(false));
+        }
+
+        // 스테이지가 끝나면 강화 팝업을 띄우고, 닫은 뒤에 다음 동작을 이어갑니다.
+        // 살 수 있는 항목이 하나도 없으면 팝업을 건너뜁니다(빈 창을 닫게 하지 않기 위함).
+        private void ShowUpgradeThen(bool isCleared, System.Action next)
+        {
+            if (_isStageEnding)
+                return;
+
+            _isStageEnding = true;
+
+            if (upgradePopup == null || !upgradePopup.HasAnyAffordable(uIController.Stage))
+            {
+                next?.Invoke();
+
+                return;
+            }
+
+            SetGamePaused(true);
+
+            upgradePopup.Show(uIController.Stage, isCleared, () =>
+            {
+                SetGamePaused(false);
+
+                next?.Invoke();
+            });
+        }
+
+        [SerializeField]
+        private MainGame.UI.UpgradePopup upgradePopup;
+
+        // 테스트 버튼으로 건 수동 일시정지 상태
+        private bool _isManualPaused;
+
+        private bool _isRestarting;
+
+        // 스테이지가 끝나는 중인지. 클리어와 스태미나 소진이 같은 프레임에 겹치면
+        // 팝업이 두 번 뜨거나 결과가 뒤집히므로 첫 번째만 받습니다.
+        private bool _isStageEnding;
+
+        public void Next(bool advanceStage = true)
         {
             if (!IsInitialized)
                 return;
@@ -297,9 +346,6 @@ namespace Scene.InGame
                 // 재시작 시 수동 일시정지는 해제합니다.
                 _isManualPaused = false;
 
-                // 레벨업 연출이 진행 중이던 상태로 재시작하면 플래그가 남아
-                // 이후 일시정지 버튼이 계속 무시되므로 함께 초기화합니다.
-                _isLevelUpSequenceActive = false;
                 UpdatePauseButtonText();
 
                 playerController.StopBehaviour();
@@ -312,7 +358,7 @@ namespace Scene.InGame
             
                 WarpPlayer(Vector3.zero);
             
-                uIController.SetTime();
+                uIController.SetTime(advanceStage);
                 
                 // 캐릭터를 아직 고르지 않았다면(=씬 첫 시작) 선택 팝업부터 띄웁니다.
             // 재시작(Next)에서는 이미 고른 캐릭터와 강화 상태를 그대로 씁니다.

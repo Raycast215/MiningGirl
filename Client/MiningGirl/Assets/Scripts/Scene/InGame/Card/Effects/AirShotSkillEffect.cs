@@ -34,16 +34,11 @@ namespace MainGame.Card.Effects
                 if (!target.GetActiveState())
                     continue;
 
-                var dir = target.GetPosition() - origin;
-                dir.z = 0f;
+                // 위치를 직접 대입하면 순간이동처럼 보이므로 트윈으로 밀어냅니다.
+                var pushable = target as MainGame.Entity.Monster.Monster;
 
-                // 정확히 겹쳐 있으면 방향이 없으므로 임의 방향으로 밀어냅니다.
-                if (dir.sqrMagnitude < 0.0001f)
-                    dir = Vector3.up;
-
-                var tr = target.GetTransform();
-                if (tr != null)
-                    tr.position = target.GetPosition() + dir.normalized * KnockbackDistance;
+                if (pushable != null)
+                    pushable.PushFrom(origin, KnockbackDistance);
             }
         }
 

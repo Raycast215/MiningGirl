@@ -65,10 +65,21 @@ namespace MainGame.UI
 
             // 치명타 데미지는 '추가 배율'이라 +표기로 따로 보여줍니다.
             // (확률 옆에 괄호로 붙이면 확률이 150%인 것처럼 읽혀서 분리했습니다.)
-            return $"채굴 데미지 {V(row.Damage)}   채굴 주기 {V(row.AttackDelay, "초")}   이동속도 {V(row.MoveSpeed)}\n" +
-                   $"치명타 확률 {V(row.CriRate, "%")}   치명타 데미지 +{V(Mathf.RoundToInt(row.CriDamage * 100f), "%")}   추가타 확률 {V(row.ExtraHitRate, "%")}\n" +
-                   $"체력 {V(row.MaxHealth)}   피격 무적 시간 {V(row.InvincibleDuration, "초")}" +
-                   BuildStartSkillText(row, hex);
+            // 세로로 긴 카드형 슬롯이라 항목마다 한 줄씩 내려 적습니다.
+            // 가로로 붙여 쓰면 좁은 폭에서 줄바꿈이 제멋대로 일어나 읽기 어렵습니다.
+            var lines = new List<string>
+            {
+                $"채굴 데미지 {V(row.Damage)}",
+                $"채굴 주기 {V(row.AttackDelay, "초")}",
+                $"이동속도 {V(row.MoveSpeed)}",
+                $"치명타 확률 {V(row.CriRate, "%")}",
+                $"치명타 데미지 +{V(Mathf.RoundToInt(row.CriDamage * 100f), "%")}",
+                $"추가타 확률 {V(row.ExtraHitRate, "%")}",
+                $"체력 {V(row.MaxHealth)}",
+                $"피격 무적 시간 {V(row.InvincibleDuration, "초")}",
+            };
+
+            return string.Join("\n", lines) + BuildStartSkillText(row, hex);
         }
 
         // 캐릭터가 미리 들고 시작하는 스킬을 '이름 Lv.N' 형태로 보여줍니다.
@@ -118,7 +129,7 @@ namespace MainGame.UI
                     continue;
 
                 if (text.Length > 0)
-                    text.Append("   ");
+                    text.Append("\n");
 
                 // 시트에 최대 레벨보다 많이 적혀 있어도 실제 부여는 최대 레벨까지만 되므로
                 // 표시도 최대 레벨을 넘지 않게 잘라줍니다.
@@ -133,7 +144,7 @@ namespace MainGame.UI
             if (text.Length == 0)
                 return string.Empty;
 
-            return $"\n시작 스킬 {text}";
+            return $"\n\n시작 스킬\n{text}";
         }
 
         public void SetVisible(bool visible)

@@ -20,7 +20,6 @@ namespace MainGame.Card
                 { ESkillType.MoveSpeedUp,   new MoveSpeedUpSkillEffect() },
                 { ESkillType.MiningSpeedUp, new MiningSpeedUpSkillEffect() },
                 { ESkillType.GoldGainUp,    new GoldGainUpSkillEffect() },
-                { ESkillType.ExpGainUp,     new ExpGainUpSkillEffect() },
 
                 { ESkillType.Heal,          new HealSkillEffect() },
                 { ESkillType.TargetChange,  new TargetChangeSkillEffect() },

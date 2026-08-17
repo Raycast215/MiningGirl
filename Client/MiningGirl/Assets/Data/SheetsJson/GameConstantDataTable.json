@@ -3,7 +3,7 @@
   "ConstantType": "StageTime",
   "Desc": "스테이지 제한 시간(초)",
   "Id": 0,
-  "Value": 120
+  "Value": 60
 },
 {
   "ConstantType": "CardDeckSize",

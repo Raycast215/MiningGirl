@@ -112,6 +112,48 @@ namespace MainGame.Entity.Monster
             return _owner?.ActivateList;
         }
 
+        // 피해 없이 밀려나기만 합니다(터치 밀치기용).
+        // 위치를 즉시 대입하면 순간이동처럼 보이므로, 피격 넉백과 같은 DOMove 트윈을 씁니다.
+        public void PushFrom(Vector3 origin, float distance, float duration = 0.2f)
+        {
+            if (_isDead)
+                return;
+
+            if (_posTween != null)
+            {
+                _posTween.Kill();
+                _posTween = null;
+            }
+
+            var myPos = transform.position;
+            var dir = myPos - origin;
+            dir.z = 0f;
+
+            // 정확히 겹쳐 있으면 방향이 없으므로 임의 방향으로 밀어냅니다.
+            if (dir.sqrMagnitude < 0.0001f)
+                dir = Vector3.up;
+
+            // 비키네마틱 리지드바디라 transform을 직접 트윈하면 물리와 서로 덮어써서
+            // 목표 거리에 못 미칩니다. 리지드바디의 MovePosition으로 옮깁니다.
+            var body = GetComponent<Rigidbody>();
+            var from = myPos;
+            var to = myPos + dir.normalized * distance;
+            var progress = 0f;
+
+            _posTween = DOTween.To(() => progress, v =>
+                {
+                    progress = v;
+
+                    var next = Vector3.Lerp(from, to, v);
+
+                    if (body != null)
+                        body.MovePosition(next);
+                    else
+                        transform.position = next;
+                }, 1f, duration)
+                .SetEase(Ease.OutQuad);
+        }
+
         public override void Hit(float damage, bool isCritical)
         {
             if (_isDead)

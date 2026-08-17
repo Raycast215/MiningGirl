@@ -1,6 +1,6 @@
 [
 {
-  "Count": 1,
+  "Count": 2,
   "Id": 0,
   "SkillId": 1000
 },
@@ -17,16 +17,11 @@
 {
   "Count": 1,
   "Id": 3,
-  "SkillId": 2002
-},
-{
-  "Count": 1,
-  "Id": 4,
   "SkillId": 3000
 },
 {
   "Count": 1,
-  "Id": 5,
+  "Id": 4,
   "SkillId": 3001
 }
 ]
