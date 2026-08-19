@@ -1,12 +1,13 @@
 using System;
 using System.Collections.Generic;
 using Data;
+using MainGame.UI;
 using Manager;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace MainGame.UI
+namespace Scene.InGame.UI
 {
     // 스테이지가 끝날 때(클리어·실패 모두) 뜨는 강화 팝업.
     // 처치·채굴로 번 골드를 여기서 씁니다. 경험치·레벨을 대신하는 성장 창구입니다.

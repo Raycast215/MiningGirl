@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using Data;
-using MainGame.Card;
+using MainGame.UI;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
-namespace MainGame.UI
+namespace Scene.InGame.UI
 {
     // 카드 정리 화면.
     //
@@ -31,10 +31,55 @@ namespace MainGame.UI
         private TextMeshProUGUI countText;
 
         [SerializeField]
+        [Tooltip("고른 카드를 한 번에 되돌립니다")]
+        private Button resetButton;
+
+        [SerializeField]
         private Button confirmButton;
 
         [SerializeField]
         private TextMeshProUGUI confirmButtonText;
+
+        [Header("Detail")]
+        [SerializeField]
+        [Tooltip("누른 카드의 아이콘")]
+        private Image detailIcon;
+
+        [SerializeField]
+        [Tooltip("아이콘 뒤 원판(카테고리 색이 들어갑니다)")]
+        private Image detailIconBase;
+
+        [SerializeField]
+        [Tooltip("누른 카드의 이름")]
+        private TextMeshProUGUI detailNameText;
+        [SerializeField]
+        [Tooltip("카테고리 심볼(인게임 카드와 같은 아이콘)")]
+        private Image detailTypeSymbol;
+
+        [SerializeField]
+        [Tooltip("Attack / Assist / Support 순서로 넣습니다")]
+        private Sprite[] categorySymbols;
+
+
+        [SerializeField]
+        [Tooltip("카테고리와 코스트")]
+        private TextMeshProUGUI detailTagText;
+
+        [SerializeField]
+        [Tooltip("효과 설명")]
+        private TextMeshProUGUI detailDescText;
+
+        [SerializeField]
+        [Tooltip("덱에 몇 장 있는지")]
+        private TextMeshProUGUI detailCountText;
+
+        [SerializeField]
+        [Tooltip("아직 아무 카드도 안 눌렀을 때 보여주는 안내")]
+        private GameObject detailEmpty;
+
+        [SerializeField]
+        [Tooltip("카드를 눌렀을 때 켜지는 상세 묶음")]
+        private GameObject detailRoot;
 
         [SerializeField]
         [Tooltip("덜 고른 채로 진행하려 할 때 잠깐 보여주는 안내")]
@@ -62,6 +107,9 @@ namespace MainGame.UI
         // 버리기로 고른 카드의 위치
         private readonly HashSet<int> _discardIndexes = new HashSet<int>();
 
+        // 마지막으로 눌러 설명을 보고 있는 카드. -1이면 아직 아무것도 안 누른 상태입니다.
+        private int _focusIndex = -1;
+
         private int _deckSize;
         private Action<List<string>> _onConfirm;
 
@@ -74,6 +122,12 @@ namespace MainGame.UI
             {
                 confirmButton.onClick.RemoveAllListeners();
                 confirmButton.onClick.AddListener(Confirm);
+            }
+
+            if (resetButton != null)
+            {
+                resetButton.onClick.RemoveAllListeners();
+                resetButton.onClick.AddListener(ResetSelection);
             }
 
             Hide();
@@ -89,6 +143,7 @@ namespace MainGame.UI
             _cards.Clear();
             _newIndexes.Clear();
             _discardIndexes.Clear();
+            _focusIndex = -1;
 
             var table = Manager.DataTableManager.Instance?.SkillCardDataTable;
 
@@ -131,14 +186,37 @@ namespace MainGame.UI
             gameObject.SetActive(false);
         }
 
+        // 고른 것을 전부 해제합니다. 하나씩 다시 누르지 않아도 되도록.
+        private void ResetSelection()
+        {
+            if (_discardIndexes.Count == 0)
+                return;
+
+            _discardIndexes.Clear();
+
+            HideWarning();
+            Refresh();
+        }
+
         private void Toggle(int index)
         {
+            // 누른 카드의 설명을 아래에 띄웁니다(선택 여부와 별개).
+            _focusIndex = index;
+
             if (_discardIndexes.Contains(index))
+            {
                 _discardIndexes.Remove(index);
+            }
             else if (_discardIndexes.Count < RequiredDiscardCount)
+            {
                 _discardIndexes.Add(index);
+            }
             else
-                return;
+            {
+                // 이미 다 골랐으면 선택은 늘리지 않지만, 설명은 보여줘야 합니다.
+                // (여기서 그냥 빠져나가면 다른 카드를 눌러도 설명이 안 바뀝니다.)
+                ShowWarning($"버릴 카드는 {RequiredDiscardCount}장까지입니다");
+            }
 
             Refresh();
         }
@@ -151,7 +229,7 @@ namespace MainGame.UI
                 descText.text = $"버릴 카드 {required}장을 고르세요";
 
             if (countText != null)
-                countText.text = $"선택 {_discardIndexes.Count} / {required}";
+                countText.text = $"{_discardIndexes.Count} / {required}";
 
             EnsureItems(_cards.Count);
 
@@ -167,7 +245,7 @@ namespace MainGame.UI
 
                 _items[i].SetVisible(true);
                 _items[i].SetData(_cards[i], _newIndexes.Contains(i), _discardIndexes.Contains(i),
-                    () => Toggle(index));
+                    i == _focusIndex, () => Toggle(index));
             }
 
             // 필요한 만큼 다 골라야 넘어갈 수 있습니다.
@@ -187,6 +265,8 @@ namespace MainGame.UI
 
             if (confirmButtonText != null)
                 confirmButtonText.text = ready ? "다음 스테이지" : $"{required - _discardIndexes.Count}장 더 선택";
+
+            RefreshDetail();
         }
 
         private void Confirm()
@@ -217,6 +297,116 @@ namespace MainGame.UI
             Hide();
 
             callback?.Invoke(result);
+        }
+
+        // 누른 카드의 설명을 하단에 표시합니다.
+        private void RefreshDetail()
+        {
+            var hasFocus = _focusIndex >= 0 && _focusIndex < _cards.Count;
+
+            if (detailEmpty != null)
+                detailEmpty.SetActive(!hasFocus);
+
+            if (detailRoot != null)
+                detailRoot.SetActive(hasFocus);
+
+            if (!hasFocus)
+                return;
+
+            var row = _cards[_focusIndex];
+
+            // 아이콘과 카테고리 색을 카드와 똑같이 맞춥니다.
+            if (detailIconBase != null)
+            {
+                var color = GetCategoryColor(row.SkillCategoryType);
+
+                detailIconBase.color = new Color(color.r, color.g, color.b, 0.45f);
+            }
+
+            if (detailIcon != null)
+            {
+                var sprite = string.IsNullOrEmpty(row.AssetId)
+                    ? null
+                    : Resources.Load<Sprite>($"Icon/{row.AssetId}");
+
+                detailIcon.sprite = sprite;
+                detailIcon.enabled = sprite != null;
+            }
+
+            if (detailNameText != null)
+                detailNameText.text = row.Name;
+
+            // 인게임 카드에 붙는 것과 같은 카테고리 심볼을 보여줍니다.
+            if (detailTypeSymbol != null)
+            {
+                var index = (int)row.SkillCategoryType;
+                var sprite = categorySymbols != null && index >= 0 && index < categorySymbols.Length
+                    ? categorySymbols[index]
+                    : null;
+
+                detailTypeSymbol.sprite = sprite;
+                detailTypeSymbol.enabled = sprite != null;
+            }
+
+            if (detailTagText != null)
+                detailTagText.text = $"{GetCategoryName(row.SkillCategoryType)}   코스트 {row.Cost}";
+
+            if (detailDescText != null)
+                detailDescText.text = BuildDesc(row);
+
+            // 같은 카드가 덱에 몇 장인지 셉니다.
+            // 카드가 여러 칸으로 흩어져 있어 직접 세지 않으면 알기 어렵습니다.
+            if (detailCountText != null)
+            {
+                var count = 0;
+
+                for (var i = 0; i < _cards.Count; i++)
+                {
+                    if (_cards[i].Id != row.Id || _discardIndexes.Contains(i))
+                        continue;
+
+                    count++;
+                }
+
+                detailCountText.text = $"덱에 {count}장";
+            }
+        }
+
+        // 카드 뷰와 같은 기준의 카테고리 색입니다.
+        private static Color GetCategoryColor(ESkillCategoryType type)
+        {
+            return type switch
+            {
+                ESkillCategoryType.Attack => new Color(0.11f, 0.62f, 0.46f, 1f),
+                ESkillCategoryType.Assist => new Color(0.93f, 0.62f, 0.15f, 1f),
+                _ => new Color(0.22f, 0.54f, 0.87f, 1f),
+            };
+        }
+
+        private static string GetCategoryName(ESkillCategoryType type)
+        {
+            return type switch
+            {
+                ESkillCategoryType.Attack => "공격",
+                ESkillCategoryType.Assist => "보조",
+                _ => "서포트",
+            };
+        }
+
+        // 설명은 '{0} 데미지로 공격' 같은 서식이라 실제 값을 채워 보여줍니다.
+        private static string BuildDesc(SkillCardDataTableRow row)
+        {
+            if (string.IsNullOrEmpty(row.Desc))
+                return string.Empty;
+
+            try
+            {
+                return string.Format(row.Desc, row.EffectValue, row.DurationTime, row.EffectRange);
+            }
+            catch
+            {
+                return row.Desc;
+            }
         }
 
         // 안내를 잠깐 띄웠다가 지웁니다.

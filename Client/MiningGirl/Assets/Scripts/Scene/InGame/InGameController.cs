@@ -1,13 +1,14 @@
-using System;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using InGame.temp.System.FloatingDamage;
 using MainGame;
 using MainGame.Entity.Monster;
 using Manager;
+using Scene.InGame.Card;
 using Scene.InGame.Entity.Interface;
 using Scene.InGame.Entity.Player;
 using Scene.InGame.Entity.Resource;
+using Scene.InGame.UI;
 using Unity.Cinemachine;
 using UnityEngine;
 
@@ -42,7 +43,7 @@ namespace Scene.InGame
         private Scene.InGame.Entity.Touch.TouchEntityController touchController;
         [SerializeField]
         [Tooltip("손패 카드 (드래그 앤 드롭)")]
-        private MainGame.Card.CardHandController cardHandController;
+        private CardHandController cardHandController;
         [SerializeField]
         [Tooltip("일시정지 테스트 버튼의 라벨 (선택)")]
         private TMPro.TMP_Text pauseButtonText;
@@ -129,8 +130,8 @@ namespace Scene.InGame
                 uIController.ShowCharacterSelect(row =>
                 {
                     levelUpController.SetCharacter(row);
-                    Manager.GameDataManager.Instance?.SaveCharacter(row?.Id);
-                    CoverUIManager.Instance.CoverUI.Hide(() => GameStart().Forget()).Forget();
+                    GameDataManager.Instance?.SaveCharacter(row?.Id);
+                    CoverUIManager.Instance?.CoverUI.Hide(() => GameStart().Forget()).Forget();
                 });
             }
             else
@@ -186,6 +187,7 @@ namespace Scene.InGame
             uIController.SetStaminaEmptyHandler(() => RestartStage());
 
             // 강화 팝업: 번 골드를 스테이지 사이에 쓰는 창구
+            stageMapPopup?.Init();
             cardCleanupPopup?.Init();
 
             upgradePopup?.Init(
@@ -197,7 +199,7 @@ namespace Scene.InGame
                     levelUpController.ApplyBonus(row);
 
                     // 산 즉시 저장 — 강화 도중 앱이 꺼져도 산 것이 남습니다.
-                    Manager.GameDataManager.Instance?.SaveUpgrade(
+                    GameDataManager.Instance?.SaveUpgrade(
                         uIController.Gold, levelUpController.BonusState.GetAllLevels());
                 });
 
@@ -505,15 +507,19 @@ namespace Scene.InGame
         }
 
         [SerializeField]
-        private MainGame.UI.UpgradePopup upgradePopup;
+        private UpgradePopup upgradePopup;
 
         [SerializeField]
         [Tooltip("마지막 스테이지를 깼을 때 뜨는 데모 종료 안내")]
-        private MainGame.UI.DemoClearPopup demoClearPopup;
+        private DemoClearPopup demoClearPopup;
+
+        [SerializeField]
+        [Tooltip("스테이지 사이에 잠깐 지나가는 맵 연출")]
+        private StageMapPopup stageMapPopup;
 
         [SerializeField]
         [Tooltip("카드 정리 화면(정해진 스테이지마다 뜹니다)")]
-        private MainGame.UI.CardCleanupPopup cardCleanupPopup;
+        private CardCleanupPopup cardCleanupPopup;
 
         [SerializeField]
         [Tooltip("카드 정리가 열리는 주기. 3이면 3, 6, 9 스테이지 클리어 후")]
@@ -552,7 +558,29 @@ namespace Scene.InGame
         private bool _resumeUpgradePhase;
         private bool _resumeUpgradeFromClear;
 
+        // 맵 연출을 거친 뒤 실제 전환을 진행합니다.
+        // 클리어로 다음 칸에 갈 때만 보여줍니다. 실패 재도전은 같은 칸에 머무르므로
+        // 같은 연출을 반복해서 보여줄 이유가 없습니다.
         public void Next(bool advanceStage = true)
+        {
+            if (!IsInitialized)
+                return;
+
+            if (advanceStage && stageMapPopup != null)
+            {
+                var from = uIController.Stage;
+                var to = Mathf.Min(from + 1, GetMaxStage());
+
+                stageMapPopup.PlayAsync(from, to, GetMaxStage(), IsCardCleanupStage,
+                    () => NextInternal(true)).Forget();
+
+                return;
+            }
+
+            NextInternal(advanceStage);
+        }
+
+        private void NextInternal(bool advanceStage)
         {
             if (!IsInitialized)
                 return;

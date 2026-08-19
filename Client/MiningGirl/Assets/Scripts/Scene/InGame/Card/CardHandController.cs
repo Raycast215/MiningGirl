@@ -1,11 +1,12 @@
 using System;
-using Data;
-using Manager;
 using System.Collections.Generic;
+using Data;
 using InGame.System.Skill.UI;
+using MainGame.Card;
+using Manager;
 using UnityEngine;
 
-namespace MainGame.Card
+namespace Scene.InGame.Card
 {
     // 손패(카드 3장)의 드래그 판정과 드로우를 관리합니다.
     //
