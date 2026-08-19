@@ -186,6 +186,8 @@ namespace Scene.InGame
             uIController.SetStaminaEmptyHandler(() => RestartStage());
 
             // 강화 팝업: 번 골드를 스테이지 사이에 쓰는 창구
+            cardCleanupPopup?.Init();
+
             upgradePopup?.Init(
                 getGold: () => uIController.Gold,
                 trySpendGold: uIController.TrySpendGold,
@@ -323,7 +325,9 @@ namespace Scene.InGame
         // 테스트용 — 목표 채굴량을 채워 강제로 클리어시킵니다.
         public void OnClickForceClear()
         {
-            if (!IsInitialized)
+            // 스테이지가 끝나는 중(강화·카드 정리 화면)에는 무시합니다.
+            // 연타하면 종료 처리가 겹쳐 다음 스테이지가 멈춥니다.
+            if (!IsInitialized || _isStageEnding || _isRestarting)
                 return;
 
             uIController.ForceCompleteMining();
@@ -332,10 +336,99 @@ namespace Scene.InGame
         // 테스트용 — 스태미나를 모두 소모시켜 강제로 실패시킵니다.
         public void OnClickForceFail()
         {
-            if (!IsInitialized)
+            if (!IsInitialized || _isStageEnding || _isRestarting)
                 return;
 
             uIController.ForceDrainStamina();
+        }
+
+        // 이번 스테이지 클리어 후 카드 정리를 열지 판단합니다.
+        private bool IsCardCleanupStage(int stage)
+        {
+            if (cardCleanupInterval <= 0)
+                return false;
+
+            // 마지막 스테이지는 다음 판이 없으므로 정리할 이유가 없습니다.
+            if (stage >= GetMaxStage())
+                return false;
+
+            return stage % cardCleanupInterval == 0;
+        }
+
+        // 새 카드를 뽑아 덱과 함께 보여주고, 남길 카드로 덱을 교체합니다.
+        private void ShowCardCleanupThen(System.Action next)
+        {
+            var deck = cardHandController?.Deck;
+
+            if (cardCleanupPopup == null || deck == null)
+            {
+                next?.Invoke();
+
+                return;
+            }
+
+            var rewards = MainGame.Card.SkillDeck.PickRandomRewards(cardRewardCount);
+
+            if (rewards.Count == 0)
+            {
+                next?.Invoke();
+
+                return;
+            }
+
+            SetGamePaused(true);
+
+            cardCleanupPopup.Show(deck.GetDeckCards(), rewards, GetDeckSize(), cards =>
+            {
+                deck.SetDeckCards(cards);
+
+                SetGamePaused(false);
+
+                next?.Invoke();
+            });
+        }
+
+        // 유지할 덱 장수. 상수 테이블에서 읽습니다.
+        private int GetDeckSize()
+        {
+            var table = Manager.DataTableManager.Instance?.GameConstantDataTable;
+
+            return table != null ? table.GetInt(EGameConstantType.CardDeckSize, 10) : 10;
+        }
+
+        // 마지막 스테이지 번호. 상수 테이블에서 읽고, 없으면 인스펙터 값을 씁니다.
+        private int GetMaxStage()
+        {
+            var table = Manager.DataTableManager.Instance?.GameConstantDataTable;
+            var value = table != null ? table.GetValue(EGameConstantType.MaxStage, maxStage) : maxStage;
+
+            return Mathf.Max(1, Mathf.RoundToInt(value));
+        }
+
+        // 데모 종료 — 안내를 보여주고 저장을 지운 뒤 시작 씬으로 돌아갑니다.
+        private void ShowDemoClear()
+        {
+            SetGamePaused(true);
+
+            // 마지막 클리어 보상은 지급해 성과 표시가 어색하지 않게 합니다.
+            uIController.AddGold(stageClearGold + (uIController.Stage - 1) * stageClearGoldPerStage);
+
+            if (demoClearPopup == null)
+            {
+                FinishDemo();
+
+                return;
+            }
+
+            demoClearPopup.Show(uIController.Stage, uIController.Gold, FinishDemo);
+        }
+
+        private void FinishDemo()
+        {
+            // 런이 끝났으므로 진행 상태를 지웁니다. 다음 실행은 캐릭터 선택부터 시작합니다.
+            Manager.GameDataManager.Instance?.Clear();
+
+            UnityEngine.SceneManagement.SceneManager.LoadScene(startSceneName);
         }
 
         public void RestartStage()
@@ -357,6 +450,15 @@ namespace Scene.InGame
                 return;
 
             _isStageEnding = true;
+
+            // 마지막 스테이지를 깼으면 강화 대신 데모 종료로 갑니다.
+            // (더 진행할 스테이지가 없어 강화를 해도 쓸 곳이 없습니다.)
+            if (isCleared && uIController.Stage >= GetMaxStage())
+            {
+                ShowDemoClear();
+
+                return;
+            }
 
             // 클리어 보상은 성공했을 때만 줍니다.
             // (실패해도 그 판에서 번 골드는 남으므로, 이 차이가 성공의 값어치가 됩니다.)
@@ -390,12 +492,44 @@ namespace Scene.InGame
 
                 Manager.GameDataManager.Instance?.SaveUpgradePhaseEnd(nextStage);
 
+                // 클리어했고 주기에 걸리면 카드 정리를 거쳐 갑니다.
+                if (isCleared && IsCardCleanupStage(uIController.Stage))
+                {
+                    ShowCardCleanupThen(next);
+
+                    return;
+                }
+
                 next?.Invoke();
             });
         }
 
         [SerializeField]
         private MainGame.UI.UpgradePopup upgradePopup;
+
+        [SerializeField]
+        [Tooltip("마지막 스테이지를 깼을 때 뜨는 데모 종료 안내")]
+        private MainGame.UI.DemoClearPopup demoClearPopup;
+
+        [SerializeField]
+        [Tooltip("카드 정리 화면(정해진 스테이지마다 뜹니다)")]
+        private MainGame.UI.CardCleanupPopup cardCleanupPopup;
+
+        [SerializeField]
+        [Tooltip("카드 정리가 열리는 주기. 3이면 3, 6, 9 스테이지 클리어 후")]
+        private int cardCleanupInterval = 3;
+
+        [SerializeField]
+        [Tooltip("한 번에 제시할 새 카드 장수")]
+        private int cardRewardCount = 3;
+
+        [SerializeField]
+        [Tooltip("상수 테이블에 값이 없을 때 쓸 마지막 스테이지 번호")]
+        private int maxStage = 10;
+
+        [SerializeField]
+        [Tooltip("데모 종료 후 돌아갈 씬 이름")]
+        private string startSceneName = "StartScene";
 
         [SerializeField]
         [Tooltip("스테이지를 클리어했을 때 주는 기본 골드. 실패하면 주지 않습니다.")]

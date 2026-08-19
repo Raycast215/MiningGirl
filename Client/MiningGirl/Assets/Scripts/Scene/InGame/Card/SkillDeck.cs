@@ -89,6 +89,67 @@ namespace MainGame.Card
             _discardPile.Add(skillId);
         }
 
+        // 현재 덱 구성(스킬 Id 목록). 카드 정리 화면에서 씁니다.
+        public IReadOnlyList<string> GetDeckCards() => _cards;
+
+        // 덱 전체를 새 구성으로 교체합니다. 정리 화면에서 확정할 때 씁니다.
+        public void SetDeckCards(IReadOnlyList<string> cards)
+        {
+            _cards.Clear();
+
+            if (cards != null)
+                _cards.AddRange(cards);
+
+            ResetPiles();
+        }
+
+        // 보상용 카드를 가중치로 뽑습니다. 같은 카드가 또 나올 수 있습니다.
+        // (카드 종류가 적어 중복을 막으면 금방 뽑을 것이 없어집니다.
+        //  중복은 '그 카드가 자주 나오는 덱'이라는 전략이 되기도 합니다.)
+        public static List<SkillCardDataTableRow> PickRandomRewards(int count)
+        {
+            var result = new List<SkillCardDataTableRow>();
+            var table = DataTableManager.Instance?.SkillCardDataTable;
+
+            if (table?.Rows == null || count <= 0)
+                return result;
+
+            // 가중치가 0 이하인 카드는 보상에서 제외합니다.
+            var pool = new List<SkillCardDataTableRow>();
+            var totalWeight = 0;
+
+            foreach (var row in table.Rows)
+            {
+                if (row == null || row.Weight <= 0)
+                    continue;
+
+                pool.Add(row);
+                totalWeight += row.Weight;
+            }
+
+            if (pool.Count == 0 || totalWeight <= 0)
+                return result;
+
+            for (var i = 0; i < count; i++)
+            {
+                var pick = Random.Range(0, totalWeight);
+
+                foreach (var row in pool)
+                {
+                    pick -= row.Weight;
+
+                    if (pick >= 0)
+                        continue;
+
+                    result.Add(row);
+
+                    break;
+                }
+            }
+
+            return result;
+        }
+
         // 런 도중 카드를 얻었을 때(스테이지 보상 등)
         public void AddCard(string skillId)
         {

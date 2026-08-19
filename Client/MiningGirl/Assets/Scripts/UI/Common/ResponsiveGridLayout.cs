@@ -17,8 +17,20 @@ namespace UI.Common
         private Vector2 spacing = new Vector2(40f, 18f);
 
         [SerializeField]
-        [Tooltip("셀 높이(가로만 화면에 맞춰 늘어납니다)")]
+        [Tooltip("셀 높이(가로만 화면에 맞춰 늘어납니다). 비율 유지를 켜면 무시됩니다.")]
         private float cellHeight = 150f;
+
+        [SerializeField]
+        [Tooltip("켜면 높이를 폭 x 비율로 계산합니다. 카드처럼 모양이 정해진 항목에 씁니다.")]
+        private bool keepAspect;
+
+        [SerializeField]
+        [Tooltip("높이 / 폭 비율. 카드 400x550이면 1.375")]
+        private float aspectRatio = 1.375f;
+
+        [SerializeField]
+        [Tooltip("셀 높이의 상한. 0이면 제한 없음. 세로가 좁은 화면에서 넘치는 것을 막습니다.")]
+        private float maxCellHeight;
 
         [SerializeField]
         [Tooltip("한 칸의 최대 폭. 화면이 아주 넓을 때 항목이 지나치게 길어지는 것을 막습니다.")]
@@ -68,7 +80,21 @@ namespace UI.Common
             _grid.constraint = GridLayoutGroup.Constraint.FixedColumnCount;
             _grid.constraintCount = count;
             _grid.spacing = spacing;
-            _grid.cellSize = new Vector2(Mathf.Max(1f, cellWidth), cellHeight);
+            var height = cellHeight;
+
+            if (keepAspect)
+            {
+                height = cellWidth * Mathf.Max(0.1f, aspectRatio);
+
+                // 세로가 좁은 화면에서는 높이를 먼저 맞추고 폭을 거기에 맞춥니다.
+                if (maxCellHeight > 0f && height > maxCellHeight)
+                {
+                    height = maxCellHeight;
+                    cellWidth = height / Mathf.Max(0.1f, aspectRatio);
+                }
+            }
+
+            _grid.cellSize = new Vector2(Mathf.Max(1f, cellWidth), Mathf.Max(1f, height));
         }
     }
 }

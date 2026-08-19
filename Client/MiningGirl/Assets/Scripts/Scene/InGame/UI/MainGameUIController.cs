@@ -79,6 +79,9 @@ namespace MainGame
         // 스테이지가 새로 시작될 때 호출합니다(advanceStage가 false면 같은 스테이지 재도전).
         public void SetTime(bool advanceStage = true)
         {
+            // 새 스테이지가 시작되므로 종료 상태를 풉니다.
+            _isFinished = false;
+
             if (advanceStage)
                 stageUI.NextStage();
 
@@ -236,11 +239,20 @@ namespace MainGame
             costUI.SetPaused(paused);
         }
 
+        // 스테이지가 이미 끝났는지. 한 스테이지에서 종료 처리는 한 번만 돌아야 합니다.
+        // (목표 달성과 스태미나 소진이 겹치거나, 테스트 버튼을 연타하면 두 번 불립니다.
+        //  두 번째 호출이 새 스테이지의 코스트 진행을 멈춰 게임이 정지하는 문제가 있었습니다.)
+        private bool _isFinished;
+
         public void GameFinish()
         {
+            if (_isFinished)
+                return;
+
+            _isFinished = true;
+
             costUI.StopProcess();
             OnNextGameExecuted?.Invoke();
-            Debug.Log("게임 종료");
         }
     }
 }

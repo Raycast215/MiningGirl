@@ -114,6 +114,8 @@ public enum EGameConstantType
 
     MonsterSpawnInterval,  // 몬스터 스폰 간격(초)
     ResourceSpawnInterval, // 광물 스폰 간격(초)
+
+    MaxStage, // 마지막 스테이지 번호(이 스테이지를 깨면 런이 끝납니다)
 }
 
 public enum ESkillType

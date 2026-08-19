@@ -1,44 +1,50 @@
 [
-{
-  "ConstantType": "StageTime",
-  "Desc": "스테이지 제한 시간(초)",
-  "Id": 0,
-  "Value": 60
-},
-{
-  "ConstantType": "CardDeckSize",
-  "Desc": "시작 덱 장수",
-  "Id": 1,
-  "Value": 10
-},
-{
-  "ConstantType": "CardRerollCost",
-  "Desc": "카드 리롤(버리기) 비용",
-  "Id": 2,
-  "Value": 1
-},
-{
-  "ConstantType": "MonsterSpawnCount",
-  "Desc": "몬스터 최대 소환 수",
-  "Id": 3,
-  "Value": 10
-},
-{
-  "ConstantType": "ResourceSpawnCount",
-  "Desc": "광물 초기 소환 수 겸 최대 수량",
-  "Id": 4,
-  "Value": 10
-},
-{
-  "ConstantType": "MonsterSpawnInterval",
-  "Desc": "몬스터 스폰 간격(초)",
-  "Id": 5,
-  "Value": 2
-},
-{
-  "ConstantType": "ResourceSpawnInterval",
-  "Desc": "광물 스폰 간격(초)",
-  "Id": 6,
-  "Value": 2
-}
+  {
+    "ConstantType": "StageTime",
+    "Desc": "스테이지 제한 시간(초)",
+    "Id": 0,
+    "Value": 60
+  },
+  {
+    "ConstantType": "CardDeckSize",
+    "Desc": "시작 덱 장수",
+    "Id": 1,
+    "Value": 10
+  },
+  {
+    "ConstantType": "CardRerollCost",
+    "Desc": "카드 리롤(버리기) 비용",
+    "Id": 2,
+    "Value": 1
+  },
+  {
+    "ConstantType": "MonsterSpawnCount",
+    "Desc": "몬스터 최대 소환 수",
+    "Id": 3,
+    "Value": 10
+  },
+  {
+    "ConstantType": "ResourceSpawnCount",
+    "Desc": "광물 초기 소환 수 겸 최대 수량",
+    "Id": 4,
+    "Value": 10
+  },
+  {
+    "ConstantType": "MonsterSpawnInterval",
+    "Desc": "몬스터 스폰 간격(초)",
+    "Id": 5,
+    "Value": 2
+  },
+  {
+    "ConstantType": "ResourceSpawnInterval",
+    "Desc": "광물 스폰 간격(초)",
+    "Id": 6,
+    "Value": 2
+  },
+  {
+    "ConstantType": "MaxStage",
+    "Desc": "마지막 스테이지 번호",
+    "Id": 7,
+    "Value": 10
+  }
 ]
