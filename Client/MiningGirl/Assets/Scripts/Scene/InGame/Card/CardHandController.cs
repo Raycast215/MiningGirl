@@ -27,6 +27,10 @@ namespace Scene.InGame.Card
         private Canvas canvas;
 
         [SerializeField]
+        [Tooltip("손패 배치를 계산하는 컴포넌트(카드들의 부모)")]
+        private global::UI.Common.HandCardLayout handLayout;
+
+        [SerializeField]
         [Tooltip("아래로 버릴 때 표시되는 영역 UI (선택)")]
         private SkillCardRemoveUI removeUI;
 
@@ -51,6 +55,16 @@ namespace Scene.InGame.Card
         [SerializeField]
         [Tooltip("카드가 빠진 뒤 남은 카드들이 좌측으로 밀리는 시간(초)")]
         private float shiftDuration = 0.2f;
+
+        [Header("Reorder")]
+        [SerializeField]
+        [Tooltip("끌고 있는 카드가 옆 카드 자리에 이만큼 들어오면 자리를 바꿉니다(슬롯 간격 대비 비율)")]
+        [Range(0.2f, 1f)]
+        private float reorderThreshold = 0.5f;
+
+        [SerializeField]
+        [Tooltip("자리를 비켜주는 카드가 움직이는 시간(초)")]
+        private float reorderDuration = 0.15f;
 
         [Header("Cost")]
         [SerializeField]
@@ -107,8 +121,9 @@ namespace Scene.InGame.Card
             if (canvas == null)
                 canvas = GetComponentInParent<Canvas>();
 
-            // 씬에 배치된 순서를 좌 -> 우 슬롯 위치로 기억해 둡니다.
-            _slotPositions.Clear();
+            // 슬롯 좌표는 HandCardLayout이 손패 수에 맞춰 계산합니다.
+            if (handLayout == null && cards.Count > 0 && cards[0] != null)
+                handLayout = cards[0].transform.parent.GetComponent<global::UI.Common.HandCardLayout>();
 
             for (var i = 0; i < cards.Count; i++)
             {
@@ -117,7 +132,6 @@ namespace Scene.InGame.Card
                     continue;
 
                 card.Init(i, canvas, OnDragBegin, OnDragging, OnDragEnd);
-                _slotPositions.Add(((RectTransform)card.transform).anchoredPosition);
             }
 
             // 아직 깔지 않고 숨겨둡니다. 실제 드로우는 게임 시작(StartHand) 시점에 합니다.
@@ -224,6 +238,44 @@ namespace Scene.InGame.Card
 
 #region Drag Callbacks
 
+        // 손패 수에 맞춰 슬롯 좌표를 다시 구하고 카드들을 배치합니다.
+        // 배치 계산은 HandCardLayout이, 어느 카드가 어느 슬롯인지는 여기가 정합니다.
+        private void RefreshSlots(float duration)
+        {
+            if (handLayout == null)
+                return;
+
+            var count = _order.Count;
+
+            _slotPositions.Clear();
+
+            for (var i = 0; i < count; i++)
+            {
+                var slot = handLayout.GetSlot(i, count);
+
+                _slotPositions.Add(slot.Position);
+
+                var card = _order[i];
+
+                if (card == null)
+                    continue;
+
+                // 끌고 있는 카드는 맨 위에 떠 있어야 하므로 자리·깊이를 건드리지 않습니다.
+                if (card.IsDragging)
+                    continue;
+
+                // 오른쪽 카드가 위에 오도록 순서대로 그립니다.
+                card.transform.SetSiblingIndex(i);
+
+                card.SetSlotPose(slot.Position, slot.Angle, slot.Scale, duration);
+            }
+
+            // 다른 카드가 자리를 잡으면서 순서가 밀리므로,
+            // 끌고 있는 카드는 마지막에 다시 맨 위로 올립니다.
+            if (_draggingCard != null)
+                _draggingCard.transform.SetAsLastSibling();
+        }
+
         private void OnDragBegin(CardView card)
         {
             if (_isPaused)
@@ -238,6 +290,12 @@ namespace Scene.InGame.Card
 
             // 다른 카드는 잠가서 두 번째 손가락이 다른 카드를 집지 못하게 합니다.
             SetOthersInteractable(card, false);
+
+            // 끌고 있는 동안은 똑바로 세웁니다(기울어진 채 끌리면 손끝과 어긋나 보입니다).
+            card.SetSlotAngle(0f, reorderDuration);
+
+            // 끌고 있는 카드는 맨 위에 그려 다른 카드에 가리지 않게 합니다.
+            card.transform.SetAsLastSibling();
 
             _dragStartScreenPos[card] = GetScreenPosition(card);
         }
@@ -257,11 +315,71 @@ namespace Scene.InGame.Card
 
             // 끌고 있는 동안에만 '지금 놓으면 되는지'를 프레임 색으로 알려줍니다.
             card.SetDragFeedback(isDiscard ? CanAfford(GetDiscardCost()) : CanUseNow(card));
+
+            // 버리려고 아래로 끄는 중이 아니면 자리 바꾸기를 살핍니다.
+            if (!isDiscard)
+                TryReorder(card);
+        }
+
+        // 끌고 있는 카드가 옆 슬롯 가까이 오면 그 자리의 카드와 순서를 바꿉니다.
+        // 끌리는 카드는 손끝을 따라가고, 비켜주는 카드만 부드럽게 움직입니다.
+        private void TryReorder(CardView card)
+        {
+            var from = _order.IndexOf(card);
+
+            if (from < 0 || _order.Count < 2 || _slotPositions.Count < 2)
+                return;
+
+            var rect = (RectTransform)card.transform;
+            var current = card.DragLocalPosition;
+
+            // 슬롯 간격. 이 간격의 일정 비율만큼 넘어오면 자리를 바꿉니다.
+            var step = Mathf.Abs(_slotPositions[1].x - _slotPositions[0].x);
+
+            if (step <= 0f)
+                return;
+
+            var threshold = step * reorderThreshold;
+            var to = from;
+
+            // 오른쪽으로 넘어갔는지
+            if (from + 1 < _order.Count
+                && current.x - _slotPositions[from].x > threshold)
+                to = from + 1;
+            // 왼쪽으로 넘어갔는지
+            else if (from - 1 >= 0
+                && _slotPositions[from].x - current.x > threshold)
+                to = from - 1;
+
+            if (to == from)
+                return;
+
+            // 순서를 맞바꿉니다.
+            var other = _order[to];
+
+            _order[to] = card;
+            _order[from] = other;
+
+            // 비켜주는 카드는 새 자리로 부드럽게 이동합니다.
+            // 끌고 있는 카드는 RefreshSlots가 건너뛰므로 손끝에 그대로 붙어 있습니다.
+            RefreshSlots(reorderDuration);
+
+            // 놓았을 때 돌아갈 자리를 새 슬롯으로 맞춰 둡니다.
+            if (handLayout != null)
+            {
+                var slot = handLayout.GetSlot(to, _order.Count);
+
+                card.MoveSlotKeepingDrag(slot.Position);
+            }
         }
 
         private void OnDragEnd(CardView card)
         {
             _draggingCard = null;
+
+            // 끌던 카드도 자기 슬롯 자세(위치·각도·배율)로 돌아갑니다.
+            // 드래그 중에는 RefreshSlots가 이 카드를 건너뛰므로 여기서 맞춰 줍니다.
+            RefreshSlots(reorderDuration);
 
             // 잠갔던 다른 카드를 다시 풀어줍니다.
             if (!_isPaused)
@@ -433,17 +551,19 @@ namespace Scene.InGame.Card
         {
             _order.Clear();
 
-            for (var i = 0; i < cards.Count; i++)
+            foreach (var card in cards)
             {
-                var card = cards[i];
                 if (card == null)
                     continue;
 
-                card.SetSlotPosition(_slotPositions[i], 0f);
-                DrawTo(card, true, i * drawStagger);
-
                 _order.Add(card);
             }
+
+            // 순서가 정해진 뒤 자리를 잡아야 각도가 어긋나지 않습니다.
+            RefreshSlots(0f);
+
+            for (var i = 0; i < _order.Count; i++)
+                DrawTo(_order[i], true, i * drawStagger);
         }
 
         // 카드가 손패에서 빠진 뒤 처리.
@@ -456,19 +576,16 @@ namespace Scene.InGame.Card
 
             _order.Remove(card);
 
-            // 남은 카드들을 앞 슬롯으로 밀어줍니다.
-            for (var i = 0; i < _order.Count; i++)
-                _order[i].SetSlotPosition(_slotPositions[i], shiftDuration);
-
-            // 빈 맨 뒷자리에 새 카드를 놓습니다.
-            var lastIndex = Mathf.Min(_order.Count, _slotPositions.Count - 1);
-
-            card.SetSlotPosition(_slotPositions[lastIndex], 0f);
+            // 빠진 카드는 맨 뒤로 다시 들어옵니다.
             card.transform.SetAsLastSibling();
 
-            DrawTo(card, true, shiftDuration * 0.5f);
-
             _order.Add(card);
+
+            // 남은 카드와 새 카드를 한 번에 제자리로 보냅니다.
+            // (순서를 확정한 뒤 배치해야 각도·위치가 서로 맞습니다.)
+            RefreshSlots(shiftDuration);
+
+            DrawTo(card, true, shiftDuration * 0.5f);
         }
 
         // 새 카드를 뽑아 슬롯을 채웁니다. 스킬 카드 테이블에서 가중치로 고릅니다.

@@ -84,11 +84,8 @@ namespace MainGame.Card
         [Tooltip("카드 그림. 어드레서블에서 불러옵니다.")]
         private Image iconImage;
         [SerializeField]
-        private Sprite attackFrame;
-        [SerializeField]
-        private Sprite assistFrame;
-        [SerializeField]
-        private Sprite supportFrame;
+        [Tooltip("Attack / Assist / Support 순서. 지금은 셋 다 같은 프레임을 씁니다.")]
+        private Sprite[] categoryFrames;
 
         [Header("Motion")]
         [SerializeField]
@@ -104,6 +101,22 @@ namespace MainGame.Card
 
         public int SlotIndex { get; private set; }
         public bool IsDragging { get; private set; }
+
+        // 지금 끌고 있는 위치를 슬롯과 같은 기준(카드 루트)으로 돌려줍니다.
+        // contents는 카드 안쪽 좌표라 슬롯 좌표와 그대로 비교하면 어긋납니다.
+        public Vector2 DragLocalPosition
+        {
+            get
+            {
+                var rect = (RectTransform)transform;
+
+                if (contents == null)
+                    return rect.anchoredPosition;
+
+                // 카드 루트 위치 + 안쪽에서 끌린 거리
+                return rect.anchoredPosition + contents.anchoredPosition * rect.localScale.x;
+            }
+        }
 
         // 드래그 중 내용물의 화면상 위치
         public RectTransform Contents => contents;
@@ -329,16 +342,11 @@ namespace MainGame.Card
 
         private void ApplyFrame(ESkillCategoryType category)
         {
-            if (frameImage == null)
+            if (frameImage == null || categoryFrames == null)
                 return;
 
-            var sprite = category switch
-            {
-                ESkillCategoryType.Attack => attackFrame,
-                ESkillCategoryType.Assist => assistFrame,
-                ESkillCategoryType.Support => supportFrame,
-                _ => attackFrame
-            };
+            var index = (int)category;
+            var sprite = index >= 0 && index < categoryFrames.Length ? categoryFrames[index] : null;
 
             if (sprite != null)
                 frameImage.sprite = sprite;
@@ -380,6 +388,69 @@ namespace MainGame.Card
 
             _slotTween = _rect.DOAnchorPos(slotPosition, duration).SetEase(Ease.OutCubic);
         }
+
+        // 위치·각도·배율을 한 번에 맞춥니다(부채꼴 손패 배치용).
+        public void SetSlotPose(Vector2 slotPosition, float angle, float scale, float duration)
+        {
+            if (_rect == null)
+                _rect = transform as RectTransform;
+
+            _slotTween?.Kill();
+
+            if (duration <= 0f)
+            {
+                _rect.anchoredPosition = slotPosition;
+                _rect.localRotation = Quaternion.Euler(0f, 0f, angle);
+                _rect.localScale = Vector3.one * scale;
+
+                return;
+            }
+
+            _slotTween = _rect.DOAnchorPos(slotPosition, duration).SetEase(Ease.OutCubic);
+
+            _rect.DOLocalRotate(new Vector3(0f, 0f, angle), duration).SetEase(Ease.OutCubic);
+            _rect.DOScale(scale, duration).SetEase(Ease.OutCubic);
+        }
+
+        // 드래그 도중 슬롯을 옮깁니다.
+        // 카드 루트는 새 슬롯으로 가고, 안쪽(contents)은 그만큼 반대로 밀어
+        // 손끝에 붙어 있던 화면상 위치가 그대로 유지됩니다.
+        public void MoveSlotKeepingDrag(Vector2 slotPosition)
+        {
+            var rect = (RectTransform)transform;
+            var delta = slotPosition - rect.anchoredPosition;
+
+            _slotTween?.Kill();
+
+            rect.anchoredPosition = slotPosition;
+
+            if (contents == null)
+                return;
+
+            var scale = Mathf.Approximately(rect.localScale.x, 0f) ? 1f : rect.localScale.x;
+
+            contents.anchoredPosition -= delta / scale;
+        }
+
+        // 각도만 바꿉니다. 드래그 중에는 0도로 세워 두었다가
+        // 놓을 때 슬롯 각도로 돌아갑니다.
+        public void SetSlotAngle(float angle, float duration)
+        {
+            if (_rect == null)
+                _rect = transform as RectTransform;
+
+            _rect.DOKill(false);
+
+            if (duration <= 0f)
+            {
+                _rect.localRotation = Quaternion.Euler(0f, 0f, angle);
+
+                return;
+            }
+
+            _rect.DOLocalRotate(new Vector3(0f, 0f, angle), duration).SetEase(Ease.OutCubic);
+        }
+
 
         // 새 카드가 손패로 들어오는 연출
         public void PlayDraw(float delay = 0f)

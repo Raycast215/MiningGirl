@@ -1553,9 +1553,10 @@ MonoBehaviour:
   unavailableShakeDuration: 0.22
   frameImage: {fileID: 5006571434266454480}
   iconImage: {fileID: 1008629346429003393}
-  attackFrame: {fileID: 21300000, guid: 4808a9bb4f4cf8a4f843021c86b1e864, type: 3}
-  assistFrame: {fileID: 21300000, guid: ebdff6cd2bf5ddd4c8e386250a1b608b, type: 3}
-  supportFrame: {fileID: 21300000, guid: 14487e1ed8f386e4aa588eb99faa2218, type: 3}
+  categoryFrames:
+  - {fileID: 21300000, guid: 53486af3d95df0c4c8a6f1f69c0fde10, type: 3}
+  - {fileID: 21300000, guid: 53486af3d95df0c4c8a6f1f69c0fde10, type: 3}
+  - {fileID: 21300000, guid: 53486af3d95df0c4c8a6f1f69c0fde10, type: 3}
   dragScale: 1.1
   returnDuration: 0.2
   drawFromOffsetY: -400
@@ -1794,7 +1795,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 4808a9bb4f4cf8a4f843021c86b1e864, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 53486af3d95df0c4c8a6f1f69c0fde10, type: 3}
   m_Type: 1
   m_PreserveAspect: 0
   m_FillCenter: 1
