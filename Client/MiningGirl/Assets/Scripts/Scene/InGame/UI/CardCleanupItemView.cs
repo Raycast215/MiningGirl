@@ -1,5 +1,7 @@
 using System;
+using System.Text.RegularExpressions;
 using Data;
+using DG.Tweening;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -8,27 +10,23 @@ namespace MainGame.UI
 {
     // 카드 정리 화면의 카드 한 장.
     //
-    // 아이콘과 카테고리 색으로 카드 성격을 구분하고,
-    // 버릴 카드로 고르면 붉게 바뀌며 X 표시가 붙습니다.
-    // (색만으로 구분하면 알아보기 어려워 표시를 함께 씁니다.)
+    // 인게임 손패 카드(SkillCardElementUI)와 같은 겉모습을 씁니다.
+    // 같은 카드가 화면마다 다르게 보이면 무엇인지 알아보기 어렵기 때문입니다.
     public class CardCleanupItemView : MonoBehaviour
     {
         private const string IconPathFormat = "Icon/{0}";
+
+        // 설명 안의 숫자를 노란색으로 칠합니다.
+        private const string NumberColor = "#F2A426";
+
+        private static readonly Regex NumberPattern = new Regex(@"\d+(\.\d+)?%?");
 
         [SerializeField]
         private Button selectButton;
 
         [SerializeField]
-        [Tooltip("카드 테두리. 카테고리 색이 들어갑니다")]
-        private Image frame;
-
-        [SerializeField]
-        [Tooltip("카드 배경")]
-        private Image background;
-
-        [SerializeField]
-        [Tooltip("아이콘 뒤 원형 판. 카테고리 색이 옅게 들어갑니다")]
-        private Image iconBase;
+        [Tooltip("카드 테두리(OutLine). 카테고리별 프레임이 들어갑니다")]
+        private Image outline;
 
         [SerializeField]
         private Image iconImage;
@@ -37,41 +35,69 @@ namespace MainGame.UI
         private TextMeshProUGUI nameText;
 
         [SerializeField]
+        private TextMeshProUGUI typeText;
+
+        [SerializeField]
         private TextMeshProUGUI costText;
 
         [SerializeField]
-        [Tooltip("이번에 새로 받은 카드에만 켜집니다")]
+        private TextMeshProUGUI descText;
+
+        [SerializeField]
+        [Tooltip("카드 아래에 표시할 보유 수량. 새 카드면 대신 NEW가 나옵니다")]
+        private TextMeshProUGUI countText;
+
+        [Header("Symbols")]
+        [SerializeField]
+        [Tooltip("Attack / Assist / Support 순서. 해당하는 것만 켜집니다")]
+        private GameObject[] categorySymbols;
+
+        [Header("Marks")]
+        [SerializeField]
+        [Tooltip("이번에 처음 얻은 카드에만 켜집니다")]
         private GameObject newBadge;
 
         [SerializeField]
-        [Tooltip("버릴 카드로 골랐을 때 켜집니다")]
+        [Tooltip("버릴 카드로 골랐을 때 카드 위에 뜨는 표시. 카드 밖에 두어 회전 영향을 받지 않습니다.")]
         private GameObject discardMark;
 
-        [Header("Category Colors")]
+        [Header("Frames")]
         [SerializeField]
-        private Color attackColor = new Color(0.11f, 0.62f, 0.46f, 1f);
+        [Tooltip("Attack / Assist / Support 순서")]
+        private Sprite[] categoryFrames;
+
+        [Header("Select")]
+        [SerializeField]
+        [Tooltip("확대·기울기를 적용할 카드 본체(Contents)")]
+        private RectTransform cardRoot;
 
         [SerializeField]
-        private Color supportColor = new Color(0.22f, 0.54f, 0.87f, 1f);
+        [Tooltip("버릴 카드로 고르면 이만큼 커집니다")]
+        private float discardScale = 1.12f;
 
         [SerializeField]
-        private Color assistColor = new Color(0.93f, 0.62f, 0.15f, 1f);
+        [Tooltip("버릴 카드로 고르면 이만큼 기울어집니다(도)")]
+        private float discardTilt = 3f;
 
         [SerializeField]
-        [Tooltip("버릴 카드로 고른 색")]
-        private Color discardColor = new Color(0.85f, 0.25f, 0.25f, 1f);
-
-        [Header("Background")]
-        [SerializeField]
-        private Color normalBackColor = new Color(0.16f, 0.16f, 0.18f, 0.9f);
-
-        [SerializeField]
-        private Color discardBackColor = new Color(0.32f, 0.12f, 0.12f, 0.95f);
+        [Tooltip("선택 표시가 바뀌는 시간(초). 0이면 즉시 바뀝니다.")]
+        private float selectTweenDuration = 0.4f;
 
         private Action _onClick;
+        private global::UI.Common.ScaleToFitParent _fitter;
+        private CanvasGroup _canvasGroup;
 
         private void Awake()
         {
+            if (cardRoot != null)
+            {
+                _fitter = cardRoot.GetComponent<global::UI.Common.ScaleToFitParent>();
+                _canvasGroup = cardRoot.GetComponent<CanvasGroup>();
+
+                if (_canvasGroup == null)
+                    _canvasGroup = cardRoot.gameObject.AddComponent<CanvasGroup>();
+            }
+
             if (selectButton == null)
                 return;
 
@@ -79,11 +105,7 @@ namespace MainGame.UI
             selectButton.onClick.AddListener(() => _onClick?.Invoke());
         }
 
-        [SerializeField]
-        [Tooltip("마지막으로 눌러 설명을 보고 있는 카드에 켜집니다")]
-        private GameObject focusMark;
-
-        public void SetData(SkillCardDataTableRow row, bool isNew, bool isDiscard, bool isFocused, Action onClick)
+        public void SetData(SkillCardDataTableRow row, bool isNew, bool isDiscard, int deckCount, Action onClick)
         {
             _onClick = onClick;
 
@@ -96,42 +118,146 @@ namespace MainGame.UI
             if (costText != null)
                 costText.text = row.Cost.ToString();
 
+            if (typeText != null)
+                typeText.text = GetCategoryName(row.SkillCategoryType);
+
+            if (descText != null)
+                descText.text = BuildDesc(row);
+
+            SetSymbol(row.SkillCategoryType);
+            SetIcon(row.AssetId);
+
+            // NEW는 이번에 처음 얻은 카드에만, 수량은 나머지에만 보여줍니다.
             if (newBadge != null)
                 newBadge.SetActive(isNew);
+
+            if (countText != null)
+            {
+                countText.gameObject.SetActive(!isNew);
+                countText.text = $"{deckCount}장 보유";
+            }
 
             if (discardMark != null)
                 discardMark.SetActive(isDiscard);
 
-            if (focusMark != null)
-                focusMark.SetActive(isFocused);
+            if (outline != null)
+            {
+                var sprite = GetCategoryFrame(row.SkillCategoryType);
 
-            // 버릴 카드는 카테고리와 상관없이 붉게 칠합니다.
-            // 지금 무엇을 버리는지가 이 화면에서 가장 중요한 정보입니다.
-            var color = isDiscard ? discardColor : GetCategoryColor(row.SkillCategoryType);
+                if (sprite != null)
+                    outline.sprite = sprite;
+            }
 
-            if (frame != null)
-                frame.color = color;
+            // 버릴 카드는 살짝 키우고 기울여 구분합니다.
+            // 카드 본체만 변형합니다. 루트째 키우면 아래 수량 줄까지 움직여
+            // 다음 줄 카드와 겹칩니다.
+            var target = cardRoot != null ? cardRoot : (RectTransform)transform;
+            var scale = isDiscard ? discardScale : 1f;
 
-            if (background != null)
-                background.color = isDiscard ? discardBackColor : normalBackColor;
+            // 크기는 ScaleToFitParent가 정하므로 곱할 배율만 넘깁니다.
+            if (_fitter != null)
+                _fitter.SetExtraScale(scale);
+            else
+                target.localScale = Vector3.one * scale;
 
-            if (iconBase != null)
-                iconBase.color = new Color(color.r, color.g, color.b, isDiscard ? 0.35f : 0.4f);
+            var angle = isDiscard ? discardTilt : 0f;
 
-            SetIcon(row.AssetId);
+            target.DOKill();
+
+            if (selectTweenDuration > 0f && gameObject.activeInHierarchy)
+                target.DOLocalRotate(new Vector3(0f, 0f, angle), selectTweenDuration)
+                    .SetEase(Ease.OutBack)
+                    .SetUpdate(true);
+            else
+                target.localRotation = Quaternion.Euler(0f, 0f, angle);
         }
 
-        private Color GetCategoryColor(ESkillCategoryType type)
+        // 드로우 연출 준비 — 감춰둡니다.
+        public void PrepareDraw()
+        {
+            if (_canvasGroup == null)
+                return;
+
+            _canvasGroup.DOKill();
+            _canvasGroup.alpha = 0f;
+        }
+
+        // 새로 얻은 카드가 나타나는 연출.
+        public void PlayDraw(float duration)
+        {
+            if (_canvasGroup == null)
+                return;
+
+            _canvasGroup.DOKill();
+            _canvasGroup.alpha = 0f;
+            _canvasGroup.DOFade(1f, duration).SetUpdate(true);
+
+            if (cardRoot == null)
+                return;
+
+            // 살짝 아래에서 올라오게 합니다.
+            var pos = cardRoot.anchoredPosition;
+
+            cardRoot.DOKill();
+            cardRoot.anchoredPosition = pos + new Vector2(0f, -60f);
+            cardRoot.DOAnchorPos(pos, duration).SetEase(Ease.OutCubic).SetUpdate(true);
+        }
+
+        private void SetSymbol(ESkillCategoryType type)
+        {
+            if (categorySymbols == null)
+                return;
+
+            for (var i = 0; i < categorySymbols.Length; i++)
+            {
+                if (categorySymbols[i] == null)
+                    continue;
+
+                categorySymbols[i].SetActive(i == (int)type);
+            }
+        }
+
+        private Sprite GetCategoryFrame(ESkillCategoryType type)
+        {
+            if (categoryFrames == null)
+                return null;
+
+            var index = (int)type;
+
+            return index >= 0 && index < categoryFrames.Length ? categoryFrames[index] : null;
+        }
+
+        private static string GetCategoryName(ESkillCategoryType type)
         {
             return type switch
             {
-                ESkillCategoryType.Attack => attackColor,
-                ESkillCategoryType.Assist => assistColor,
-                _ => supportColor,
+                ESkillCategoryType.Attack => "공격",
+                ESkillCategoryType.Assist => "보조",
+                _ => "서포트",
             };
         }
 
-        // 아이콘이 없는 카드는 원형 판만 보여줍니다(정식 아이콘이 채워지면 자동으로 나옵니다).
+        // 설명은 '{0} 데미지로 공격' 같은 서식이라 실제 값을 채우고,
+        // 숫자만 노란색으로 칠해 눈에 들어오게 합니다.
+        private static string BuildDesc(SkillCardDataTableRow row)
+        {
+            if (string.IsNullOrEmpty(row.Desc))
+                return string.Empty;
+
+            string text;
+
+            try
+            {
+                text = string.Format(row.Desc, row.EffectValue, row.DurationTime, row.EffectRange);
+            }
+            catch
+            {
+                text = row.Desc;
+            }
+
+            return NumberPattern.Replace(text, m => $"<color={NumberColor}>{m.Value}</color>");
+        }
+
         private void SetIcon(string assetId)
         {
             if (iconImage == null)

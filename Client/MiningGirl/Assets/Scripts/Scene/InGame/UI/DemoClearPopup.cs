@@ -41,11 +41,11 @@ namespace Scene.InGame.UI
                 titleText.text = "데모 클리어";
 
             if (messageText != null)
-                messageText.text = "여기까지가 데모 버전입니다.\n플레이해 주셔서 감사합니다.";
+                messageText.text = "여기까지가 <color=#ffff00>데모 버전</color>입니다.\n플레이해 주셔서 감사합니다.";
 
             // 이번 런의 성과를 간단히 보여줍니다.
             if (resultText != null)
-                resultText.text = $"도달 스테이지 {clearedStage}   보유 골드 {gold}";
+                resultText.text = $"도달 스테이지 <color=#ED9E26>{clearedStage}</color>   보유 골드 <color=#ED9E26>{gold}</color>";
         }
 
         private void Hide()

@@ -30,6 +30,10 @@ namespace Manager.Save
         // 강화 페이즈에 들어간 이유(클리어인지 실패인지). 팝업 문구가 달라집니다.
         public bool IsUpgradeFromClear;
 
+        // 지금까지 한 번이라도 얻어본 카드 Id.
+        // NEW 표시는 여기 없는 카드에만 붙입니다.
+        public List<string> SeenCards = new List<string>();
+
         // 저장 시각(문제 추적용).
         public string SavedAt = string.Empty;
 

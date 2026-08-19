@@ -112,6 +112,26 @@ namespace Manager
         }
 
         // 저장을 지우고 처음부터 시작합니다.
+        // 이 카드를 처음 보는지. 카드 정리 화면의 NEW 표시에 씁니다.
+        public bool IsFirstSeenCard(string cardId)
+        {
+            if (string.IsNullOrEmpty(cardId))
+                return false;
+
+            return !Data.SeenCards.Contains(cardId);
+        }
+
+        // 얻어본 카드로 기록합니다.
+        public void MarkCardSeen(string cardId)
+        {
+            if (string.IsNullOrEmpty(cardId) || Data.SeenCards.Contains(cardId))
+                return;
+
+            Data.SeenCards.Add(cardId);
+
+            Save();
+        }
+
         public void Clear()
         {
             _data = new GameSaveData();
