@@ -14,8 +14,6 @@ namespace MainGame.UI
     // 같은 카드가 화면마다 다르게 보이면 무엇인지 알아보기 어렵기 때문입니다.
     public class CardCleanupItemView : MonoBehaviour
     {
-        private const string IconPathFormat = "Icon/{0}";
-
         // 설명 안의 숫자를 노란색으로 칠합니다.
         private const string NumberColor = "#F2A426";
 
@@ -260,20 +258,8 @@ namespace MainGame.UI
 
         private void SetIcon(string assetId)
         {
-            if (iconImage == null)
-                return;
-
-            if (string.IsNullOrEmpty(assetId))
-            {
-                iconImage.enabled = false;
-
-                return;
-            }
-
-            var sprite = Resources.Load<Sprite>(string.Format(IconPathFormat, assetId));
-
-            iconImage.sprite = sprite;
-            iconImage.enabled = sprite != null;
+            // 아이콘은 어드레서블에 있습니다. 캐시에 있으면 즉시, 없으면 불러온 뒤 들어갑니다.
+            Manager.AddressableManager.Instance?.ApplySprite(assetId, iconImage);
         }
 
         public void SetVisible(bool visible)

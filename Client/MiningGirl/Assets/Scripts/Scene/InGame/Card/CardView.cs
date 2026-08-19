@@ -79,6 +79,10 @@ namespace MainGame.Card
         [SerializeField]
         [Tooltip("카드 타입별로 색이 바뀌는 테두리")]
         private Image frameImage;
+
+        [SerializeField]
+        [Tooltip("카드 그림. 어드레서블에서 불러옵니다.")]
+        private Image iconImage;
         [SerializeField]
         private Sprite attackFrame;
         [SerializeField]
@@ -271,6 +275,9 @@ namespace MainGame.Card
 
             ApplyCategory(row.SkillCategoryType);
             ApplyFrame(row.SkillCategoryType);
+
+            // 아이콘은 어드레서블에 있습니다. 캐시에 있으면 즉시 들어갑니다.
+            Manager.AddressableManager.Instance?.ApplySprite(row.AssetId, iconImage);
         }
 
         // 설명문의 {0}은 효과 값, {1}은 지속시간입니다.

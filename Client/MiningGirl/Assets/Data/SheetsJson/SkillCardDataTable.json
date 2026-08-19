@@ -1,6 +1,6 @@
 [
   {
-    "AssetId": "Skill_Icon_1003",
+    "AssetId": "Skill_Icon_1033",
     "Cost": 1,
     "Desc": "주변의 적을 밀쳐내고 데미지 {0} 공격",
     "DurationTime": -1,
@@ -13,7 +13,7 @@
     "Weight": 100
   },
   {
-    "AssetId": "Skill_Icon_1000",
+    "AssetId": "Skill_Icon_1062",
     "Cost": 1,
     "Desc": "가까운 적 하나를 데미지 {0} 공격",
     "DurationTime": -1,
@@ -26,7 +26,7 @@
     "Weight": 100
   },
   {
-    "AssetId": null,
+    "AssetId": "Skill_Icon_1018",
     "Cost": 2,
     "Desc": "가까운 적 하나를 데미지 {0} 두번 공격",
     "DurationTime": -1,
@@ -39,7 +39,7 @@
     "Weight": 100
   },
   {
-    "AssetId": null,
+    "AssetId": "Skill_Icon_1115",
     "Cost": 3,
     "Desc": "{1}초 동안 불덩이 소환 데미지 {0}",
     "DurationTime": 10,
@@ -52,7 +52,7 @@
     "Weight": 100
   },
   {
-    "AssetId": null,
+    "AssetId": "Skill_Icon_1009",
     "Cost": 2,
     "Desc": "{1}초 동안 이동속도 {0}% 증가",
     "DurationTime": 10,
@@ -65,7 +65,7 @@
     "Weight": 100
   },
   {
-    "AssetId": null,
+    "AssetId": "Skill_Icon_1123",
     "Cost": 2,
     "Desc": "{1}초 동안 채굴속도 {0}% 증가",
     "DurationTime": 10,
@@ -78,7 +78,7 @@
     "Weight": 100
   },
   {
-    "AssetId": null,
+    "AssetId": "Skill_Icon_1111",
     "Cost": 2,
     "Desc": "{1}초 동안 골드 획득량 {0}% 증가",
     "DurationTime": 10,
@@ -91,7 +91,7 @@
     "Weight": 100
   },
   {
-    "AssetId": "Skill_Icon_3000",
+    "AssetId": "Skill_Icon_1037",
     "Cost": 3,
     "Desc": "스태미나 {0}% 회복",
     "DurationTime": -1,
@@ -104,7 +104,7 @@
     "Weight": 100
   },
   {
-    "AssetId": null,
+    "AssetId": "Skill_Icon_1072",
     "Cost": 1,
     "Desc": "근처 광물로 이동",
     "DurationTime": -1,
@@ -117,7 +117,7 @@
     "Weight": 100
   },
   {
-    "AssetId": "Skill_Icon_2000",
+    "AssetId": "Skill_Icon_1116",
     "Cost": 0,
     "Desc": "코스트 {0} 증가",
     "DurationTime": -1,
@@ -130,7 +130,7 @@
     "Weight": 30
   },
   {
-    "AssetId": null,
+    "AssetId": "Skill_Icon_1016",
     "Cost": 5,
     "Desc": "황금 광물 소환",
     "DurationTime": -1,
