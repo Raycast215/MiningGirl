@@ -21,7 +21,7 @@ namespace MainGame.UI
 
         [SerializeField]
         [Tooltip("광물을 하나 캘 때 소모하는 스태미나")]
-        private float miningCost = 10f;
+        private float miningCost = 5f;
 
         [SerializeField]
         [Tooltip("몬스터에게 한 번 맞을 때 소모하는 스태미나")]

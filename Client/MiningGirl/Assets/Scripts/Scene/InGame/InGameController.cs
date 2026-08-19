@@ -54,11 +54,28 @@ namespace Scene.InGame
         {
             uIController.InitAsync(() => ShowUpgradeThen(true, () => Next())).Forget();
 
+            // 저장된 진행을 불러옵니다(스테이지·골드·캐릭터·강화).
+            var save = Manager.GameDataManager.Instance;
+
+            if (save != null && save.HasSave)
+            {
+                // 강화를 먼저 복원해야 스태미나 최대치 계산에 반영됩니다.
+                levelUpController.RestoreFromSave(save.Data.CharacterId, save.GetUpgradeLevels());
+                uIController.RestoreProgress(save.Data.Stage, save.Data.Gold);
+
+                // 강화 도중에 껐다면 그 화면부터 다시 보여줍니다.
+                _resumeUpgradePhase = save.Data.IsUpgradePhase;
+                _resumeUpgradeFromClear = save.Data.IsUpgradeFromClear;
+            }
+
             // 보상/보너스 지급 경로를 UI 컨트롤러에 연결합니다.
             levelUpController.Init(uIController.AddGold);
 
             // 광물을 캘 때마다 채굴 진행도(클리어 조건)를 올립니다.
             levelUpController.SetResourceMinedHandler(() => uIController.AddMinedCount());
+
+            // 몬스터를 잡으면 데이터의 GoldReward에 강화 보너스를 얹어 지급합니다.
+            monsterController.SetKilledHandler(gold => levelUpController.OnMonsterKilled(gold));
 
             // 카드 버프 표시 시작
             uIController.InitBuffList(levelUpController.StatContext.Buffs);
@@ -71,7 +88,7 @@ namespace Scene.InGame
                     getPlayer: () => _playerEntity,
                     getMonsters: () => monsterController.ActivateList.ConvertAll(m => (Scene.InGame.Entity.Interface.IEntity)m),
                     buffs: levelUpController.StatContext.Buffs,
-                    healPlayerByRatio: playerController.HealPlayerByRatio,
+                    healPlayerByRatio: ratio => uIController.RecoverStaminaByRatio(ratio),
                     camera: Camera.main,
                     addCost: amount => uIController.AddCost(amount),
                     spawnSpecialResource: SpawnSpecialResource);
@@ -112,6 +129,7 @@ namespace Scene.InGame
                 uIController.ShowCharacterSelect(row =>
                 {
                     levelUpController.SetCharacter(row);
+                    Manager.GameDataManager.Instance?.SaveCharacter(row?.Id);
                     CoverUIManager.Instance.CoverUI.Hide(() => GameStart().Forget()).Forget();
                 });
             }
@@ -159,7 +177,9 @@ namespace Scene.InGame
             playerController.StartBehaviour();
 
             // 죽으면 같은 스테이지를 다시 시작합니다.
-            playerController.SetDeadHandler(() => RestartStage());
+            // 실패 조건은 스태미나 하나로 통일했습니다.
+            // 체력은 개편 전 시스템이라 사망으로 스테이지를 끝내지 않습니다.
+            // (피격 피해는 SetDamagedHandler에서 스태미나로 처리됩니다.)
 
             // 피격 시 스태미나 소모, 스태미나가 바닥나면 스테이지 재시작
             playerController.SetDamagedHandler(() => uIController.ConsumeStaminaByHit());
@@ -170,7 +190,24 @@ namespace Scene.InGame
                 getGold: () => uIController.Gold,
                 trySpendGold: uIController.TrySpendGold,
                 getLevel: row => levelUpController.BonusState.GetLevel(row.Id.ToString()),
-                onPurchase: row => levelUpController.ApplyBonus(row));
+                onPurchase: row =>
+                {
+                    levelUpController.ApplyBonus(row);
+
+                    // 산 즉시 저장 — 강화 도중 앱이 꺼져도 산 것이 남습니다.
+                    Manager.GameDataManager.Instance?.SaveUpgrade(
+                        uIController.Gold, levelUpController.BonusState.GetAllLevels());
+                });
+
+            // 강화 도중에 앱이 꺼졌다면 그 화면부터 다시 보여줍니다.
+            // (Init이 끝난 뒤여야 팝업이 골드·레벨을 조회할 수 있습니다.)
+            if (_resumeUpgradePhase)
+            {
+                _resumeUpgradePhase = false;
+                _isStageEnding = false;
+
+                ShowUpgradeThen(_resumeUpgradeFromClear, () => Next(_resumeUpgradeFromClear));
+            }
 
             // 강화로 올린 스태미나 보정치를 연결합니다.
             uIController.SetStaminaBonusProvider(() =>
@@ -269,6 +306,38 @@ namespace Scene.InGame
         // 지금까지 스폰된 몬스터/광물을 모두 풀로 되돌린 뒤, 처음부터 다시 시작합니다.
         // 캐릭터가 죽으면 같은 스테이지를 처음부터 다시 합니다.
         // 레벨·경험치·골드·강화는 런 단위로 유지되므로 재도전할수록 유리해집니다.
+        // 테스트용 — 저장을 지우고 스테이지 1부터 다시 시작합니다.
+        public void OnClickClearSave()
+        {
+            Manager.GameDataManager.Instance?.Clear();
+
+            Debug.Log("[Save] 저장 삭제 — 씬을 다시 불러옵니다.");
+
+            // 삭제만 하면 이미 메모리에 올라온 진행 상태가 그대로라
+            // 씬을 새로 불러와 캐릭터 선택부터 다시 시작합니다.
+            var scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene();
+
+            UnityEngine.SceneManagement.SceneManager.LoadScene(scene.buildIndex);
+        }
+
+        // 테스트용 — 목표 채굴량을 채워 강제로 클리어시킵니다.
+        public void OnClickForceClear()
+        {
+            if (!IsInitialized)
+                return;
+
+            uIController.ForceCompleteMining();
+        }
+
+        // 테스트용 — 스태미나를 모두 소모시켜 강제로 실패시킵니다.
+        public void OnClickForceFail()
+        {
+            if (!IsInitialized)
+                return;
+
+            uIController.ForceDrainStamina();
+        }
+
         public void RestartStage()
         {
             if (_isRestarting)
@@ -289,7 +358,20 @@ namespace Scene.InGame
 
             _isStageEnding = true;
 
-            if (upgradePopup == null || !upgradePopup.HasAnyAffordable(uIController.Stage))
+            // 클리어 보상은 성공했을 때만 줍니다.
+            // (실패해도 그 판에서 번 골드는 남으므로, 이 차이가 성공의 값어치가 됩니다.)
+            if (isCleared)
+                uIController.AddGold(stageClearGold + (uIController.Stage - 1) * stageClearGoldPerStage);
+
+            // 스테이지가 끝난 시점(클리어·실패 모두)에 저장합니다.
+            Manager.GameDataManager.Instance?.SaveStageEnd(
+                uIController.Stage, uIController.Gold, levelUpController.GetCharacterId(),
+                levelUpController.BonusState.GetAllLevels(), isCleared);
+
+            // 팝업은 스테이지가 끝날 때마다 띄웁니다.
+            // (살 게 없다고 건너뛰면 강화 창구가 있다는 것 자체를 알 수 없고,
+            //  얼마를 더 모아야 하는지도 확인할 수 없습니다.)
+            if (upgradePopup == null)
             {
                 next?.Invoke();
 
@@ -302,12 +384,26 @@ namespace Scene.InGame
             {
                 SetGamePaused(false);
 
+                // 강화 페이즈가 끝났음을 남깁니다.
+                // 클리어면 다음 스테이지, 실패면 같은 스테이지를 다시 합니다.
+                var nextStage = isCleared ? uIController.Stage + 1 : uIController.Stage;
+
+                Manager.GameDataManager.Instance?.SaveUpgradePhaseEnd(nextStage);
+
                 next?.Invoke();
             });
         }
 
         [SerializeField]
         private MainGame.UI.UpgradePopup upgradePopup;
+
+        [SerializeField]
+        [Tooltip("스테이지를 클리어했을 때 주는 기본 골드. 실패하면 주지 않습니다.")]
+        private int stageClearGold = 100;
+
+        [SerializeField]
+        [Tooltip("스테이지가 오를 때마다 클리어 보상에 더해지는 골드")]
+        private int stageClearGoldPerStage = 30;
 
         // 테스트 버튼으로 건 수동 일시정지 상태
         private bool _isManualPaused;
@@ -317,6 +413,10 @@ namespace Scene.InGame
         // 스테이지가 끝나는 중인지. 클리어와 스태미나 소진이 같은 프레임에 겹치면
         // 팝업이 두 번 뜨거나 결과가 뒤집히므로 첫 번째만 받습니다.
         private bool _isStageEnding;
+
+        // 강화 도중 앱이 꺼졌을 때 그 화면부터 다시 시작하기 위한 플래그
+        private bool _resumeUpgradePhase;
+        private bool _resumeUpgradeFromClear;
 
         public void Next(bool advanceStage = true)
         {
@@ -367,6 +467,7 @@ namespace Scene.InGame
                 uIController.ShowCharacterSelect(row =>
                 {
                     levelUpController.SetCharacter(row);
+                    Manager.GameDataManager.Instance?.SaveCharacter(row?.Id);
                     CoverUIManager.Instance.CoverUI.Hide(() => GameStart().Forget()).Forget();
                 });
             }

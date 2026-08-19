@@ -63,6 +63,14 @@ namespace MainGame.Entity.Monster
 
         public float GetCurrentHp() => _currentHp;
 
+        // 처치될 때 호출됩니다(골드 지급용). 스폰할 때 주입합니다.
+        private System.Action<int> _onKilled;
+
+        public void SetKilledHandler(System.Action<int> handler)
+        {
+            _onKilled = handler;
+        }
+
         public int GetGoldReward()
         {
             var riskGoldMul = _riskModifier?.GetGoldMultiplier() ?? 1f;
@@ -167,6 +175,9 @@ namespace MainGame.Entity.Monster
             if (_currentHp <= 0f)
             {
                 _isDead = true;
+
+                // 처치 보상 지급(데이터의 GoldReward 기준).
+                _onKilled?.Invoke(GetGoldReward());
 
                 // 죽으면 진행 중이던 넉백/색상 트윈을 정리하고 색을 원복한 뒤 풀로 반환합니다.
                 // (반환된 오브젝트에 트윈이 남아 재스폰 시 위치/색이 튀는 것을 방지)

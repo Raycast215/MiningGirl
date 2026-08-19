@@ -96,22 +96,6 @@
     "RequireLevel": 0
   },
   {
-    "Desc": "최대 체력이 {0} 증가합니다.",
-    "EffectType": "MaxHealth",
-    "EffectValue": 2,
-    "Id": 1006,
-    "MaxLevel": 15,
-    "Name": "최대 체력 증가",
-    "ValueType": "Add",
-    "Weight": 60,
-    "TabType": "Character",
-    "BasePrice": 40,
-    "PriceGrowth": 1.5,
-    "UnlockStage": 0,
-    "RequireId": 0,
-    "RequireLevel": 0
-  },
-  {
     "Desc": "적 처치 시 골드가 {0} 증가합니다.",
     "EffectType": "MonsterKillGold",
     "EffectValue": 1,
@@ -148,7 +132,7 @@
     "Name": "최대 스태미나",
     "Desc": "최대 스태미나가 {0} 증가합니다.",
     "EffectType": "MaxStamina",
-    "EffectValue": 20.0,
+    "EffectValue": 50,
     "ValueType": "Add",
     "MaxLevel": 20,
     "Weight": 0,

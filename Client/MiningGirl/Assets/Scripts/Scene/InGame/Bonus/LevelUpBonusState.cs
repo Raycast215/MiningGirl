@@ -64,6 +64,29 @@ namespace MainGame.Bonus
             return GetLevel(id) < maxLevel;
         }
 
+        // 저장용 — 현재 강화 레벨 전체를 그대로 넘겨줍니다.
+        public IReadOnlyDictionary<string, int> GetAllLevels() => _levels;
+
+        // 불러오기 — 저장된 레벨을 그대로 복원한 뒤 누적 효과를 다시 계산합니다.
+        // (효과 합계는 Acquire를 거치며 쌓이므로, 레벨만 넣으면 스탯이 반영되지 않습니다.)
+        public void RestoreLevels(IReadOnlyDictionary<string, int> levels, LevelUpBonusSkillDataTable table)
+        {
+            Reset();
+
+            if (levels == null || table?.Rows == null)
+                return;
+
+            foreach (var row in table.Rows)
+            {
+                if (row == null || !levels.TryGetValue(row.Id, out var level))
+                    continue;
+
+                // 레벨 수만큼 반복 적용해 Add/Mul 누적을 원래대로 만듭니다.
+                for (var i = 0; i < level; i++)
+                    Acquire(row);
+            }
+        }
+
         public void Reset()
         {
             MiningDamageAdd = 0f;

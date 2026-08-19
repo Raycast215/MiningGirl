@@ -73,12 +73,21 @@ namespace MainGame.Entity.Monster
         }
 
         // 몬스터 1마리를 스폰합니다. target은 보통 0,0에 있는 플레이어입니다.
+        // 몬스터를 처치했을 때 골드를 지급할 대상(InGameController가 넘겨줍니다).
+        private System.Action<int> _onMonsterKilled;
+
+        public void SetKilledHandler(System.Action<int> handler)
+        {
+            _onMonsterKilled = handler;
+        }
+
         public async UniTask<Monster> Spawn(string monsterId, Vector3 position, IEntity target, int stageIndex)
         {
             var baseStat = _statProvider.GetBaseStat(monsterId);
 
             var monster = await Get();
             monster.Setup(this, baseStat, _stageModifier, _riskModifier, stageIndex, target, _damagePresenter, this);
+            monster.SetKilledHandler(_onMonsterKilled);
             monster.SetPosition(position);
             monster.SetActiveObject(true);
 

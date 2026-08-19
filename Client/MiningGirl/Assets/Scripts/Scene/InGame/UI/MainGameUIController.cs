@@ -142,6 +142,20 @@ namespace MainGame
         // 아직 보여줄 레벨업이 남아 있는지 (팝업 이후 게임 재개 판단용)
         // 광물을 하나 캘 때마다 호출합니다(클리어 조건).
         // 강화 구매에 쓸 골드를 소모합니다. 모자라면 아무것도 하지 않고 false를 돌려줍니다.
+        // 저장된 스테이지·골드로 되돌립니다(게임 시작 시 1회).
+        public void RestoreProgress(int stage, int gold)
+        {
+            _gold = Mathf.Max(0, gold);
+            goldCountViewer.SetCount(_gold);
+
+            stageUI.SetStage(Mathf.Max(1, stage));
+            miningProgressUI?.SetGoalByStage(Stage);
+
+            // 강화 복원이 끝난 뒤 최대치를 다시 계산합니다.
+            // (InitAsync에서 이미 Init을 했지만 그때는 아직 강화가 반영되기 전입니다.)
+            staminaUI?.Reset();
+        }
+
         public bool TrySpendGold(int amount)
         {
             if (amount <= 0)
@@ -157,6 +171,21 @@ namespace MainGame
             return true;
         }
 
+        // 테스트용 — 남은 채굴량을 한 번에 채웁니다(스태미나는 쓰지 않습니다).
+        public void ForceCompleteMining()
+        {
+            if (miningProgressUI == null)
+                return;
+
+            miningProgressUI.Add(miningProgressUI.Goal - miningProgressUI.Current);
+        }
+
+        // 테스트용 — 스태미나를 바닥내 실패시킵니다.
+        public void ForceDrainStamina()
+        {
+            staminaUI?.Consume(float.MaxValue);
+        }
+
         public void AddMinedCount(int amount = 1)
         {
             miningProgressUI?.Add(amount);
@@ -167,6 +196,16 @@ namespace MainGame
         }
 
         // 몬스터에게 맞았을 때 호출합니다.
+        // 회복 카드용 — 최대 스태미나의 비율만큼 회복합니다.
+        // (체력 시스템을 걷어내면서 힐 카드의 회복 대상이 스태미나로 바뀌었습니다.)
+        public void RecoverStaminaByRatio(float ratio)
+        {
+            if (staminaUI == null || ratio <= 0f)
+                return;
+
+            staminaUI.Recover(staminaUI.Max * ratio);
+        }
+
         public void ConsumeStaminaByHit()
         {
             staminaUI?.ConsumeByHit();
@@ -177,6 +216,9 @@ namespace MainGame
         public void SetStaminaBonusProvider(System.Func<(float, float, float, float)> provider)
         {
             staminaUI?.SetBonusProvider(provider);
+
+            // 보정치가 연결된 뒤에야 강화가 반영된 최대치를 계산할 수 있습니다.
+            staminaUI?.Reset();
         }
 
         public void SetStaminaEmptyHandler(System.Action handler)

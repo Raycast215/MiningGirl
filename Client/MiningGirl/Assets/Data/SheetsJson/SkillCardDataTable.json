@@ -93,7 +93,7 @@
   {
     "AssetId": "Skill_Icon_3000",
     "Cost": 3,
-    "Desc": "체력 {0}% 회복",
+    "Desc": "스태미나 {0}% 회복",
     "DurationTime": -1,
     "EffectRange": -1,
     "EffectValue": 30,

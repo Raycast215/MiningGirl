@@ -17,7 +17,7 @@ namespace MainGame.UI
 
         [SerializeField]
         [Tooltip("스테이지가 오를 때마다 목표에 더해지는 양")]
-        private int goalPerStage = 10;
+        private int goalPerStage = 5;
 
         // 목표를 채운 순간 한 번만 호출됩니다.
         private Action _onGoalReached;

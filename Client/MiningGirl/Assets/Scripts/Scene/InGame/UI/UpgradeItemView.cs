@@ -58,8 +58,8 @@ namespace MainGame.UI
             {
                 // 최대 레벨이면 더 살 수 없다는 것만 알려줍니다.
                 detailText.text = isMax
-                    ? $"Lv.{row.MaxLevel} / {row.MaxLevel} · 최대"
-                    : $"{detail} · Lv.{level} / {(row.MaxLevel < 0 ? "-" : row.MaxLevel.ToString())}";
+                    ? $"Lv.{row.MaxLevel} / {row.MaxLevel} (최대)"
+                    : $"{detail}   Lv.{level} / {(row.MaxLevel < 0 ? "-" : row.MaxLevel.ToString())}";
             }
 
             if (priceText != null)

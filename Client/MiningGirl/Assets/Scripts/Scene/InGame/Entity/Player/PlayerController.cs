@@ -35,10 +35,6 @@ namespace Scene.InGame.Entity.Player
             // SearchTargetNode가 공급자를 제대로 참조합니다.
             ins.SetResourceProvider(resourceProvider);
             ins.SetStatContext(statContext);
-            // 프리팹 안에 붙어 있는 머리 위 체력바를 상태 표시로 연결합니다.
-            var statusView = ins.GetComponentInChildren<global::UI.Common.PlayerStatusBarView>(true);
-            if (statusView != null)
-                ins.SetStatusPresenter(statusView);
 
             ins.ResetHealth();
             ins.InitDirectionEvent(cursor.SetDirection);

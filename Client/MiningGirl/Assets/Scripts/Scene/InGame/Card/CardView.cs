@@ -120,6 +120,10 @@ namespace MainGame.Card
         // 아직 드로우되지 않아 감춰둔 상태.
         // 이 동안에는 사용 가능 판정이 알파를 되살리면 안 됩니다.
         private bool _isHidden;
+
+        // 드로우 연출이 도는 동안은 조작을 막습니다.
+        // (연출 시작과 동시에 잡히면 카드가 날아오는 중에 드래그가 걸립니다.)
+        private bool _isDrawing;
         private Tween _failTween;
 
         public void Init(int slotIndex, Canvas canvas, Action<CardView> onDragBegin, Action<CardView> onDrag, Action<CardView> onDragEnd)
@@ -337,6 +341,7 @@ namespace MainGame.Card
         public void SetHidden()
         {
             _isHidden = true;
+            _isDrawing = false;
 
             SetSelectEffect(false);
 
@@ -389,7 +394,12 @@ namespace MainGame.Card
                 canvasGroup.DOFade(TargetAlpha, drawDuration).SetDelay(delay);
             }
 
-            _moveTween = contents.DOAnchorPos(_homePosition, drawDuration).SetEase(Ease.OutCubic).SetDelay(delay);
+            _isDrawing = true;
+
+            _moveTween = contents.DOAnchorPos(_homePosition, drawDuration)
+                .SetEase(Ease.OutCubic)
+                .SetDelay(delay)
+                .OnComplete(() => _isDrawing = false);
         }
 
         // 판정에 걸리지 않았을 때 원래 자리로 되돌립니다.
@@ -436,7 +446,7 @@ namespace MainGame.Card
 
         public void OnBeginDrag(PointerEventData eventData)
         {
-            if (!_isInteractable || contents == null)
+            if (!_isInteractable || _isDrawing || _isHidden || contents == null)
                 return;
 
             IsDragging = true;

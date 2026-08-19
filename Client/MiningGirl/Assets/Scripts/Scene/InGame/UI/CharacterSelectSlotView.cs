@@ -75,7 +75,7 @@ namespace MainGame.UI
                 $"치명타 확률 {V(row.CriRate, "%")}",
                 $"치명타 데미지 +{V(Mathf.RoundToInt(row.CriDamage * 100f), "%")}",
                 $"추가타 확률 {V(row.ExtraHitRate, "%")}",
-                $"체력 {V(row.MaxHealth)}",
+
                 $"피격 무적 시간 {V(row.InvincibleDuration, "초")}",
             };
 

@@ -44,7 +44,6 @@ namespace Scene.InGame.Entity.Player
         private bool _isDead;
 
         private Tween _blinkTween;
-        private IPlayerStatusPresenter _statusPresenter;
 
         // 최대 체력·무적 시간은 캐릭터 데이터에서 옵니다(없으면 인스펙터 값 사용).
         public float MaxHealth => _statContext != null && _statContext.HasStat ? _statContext.GetMaxHealth() : maxHealth;
@@ -66,12 +65,7 @@ namespace Scene.InGame.Entity.Player
         public float InvincibleRatio => GetInvincibleDuration() <= 0f ? 0f : Mathf.Clamp01(_invincibleTimer / GetInvincibleDuration());
         public float HealthRatio => MaxHealth <= 0f ? 0f : Mathf.Clamp01(Health / MaxHealth);
 
-        // 체력/무적 표시를 담당하는 뷰를 주입합니다.
-        public void SetStatusPresenter(IPlayerStatusPresenter presenter)
-        {
-            _statusPresenter = presenter;
-            RefreshStatus();
-        }
+        
 
         // 체력을 초기 상태로 되돌립니다.
         public void ResetHealth()
@@ -163,7 +157,6 @@ namespace Scene.InGame.Entity.Player
 
         private void RefreshStatus()
         {
-            _statusPresenter?.SetStatus(HealthRatio, InvincibleRatio, IsInvincible);
         }
 
         private void PlayBlink()
@@ -312,9 +305,11 @@ namespace Scene.InGame.Entity.Player
             if (BaseData == null)
                 return;
 
-            BaseData.Health -= damage;
+            // 실패 판정은 스태미나가 맡습니다. 체력은 개편 전 시스템이라 표시용으로만 두고
+            // 0 아래로 내려가지 않게 막아, 체력 때문에 캐릭터가 멈추는 일이 없게 합니다.
+            BaseData.Health = Mathf.Max(1f, BaseData.Health - damage);
 
-            // 피격도 스태미나를 씁니다(무적으로 무시된 경우는 여기까지 오지 않습니다).
+            // 피격은 스태미나를 씁니다(무적으로 무시된 경우는 여기까지 오지 않습니다).
             _onDamaged?.Invoke();
 
             if (BaseData.Health <= 0f)

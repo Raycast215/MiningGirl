@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using Data;
 using MainGame.Bonus;
 using MainGame.Entity;
@@ -30,6 +31,24 @@ namespace Scene.InGame
         public bool HasCharacter => StatContext.HasStat;
 
         // 캐릭터 선택 시 호출합니다. 재시작 때는 호출하지 않아 선택과 강화가 유지됩니다.
+        // 저장된 캐릭터·강화를 복원합니다. 게임 시작 시 한 번만 호출합니다.
+        public void RestoreFromSave(string characterId, IReadOnlyDictionary<string, int> upgrades)
+        {
+            var table = DataTableManager.Instance?.CharacterStatDataTable;
+            var row = string.IsNullOrEmpty(characterId) ? null : table?.GetRow(characterId);
+
+            if (row != null)
+            {
+                // 시작 스킬은 저장된 강화 레벨에 이미 포함돼 있으므로 다시 부여하지 않습니다.
+                StatContext.SetCharacter(row);
+                Debug.Log($"[Save] 캐릭터 복원 — Id={characterId}");
+            }
+
+            _bonusState.RestoreLevels(upgrades, DataTableManager.Instance?.LevelUpBonusSkillDataTable);
+        }
+
+        public string GetCharacterId() => StatContext.SelectedCharacterId ?? string.Empty;
+
         public void SetCharacter(CharacterStatDataRow row)
         {
             StatContext.SetCharacter(row);
@@ -142,6 +161,12 @@ namespace Scene.InGame
 #region 보상 수신
 
         
+
+        // 몬스터 처치 보상. 강화로 올린 처치 골드 보너스를 더해 지급합니다.
+        public void OnMonsterKilled(int goldReward)
+        {
+            _onGoldGranted?.Invoke(ApplyGoldBuff(goldReward + _bonusState.MonsterKillGoldAdd));
+        }
 
         // IResourceRewardHandler 구현 — 광물을 다 캐면 호출됩니다.
         public void OnResourceMined(int stoneReward, int expReward)
