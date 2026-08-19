@@ -63,6 +63,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: c20089983ec00514e8fc04da148a0b9e, type: 2}
   - {fileID: 11400000, guid: 041d9e0bd69177b44b291bd4c79c4308, type: 2}
   - {fileID: 11400000, guid: a015238ecc1aa824ead1f37d7c862c4b, type: 2}
+  - {fileID: 11400000, guid: 975726bc4273f1947885c66432f13ffb, type: 2}
   - {fileID: 11400000, guid: d7aa3489cefe65d47bcaba98f8d8c69f, type: 2}
   - {fileID: 11400000, guid: 3764e80d94eda844ea2371b6ad84e548, type: 2}
   - {fileID: 11400000, guid: cce1a873661f2244685010dba7a95ec8, type: 2}
@@ -112,6 +113,7 @@ MonoBehaviour:
     - Ore
     - Player
     - Entity
+    - Skill_Icon
   m_SchemaTemplates: []
   m_GroupTemplateObjects:
   - {fileID: 11400000, guid: 0279018745dbcd846b66b3f9d7ae5b57, type: 2}
