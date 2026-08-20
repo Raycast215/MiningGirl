@@ -36,7 +36,7 @@ namespace Scene.InGame.Entity.Player
             ins.SetResourceProvider(resourceProvider);
             ins.SetStatContext(statContext);
 
-            ins.ResetHealth();
+            ins.ResetStatus();
             ins.InitDirectionEvent(cursor.SetDirection);
             ins.InitAsync().Forget();
             ins.SetPosition(Vector3.zero);
@@ -50,24 +50,6 @@ namespace Scene.InGame.Entity.Player
             ActivateList[0].transform.position = position;
         }
 
-        // 회복 카드용 — 살아있는 플레이어를 비율만큼 회복시킵니다.
-        public void HealPlayerByRatio(float ratio)
-        {
-            if (ActivateList == null)
-                return;
-
-            foreach (var player in ActivateList)
-                player.HealByRatio(ratio);
-        }
-
-        // 스테이지 재시작 시 체력과 무적/다운 상태를 초기화합니다.
-        // 사망 시 호출할 콜백을 활성 플레이어에게 전달합니다.
-        public void SetDeadHandler(System.Action handler)
-        {
-            foreach (var player in ActivateList)
-                player.SetDeadHandler(handler);
-        }
-
         // 피격 시 호출할 콜백을 활성 플레이어에게 전달합니다.
         public void SetDamagedHandler(System.Action handler)
         {
@@ -75,14 +57,14 @@ namespace Scene.InGame.Entity.Player
                 player.SetDamagedHandler(handler);
         }
 
-        // 스테이지 시작 시 체력과 무적 상태를 초기화합니다.
-        public void ResetPlayerHealth()
+        // 스테이지 시작 시 무적·깜빡임 상태를 초기화합니다.
+        public void ResetPlayerStatus()
         {
             if (ActivateList == null)
                 return;
 
             foreach (var player in ActivateList)
-                player.ResetHealth();
+                player.ResetStatus();
         }
 
         // 게임 시작 — 이 시점부터 플레이어가 광물을 탐색/이동/채굴합니다.
@@ -130,17 +112,6 @@ namespace Scene.InGame.Entity.Player
             {
                 player.SetStatusPaused(false);
                 player.UpdateStatus(Time.deltaTime);
-            }
-
-            // 죽은 뒤에는 이동/채굴을 멈춥니다(스테이지 재시작 연출 동안).
-            // (MovePosition 이동이라 남은 속도까지 없애야 미끄러지지 않습니다.)
-            foreach (var player in ActivateList)
-            {
-                if (!player.IsDead)
-                    continue;
-
-                player.StopMove();
-                return;
             }
 
             UpdateEntity();

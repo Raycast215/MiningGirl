@@ -89,7 +89,6 @@ public enum ELevelUpBonusEffectType
     CriDamage,          // 크리티털 데미지
     CriRate,            // 크리티컬 확률
     ExtraHitRate,       // 추가타 확률
-    MaxHealth,          // 최대 체력
     
     MonsterKillGold,    // 적 처치 시 획득 골드
     ResourceMineGold,   // 광물 채굴 시 획득 골드

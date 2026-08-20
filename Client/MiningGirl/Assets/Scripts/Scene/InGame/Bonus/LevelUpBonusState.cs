@@ -40,9 +40,6 @@ namespace MainGame.Bonus
         public float MiningStaminaCostReduce { get; private set; }
         public float HitStaminaCostReduce { get; private set; }
 
-        public float MaxHealthAdd { get; private set; }
-        public float MaxHealthMultiplier { get; private set; } = 1f;
-
         // 획득 골드
         public int MonsterKillGoldAdd { get; private set; }
         public int ResourceMineGoldAdd { get; private set; }
@@ -104,8 +101,6 @@ namespace MainGame.Bonus
             MiningStaminaCostReduce = 0f;
             HitStaminaCostReduce = 0f;
 
-            MaxHealthAdd = 0f;
-            MaxHealthMultiplier = 1f;
             MonsterKillGoldAdd = 0;
             ResourceMineGoldAdd = 0;
 
@@ -167,11 +162,6 @@ namespace MainGame.Bonus
 
                 case ELevelUpBonusEffectType.HitStaminaCost:
                     HitStaminaCostReduce += value;
-                    break;
-
-                case ELevelUpBonusEffectType.MaxHealth:
-                    if (isAdd) MaxHealthAdd += value;
-                    else MaxHealthMultiplier *= 1f + value;
                     break;
 
                 case ELevelUpBonusEffectType.MonsterKillGold:

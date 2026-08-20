@@ -89,7 +89,7 @@ namespace Scene.InGame
                     getPlayer: () => _playerEntity,
                     getMonsters: () => monsterController.ActivateList.ConvertAll(m => (Scene.InGame.Entity.Interface.IEntity)m),
                     buffs: levelUpController.StatContext.Buffs,
-                    healPlayerByRatio: ratio => uIController.RecoverStaminaByRatio(ratio),
+                    recoverStaminaByRatio: ratio => uIController.RecoverStaminaByRatio(ratio),
                     camera: Camera.main,
                     addCost: amount => uIController.AddCost(amount),
                                         spawnSpecialResource: SpawnSpecialResource,
@@ -471,6 +471,10 @@ namespace Scene.InGame
             {
                 deck.SetDeckCards(cards);
 
+                // 덱은 여기서만 바뀝니다. 바뀜 즉시 남겨야 앱을 다시 켰을 때
+                // 모아온 카드가 그대로 따라옵니다.
+                Manager.GameDataManager.Instance?.SaveDeck(cards);
+
                 next?.Invoke();
             });
 
@@ -741,8 +745,8 @@ namespace Scene.InGame
             // (방금 풀로 되돌린 광물을 계속 때리는 것을 방지합니다.)
             playerController.StopBehaviour();
 
-            // 체력과 무적/다운 상태도 초기화합니다.
-            playerController.ResetPlayerHealth();
+            // 무적/깜빡임 상태도 초기화합니다.
+            playerController.ResetPlayerStatus();
 
             // 광물만 다시 깔아둡니다. 실제 진행 재개는 GameStart에서 합니다.
             resourceController.SpawnInitialLayout(Vector3.zero);

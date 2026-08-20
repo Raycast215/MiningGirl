@@ -104,6 +104,34 @@ namespace Manager
             Save();
         }
 
+        // 덱이 바뀌었을 때(카드 정리 확정 등) 호출합니다.
+        // 이걸 빼먹으면 앱을 다시 켰을 때 스테이지·골드·강화는 돌아오는데
+        // 덱만 시작 구성으로 되돌아가 모아온 카드가 사라집니다.
+        public void SaveDeck(IReadOnlyList<string> cards)
+        {
+            Data.Deck.Clear();
+
+            if (cards != null)
+            {
+                for (var i = 0; i < cards.Count; i++)
+                {
+                    if (!string.IsNullOrEmpty(cards[i]))
+                        Data.Deck.Add(cards[i]);
+                }
+            }
+
+            Save();
+        }
+
+        // 저장된 덱 구성. 없으면 null을 돌려 기본 덱을 쓰게 합니다.
+        public List<string> GetSavedDeck()
+        {
+            if (Data.Deck == null || Data.Deck.Count == 0)
+                return null;
+
+            return new List<string>(Data.Deck);
+        }
+
         public void SaveCharacter(string characterId)
         {
             Data.CharacterId = characterId ?? string.Empty;

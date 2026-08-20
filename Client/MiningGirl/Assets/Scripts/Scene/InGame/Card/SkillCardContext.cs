@@ -27,7 +27,7 @@ namespace MainGame.Card
         public TemporaryBuffState Buffs { get; }
 
         // 플레이어 체력 회복 (비율 0~1)
-        public Action<float> HealPlayerByRatio { get; }
+        public Action<float> RecoverStaminaByRatio { get; }
 
         // 카메라 (화면 안 판정용)
         public Camera Camera { get; }
@@ -67,7 +67,7 @@ namespace MainGame.Card
             Func<IEntity> getPlayer,
             Func<IReadOnlyList<IEntity>> getMonsters,
             TemporaryBuffState buffs,
-            Action<float> healPlayerByRatio,
+            Action<float> recoverStaminaByRatio,
             Camera camera,
             Action<int> addCost = null,
                         Action<Vector3> spawnSpecialResource = null,
@@ -79,7 +79,7 @@ namespace MainGame.Card
             _getPlayer = getPlayer;
             GetMonsters = getMonsters;
             Buffs = buffs;
-            HealPlayerByRatio = healPlayerByRatio;
+            RecoverStaminaByRatio = recoverStaminaByRatio;
             Camera = camera;
         }
 

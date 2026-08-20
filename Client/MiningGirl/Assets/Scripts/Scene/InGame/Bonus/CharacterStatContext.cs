@@ -36,13 +36,6 @@ namespace MainGame.Bonus
 
         // 카드 버프로 인한 경험치 획득 배율
 
-        // 최대 체력 = 캐릭터 기본값 + 레벨업 합연산
-        public float GetMaxHealth()
-        {
-            var baseValue = BaseStat?.MaxHealth ?? 10f;
-            return Mathf.Max(1f, (baseValue + (Bonus?.MaxHealthAdd ?? 0f)) * (Bonus?.MaxHealthMultiplier ?? 1f));
-        }
-
         // 피격 후 무적 시간(초)
         public float GetInvincibleDuration()
         {

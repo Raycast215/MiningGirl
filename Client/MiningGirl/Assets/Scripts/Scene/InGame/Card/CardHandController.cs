@@ -211,13 +211,31 @@ namespace Scene.InGame.Card
 
         // 게임 시작 시점에 손패를 좌측부터 순차로 깔아줍니다.
         // 스테이지 시작 — 덱을 준비하고 손패를 깝니다.
+        // 스테이지 시작 — 덱을 준비하고 손패를 깔니다.
         public void StartHand()
         {
-            // 첫 스테이지에서만 기본 덱을 만들고, 이후에는 카드를 모두 되돌려 섞습니다.
+            // 첫 스테이지에서만 덱을 구성하고, 이후에는 카드를 모두 되돌려 섭습니다.
             if (Deck.DeckCount == 0)
-                Deck.InitFromDefaultTable();
+            {
+                // 저장된 덱이 있으면 그걸로 이어서 합니다.
+                // (없으면 새 런이거나 이 항목이 없던 예전 세이브입니다.)
+                var saved = GameDataManager.Instance?.GetSavedDeck();
+
+                if (saved != null && saved.Count > 0)
+                {
+                    Deck.SetDeckCards(saved);
+
+                    Debug.Log($"[Deck] 저장된 덱을 불러왔습니다 — {saved.Count}장");
+                }
+                else
+                {
+                    Deck.InitFromDefaultTable();
+                }
+            }
             else
+            {
                 Deck.ResetPiles();
+            }
 
             DealAll();
         }

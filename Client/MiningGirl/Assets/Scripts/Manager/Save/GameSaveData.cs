@@ -30,6 +30,11 @@ namespace Manager.Save
         // 강화 페이즈에 들어간 이유(클리어인지 실패인지). 팝업 문구가 달라집니다.
         public bool IsUpgradeFromClear;
 
+        // 런에서 들고 있는 덱 구성(스킬 Id 목록).
+        // 카드 정리에서 덱을 바꿀 때마다 갱신됩니다.
+        // 비어 있으면(예: 이 항목이 없던 예전 세이브) 기본 덱으로 시작합니다.
+        public List<string> Deck = new List<string>();
+
         // 지금까지 한 번이라도 얻어본 카드 Id.
         // NEW 표시는 여기 없는 카드에만 붙입니다.
         public List<string> SeenCards = new List<string>();
