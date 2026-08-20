@@ -57,8 +57,16 @@ namespace Scene.InGame.UI
 
         // fromStage에서 toStage로 넘어가는 연출을 재생하고 끝나면 onComplete를 부릅니다.
         // isCardStage: 해당 스테이지가 카드 정리 스테이지인지 판단하는 함수
-        public async UniTaskVoid PlayAsync(int fromStage, int toStage, int maxStage,
-            Func<int, bool> isCardStage, Action onComplete)
+        // fromStage에서 toStage로 넘어가는 연출을 재생하고 끝나면 onComplete를 부릅니다.
+        // isCardStage: 해당 스테이지가 카드 정리 스테이지인지 판단하는 함수
+        // onShown: 맵이 화면을 다 덮은 직후에 불립니다. 이 시점에는 뒤가 보이지 않으므로
+        //          화면 덮개를 걷는 등 들키고 싶지 않은 정리를 여기서 합니다.
+        // showInstantly: 페이드 없이 그 프레임에 바로 화면을 덮습니다.
+        //          캐릭터 선택 팝업이 닫히는 순간처럼, 뒤에 있는 인게임 화면이
+        //          한 순간도 드러나면 안 되는 경우에 씁니다.
+        public async UniTask PlayAsync(int fromStage, int toStage, int maxStage,
+            Func<int, bool> isCardStage, Action onComplete, Action onShown = null,
+            bool showInstantly = false, Func<UniTask> onBeforeHide = null)
         {
             gameObject.SetActive(true);
 
@@ -72,26 +80,49 @@ namespace Scene.InGame.UI
 
             if (canvasGroup != null)
             {
-                canvasGroup.alpha = 0f;
                 canvasGroup.DOKill();
-                canvasGroup.DOFade(1f, fadeInDuration);
+
+                if (showInstantly)
+                {
+                    canvasGroup.alpha = 1f;
+                }
+                else
+                {
+                    canvasGroup.alpha = 0f;
+                    canvasGroup.DOFade(1f, fadeInDuration);
+                }
             }
 
-            await UniTask.Delay(TimeSpan.FromSeconds(fadeInDuration + holdDuration),
-                ignoreTimeScale: true);
+            if (!showInstantly)
+                await UniTask.Delay(TimeSpan.FromSeconds(fadeInDuration), ignoreTimeScale: true);
+
+            // 여기서부턴 맵이 화면을 다 가리고 있습니다.
+            onShown?.Invoke();
+
+            await UniTask.Delay(TimeSpan.FromSeconds(holdDuration), ignoreTimeScale: true);
 
             // 다음 칸으로 이동
             Draw(toStage, maxStage, isCardStage);
 
             await UniTask.Delay(TimeSpan.FromSeconds(showDuration), ignoreTimeScale: true);
 
-            if (canvasGroup != null)
-            {
-                canvasGroup.DOKill();
-                canvasGroup.DOFade(0f, fadeOutDuration);
-            }
+            // 아직 맵이 화면을 덮고 있는 동안 처리할 일을 기다립니다(예: 카드 정리).
+            // 맵을 먼저 걷어버리면 다음 화면이 뜨기 전까지 인게임이 잠깐 드러납니다.
+            if (onBeforeHide != null)
+                await onBeforeHide.Invoke();
 
-            await UniTask.Delay(TimeSpan.FromSeconds(fadeOutDuration), ignoreTimeScale: true);
+            // onBeforeHide 안에서 이미 내려갔다면(예: 카드 정리 화면이 대신 덮음)
+            // 사라지는 연출을 다시 할 필요가 없습니다.
+            if (gameObject.activeSelf)
+            {
+                if (canvasGroup != null)
+                {
+                    canvasGroup.DOKill();
+                    canvasGroup.DOFade(0f, fadeOutDuration);
+                }
+
+                await UniTask.Delay(TimeSpan.FromSeconds(fadeOutDuration), ignoreTimeScale: true);
+            }
 
             Hide();
 

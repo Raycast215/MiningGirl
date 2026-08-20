@@ -4,6 +4,7 @@ using Data;
 using InGame.System.Skill.UI;
 using MainGame.Card;
 using Manager;
+using Scene.InGame.Entity.Interface;
 using UnityEngine;
 
 namespace Scene.InGame.Card
@@ -32,7 +33,15 @@ namespace Scene.InGame.Card
 
         [SerializeField]
         [Tooltip("아래로 버릴 때 표시되는 영역 UI (선택)")]
-        private SkillCardRemoveUI removeUI;
+                private SkillCardRemoveUI removeUI;
+
+        [SerializeField]
+        [Tooltip("조준 중 포물선과 사거리 원을 그리는 표시기 (선택)")]
+                private global::UI.Common.AimIndicator aimIndicator;
+
+        [SerializeField]
+        [Tooltip("손패 위에 사용 실패 사유를 띄우는 공통 문구 (선택)")]
+        private Scene.InGame.UI.CardMessageUI cardMessage;
 
         [Header("Judge")]
         // 카드는 화면 맨 아래에 있어서 '절대 위치'로 판정하면 기본 자세가 이미 하단이라
@@ -95,7 +104,10 @@ namespace Scene.InGame.Card
         private readonly List<CardView> _order = new List<CardView>();
 
         // 지금 끌고 있는 카드. 멀티터치로 두 장이 동시에 끌리지 않도록 한 장만 허용합니다.
-        private CardView _draggingCard;
+                private CardView _draggingCard;
+
+        // 드래그 중 조준 표시를 켜 둔 대상들.
+        private readonly List<IEntity> _markedTargets = new List<IEntity>();
 
         // 카드마다 지금 들고 있는 스킬 데이터
         private readonly Dictionary<CardView, SkillCardDataTableRow> _cardData = new Dictionary<CardView, SkillCardDataTableRow>();
@@ -106,7 +118,12 @@ namespace Scene.InGame.Card
         // 런 전체에서 유지되는 덱(드로우/버린 더미 포함)
         public SkillDeck Deck { get; } = new SkillDeck();
 
-        private int _drawCount;
+                private int _drawCount;
+
+        // 지금 끌고 있는 카드가 사용 판정선을 넘어 조준 중인지.
+        // OnDrag는 손끝이 움직인 프레임에만 오기 때문에,
+        // 멈춰 있는 동안에도 표시를 다시 그리려고 따로 들고 있습니다.
+        private bool _isAimingDrag;
         private bool _isPaused;
 
         public void Init(Func<int, bool> canAffordCost = null, Func<int, bool> trySpendCost = null, SkillCardContext skillContext = null)
@@ -147,7 +164,10 @@ namespace Scene.InGame.Card
         public void HideHand()
         {
             HideAll();
+
             HideRemoveUIImmediate();
+
+            ClearTargetPreview();
         }
 
         private void Update()
@@ -156,6 +176,12 @@ namespace Scene.InGame.Card
                 return;
 
             RefreshAvailability();
+
+            // 조준 중에는 손가락이 멈춰 있어도 표시를 계속 다시 그립니다.
+            // 드래그 이벤트만 믿으면 코스트가 회복되거나 대상이 움직여도
+            // 포물선이 직전 상태(예: 붉은색)에 멈춰 있게 됩니다.
+            if (!_isPaused && _isAimingDrag && _draggingCard != null)
+                RefreshTargetPreview(_draggingCard);
         }
 
         // 평소에는 '코스트가 되는지'만 갱신합니다.
@@ -224,7 +250,9 @@ namespace Scene.InGame.Card
             if (paused)
             {
                 _draggingCard = null;
+
                 HideRemoveUI();
+                ClearTargetPreview();
             }
         }
 
@@ -316,9 +344,181 @@ namespace Scene.InGame.Card
             // 끌고 있는 동안에만 '지금 놓으면 되는지'를 프레임 색으로 알려줍니다.
             card.SetDragFeedback(isDiscard ? CanAfford(GetDiscardCost()) : CanUseNow(card));
 
+            // 사용 판정선을 넘은 동안만 조준 상태입니다.
+            // 이때 카드를 흐리고 작게 만들고(대상 표시가 카드에 가리지 않게)
+            // 대상 표시와 포물선·사거리 원을 띄웁니다.
+            var isAiming = !isDiscard && IsUseDrag(card);
+
+            card.SetAiming(isAiming);
+
+            if (isAiming)
+            {
+                // 먼저 켜둔 뒤에 그려야, 그리다 쓸 것이 없어 표시를 지우는 경우
+                // 그 결과(꺼짐)가 그대로 남습니다.
+                _isAimingDrag = true;
+
+                RefreshTargetPreview(card);
+            }
+            else
+            {
+                ClearTargetPreview();
+            }
+
             // 버리려고 아래로 끄는 중이 아니면 자리 바꾸기를 살핍니다.
             if (!isDiscard)
                 TryReorder(card);
+        }
+
+        // 위로 사용 판정선을 넘었는지
+        private bool IsUseDrag(CardView card)
+        {
+            return GetDragDeltaY(card) >= Screen.height * useDragRatio;
+        }
+
+        // 지금 카드 위치 기준으로 적중할 대상의 머리 위에 표시를 띄우고,
+        // 손패 자리에서 카드 중앙으로 포물선을 그립니다.
+        // 사거리 원과 머리 위 표시는 대상을 직접 고르는 스킬에만 붙습니다.
+        // 버프·지원 카드는 포물선만 그려서 '어디에 놓는 중'인지만 보여줍니다.
+        //
+        // 매 프레임 전부 껐다 켜면 깜빡이므로, 이전 프레임과 비교해
+        // 빠진 대상만 끄고 새로 들어온 대상만 켭니다.
+        private void RefreshTargetPreview(CardView card)
+        {
+            if (_skillContext == null || !_cardData.TryGetValue(card, out var row) || row == null)
+            {
+                ClearTargetPreview();
+
+                return;
+            }
+
+            var effect = SkillCardEffectFactory.Get(row.SkillType);
+
+            if (effect == null)
+            {
+                ClearTargetPreview();
+
+                return;
+            }
+
+            var dropScreen = GetScreenPosition(card);
+
+            _skillContext.SetDropScreenPosition(dropScreen);
+
+            // 코스트가 모자라도 포물선은 그립니다. 대신 붉게 칠해 못 쓴다고 알려줍니다.
+            // (머리 위 표시까지 켜면 쓸 수 있는 것처럼 보여서 대상은 잡지 않습니다.)
+            var canAfford = CanAfford(GetCardCost(card));
+
+            var preview = effect as ITargetPreviewEffect;
+            var targets = preview != null && canAfford ? preview.CollectTargets(_skillContext, row) : null;
+
+            ApplyTargetPreview(targets);
+
+            var usable = canAfford
+                && (preview != null ? targets.Count > 0 : effect.CanExecute(_skillContext, row));
+
+            var range = preview != null ? preview.GetPreviewRange(row) : 0f;
+
+            ShowAimIndicator(card, dropScreen, range, usable);
+        }
+
+        // 포물선 시작점은 이 카드의 손패 자리입니다.
+        // 드래그 중에도 카드 루트는 슬롯에 그대로 있고 안쪽(Contents)만 움직입니다.
+        //
+        // isUsable이 false면(대상 없음·코스트 부족) 포물선을 붉게 그립니다.
+        // worldRange가 0 이하면 사거리 원은 빼고 포물선만 그립니다.
+        private void ShowAimIndicator(CardView card, Vector2 dropScreen, float worldRange, bool isUsable)
+        {
+            if (aimIndicator == null)
+                return;
+
+            var uiCamera = GetUICamera();
+            var fromScreen = RectTransformUtility.WorldToScreenPoint(uiCamera, card.transform.position);
+
+            // 사거리는 월드 단위라, 끝 지점을 같은 방식으로 화면에 옮긴 뒤 거리로 잽니다.
+            // (픽셀로 직접 환산하면 캔버스 스케일을 또 나눠야 해서 틀리기 쉽습니다.)
+            var worldCamera = _skillContext != null && _skillContext.Camera != null ? _skillContext.Camera : Camera.main;
+            var edgeScreen = worldRange > 0f && worldCamera != null
+                ? (Vector2)worldCamera.WorldToScreenPoint(_skillContext.DropWorldPosition + Vector3.right * worldRange)
+                : dropScreen;
+
+            aimIndicator.Show(fromScreen, dropScreen, edgeScreen, isUsable, uiCamera);
+        }
+
+        private Camera GetUICamera()
+        {
+            if (canvas == null)
+                return null;
+
+            return canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+        }
+
+        private void ApplyTargetPreview(IReadOnlyList<IEntity> targets)
+        {
+            // 이번에 빠진 대상만 끕니다.
+            for (var i = _markedTargets.Count - 1; i >= 0; i--)
+            {
+                var marked = _markedTargets[i];
+
+                if (ContainsTarget(targets, marked))
+                    continue;
+
+                SetTargetMark(marked, false);
+
+                _markedTargets.RemoveAt(i);
+            }
+
+            if (targets == null)
+                return;
+
+            for (var i = 0; i < targets.Count; i++)
+            {
+                var target = targets[i];
+
+                if (target == null || ContainsTarget(_markedTargets, target))
+                    continue;
+
+                SetTargetMark(target, true);
+
+                _markedTargets.Add(target);
+            }
+        }
+
+        // 드래그가 끝나거나 게임이 멈추면 표시를 모두 지웁니다.
+        // 드래그가 끝나거나 게임이 멈추면 표시를 모두 지웁니다.
+        public void ClearTargetPreview()
+        {
+            _isAimingDrag = false;
+
+            for (var i = 0; i < _markedTargets.Count; i++)
+                SetTargetMark(_markedTargets[i], false);
+
+            _markedTargets.Clear();
+
+            if (aimIndicator != null)
+                aimIndicator.Hide();
+        }
+
+        private static bool ContainsTarget(IReadOnlyList<IEntity> list, IEntity item)
+        {
+            if (list == null)
+                return false;
+
+            for (var i = 0; i < list.Count; i++)
+            {
+                if (ReferenceEquals(list[i], item))
+                    return true;
+            }
+
+            return false;
+        }
+
+        // 몬스터든 광물이든 머리 위 표시는 EntityBase가 들고 있습니다.
+        private static void SetTargetMark(IEntity entity, bool value)
+        {
+            var target = entity as global::Scene.InGame.Entity.EntityBase;
+
+            if (target != null)
+                target.SetTargetMark(value);
         }
 
         // 끌고 있는 카드가 옆 슬롯 가까이 오면 그 자리의 카드와 순서를 바꿉니다.
@@ -377,6 +577,10 @@ namespace Scene.InGame.Card
         {
             _draggingCard = null;
 
+            // 손을 뗄 때 조준 표시도 함께 지웁니다.
+            // (아래의 TryUseCard보다 먼저 지워야 사용 직후에 표시가 남지 않습니다.)
+            ClearTargetPreview();
+
             // 끌던 카드도 자기 슬롯 자세(위치·각도·배율)로 돌아갑니다.
             // 드래그 중에는 RefreshSlots가 이 카드를 건너뛰므로 여기서 맞춰 줍니다.
             RefreshSlots(reorderDuration);
@@ -402,7 +606,8 @@ namespace Scene.InGame.Card
                 {
                     Debug.Log($"[Card] 버리기 실패 — 코스트 부족 (필요 {GetDiscardCost()})");
 
-                    card.PlayFail("코스트 부족");
+                                        card.PlayFail();
+                    ShowMessage($"코스트가 부족합니다 ({GetDiscardCost()} 필요)");
                     return;
                 }
 
@@ -525,7 +730,9 @@ namespace Scene.InGame.Card
             {
                 Debug.Log($"[Card] 사용 실패 — {row.Name} 를 쓸 대상/조건이 없습니다.");
 
-                card.PlayFail("대상 없음");
+                // 대상이 없다는 건 놓기 전에 조준 표시가 붉게 변해 이미 알려줍니다.
+                // 또 말하지 않고 흔들기만 합니다.
+                card.PlayFail();
                 return;
             }
 
@@ -535,7 +742,8 @@ namespace Scene.InGame.Card
             {
                 Debug.Log($"[Card] 사용 실패 — 코스트 부족 (필요 {cost})");
 
-                card.PlayFail("코스트 부족");
+                card.PlayFail();
+                ShowMessage($"코스트가 부족합니다 ({cost} 필요)");
                 return;
             }
 
@@ -544,6 +752,13 @@ namespace Scene.InGame.Card
             Debug.Log($"[Card] 사용 — {row.Name} (코스트 -{cost})");
 
             card.PlayConsume(false, () => OnCardConsumed(card));
+        }
+
+        // 손패 위 공통 문구로 실패 사유를 알립니다.
+        private void ShowMessage(string message)
+        {
+            if (cardMessage != null)
+                cardMessage.Show(message);
         }
 
         // 손패 전체를 좌측부터 순차적으로 깔아줍니다(게임 시작 / 스테이지 재시작).

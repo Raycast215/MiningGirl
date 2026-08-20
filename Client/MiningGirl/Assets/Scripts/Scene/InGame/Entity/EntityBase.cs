@@ -16,7 +16,21 @@ namespace Scene.InGame.Entity
         [SerializeField]
         private Rigidbody rigidBody;
         [SerializeField]
-        protected SpriteRenderer spriteRenderer;
+                protected SpriteRenderer spriteRenderer;
+
+        [SerializeField]
+        [Tooltip("카드로 조준됐을 때 머리 위에 뜨는 표시")]
+        private GameObject targetMark;
+
+        // 카드 드래그 중 '지금 놓으면 이게 대상이다'를 알려줍니다.
+        //
+        // 몬스터만 아니라 광물도 조준 대상이라(이동 카드) 여기 공통으로 둡니다.
+        // 풀에서 재사용되므로 생성·소멸 시에는 반드시 꺼줘야 합니다.
+        public void SetTargetMark(bool value)
+        {
+            if (targetMark != null && targetMark.activeSelf != value)
+                targetMark.SetActive(value);
+        }
         
         protected NodeRunner NodeRunner;
         protected MoveNode MoveNode;

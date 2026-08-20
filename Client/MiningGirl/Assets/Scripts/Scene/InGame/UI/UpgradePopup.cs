@@ -51,6 +51,10 @@ namespace Scene.InGame.UI
         private Action<LevelUpBonusSkillDataTableRow> _onPurchase;
         private Action _onClose;
 
+        // 닫기를 누른 뒤에도 팝업은 잠시 떠 있습니다.
+        // 그 동안 강화를 더 사거나 탭을 바꾸지 못하게 입력만 잠가는 용도입니다.
+        private CanvasGroup _canvasGroup;
+
         public void Init(Func<int> getGold, Func<int, bool> trySpendGold,
             Func<LevelUpBonusSkillDataTableRow, int> getLevel,
             Action<LevelUpBonusSkillDataTableRow> onPurchase)
@@ -97,6 +101,8 @@ namespace Scene.InGame.UI
 
             gameObject.SetActive(true);
 
+            SetInputEnabled(true);
+
             if (titleText != null)
                 titleText.text = isCleared ? $"스테이지 {stage} 클리어" : $"스테이지 {stage} 실패";
 
@@ -111,14 +117,33 @@ namespace Scene.InGame.UI
             gameObject.SetActive(false);
         }
 
+        // 닫기를 누르면 바로 사라지지 않고, 다음 흐름부터 진행합니다.
+        // 먼저 닫으면 인게임이 잠깐 드러났다가 다음 화면(맵 연출·화면 덮개)이
+        // 덮는 모양이 됩니다. 화면이 가려진 뒤에 바깥에서 Hide를 부릅니다.
+        // (InGameController.PrepareNextStage 참고)
         private void Close()
         {
             var callback = _onClose;
             _onClose = null;
 
-            Hide();
+            // 더 사거나 닫기를 한 번 더 누르지 못하게 입력만 잠가 둡니다.
+            SetInputEnabled(false);
 
             callback?.Invoke();
+        }
+
+        // 보이는 것은 그대로 두고 입력만 여닫습니다.
+        private void SetInputEnabled(bool value)
+        {
+            if (_canvasGroup == null)
+            {
+                _canvasGroup = GetComponent<CanvasGroup>();
+
+                if (_canvasGroup == null)
+                    _canvasGroup = gameObject.AddComponent<CanvasGroup>();
+            }
+
+            _canvasGroup.interactable = value;
         }
 
         private void SelectTab(EUpgradeTabType tab)

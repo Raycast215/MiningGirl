@@ -143,10 +143,17 @@ namespace Scene.InGame.UI
 
             gameObject.SetActive(true);
 
+            // 스테이지 맵 연출이 화면을 덮은 채 이 화면을 엽니다.
+            // 맵이 계층상 뒤에 있어서, 올려주지 않으면 맵에 가려 보이지 않습니다.
+            transform.SetAsLastSibling();
+
             if (titleText != null)
                 titleText.text = "카드 정리";
 
-            Refresh();
+            // 처음 채울 때는 트윈 없이 즉시 반영합니다.
+            // 카드를 재사용하므로, 지난번에 버리기로 골랐던 칸은 기울어진 각도가
+            // 남아 있어서, 트윈을 쓰면 화면이 뜨고 난 뒤에 천천히 바로서는 것이 보입니다.
+            Refresh(animate: false);
 
             PlayDrawAsync().Forget();
         }
@@ -223,7 +230,8 @@ namespace Scene.InGame.UI
             Refresh();
         }
 
-        private void Refresh()
+        // animate: 선택 표시를 트윈으로 바꿀지 여부. 고를 때만 켭니다.
+        private void Refresh(bool animate = true)
         {
             if (descText != null)
                 descText.text = $"버릴 카드 {RequiredDiscardCount}장을 고르세요";
@@ -242,7 +250,7 @@ namespace Scene.InGame.UI
 
                 _items[i].SetVisible(true);
                 _items[i].SetData(_cards[i], _newIndexes.Contains(i), _discardIndexes.Contains(i),
-                    CountInDeck(_cards[i].Id), () => Toggle(index));
+                    CountInDeck(_cards[i].Id), () => Toggle(index), animate);
             }
 
             RefreshConfirmText();

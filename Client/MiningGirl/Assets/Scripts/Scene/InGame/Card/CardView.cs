@@ -32,9 +32,6 @@ namespace MainGame.Card
         [SerializeField]
         [Tooltip("코스트 배지 (부족할 때 붉게)")]
         private Image costBadgeImage;
-        [SerializeField]
-        [Tooltip("사용 실패 사유를 잠깐 띄우는 텍스트")]
-        private TMP_Text failText;
 
         [SerializeField]
         private Color costNormalColor = Color.white;
@@ -97,7 +94,121 @@ namespace MainGame.Card
         [Tooltip("드로우될 때 아래에서 올라오는 거리")]
         private float drawFromOffsetY = -400f;
         [SerializeField]
-        private float drawDuration = 0.25f;
+                private float drawDuration = 0.25f;
+
+        [Header("Aim")]
+        [SerializeField]
+        [Tooltip("조준 중(사용 판정선 위) 카드 투명도. 카드가 조준점을 덮어 대상 표시가 안 보이던 문제 때문입니다.")]
+        [Range(0.05f, 1f)]
+        private float aimAlpha = 0.4f;
+
+        [SerializeField]
+        [Tooltip("조준 중 카드 크기")]
+        [Range(0.3f, 1.5f)]
+        private float aimScale = 0.85f;
+
+        [SerializeField]
+        [Tooltip("조준 자세로 바뀌는 시간(초). 0이면 즉시 바뀝니다.")]
+        private float aimTweenDuration = 0.12f;
+
+        [SerializeField]
+        [Tooltip("흐려질 때도 진하게 남길 요소(테두리·이름·코스트). CanvasGroup의 Ignore Parent Groups가 켜져 있어야 합니다.")]
+        private CanvasGroup[] aimKeepGroups;
+
+        private bool _isAiming;
+        private Tween _aimFadeTween;
+        private Tween _aimScaleTween;
+
+        public bool IsAiming => _isAiming;
+
+        // 사용 판정선을 넘었는지에 따라 조준 자세로 바꿉니다.
+        //
+        // 카드가 조준점 위에 그대로 엉혀서 대상 표시가 하나도 안 보이던 문제 때문입니다.
+        // 흐리고 작게 만들어 아래가 비치게 하되, 무엇을 쥐고 있는지는 알 수 있게
+        // 테두리·이름·코스트만 aimKeepGroups로 진하게 남깁니다.
+        public void SetAiming(bool value)
+        {
+            if (_isAiming == value)
+                return;
+
+            _isAiming = value;
+
+            ApplyAimPose(false);
+        }
+
+        // 드래그가 끝나거나 카드가 감췄짐 때는 연출 없이 즉시 되돌립니다.
+        private void ResetAim()
+        {
+            KillAimTweens();
+
+            if (!_isAiming)
+                return;
+
+            _isAiming = false;
+
+            ApplyAimPose(true);
+        }
+
+        private void KillAimTweens()
+        {
+            _aimFadeTween?.Kill();
+            _aimFadeTween = null;
+
+            _aimScaleTween?.Kill();
+            _aimScaleTween = null;
+        }
+
+        private void ApplyAimPose(bool instant)
+        {
+            KillAimTweens();
+
+            // 조준 중에는 카드 전체를 덮는 선택 이펙트를 끕니다.
+            //
+            //             // 카드 전면을 덮는 연출이면 '비쳐 보이게' 하려는 의도와 정면으로 부딪힙니다. 셀이더 머티리얼(400x550 전면 발광)입니다.
+            //             // (기본 프리팩에는 지금 이펙트가 없어서 이 호출은 아무 일도 하지 않습니다. 알파를 그대로 따르지 않는 경우가 많고,
+            //             //  나중에 새 강조 연출을 달면 그때부터 자동으로 적용됩니다.) '비쳐 보이게' 하려는 의도와 부딪힙니다.
+            SetSelectEffect(IsDragging && !_isAiming);
+
+            var alpha = _isAiming ? aimAlpha : TargetAlpha;
+            var scale = _isAiming ? aimScale : (IsDragging ? dragScale : 1f);
+            var duration = instant ? 0f : aimTweenDuration;
+
+            if (canvasGroup != null)
+            {
+                if (duration <= 0f)
+                    canvasGroup.alpha = alpha;
+                else
+                    _aimFadeTween = canvasGroup.DOFade(alpha, duration);
+            }
+
+            if (contents == null)
+                return;
+
+            if (duration <= 0f)
+                contents.localScale = Vector3.one * scale;
+            else
+                _aimScaleTween = contents.DOScale(Vector3.one * scale, duration);
+        }
+
+        // aimKeepGroups는 Ignore Parent Groups라 카드 전체 알파를 따라오지 않습니다.
+        // 조준 중에는 1로 남기고, 그 외에는 카드와 같은 밝기로 맞춰 줍니다.
+        // (드로우 페이드인·사용 후 사라짐에서 이 요소들만 남아 보이지 않도록)
+        private void LateUpdate()
+        {
+            if (aimKeepGroups == null || aimKeepGroups.Length == 0 || canvasGroup == null)
+                return;
+
+            var alpha = _isAiming ? 1f : canvasGroup.alpha;
+
+            for (var i = 0; i < aimKeepGroups.Length; i++)
+            {
+                if (aimKeepGroups[i] == null)
+                    continue;
+
+                if (!Mathf.Approximately(aimKeepGroups[i].alpha, alpha))
+                    aimKeepGroups[i].alpha = alpha;
+            }
+        }
 
         public int SlotIndex { get; private set; }
         public bool IsDragging { get; private set; }
@@ -141,7 +252,6 @@ namespace MainGame.Card
         // 드로우 연출이 도는 동안은 조작을 막습니다.
         // (연출 시작과 동시에 잡히면 카드가 날아오는 중에 드래그가 걸립니다.)
         private bool _isDrawing;
-        private Tween _failTween;
 
         public void Init(int slotIndex, Canvas canvas, Action<CardView> onDragBegin, Action<CardView> onDrag, Action<CardView> onDragEnd)
         {
@@ -245,34 +355,29 @@ namespace MainGame.Card
         }
 
         // 사용 실패 — 흔들고 이유를 잠깐 띄웁니다.
-        public void PlayFail(string reason)
+        // 사용 실패 — 흔들고,         // 사용 실패 — 흔들고, reason이 있을 때만 이유를 잠깐 띄웁니다. 잠긐 띄우거나 합니다.
+        //
+        // '대상 없음'은 놓기 전에 이미 조준 표시(포물선·사거리 원이 붉게)로 알려주므로
+        // 같은 말을 카드 안에 또 쓰지 않습니다. 그럴 때는 reason 없이 부릅니다.
+        // 사용 실패 — 카드를 짧게 흔듭니다.
+        //
+        // 실패 '사유'는 카드가 아니라 손패 위 공통 문구(CardMessageUI)가 말합니다.
+        // 카드 안에 두면 작고, 흔들리고, 3장이 각자 다른 말을 할 수 있었습니다.
+        public void PlayFail()
         {
-            if (contents != null)
-            {
-                // 흔들기는 '원위치에서' 시작해야 합니다.
-                // 끌던 자리에서 흔들면 그 자리를 시작점으로 기억해 카드가 화면에 남습니다.
-                _moveTween?.Kill();
-                contents.DOKill();
-
-                contents.anchoredPosition = _homePosition;
-                contents.localScale = Vector3.one;
-
-                _moveTween = contents.DOShakeAnchorPos(0.3f, new Vector2(24f, 0f), 12, 0f)
-                    .OnComplete(() => contents.anchoredPosition = _homePosition);
-            }
-
-            if (failText == null)
+            if (contents == null)
                 return;
 
-            _failTween?.Kill();
+            // 흔들기는 '원위치에서' 시작해야 합니다.
+            // 끌던 자리에서 흔들면 그 자리를 시작점으로 기억해 카드가 화면에 남습니다.
+            _moveTween?.Kill();
+            contents.DOKill();
 
-            failText.text = reason;
-            failText.alpha = 1f;
-            failText.gameObject.SetActive(true);
+            contents.anchoredPosition = _homePosition;
+            contents.localScale = Vector3.one;
 
-            _failTween = failText.DOFade(0f, 0.9f)
-                .SetDelay(0.4f)
-                .OnComplete(() => failText.gameObject.SetActive(false));
+            _moveTween = contents.DOShakeAnchorPos(0.3f, new Vector2(24f, 0f), 12, 0f)
+                .OnComplete(() => contents.anchoredPosition = _homePosition);
         }
 
         // 스킬 카드 데이터를 그대로 반영합니다(이름 / 코스트 / 설명 / 타입별 프레임).
@@ -355,6 +460,8 @@ namespace MainGame.Card
         // 아직 드로우되지 않은 상태로 감춥니다.
         public void SetHidden()
         {
+                        ResetAim();
+
             _isHidden = true;
             _isDrawing = false;
 
@@ -457,6 +564,8 @@ namespace MainGame.Card
         {
             if (contents == null)
                 return;
+
+                        ResetAim();
 
             _isHidden = false;
 
@@ -569,7 +678,10 @@ namespace MainGame.Card
             if (!IsDragging)
                 return;
 
-            IsDragging = false;
+                        IsDragging = false;
+
+            // 조준 자세를 먼저 되돌려야 아래의 밝기 복구와 서로 싸우지 않습니다.
+            ResetAim();
 
             SetSelectEffect(false);
 

@@ -85,6 +85,10 @@ namespace MainGame.UI
         private global::UI.Common.ScaleToFitParent _fitter;
         private CanvasGroup _canvasGroup;
 
+        // 드로우 연출이 끝난 뒤 돌아올 자리. 연출 도중 화면이 닫히면
+        // 어긋난 위치로 남기 때문에 다음에 열 때 여기로 되돌립니다.
+        private Vector2 _cardRootHomePos;
+
         private void Awake()
         {
             if (cardRoot != null)
@@ -94,6 +98,22 @@ namespace MainGame.UI
 
                 if (_canvasGroup == null)
                     _canvasGroup = cardRoot.gameObject.AddComponent<CanvasGroup>();
+
+                _cardRootHomePos = cardRoot.anchoredPosition;
+
+                // 손패 카드(SkillCardElementUI)는 조준 중에도 이름·코스트를 진하게
+                // 남기려고 그 자식 CanvasGroup에 Ignore Parent Groups가 켜져 있습니다.
+                // 정리 화면은 같은 프리팹을 쓰지만 그 규칙이 필요 없고,
+                // 그대로 두면 카드를 감춰도 코스트 뱃지와 이름만 공중에 남습니다.
+                var groups = cardRoot.GetComponentsInChildren<CanvasGroup>(true);
+
+                for (var i = 0; i < groups.Length; i++)
+                {
+                    if (groups[i] == null || groups[i] == _canvasGroup)
+                        continue;
+
+                    groups[i].ignoreParentGroups = false;
+                }
             }
 
             if (selectButton == null)
@@ -103,9 +123,25 @@ namespace MainGame.UI
             selectButton.onClick.AddListener(() => _onClick?.Invoke());
         }
 
-        public void SetData(SkillCardDataTableRow row, bool isNew, bool isDiscard, int deckCount, Action onClick)
+        // animate: 선택 표시(확대·기울기)를 트윈으로 바꿀지 여부.
+        // 화면을 처음 채울 때는 false로 넣어 즉시 반영합니다.
+        // 카드를 재사용하기 때문에, 트윈을 쓰면 지난번에 버리기로 골랐던 칸이
+        // 기울어진 채 떠서 천천히 바로서는 것이 보입니다.
+        public void SetData(SkillCardDataTableRow row, bool isNew, bool isDiscard, int deckCount, Action onClick,
+            bool animate = true)
         {
             _onClick = onClick;
+            // 지난번 드로우 연출이 중간에 끊겼으면 투명하거나 어긋난 자리로 남아 있습니다.
+            // 카드를 다시 채울 때마다 보이는 상태로 되돌립니다.
+            if (_canvasGroup != null)
+            {
+                _canvasGroup.DOKill();
+                _canvasGroup.alpha = 1f;
+            }
+
+            if (cardRoot != null)
+                cardRoot.anchoredPosition = _cardRootHomePos;
+
 
             if (row == null)
                 return;
@@ -162,7 +198,7 @@ namespace MainGame.UI
 
             target.DOKill();
 
-            if (selectTweenDuration > 0f && gameObject.activeInHierarchy)
+            if (animate && selectTweenDuration > 0f && gameObject.activeInHierarchy)
                 target.DOLocalRotate(new Vector3(0f, 0f, angle), selectTweenDuration)
                     .SetEase(Ease.OutBack)
                     .SetUpdate(true);

@@ -10,33 +10,36 @@
     "Name": "에어샷",
     "SkillCategoryType": "Attack",
     "SkillType": "AirShot",
-    "Weight": 100
+    "Weight": 100,
+    "TargetCount": 5
   },
   {
     "AssetId": "Skill_Icon_1062",
     "Cost": 1,
     "Desc": "가까운 적 하나를 데미지 {0} 공격",
     "DurationTime": -1,
-    "EffectRange": -1,
+    "EffectRange": 3,
     "EffectValue": 3,
     "Id": 1001,
     "Name": "스트라이크",
     "SkillCategoryType": "Attack",
     "SkillType": "Strike",
-    "Weight": 100
+    "Weight": 100,
+    "TargetCount": 1
   },
   {
     "AssetId": "Skill_Icon_1018",
     "Cost": 2,
     "Desc": "가까운 적 하나를 데미지 {0} 두번 공격",
     "DurationTime": -1,
-    "EffectRange": -1,
+    "EffectRange": 3,
     "EffectValue": 2,
     "Id": 1002,
     "Name": "더블 어택",
     "SkillCategoryType": "Attack",
     "SkillType": "DoubleAttack",
-    "Weight": 100
+    "Weight": 100,
+    "TargetCount": 1
   },
   {
     "AssetId": "Skill_Icon_1115",
@@ -49,7 +52,8 @@
     "Name": "파이어볼",
     "SkillCategoryType": "Attack",
     "SkillType": "FireBall",
-    "Weight": 100
+    "Weight": 100,
+    "TargetCount": -1
   },
   {
     "AssetId": "Skill_Icon_1009",
@@ -62,7 +66,8 @@
     "Name": "가속",
     "SkillCategoryType": "Support",
     "SkillType": "MoveSpeedUp",
-    "Weight": 100
+    "Weight": 100,
+    "TargetCount": -1
   },
   {
     "AssetId": "Skill_Icon_1123",
@@ -75,7 +80,8 @@
     "Name": "채굴 가속",
     "SkillCategoryType": "Support",
     "SkillType": "MiningSpeedUp",
-    "Weight": 100
+    "Weight": 100,
+    "TargetCount": -1
   },
   {
     "AssetId": "Skill_Icon_1111",
@@ -88,7 +94,8 @@
     "Name": "골드 부스트",
     "SkillCategoryType": "Support",
     "SkillType": "GoldGainUp",
-    "Weight": 100
+    "Weight": 100,
+    "TargetCount": -1
   },
   {
     "AssetId": "Skill_Icon_1037",
@@ -101,20 +108,22 @@
     "Name": "힐",
     "SkillCategoryType": "Assist",
     "SkillType": "Heal",
-    "Weight": 100
+    "Weight": 100,
+    "TargetCount": -1
   },
   {
     "AssetId": "Skill_Icon_1072",
     "Cost": 1,
-    "Desc": "근처 광물로 이동",
+    "Desc": "지정한 광물로 이동",
     "DurationTime": -1,
-    "EffectRange": -1,
+    "EffectRange": 5,
     "EffectValue": -1,
     "Id": 3001,
     "Name": "이동",
     "SkillCategoryType": "Assist",
     "SkillType": "TargetChange",
-    "Weight": 100
+    "Weight": 100,
+    "TargetCount": 1
   },
   {
     "AssetId": "Skill_Icon_1116",
@@ -127,7 +136,8 @@
     "Name": "코스트",
     "SkillCategoryType": "Assist",
     "SkillType": "CostUp",
-    "Weight": 30
+    "Weight": 30,
+    "TargetCount": -1
   },
   {
     "AssetId": "Skill_Icon_1016",
@@ -140,6 +150,7 @@
     "Name": "특수 광물",
     "SkillCategoryType": "Assist",
     "SkillType": "SpecialResource",
-    "Weight": 10
+    "Weight": 10,
+    "TargetCount": -1
   }
 ]

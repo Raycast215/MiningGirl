@@ -92,7 +92,8 @@ namespace Scene.InGame
                     healPlayerByRatio: ratio => uIController.RecoverStaminaByRatio(ratio),
                     camera: Camera.main,
                     addCost: amount => uIController.AddCost(amount),
-                    spawnSpecialResource: SpawnSpecialResource);
+                                        spawnSpecialResource: SpawnSpecialResource,
+                    getResources: () => resourceController.GetActiveResources());
 
                 cardHandController.Init(uIController.CanAffordCost, uIController.TrySpendCost, skillContext);
             }
@@ -131,12 +132,13 @@ namespace Scene.InGame
                 {
                     levelUpController.SetCharacter(row);
                     GameDataManager.Instance?.SaveCharacter(row?.Id);
-                    CoverUIManager.Instance?.CoverUI.Hide(() => GameStart().Forget()).Forget();
+
+                    StartFirstStage();
                 });
             }
             else
             {
-                CoverUIManager.Instance.CoverUI.Hide(() => GameStart().Forget()).Forget();
+                StartFirstStage();
             }
             
             IsInitialized = true;
@@ -160,12 +162,72 @@ namespace Scene.InGame
             cam.PreviousStateIsValid = false;
         }
 
+        // 씬에 처음 들어왔을 때의 시작 순서.
+        //
+        // 스테이지 인트로를 화면 덮개 '위에' 먼저 띄우고, 화면이 가려진 뒤에 덮개를 걷습니다.
+        // 덮개를 먼저 걷으면 캐릭터 선택 팝업이 사라지면서 인게임 화면이 잠깐 그대로
+        // 드러난 뒤에 연출이 덮는 모양이 됩니다.
+        private void StartFirstStage()
+        {
+            // 연출이 끝날 때까지 판은 멈춰 둡니다.
+            SetGamePaused(true);
+
+            if (stageMapPopup == null)
+            {
+                HideCover(() => GameStart().Forget());
+
+                return;
+            }
+
+            stageMapPopup.Init();
+
+            var startStage = uIController.Stage;
+
+            // showInstantly: 캐릭터 선택 팝업이 닫히는 그 프레임에 맵이 화면을 덮습니다.
+            // 페이드로 들어오면 그 0.3초 동안 인게임 화면이 그대로 보입니다.
+            //
+            // 스테이지 사이 연출과 달리 칸 이동은 없고, 지금 칸에 자리잡는 모양만 보입니다.
+            stageMapPopup.PlayAsync(startStage, startStage, GetMaxStage(), IsCardCleanupStage,
+                onComplete: () => GameStart(0f).Forget(),
+                onShown: () => HideCover(),
+                showInstantly: true).Forget();
+        }
+
+        // 화면 덮개를 걷습니다. 이미 걷힌 상태면 바로 다음 동작으로 넘어갑니다.
+        // (꺼져 있는 덮개에 Hide를 걸면 페이드가 끝나지 않아 콜백이 오지 않습니다.)
+        private void HideCover(System.Action next = null)
+        {
+            var cover = CoverUIManager.Instance != null ? CoverUIManager.Instance.CoverUI : null;
+
+            if (cover == null || !cover.gameObject.activeSelf)
+            {
+                next?.Invoke();
+
+                return;
+            }
+
+            cover.Hide(next).Forget();
+        }
+
         // 실제 게임 진행을 시작합니다.
         // 이 시점부터 몬스터가 스폰/이동하고, 플레이어가 광물을 탐색·이동·채굴합니다.
-        private async UniTaskVoid GameStart()
+        // startDelay: 시작 전에 잠깐 두는 여유 시간(초).
+        // 화면이 갑자기 바뀌지 않게 하는 장치라, 이미 긴 연출을 본 뒤에는 0으로 넣습니다.
+        private async UniTaskVoid GameStart(float startDelay = 0.5f)
         {
-            await UniTask.WaitForSeconds(0.5f);
+            // 시작 연출이 끝날 때까지는 판이 진행되지 않게 멈춰 둡니다.
+            // 스테이지가 끝난 순간부터 여기까지(강화 → 맵 → 카드 정리 → 화면 전환)
+            // 계속 멈춰 있는 상태를 이어받아, 연출 뒤에서 몬스터가 먼저 움직이지 않습니다.
+            SetGamePaused(true);
+
+            if (startDelay > 0f)
+                await UniTask.WaitForSeconds(startDelay);
+
+            // 첫 진입 인트로는 StartFirstStage에서 덮개 위에 먼저 재생합니다.
             
+            // 여기서부터 실제 진행입니다.
+            SetGamePaused(false);
+
             uIController.GameStart();
 
             // 몬스터 스폰 루프 시작 (내부에서 몬스터 이동/공격도 함께 켜집니다)
@@ -344,17 +406,42 @@ namespace Scene.InGame
             uIController.ForceDrainStamina();
         }
 
-        // 이번 스테이지 클리어 후 카드 정리를 열지 판단합니다.
+        // 이 스테이지를 시작하기 전에 카드 정리를 열지 판단합니다.
+        // 주기가 3이면 3·6·9 스테이지에 들어가기 직전에 열립니다.
         private bool IsCardCleanupStage(int stage)
         {
             if (cardCleanupInterval <= 0)
                 return false;
 
-            // 마지막 스테이지는 다음 판이 없으므로 정리할 이유가 없습니다.
-            if (stage >= GetMaxStage())
+            if (stage > GetMaxStage())
                 return false;
 
             return stage % cardCleanupInterval == 0;
+        }
+
+        // 맵이 화면을 덮고 있는 동안 카드 정리를 띄우고, 닫힐 때까지 기다립니다.
+        // 이렇게 해야 맵이 걷히기 전에 카드 화면이 올라와 인게임이 드러나지 않습니다.
+        private Cysharp.Threading.Tasks.UniTask ShowCardCleanupIfNeededAsync(int stage)
+        {
+            var completion = new Cysharp.Threading.Tasks.UniTaskCompletionSource();
+
+            ShowCardCleanupIfNeeded(stage, () => completion.TrySetResult());
+
+            return completion.Task;
+        }
+
+        // 들어갈 스테이지가 카드 정리 주기면 먼저 카드를 고르게 하고,
+        // 아니면 그대로 다음 동작으로 넘어갑니다.
+        private void ShowCardCleanupIfNeeded(int stage, System.Action next)
+        {
+            if (!IsCardCleanupStage(stage))
+            {
+                next?.Invoke();
+
+                return;
+            }
+
+            ShowCardCleanupThen(next);
         }
 
         // 새 카드를 뽑아 덱과 함께 보여주고, 남길 카드로 덱을 교체합니다.
@@ -384,10 +471,12 @@ namespace Scene.InGame
             {
                 deck.SetDeckCards(cards);
 
-                SetGamePaused(false);
-
                 next?.Invoke();
             });
+
+            // 카드 화면이 화면 전체를 덮으므로 스테이지 맵은 여기서 내립니다.
+            // 같은 프레임에 처리하므로 인게임이 드러나는 순간은 없습니다.
+            stageMapPopup?.Hide();
         }
 
         // 유지할 덱 장수. 상수 테이블에서 읽습니다.
@@ -453,6 +542,11 @@ namespace Scene.InGame
 
             _isStageEnding = true;
 
+            // 스테이지가 끝난 순간 바로 멈춥니다.
+            // 강화·맵 연출·카드 정리가 이어지는 동안 다음 스테이지가 시작될 때까지
+            // 이 정지를 그대로 유지합니다(푸는 곳은 GameStart).
+            SetGamePaused(true);
+
             // 마지막 스테이지를 깼으면 강화 대신 데모 종료로 갑니다.
             // (더 진행할 스테이지가 없어 강화를 해도 쓸 곳이 없습니다.)
             if (isCleared && uIController.Stage >= GetMaxStage())
@@ -486,21 +580,14 @@ namespace Scene.InGame
 
             upgradePopup.Show(uIController.Stage, isCleared, () =>
             {
-                SetGamePaused(false);
-
                 // 강화 페이즈가 끝났음을 남깁니다.
                 // 클리어면 다음 스테이지, 실패면 같은 스테이지를 다시 합니다.
                 var nextStage = isCleared ? uIController.Stage + 1 : uIController.Stage;
 
                 Manager.GameDataManager.Instance?.SaveUpgradePhaseEnd(nextStage);
 
-                // 클리어했고 주기에 걸리면 카드 정리를 거쳐 갑니다.
-                if (isCleared && IsCardCleanupStage(uIController.Stage))
-                {
-                    ShowCardCleanupThen(next);
-
-                    return;
-                }
+                // 카드 정리는 맵 연출이 끝난 뒤,
+                // 다음 스테이지가 시작되기 직전에 뜹니다(Next 참고).
 
                 next?.Invoke();
             });
@@ -522,7 +609,7 @@ namespace Scene.InGame
         private CardCleanupPopup cardCleanupPopup;
 
         [SerializeField]
-        [Tooltip("카드 정리가 열리는 주기. 3이면 3, 6, 9 스테이지 클리어 후")]
+                [Tooltip("카드 정리가 열리는 주기. 3이면 3, 6, 9 스테이지가 시작되기 직전")]
         private int cardCleanupInterval = 3;
 
         [SerializeField]
@@ -558,6 +645,7 @@ namespace Scene.InGame
         private bool _resumeUpgradePhase;
         private bool _resumeUpgradeFromClear;
 
+
         // 맵 연출을 거친 뒤 실제 전환을 진행합니다.
         // 클리어로 다음 칸에 갈 때만 보여줍니다. 실패 재도전은 같은 칸에 머무르므로
         // 같은 연출을 반복해서 보여줄 이유가 없습니다.
@@ -566,13 +654,24 @@ namespace Scene.InGame
             if (!IsInitialized)
                 return;
 
+            // 맵 연출·카드 정리가 도는 동안에도 판은 멈춰 있어야 합니다.
+            // (강화 팝업을 거치지 않고 불리는 경우를 대비해 여기서도 한 번 더 걸어 둡니다.)
+            SetGamePaused(true);
+
             if (advanceStage && stageMapPopup != null)
             {
                 var from = uIController.Stage;
                 var to = Mathf.Min(from + 1, GetMaxStage());
 
+                // 맵이 화면을 덮고 있는 동안 판을 정리하고 다음 스테이지를 깔아둡니다.
+                // 따로 화면 덮개를 또 쓰면 맵이 걷힐 때 다시 어두워져 전환이 두 번 보입니다.
+                // 맵 자체가 덮개 역할을 합니다.
+                //
+                // 그 스테이지가 카드 정리 주기면 맵이 걷힌 뒤 카드를 먼저 고르게 합니다.
                 stageMapPopup.PlayAsync(from, to, GetMaxStage(), IsCardCleanupStage,
-                    () => NextInternal(true)).Forget();
+                    onComplete: () => GameStart(0f).Forget(),
+                    onShown: () => PrepareNextStage(true),
+                    onBeforeHide: () => ShowCardCleanupIfNeededAsync(to)).Forget();
 
                 return;
             }
@@ -580,64 +679,77 @@ namespace Scene.InGame
             NextInternal(advanceStage);
         }
 
+        // 맵 연출을 거치지 않는 경우(실패 후 같은 스테이지 재도전 등)의 전환.
+        // 가려줄 연출이 없으므로 화면 덮개를 씁니다.
         private void NextInternal(bool advanceStage)
         {
             if (!IsInitialized)
                 return;
 
-            CoverUIManager.Instance.CoverUI.Show(() => 
+            CoverUIManager.Instance.CoverUI.Show(() =>
             {
-                // 화면이 덮인 동안 손패를 감춥니다(밝아질 때 이전 카드가 보이지 않도록).
-                if (cardHandController != null)
-                    cardHandController.HideHand();
+                PrepareNextStage(advanceStage);
 
-                // 스폰 루프 중지 + 활성 몬스터 전부 풀로 반환
-                monsterController.StopSpawn();
-
-                // 화면에 떠 있는 플로팅 데미지도 모두 풀로 정리
-                damageController.Clear();
-
-                // 카드로 소환된 불덩이도 정리(정지 상태도 함께 해제)
-                MainGame.Card.Effects.FireBallObject.ClearAll();
-
-                // 광물도 모두 풀로 정리
-                resourceController.StopSpawn();
-
-                // 플레이어 행동 정지 + 진행 중이던 채굴/타겟 초기화
-                // (방금 풀로 되돌린 광물을 계속 때리는 것을 방지합니다.)
-                // 재시작 시 수동 일시정지는 해제합니다.
-                _isManualPaused = false;
-
-                UpdatePauseButtonText();
-
-                playerController.StopBehaviour();
-
-                // 체력과 무적/다운 상태도 초기화합니다.
-                playerController.ResetPlayerHealth();
-
-                // 광물만 다시 깔아둡니다. 실제 진행 재개는 아래 GameStart()에서 합니다.
-                resourceController.SpawnInitialLayout(Vector3.zero);
-            
-                WarpPlayer(Vector3.zero);
-            
-                uIController.ResetStage(advanceStage);
-                
                 // 캐릭터를 아직 고르지 않았다면(=씬 첫 시작) 선택 팝업부터 띄웁니다.
-            // 재시작(Next)에서는 이미 고른 캐릭터와 강화 상태를 그대로 씁니다.
-            if (!levelUpController.HasCharacter)
-            {
-                uIController.ShowCharacterSelect(row =>
+                if (!levelUpController.HasCharacter)
                 {
-                    levelUpController.SetCharacter(row);
-                    Manager.GameDataManager.Instance?.SaveCharacter(row?.Id);
-                    CoverUIManager.Instance.CoverUI.Hide(() => GameStart().Forget()).Forget();
-                });
-            }
-            else
-            {
-                CoverUIManager.Instance.CoverUI.Hide(() => GameStart().Forget()).Forget();
-            }
+                    uIController.ShowCharacterSelect(row =>
+                    {
+                        levelUpController.SetCharacter(row);
+                        Manager.GameDataManager.Instance?.SaveCharacter(row?.Id);
+
+                        HideCover(() => GameStart().Forget());
+                    });
+                }
+                else
+                {
+                    HideCover(() => GameStart().Forget());
+                }
             }).Forget();
+        }
+
+        // 화면이 가려져 있는 동안 할 정리와 다음 스테이지 준비.
+        // 지금까지 스폰된 몬스터·광물을 모두 풀로 되돌리고 처음 상태로 다시 깔아둡니다.
+        private void PrepareNextStage(bool advanceStage)
+        {
+            // 강화 팝업은 지금까지 떠 있었습니다. 화면이 가려진 지금 내립니다.
+            // (닫기를 누를 때 바로 내리면 인게임이 잠깐 드러납니다 — UpgradePopup.Close 참고)
+            upgradePopup?.Hide();
+
+            // 이전 카드가 밝아질 때 보이지 않도록 손패를 감춥니다.
+            if (cardHandController != null)
+                cardHandController.HideHand();
+
+            // 스폰 루프 중지 + 활성 몬스터 전부 풀로 반환
+            monsterController.StopSpawn();
+
+            // 화면에 떠 있는 플로팅 데미지도 모두 풀로 정리
+            damageController.Clear();
+
+            // 카드로 소환된 불덩이도 정리(정지 상태도 함께 해제)
+            MainGame.Card.Effects.FireBallObject.ClearAll();
+
+            // 광물도 모두 풀로 정리
+            resourceController.StopSpawn();
+
+            // 재시작 시 수동 일시정지는 해제합니다.
+            _isManualPaused = false;
+
+            UpdatePauseButtonText();
+
+            // 플레이어 행동 정지 + 진행 중이던 채굴/타겟 초기화
+            // (방금 풀로 되돌린 광물을 계속 때리는 것을 방지합니다.)
+            playerController.StopBehaviour();
+
+            // 체력과 무적/다운 상태도 초기화합니다.
+            playerController.ResetPlayerHealth();
+
+            // 광물만 다시 깔아둡니다. 실제 진행 재개는 GameStart에서 합니다.
+            resourceController.SpawnInitialLayout(Vector3.zero);
+
+            WarpPlayer(Vector3.zero);
+
+            uIController.ResetStage(advanceStage);
         }
     }
 }

@@ -18,7 +18,10 @@ namespace MainGame.Card
         public IEntity Player => _getPlayer?.Invoke();
 
         // 지금 활성화된 몬스터 목록
-        public Func<IReadOnlyList<IEntity>> GetMonsters { get; }
+                public Func<IReadOnlyList<IEntity>> GetMonsters { get; }
+
+        // 지금 화면에 깔린 광물 목록. '이동' 카드가 조준 대상으로 씁니다.
+        public Func<IReadOnlyList<IEntity>> GetResources { get; }
 
         // 임시 버프 적용 대상
         public TemporaryBuffState Buffs { get; }
@@ -67,10 +70,12 @@ namespace MainGame.Card
             Action<float> healPlayerByRatio,
             Camera camera,
             Action<int> addCost = null,
-            Action<Vector3> spawnSpecialResource = null)
+                        Action<Vector3> spawnSpecialResource = null,
+            Func<IReadOnlyList<IEntity>> getResources = null)
         {
             AddCost = addCost;
-            SpawnSpecialResource = spawnSpecialResource;
+                        SpawnSpecialResource = spawnSpecialResource;
+            GetResources = getResources;
             _getPlayer = getPlayer;
             GetMonsters = getMonsters;
             Buffs = buffs;
@@ -94,15 +99,27 @@ namespace MainGame.Card
 
         // 화면 안에서 플레이어와 가장 가까운 적을 찾습니다. 없으면 null.
         // maxRange가 0보다 크면 그 거리 안에서만 찾습니다.
+        // 화면 안에서 플레이어와 가장 가까운 적을 찾습니다. 없으면 null.
+        // maxRange가 0보다 크면 그 거리 안에서만 찾습니다.
         public IEntity FindNearestMonsterOnScreen(float maxRange = -1f)
         {
-            var monsters = GetMonsters?.Invoke();
             var player = Player;
 
-            if (monsters == null || player == null)
+            return player == null ? null : FindNearestMonsterFrom(player.GetPosition(), maxRange);
+        }
+
+        // 지정한 지점에서 가장 가까운 적을 찾습니다(화면 안만). 없으면 null.
+        //
+        // 카드를 놓은 자리를 origin으로 넘기면 '유저가 겨냥한 곳'이 기준이 됩니다.
+        // 플레이어 기준으로 잡으면 카드를 어디에 놓든 같은 적이 맞아버려서
+        // 카드를 어디에 두는지가 아무 의미가 없어집니다.
+        public IEntity FindNearestMonsterFrom(Vector3 origin, float maxRange = -1f)
+        {
+            var monsters = GetMonsters?.Invoke();
+
+            if (monsters == null)
                 return null;
 
-            var origin = player.GetPosition();
             IEntity nearest = null;
             var nearestDist = float.MaxValue;
 
@@ -112,6 +129,7 @@ namespace MainGame.Card
                     continue;
 
                 var pos = monster.GetPosition();
+
                 if (!IsOnScreen(pos))
                     continue;
 
@@ -131,31 +149,68 @@ namespace MainGame.Card
         }
 
         // 플레이어 주변 range 안의 적을 모두 찾습니다(화면 안만).
+        // 플레이어 주변 range 안의 적을 모두 찾습니다(화면 안만).
         public List<IEntity> FindMonstersInRange(float range)
         {
-            var result = new List<IEntity>();
-            var monsters = GetMonsters?.Invoke();
             var player = Player;
 
-            if (monsters == null || player == null)
+            return player == null ? new List<IEntity>() : FindMonstersInRangeFrom(player.GetPosition(), range);
+        }
+
+        // 지정한 지점 주변 range 안의 적을 모두 찾습니다(화면 안만).
+        // 지정한 지점 주변 range 안의 적을 찾습니다(화면 안만).
+        //
+        // maxCount가 0보다 크면 그 수만큼만, 그도 origin에서 가까운 순으로 골라 돌려줍니다.
+        // 범위 안에 적이 넘칠 때 어느 쪽이 맞을지 예측되어야 조준이 의미를 갖기 때문입니다.
+        // 지정한 지점 주변 range 안의 적을 찾습니다(화면 안만).
+        public List<IEntity> FindMonstersInRangeFrom(Vector3 origin, float range, int maxCount = 0)
+        {
+            return FindInRangeFrom(GetMonsters?.Invoke(), origin, range, maxCount);
+        }
+
+        // 지정한 지점 주변 range 안의 광물을 찾습니다(화면 안만).
+        public List<IEntity> FindResourcesInRangeFrom(Vector3 origin, float range, int maxCount = 0)
+        {
+            return FindInRangeFrom(GetResources?.Invoke(), origin, range, maxCount);
+        }
+
+        // maxCount가 0보다 크면 그 수만큼만, 그도 origin에서 가까운 순으로 골라 돌려줍니다.
+        // 범위 안에 대상이 넘칠 때 어느 쪽이 잡힐지 예측되어야 조준이 의미를 갖기 때문입니다.
+        //
+        // 반환 전 새 리스트에 담습니다 — 원본(예: ResourceController)은 버퍼를 재사용해
+        // 다음 호출에서 내용이 바뀌기 때문입니다.
+        private List<IEntity> FindInRangeFrom(IReadOnlyList<IEntity> source, Vector3 origin, float range, int maxCount)
+        {
+            var result = new List<IEntity>();
+
+            if (source == null)
                 return result;
 
-            var origin = player.GetPosition();
-
-            foreach (var monster in monsters)
+            for (var i = 0; i < source.Count; i++)
             {
-                if (monster == null || !monster.GetActiveState())
+                var entity = source[i];
+
+                if (entity == null || !entity.GetActiveState())
                     continue;
 
-                var pos = monster.GetPosition();
+                var pos = entity.GetPosition();
+
                 if (!IsOnScreen(pos))
                     continue;
 
                 if (Vector3.Distance(origin, pos) > range)
                     continue;
 
-                result.Add(monster);
+                result.Add(entity);
             }
+
+            if (maxCount <= 0 || result.Count <= maxCount)
+                return result;
+
+            result.Sort((a, b) =>
+                (a.GetPosition() - origin).sqrMagnitude.CompareTo((b.GetPosition() - origin).sqrMagnitude));
+
+            result.RemoveRange(maxCount, result.Count - maxCount);
 
             return result;
         }

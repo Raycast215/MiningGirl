@@ -27,7 +27,8 @@ namespace MainGame.Entity.Monster
         private bool _isDead;
 
         private Tween _posTween;
-        private Tween _colorTween;
+                private Tween _colorTween;
+
         
         // MonsterController.Spawn()에서 호출됩니다. 스폰 시점마다 스탯/타겟/보정을 다시 세팅합니다.
         public void Setup(
@@ -51,7 +52,10 @@ namespace MainGame.Entity.Monster
             _isDead = false;
             _currentHp = GetMaxHp();
 
-            SetTarget(target);
+                        SetTarget(target);
+
+            // 풀에서 재사용되므로 이전 판의 조준 표시가 남지 않게 끕니다.
+            SetTargetMark(false);
         }
 
         public float GetMaxHp()
@@ -61,7 +65,8 @@ namespace MainGame.Entity.Monster
             return _baseStat.Hp * stageMul * riskMul;
         }
 
-        public float GetCurrentHp() => _currentHp;
+                public float GetCurrentHp() => _currentHp;
+
 
         // 처치될 때 호출됩니다(골드 지급용). 스폰할 때 주입합니다.
         private System.Action<int> _onKilled;
@@ -174,7 +179,10 @@ namespace MainGame.Entity.Monster
 
             if (_currentHp <= 0f)
             {
-                _isDead = true;
+                                _isDead = true;
+
+                // 죽은 적에게 조준 표시가 남아 풀로 돌아가지 않도록 끕니다.
+                SetTargetMark(false);
 
                 // 처치 보상 지급(데이터의 GoldReward 기준).
                 _onKilled?.Invoke(GetGoldReward());
