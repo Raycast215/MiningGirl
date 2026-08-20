@@ -19,18 +19,12 @@ namespace Scene.InGame.Entity
                 protected SpriteRenderer spriteRenderer;
 
         [SerializeField]
-        [Tooltip("카드로 조준됐을 때 머리 위에 뜨는 표시")]
-        private GameObject targetMark;
+        [Tooltip("카드로 조준됐을 때 머리 위 표시를 얼마나 띄울지(월드 단위)")]
+        private float targetMarkHeight = 1f;
 
-        // 카드 드래그 중 '지금 놓으면 이게 대상이다'를 알려줍니다.
-        //
-        // 몬스터만 아니라 광물도 조준 대상이라(이동 카드) 여기 공통으로 둡니다.
-        // 풀에서 재사용되므로 생성·소멸 시에는 반드시 꺼줘야 합니다.
-        public void SetTargetMark(bool value)
-        {
-            if (targetMark != null && targetMark.activeSelf != value)
-                targetMark.SetActive(value);
-        }
+        // 조준 표시 자체는 엔티티가 가지지 않고 TargetMarkController가 풀로 발급합니다.
+        // 여기서는 "얼마나 위에 띄울지"만 알려줍니다(광물은 낮고 몬스터는 조금 높습니다).
+        public float TargetMarkHeight => targetMarkHeight;
         
         protected NodeRunner NodeRunner;
         protected MoveNode MoveNode;

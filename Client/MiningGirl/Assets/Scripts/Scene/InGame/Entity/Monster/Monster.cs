@@ -54,8 +54,6 @@ namespace MainGame.Entity.Monster
 
                         SetTarget(target);
 
-            // 풀에서 재사용되므로 이전 판의 조준 표시가 남지 않게 끕니다.
-            SetTargetMark(false);
         }
 
         public float GetMaxHp()
@@ -180,9 +178,6 @@ namespace MainGame.Entity.Monster
             if (_currentHp <= 0f)
             {
                                 _isDead = true;
-
-                // 죽은 적에게 조준 표시가 남아 풀로 돌아가지 않도록 끕니다.
-                SetTargetMark(false);
 
                 // 처치 보상 지급(데이터의 GoldReward 기준).
                 _onKilled?.Invoke(GetGoldReward());

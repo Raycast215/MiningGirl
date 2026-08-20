@@ -77,18 +77,12 @@ namespace Scene.InGame.Entity.Resource
 
                         spriteRenderer.transform.localPosition = Vector3.zero;
 
-            // 풀에서 재사용되므로 이전 판의 조준 표시가 남지 않게 끕니다.
-            SetTargetMark(false);
         }
 
         private void DamageFinish()
         {
             if (BaseData.Health > 0)
                 return;
-
-                        // 다 캐인 광물에 조준 표시가 남은 채 풀로 돌아가지 않도록 끕니다.
-            SetTargetMark(false);
-
             _depletedHandler?.OnResourceDepleted(this);
         }
 

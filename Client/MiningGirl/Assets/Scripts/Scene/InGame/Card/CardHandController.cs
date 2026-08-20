@@ -43,6 +43,10 @@ namespace Scene.InGame.Card
         [Tooltip("손패 위에 사용 실패 사유를 띄우는 공통 문구 (선택)")]
         private Scene.InGame.UI.CardMessageUI cardMessage;
 
+        [SerializeField]
+        [Tooltip("조준 대상 머리 위 표시를 발급하는 풀 (선택)")]
+        private global::Scene.InGame.Entity.TargetMarkController targetMarkController;
+
         [Header("Judge")]
         // 카드는 화면 맨 아래에 있어서 '절대 위치'로 판정하면 기본 자세가 이미 하단이라
         // 살짝만 건드려도 버리기가 됩니다. 그래서 '처음 잡은 곳에서 얼마나 끌었는지'로 판정합니다.
@@ -503,14 +507,16 @@ namespace Scene.InGame.Card
 
         // 드래그가 끝나거나 게임이 멈추면 표시를 모두 지웁니다.
         // 드래그가 끝나거나 게임이 멈추면 표시를 모두 지웁니다.
+        // 드래그가 끝나거나 게임이 멈추면 표시를 모두 지웁니다.
         public void ClearTargetPreview()
         {
             _isAimingDrag = false;
 
-            for (var i = 0; i < _markedTargets.Count; i++)
-                SetTargetMark(_markedTargets[i], false);
-
             _markedTargets.Clear();
+
+            // 한 장씩 되돌리지 않고 풀에게 한 번에 회수하라고 합니다.
+            if (targetMarkController != null)
+                targetMarkController.Clear();
 
             if (aimIndicator != null)
                 aimIndicator.Hide();
@@ -531,12 +537,16 @@ namespace Scene.InGame.Card
         }
 
         // 몬스터든 광물이든 머리 위 표시는 EntityBase가 들고 있습니다.
-        private static void SetTargetMark(IEntity entity, bool value)
+        // 표시는 엔티티가 가지지 않고 TargetMarkController가 풀에서 빌려줍니다.
+        private void SetTargetMark(IEntity entity, bool value)
         {
-            var target = entity as global::Scene.InGame.Entity.EntityBase;
+            if (targetMarkController == null || entity == null)
+                return;
 
-            if (target != null)
-                target.SetTargetMark(value);
+            if (value)
+                targetMarkController.Show(entity);
+            else
+                targetMarkController.Hide(entity);
         }
 
         // 끌고 있는 카드가 옆 슬롯 가까이 오면 그 자리의 카드와 순서를 바꿉니다.
