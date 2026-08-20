@@ -1,48 +1,3 @@
-public enum EUnitRank
-{
-    R, 
-    SR,
-    SSR, 
-    UR 
-}
-
-public enum ESkillRank
-{
-    Normal, // 일발
-    Rare,   // 레어
-    Epic,   // 에픽
-    Special // 스페셜
-}
-
-public enum ESkillEffectType
-{
-    TargetHit,
-    IncreaseCost,
-    RangeAll,
-    Draw,
-}
-
-public enum ETextType
-{
-    Int,
-    Float,
-    Percent,
-}
-
-public enum EStageType
-{
-    Default,
-    Skill,
-    Boss,
-}
-
-public enum EItemType
-{
-    Gold,
-    Stone,
-    Exp,
-}
-
 public enum EStatType
 {
     Damage,
@@ -59,9 +14,7 @@ public enum EEffectValueType
     Add, // 합연산
     Mul, // 곱연산
 }
-// 레벨업 보너스가 무엇에 작용하는지 나타냅니다.
-// 코드는 Id가 아니라 이 타입만 보고 동작하므로,
-// 같은 타입의 스킬을 시트에 추가할 때는 코드 수정이 필요 없습니다.
+
 // 강화 팝업의 탭 구분
 public enum EUpgradeTabType
 {
@@ -71,6 +24,9 @@ public enum EUpgradeTabType
     Etc,        // 코스트·손패·밀치기·클리어 보상 같은 규칙 항목
 }
 
+// 레벨업 보너스가 무엇에 작용하는지 나타냅니다.
+// 코드는 Id가 아니라 이 타입만 보고 동작하므로,
+// 같은 타입의 스킬을 시트에 추가할 때는 코드 수정이 필요 없습니다.
 public enum ELevelUpBonusEffectType
 {
     MaxStamina,        // 최대 스태미나
@@ -86,10 +42,10 @@ public enum ELevelUpBonusEffectType
     MiningDamage,       // 채굴 데미지
     MiningSpeed,        // 채굴 속도
     MoveSpeed,          // 이동 속도
-    CriDamage,          // 크리티털 데미지
+    CriDamage,          // 크리티컬 데미지
     CriRate,            // 크리티컬 확률
     ExtraHitRate,       // 추가타 확률
-    
+
     MonsterKillGold,    // 적 처치 시 획득 골드
     ResourceMineGold,   // 광물 채굴 시 획득 골드
     InstantGold,        // 즉시 골드 획득
@@ -125,9 +81,9 @@ public enum ESkillType
     MoveSpeedUp,    // 이동속도 증가
     MiningSpeedUp,  // 채굴속도 증가
     GoldGainUp,     // 골드 획득량 증가
-    
-    Heal,           // 체력 회복
-    TargetChange,   // 근처 광물로 이동
+
+    Heal,           // 스태미나 회복
+    TargetChange,   // 지정한 광물로 이동
     CostUp,         // 코스트 즉시 획득
     FireBall,       // 놓은 자리에 불덩이 소환(지속 피해)
     SpecialResource,// 놓은 자리에 황금 광물 소환
