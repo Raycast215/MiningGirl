@@ -620,7 +620,7 @@ namespace Scene.InGame
             
                 WarpPlayer(Vector3.zero);
             
-                uIController.SetTime(advanceStage);
+                uIController.ResetStage(advanceStage);
                 
                 // 캐릭터를 아직 고르지 않았다면(=씬 첫 시작) 선택 팝업부터 띄웁니다.
             // 재시작(Next)에서는 이미 고른 캐릭터와 강화 상태를 그대로 씁니다.

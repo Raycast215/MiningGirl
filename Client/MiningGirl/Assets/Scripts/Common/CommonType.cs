@@ -106,7 +106,6 @@ public enum ESkillCategoryType
 // 게임 전역 상수. 값은 GameConstantDataTable에서 옵니다.
 public enum EGameConstantType
 {
-    StageTime,          // 스테이지 제한 시간(초)
     CardDeckSize,       // 시작 덱 장수
     CardRerollCost,     // 카드 리롤(버리기) 비용
     MonsterSpawnCount,  // 몬스터 최대 소환 수(레벨업 보너스로 상향 예정)

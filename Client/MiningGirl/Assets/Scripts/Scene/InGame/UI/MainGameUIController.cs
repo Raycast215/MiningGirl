@@ -19,12 +19,6 @@ namespace MainGame
         public int Gold => _gold;
 
         [SerializeField]
-        [Tooltip("스테이지 제한 시간(초)")]
-        private float stageTimeSeconds = 60f;
-
-        [SerializeField]
-        private TimerUI timerUI;
-        [SerializeField]
         private StageUI stageUI;
         [SerializeField]
         private BuffListUI buffListUI;
@@ -51,11 +45,10 @@ namespace MainGame
             OnNextGameExecuted = null;
             OnNextGameExecuted += onNextGameExecuted;
 
-            timerUI.Init(GetStageTime(), GameFinish);
             stageUI.Init();
             costUI.Init();
 
-            // 새 클리어 조건: 목표 채굴량을 채우면 스테이지 종료
+            // 클리어 조건 — 목표 채굴량을 채우면 스테이지가 끝납니다.
             staminaUI?.Init();
             miningProgressUI?.Init(GameFinish);
             miningProgressUI?.SetGoalByStage(Stage);
@@ -67,17 +60,8 @@ namespace MainGame
             IsInitialized = true;
         }
 
-        // 스테이지 제한 시간은 게임 상수 테이블에서 가져옵니다.
-        // 테이블에 값이 없으면 인스펙터 값으로 대체합니다.
-        private float GetStageTime()
-        {
-            var table = Manager.DataTableManager.Instance?.GameConstantDataTable;
-
-            return table != null ? table.GetValue(EGameConstantType.StageTime, stageTimeSeconds) : stageTimeSeconds;
-        }
-
         // 스테이지가 새로 시작될 때 호출합니다(advanceStage가 false면 같은 스테이지 재도전).
-        public void SetTime(bool advanceStage = true)
+        public void ResetStage(bool advanceStage = true)
         {
             // 새 스테이지가 시작되므로 종료 상태를 풉니다.
             _isFinished = false;
@@ -85,7 +69,6 @@ namespace MainGame
             if (advanceStage)
                 stageUI.NextStage();
 
-            timerUI.SetTime(GetStageTime());
             costUI.SetCost(0);
 
             staminaUI?.Reset();
@@ -94,7 +77,6 @@ namespace MainGame
 
         public void GameStart()
         {
-            timerUI.Execute().Forget();
             costUI.Execute().Forget();
         }
 
@@ -125,9 +107,8 @@ namespace MainGame
             if (!IsInitialized || costUI == null)
                 return;
 
-            // 제한 시간이 사라졌으므로 채굴 진행도를 기준으로 후반 가속을 판단합니다.
-            var progress = miningProgressUI != null ? miningProgressUI.Progress
-                : (timerUI != null ? timerUI.Progress : 0f);
+            // 채굴 진행도를 기준으로 후반 가속을 판단합니다.
+            var progress = miningProgressUI != null ? miningProgressUI.Progress : 0f;
 
             costUI.SetSpeedUp(progress >= costSpeedUpProgress);
         }
@@ -230,10 +211,9 @@ namespace MainGame
         }
 
 
-        // 팝업 등으로 게임을 멈출 때 타이머와 코스트 회복을 함께 멈춥니다.
+        // 팝업 등으로 게임을 멈출 때 코스트 회복과 스태미나를 함께 멈춥니다.
         public void SetPaused(bool paused)
         {
-            timerUI.SetPaused(paused);
             staminaUI?.SetPaused(paused);
             miningProgressUI?.SetPaused(paused);
             costUI.SetPaused(paused);
