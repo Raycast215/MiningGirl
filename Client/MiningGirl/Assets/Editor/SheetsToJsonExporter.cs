@@ -428,7 +428,10 @@ public class SheetsToJsonExporter : EditorWindow
         {
             string url =
                 "https://www.googleapis.com/drive/v3/files" +
-                $"?q='{UnityWebRequest.EscapeURL(folderId)}'+in+parents+and+mimeType='application/vnd.google-apps.spreadsheet'" +
+                                // trashed=false 가 없으면 휴지통에 넘긴 시트까지 같이 나옵니다.
+                // (Drive API v3의 files.list 기본값이 '휴지통 포함'입니다.)
+                // 시트를 지워도 JSON이 계속 다시 생기던 원인이었습니다.
+                $"?q='{UnityWebRequest.EscapeURL(folderId)}'+in+parents+and+mimeType='application/vnd.google-apps.spreadsheet'+and+trashed=false" +
                 "&fields=nextPageToken,files(id,name)" +
                 (string.IsNullOrEmpty(pageToken) ? "" : $"&pageToken={pageToken}");
 
