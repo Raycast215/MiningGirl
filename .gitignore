@@ -108,3 +108,7 @@ EditorUserSettings.asset
 
 # Unity/MSBuild 중간 산출물 (하위 폴더 포함, 예: Client/MiningGirl/obj)
 **/[Oo]bj/
+
+# 개발 중 캡처한 스크린샷 (기록용 로컬 파일, 저장소에 커밋 불필요)
+**/[Aa]ssets/[Ss]creenshots/
+**/[Aa]ssets/[Ss]creenshots.meta
