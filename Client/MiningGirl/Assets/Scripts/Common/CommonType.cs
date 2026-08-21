@@ -70,6 +70,21 @@ public enum EGameConstantType
     ResourceSpawnInterval, // 광물 스폰 간격(초)
 
     MaxStage, // 마지막 스테이지 번호(이 스테이지를 깨면 런이 끝납니다)
+
+    // ── 코스트 ──
+    MaxCost,                 // 보유 가능한 최대 코스트
+    CostRegenInterval,       // 코스트 1이 차오르는 데 걸리는 시간(초)
+    CostLateSpeedMultiplier, // 스테이지 후반 회복 속도 배율(2면 두 배)
+    CostSpeedUpProgress,     // 채굴 진행도가 이 값을 넘기면 회복이 빨라집니다(0~1)
+
+    // ── 클리어 조건(채굴) ──
+    MiningGoalBase,          // 스테이지 1의 목표 채굴량
+    MiningGoalPerStage,      // 스테이지가 오를 때마다 목표에 더해지는 양
+
+    // ── 스태미나 ──
+    MaxStamina,              // 기본 최대 스태미나(강화 보정 전)
+    MiningStaminaCost,       // 광물 하나를 캘 때 소모
+    HitStaminaCost,          // 몬스터에게 한 번 맞을 때 소모
 }
 
 public enum ESkillType

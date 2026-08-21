@@ -40,5 +40,59 @@
     "Desc": "마지막 스테이지 번호",
     "Id": 7,
     "Value": 10
+  },
+  {
+    "ConstantType": "MaxCost",
+    "Desc": "보유 가능한 최대 코스트",
+    "Id": 8,
+    "Value": 10
+  },
+  {
+    "ConstantType": "CostRegenInterval",
+    "Desc": "코스트 1이 차오르는 데 걸리는 시간(초)",
+    "Id": 9,
+    "Value": 3
+  },
+  {
+    "ConstantType": "CostLateSpeedMultiplier",
+    "Desc": "스테이지 후반 회복 속도 배율",
+    "Id": 10,
+    "Value": 2
+  },
+  {
+    "ConstantType": "CostSpeedUpProgress",
+    "Desc": "채굴 진행도가 이 값을 넘기면 코스트 회복 가속(0~1)",
+    "Id": 11,
+    "Value": 0.5
+  },
+  {
+    "ConstantType": "MiningGoalBase",
+    "Desc": "스테이지 1의 목표 채굴량",
+    "Id": 12,
+    "Value": 10
+  },
+  {
+    "ConstantType": "MiningGoalPerStage",
+    "Desc": "스테이지마다 목표에 더해지는 양",
+    "Id": 13,
+    "Value": 5
+  },
+  {
+    "ConstantType": "MaxStamina",
+    "Desc": "기본 최대 스태미나(강화 보정 전)",
+    "Id": 14,
+    "Value": 100
+  },
+  {
+    "ConstantType": "MiningStaminaCost",
+    "Desc": "광물 하나를 캘 때 소모하는 스태미나",
+    "Id": 15,
+    "Value": 5
+  },
+  {
+    "ConstantType": "HitStaminaCost",
+    "Desc": "몬스터에게 한 번 맞을 때 소모하는 스태미나",
+    "Id": 16,
+    "Value": 1
   }
 ]
