@@ -23,6 +23,9 @@ namespace Scene.InGame.Entity.Player
             await UniTask.WaitUntil(() => IsInitialized);
 
             var ins = await Get();
+            if (ins == null)
+                return;
+
             
             ins.BaseData = new EntityData
             {

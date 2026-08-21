@@ -92,6 +92,9 @@ namespace Scene.InGame.Entity.Resource
         public async UniTask<Resource> Spawn(Vector3 position)
         {
             var resource = await Get();
+            if (resource == null)
+                return null;
+
             resource.Setup(this, resourceMaxHp, stoneReward, expReward, _damagePresenter, this);
             resource.SetPosition(position);
             resource.SetActiveObject(true);

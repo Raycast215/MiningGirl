@@ -51,9 +51,48 @@ namespace Scene.InGame
         // Next()에서 재시작할 때 재사용하기 위해 플레이어 엔티티를 보관합니다.
         private IEntity _playerEntity;
 
+        // 이번 런의 게임 상태. MonoBehaviour가 아니라 씨에 존재하지 않습니다.
+        // 게임플레이·세이브는 이걸 보고, UI는 이걸 읽어 그리기만 합니다.
+        private Scene.InGame.State.RunState _runState;
+
+        public Scene.InGame.State.RunState RunState => _runState;
+
         public async UniTask InitAsync()
         {
-            uIController.InitAsync(() => ShowUpgradeThen(true, () => Next())).Forget();
+            // 게임 상태를 먼저 만듭니다. 튜닝 수치는 상수 시트에서 옵니다.
+            _runState = new Scene.InGame.State.RunState(Scene.InGame.State.RunSettings.FromCurrentTable());
+
+            // 목표 채굴량을 채우면 스테이지가 끝나고 강화 화면으로 넘어갑니다.
+            _runState.OnFinished += () => ShowUpgradeThen(true, () => Next());
+
+            // 스태미나가 바닥나면 같은 스테이지를 다시 합니다.
+            // 이건 런 동안 한 번만 묶습니다 — GameStart는 스테이지마다 도는데,
+            // 거기서 += 하면 핸들러가 쌓여 한 번 죽을 때 여러 번 불립니다.
+            _runState.OnStaminaEmpty += RestartStage;
+
+            uIController.InitAsync().Forget();
+
+            // UI가 그릴 대상을 연결합니다(단방향: 상태 → 화면).
+            uIController.Bind(_runState);
+
+            // 캐릭터 선택 화면이 쓸 데이터 조회를 넘겨줍니다.
+            uIController.InitCharacterSelect(
+                getCharacters: () => Manager.DataTableManager.Instance?.CharacterStatDataTable?.Rows,
+                findBonusRow: type =>
+                {
+                    var rows = Manager.DataTableManager.Instance?.LevelUpBonusSkillDataTable?.Rows;
+
+                    if (rows == null)
+                        return null;
+
+                    foreach (var skill in rows)
+                    {
+                        if (skill != null && skill.EffectType == type)
+                            return skill;
+                    }
+
+                    return null;
+                });
 
             // 저장된 진행을 불러옵니다(스테이지·골드·캐릭터·강화).
             var save = Manager.GameDataManager.Instance;
@@ -62,7 +101,7 @@ namespace Scene.InGame
             {
                 // 강화를 먼저 복원해야 스태미나 최대치 계산에 반영됩니다.
                 levelUpController.RestoreFromSave(save.Data.CharacterId, save.GetUpgradeLevels());
-                uIController.RestoreProgress(save.Data.Stage, save.Data.Gold);
+                _runState.RestoreProgress(save.Data.Stage, save.Data.Gold);
 
                 // 강화 도중에 껐다면 그 화면부터 다시 보여줍니다.
                 _resumeUpgradePhase = save.Data.IsUpgradePhase;
@@ -70,10 +109,10 @@ namespace Scene.InGame
             }
 
             // 보상/보너스 지급 경로를 UI 컨트롤러에 연결합니다.
-            levelUpController.Init(uIController.AddGold);
+            levelUpController.Init(_runState.AddGold);
 
             // 광물을 캘 때마다 채굴 진행도(클리어 조건)를 올립니다.
-            levelUpController.SetResourceMinedHandler(() => uIController.AddMinedCount());
+            levelUpController.SetResourceMinedHandler(() => _runState.AddMinedCount());
 
             // 몬스터를 잡으면 데이터의 GoldReward에 강화 보너스를 얹어 지급합니다.
             monsterController.SetKilledHandler(gold => levelUpController.OnMonsterKilled(gold));
@@ -89,13 +128,13 @@ namespace Scene.InGame
                     getPlayer: () => _playerEntity,
                     getMonsters: () => monsterController.ActivateList.ConvertAll(m => (Scene.InGame.Entity.Interface.IEntity)m),
                     buffs: levelUpController.StatContext.Buffs,
-                    recoverStaminaByRatio: ratio => uIController.RecoverStaminaByRatio(ratio),
+                    recoverStaminaByRatio: ratio => _runState.Stamina.RecoverByRatio(ratio),
                     camera: Camera.main,
-                    addCost: amount => uIController.AddCost(amount),
+                    addCost: amount => _runState.Cost.Add(amount),
                                         spawnSpecialResource: SpawnSpecialResource,
                     getResources: () => resourceController.GetActiveResources());
 
-                cardHandController.Init(uIController.CanAffordCost, uIController.TrySpendCost, skillContext);
+                cardHandController.Init(_runState.Cost.CanAfford, _runState.Cost.TrySpend, skillContext);
             }
             await UniTask.WaitUntil(() => uIController.IsInitialized);
             
@@ -181,7 +220,7 @@ namespace Scene.InGame
 
             stageMapPopup.Init();
 
-            var startStage = uIController.Stage;
+            var startStage = _runState.Stage;
 
             // showInstantly: 캐릭터 선택 팝업이 닫히는 그 프레임에 맵이 화면을 덮습니다.
             // 페이드로 들어오면 그 0.3초 동안 인게임 화면이 그대로 보입니다.
@@ -228,7 +267,7 @@ namespace Scene.InGame
             // 여기서부터 실제 진행입니다.
             SetGamePaused(false);
 
-            uIController.GameStart();
+            _runState.Start();
 
             // 몬스터 스폰 루프 시작 (내부에서 몬스터 이동/공격도 함께 켜집니다)
             monsterController.ExecuteTestSpawn(_playerEntity, 0);
@@ -245,24 +284,27 @@ namespace Scene.InGame
             // (피격 피해는 SetDamagedHandler에서 스태미나로 처리됩니다.)
 
             // 피격 시 스태미나 소모, 스태미나가 바닥나면 스테이지 재시작
-            playerController.SetDamagedHandler(() => uIController.ConsumeStaminaByHit());
-            uIController.SetStaminaEmptyHandler(() => RestartStage());
+            playerController.SetDamagedHandler(() => _runState.Stamina.ConsumeByHit());
 
             // 강화 팝업: 번 골드를 스테이지 사이에 쓰는 창구
             stageMapPopup?.Init();
-            cardCleanupPopup?.Init();
+            // 화면이 데이터를 직접 뒤지지 않도록 조회 함수를 넣어줍니다.
+            cardCleanupPopup?.Init(
+                getCard: id => Manager.DataTableManager.Instance?.SkillCardDataTable?.GetRow(id),
+                isNewCard: id => Manager.GameDataManager.Instance?.IsFirstSeenCard(id) ?? false);
 
             upgradePopup?.Init(
-                getGold: () => uIController.Gold,
-                trySpendGold: uIController.TrySpendGold,
+                getGold: () => _runState.Gold,
+                trySpendGold: _runState.TrySpendGold,
                 getLevel: row => levelUpController.BonusState.GetLevel(row.Id.ToString()),
+                getAllRows: () => Manager.DataTableManager.Instance?.LevelUpBonusSkillDataTable?.Rows,
                 onPurchase: row =>
                 {
                     levelUpController.ApplyBonus(row);
 
                     // 산 즉시 저장 — 강화 도중 앱이 꺼져도 산 것이 남습니다.
                     GameDataManager.Instance?.SaveUpgrade(
-                        uIController.Gold, levelUpController.BonusState.GetAllLevels());
+                        _runState.Gold, levelUpController.BonusState.GetAllLevels());
                 });
 
             // 강화 도중에 앱이 꺼졌다면 그 화면부터 다시 보여줍니다.
@@ -272,11 +314,12 @@ namespace Scene.InGame
                 _resumeUpgradePhase = false;
                 _isStageEnding = false;
 
-                ShowUpgradeThen(_resumeUpgradeFromClear, () => Next(_resumeUpgradeFromClear));
+                // 이어하기는 결과 창을 이미 지나온 상태라 강화부터 보여줍니다.
+                ShowUpgradeThen(_resumeUpgradeFromClear, () => Next(_resumeUpgradeFromClear), showResult: false);
             }
 
             // 강화로 올린 스태미나 보정치를 연결합니다.
-            uIController.SetStaminaBonusProvider(() =>
+            _runState.Stamina.SetBonusProvider(() =>
             {
                 var bonus = levelUpController.BonusState;
 
@@ -346,8 +389,18 @@ namespace Scene.InGame
         }
 
         // 팝업이 떠 있는 동안 타이머와 모든 엔티티의 행동을 멈춥니다.
+        // 게임 상태에 시간을 흘려보냅니다(코스트 회복 등).
+        // 예전에는 CostUI 안에서 UniTask 무한 루프가 돌았습니다.
+        // 여기서 넘기면 정지·종료 판단을 RunState 한 곳에서 하게 되고,
+        // 테스트에서는 원하는 시간을 직접 넣어 즉시 확인할 수 있습니다.
+        private void Update()
+        {
+            _runState?.Tick(Time.deltaTime);
+        }
+
         private void SetGamePaused(bool paused)
         {
+            _runState?.SetPaused(paused);
             uIController.SetPaused(paused);
             playerController.SetBehaviourPaused(paused);
             monsterController.SetBehaviourPaused(paused);
@@ -394,7 +447,7 @@ namespace Scene.InGame
             if (!IsInitialized || _isStageEnding || _isRestarting)
                 return;
 
-            uIController.ForceCompleteMining();
+            _runState.Mining.ForceComplete();
         }
 
         // 테스트용 — 스태미나를 모두 소모시켜 강제로 실패시킵니다.
@@ -403,7 +456,7 @@ namespace Scene.InGame
             if (!IsInitialized || _isStageEnding || _isRestarting)
                 return;
 
-            uIController.ForceDrainStamina();
+            _runState.Stamina.Consume(float.MaxValue);
         }
 
         // 이 스테이지를 시작하기 전에 카드 정리를 열지 판단합니다.
@@ -473,7 +526,17 @@ namespace Scene.InGame
 
                 // 덱은 여기서만 바뀝니다. 바뀜 즉시 남겨야 앱을 다시 켰을 때
                 // 모아온 카드가 그대로 따라옵니다.
-                Manager.GameDataManager.Instance?.SaveDeck(cards);
+                var save = Manager.GameDataManager.Instance;
+
+                if (save != null)
+                {
+                    save.SaveDeck(cards);
+
+                    // 남긴 카드는 얻어본 것으로 기록합니다(다음엔 NEW가 안 붙습니다).
+                    // 예전에는 카드 정리 팝업이 직접 했던 일입니다.
+                    foreach (var id in cards)
+                        save.MarkCardSeen(id);
+                }
 
                 next?.Invoke();
             });
@@ -506,7 +569,7 @@ namespace Scene.InGame
             SetGamePaused(true);
 
             // 마지막 클리어 보상은 지급해 성과 표시가 어색하지 않게 합니다.
-            uIController.AddGold(stageClearGold + (uIController.Stage - 1) * stageClearGoldPerStage);
+            _runState.AddGold(stageClearGold + (_runState.Stage - 1) * stageClearGoldPerStage);
 
             if (demoClearPopup == null)
             {
@@ -515,7 +578,7 @@ namespace Scene.InGame
                 return;
             }
 
-            demoClearPopup.Show(uIController.Stage, uIController.Gold, FinishDemo);
+            demoClearPopup.Show(_runState.Stage, _runState.Gold, FinishDemo);
         }
 
         private void FinishDemo()
@@ -539,7 +602,8 @@ namespace Scene.InGame
 
         // 스테이지가 끝나면 강화 팝업을 띄우고, 닫은 뒤에 다음 동작을 이어갑니다.
         // 살 수 있는 항목이 하나도 없으면 팝업을 건너뜁니다(빈 창을 닫게 하지 않기 위함).
-        private void ShowUpgradeThen(bool isCleared, System.Action next)
+        // showResult가 false면 결과 창을 건너뜁니다(강화 도중 앱이 꺼져 이어서 켠 경우).
+        private void ShowUpgradeThen(bool isCleared, System.Action next, bool showResult = true)
         {
             if (_isStageEnding)
                 return;
@@ -553,7 +617,7 @@ namespace Scene.InGame
 
             // 마지막 스테이지를 깼으면 강화 대신 데모 종료로 갑니다.
             // (더 진행할 스테이지가 없어 강화를 해도 쓸 곳이 없습니다.)
-            if (isCleared && uIController.Stage >= GetMaxStage())
+            if (isCleared && _runState.Stage >= GetMaxStage())
             {
                 ShowDemoClear();
 
@@ -562,17 +626,46 @@ namespace Scene.InGame
 
             // 클리어 보상은 성공했을 때만 줍니다.
             // (실패해도 그 판에서 번 골드는 남으므로, 이 차이가 성공의 값어치가 됩니다.)
+            // 결과 창에서 '플레이로 번 골드'와 따로 보여주려고 금액을 남겨둡니다.
+            var clearBonus = 0;
+
             if (isCleared)
-                uIController.AddGold(stageClearGold + (uIController.Stage - 1) * stageClearGoldPerStage);
+            {
+                clearBonus = stageClearGold + (_runState.Stage - 1) * stageClearGoldPerStage;
+
+                _runState.AddGold(clearBonus);
+            }
 
             // 스테이지가 끝난 시점(클리어·실패 모두)에 저장합니다.
             Manager.GameDataManager.Instance?.SaveStageEnd(
-                uIController.Stage, uIController.Gold, levelUpController.GetCharacterId(),
+                _runState.Stage, _runState.Gold, levelUpController.GetCharacterId(),
                 levelUpController.BonusState.GetAllLevels(), isCleared);
 
             // 팝업은 스테이지가 끝날 때마다 띄웁니다.
             // (살 게 없다고 건너뛰면 강화 창구가 있다는 것 자체를 알 수 없고,
             //  얼마를 더 모아야 하는지도 확인할 수 없습니다.)
+            // 결과 창을 먼저 띄우고, 버튼을 눌렀을 때 강화로 넘어갑니다.
+            if (showResult && stageResultPopup != null)
+            {
+                // StageGold에는 방금 더한 클리어 보상까지 들어 있으므로 빼서 넘깁니다.
+                stageResultPopup.Show(_runState.Stage, isCleared,
+                    _runState.StageGold - clearBonus, clearBonus, _runState.Gold, () =>
+                {
+                    // 강화 팝업을 먼저 띄운 뒤에 결과 창을 내립니다.
+                    // 순서가 반대면 그 사이에 인게임 화면이 한 프레임 비칩니다.
+                    ShowUpgradePopup(isCleared, next);
+
+                    stageResultPopup.Hide();
+                });
+
+                return;
+            }
+
+            ShowUpgradePopup(isCleared, next);
+        }
+
+        private void ShowUpgradePopup(bool isCleared, System.Action next)
+        {
             if (upgradePopup == null)
             {
                 next?.Invoke();
@@ -582,11 +675,11 @@ namespace Scene.InGame
 
             SetGamePaused(true);
 
-            upgradePopup.Show(uIController.Stage, isCleared, () =>
+            upgradePopup.Show(_runState.Stage, isCleared, () =>
             {
                 // 강화 페이즈가 끝났음을 남깁니다.
                 // 클리어면 다음 스테이지, 실패면 같은 스테이지를 다시 합니다.
-                var nextStage = isCleared ? uIController.Stage + 1 : uIController.Stage;
+                var nextStage = isCleared ? _runState.Stage + 1 : _runState.Stage;
 
                 Manager.GameDataManager.Instance?.SaveUpgradePhaseEnd(nextStage);
 
@@ -599,6 +692,10 @@ namespace Scene.InGame
 
         [SerializeField]
         private UpgradePopup upgradePopup;
+
+        [SerializeField]
+        [Tooltip("강화 팝업 직전에 잠깐 뜨는 스테이지 결과 창")]
+        private StageResultPopup stageResultPopup;
 
         [SerializeField]
         [Tooltip("마지막 스테이지를 깼을 때 뜨는 데모 종료 안내")]
@@ -664,7 +761,7 @@ namespace Scene.InGame
 
             if (advanceStage && stageMapPopup != null)
             {
-                var from = uIController.Stage;
+                var from = _runState.Stage;
                 var to = Mathf.Min(from + 1, GetMaxStage());
 
                 // 맵이 화면을 덮고 있는 동안 판을 정리하고 다음 스테이지를 깔아둡니다.
@@ -719,6 +816,7 @@ namespace Scene.InGame
             // 강화 팝업은 지금까지 떠 있었습니다. 화면이 가려진 지금 내립니다.
             // (닫기를 누를 때 바로 내리면 인게임이 잠깐 드러납니다 — UpgradePopup.Close 참고)
             upgradePopup?.Hide();
+            stageResultPopup?.Hide();
 
             // 이전 카드가 밝아질 때 보이지 않도록 손패를 감춥니다.
             if (cardHandController != null)
@@ -753,7 +851,7 @@ namespace Scene.InGame
 
             WarpPlayer(Vector3.zero);
 
-            uIController.ResetStage(advanceStage);
+            _runState.ResetStage(advanceStage);
         }
     }
 }

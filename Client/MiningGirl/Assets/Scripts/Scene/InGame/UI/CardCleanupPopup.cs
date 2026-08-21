@@ -77,14 +77,25 @@ namespace Scene.InGame.UI
         private int _deckSize;
         private Action<List<string>> _onConfirm;
 
+        // 카드 데이터 조회와 'NEW 붙일지' 판단을 밖에서 받습니다.
+        // 예전에는 이 팝업이 DataTableManager와 GameDataManager를 직접 썼습니다.
+        // 특히 세이브 기록(MarkCardSeen)까지 여기서 했어서,
+        // '카드 고르는 화면'이 저장 시점을 정하는 모양이었습니다.
+        private Func<string, SkillCardDataTableRow> _getCard;
+        private Func<string, bool> _isNewCard;
+
         // 버려야 하는 장수
         private int RequiredDiscardCount => Mathf.Max(0, _cards.Count - _deckSize);
 
         // 지금 남길 장수
         private int RemainCount => _cards.Count - _discardIndexes.Count;
 
-        public void Init()
+        public void Init(Func<string, SkillCardDataTableRow> getCard = null,
+            Func<string, bool> isNewCard = null)
         {
+            _getCard = getCard;
+            _isNewCard = isNewCard;
+
             if (confirmButton != null)
             {
                 confirmButton.onClick.RemoveAllListeners();
@@ -106,15 +117,11 @@ namespace Scene.InGame.UI
             _newIndexes.Clear();
             _discardIndexes.Clear();
 
-            var save = Manager.GameDataManager.Instance;
-
-            var table = Manager.DataTableManager.Instance?.SkillCardDataTable;
-
-            if (deckCards != null && table != null)
+            if (deckCards != null && _getCard != null)
             {
                 foreach (var id in deckCards)
                 {
-                    var row = table.GetRow(id);
+                    var row = _getCard.Invoke(id);
 
                     if (row != null)
                         _cards.Add(row);
@@ -132,7 +139,7 @@ namespace Scene.InGame.UI
                     _rewardIndexes.Add(_cards.Count);
 
                     // NEW는 이번에 '처음 얻은' 카드에만 붙입니다.
-                    if (save != null && save.IsFirstSeenCard(row.Id))
+                    if (_isNewCard != null && _isNewCard.Invoke(row.Id))
                         _newIndexes.Add(_cards.Count);
 
                     _cards.Add(row);
@@ -300,14 +307,8 @@ namespace Scene.InGame.UI
                 result.Add(_cards[i].Id);
             }
 
-            // 남긴 카드는 얻어본 것으로 기록합니다(다음엔 NEW가 안 붙습니다).
-            var save = Manager.GameDataManager.Instance;
-
-            if (save != null)
-            {
-                foreach (var id in result)
-                    save.MarkCardSeen(id);
-            }
+            // 남긴 카드를 '얻어본 것'으로 기록하는 건 밖에서 합니다.
+            // 화면은 고른 결과만 넘기고, 저장할지는 받는 쪽이 정합니다.
 
             var callback = _onConfirm;
             _onConfirm = null;

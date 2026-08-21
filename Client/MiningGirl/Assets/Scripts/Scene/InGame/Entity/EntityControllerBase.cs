@@ -56,7 +56,7 @@ namespace Scene.InGame.Entity
                 Create().Forget();
             }
             
-            await UniTask.WaitUntil(() => _queue.Count == _count);
+            await UniTask.WaitUntil(() => _queue.Count == _count, cancellationToken: this.GetCancellationTokenOnDestroy());
             
             IsInitialized = true;
         }
@@ -71,27 +71,39 @@ namespace Scene.InGame.Entity
                 await Create();
             }
 
+            // 씬 언로드 등으로 생성이 취소되면 큐가 비어 있을 수 있다.
+            if (this == null || _queue == null || _queue.Count == 0)
+                return default;
+
             var entity = _queue!.Dequeue();
             
             ActivateList.Add(entity);
             return entity;
         }
         
-private async UniTask Create()
+        private async UniTask Create()
         {
             try
             {
                 var prefab = await AddressableManager.Instance.LoadAsset<GameObject>(_prefabName);
+
+                // 로드를 기다리는 사이에 씬이 언로드되어 컨트롤러가 파괴됐을 수 있다.
+                if (this == null || prefab == null)
+                    return;
+
                 var ins = Instantiate(prefab, transform);
-            
+
                 ins.gameObject.SetActive(false);
-            
+
                 _queue.Enqueue(ins.GetComponent<T>());
+            }
+            catch (System.OperationCanceledException)
+            {
+                // 씬 전환으로 취소된 경우는 무시
             }
             catch (Exception e)
             {
-                Console.WriteLine(e);
-                throw;
+                Debug.LogException(e);
             }
         }
     }

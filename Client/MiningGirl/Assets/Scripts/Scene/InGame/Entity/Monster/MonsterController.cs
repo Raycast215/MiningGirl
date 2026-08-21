@@ -86,6 +86,9 @@ namespace MainGame.Entity.Monster
             var baseStat = _statProvider.GetBaseStat(monsterId);
 
             var monster = await Get();
+            if (monster == null)
+                return null;
+
             monster.Setup(this, baseStat, _stageModifier, _riskModifier, stageIndex, target, _damagePresenter, this);
             monster.SetKilledHandler(_onMonsterKilled);
             monster.SetPosition(position);

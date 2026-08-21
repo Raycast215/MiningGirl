@@ -1,14 +1,15 @@
 using System;
 using System.Collections.Generic;
 using Data;
-using Manager;
 using TMPro;
 using UnityEngine;
 
 namespace MainGame.UI
 {
     // 게임 시작 시 캐릭터를 고르는 팝업.
-    // 후보는 CharacterStatDataTable의 행을 그대로 사용합니다.
+    //
+    // 후보 목록과 강화 항목 조회는 밖에서 주입받습니다.
+    // (예전에는 팝업과 슬롯 뷰가 각자 DataTableManager를 직접 뒤졌습니다.)
     public class CharacterSelectPopup : MonoBehaviour
     {
         [SerializeField]
@@ -31,6 +32,16 @@ namespace MainGame.UI
         private readonly List<CharacterStatDataRow> _rows = new List<CharacterStatDataRow>();
         private readonly List<CharacterSelectSlotView> _slots = new List<CharacterSelectSlotView>();
 
+        private Func<IReadOnlyList<CharacterStatDataRow>> _getCharacters;
+        private Func<ELevelUpBonusEffectType, LevelUpBonusSkillDataTableRow> _findBonusRow;
+
+        public void Init(Func<IReadOnlyList<CharacterStatDataRow>> getCharacters,
+            Func<ELevelUpBonusEffectType, LevelUpBonusSkillDataTableRow> findBonusRow)
+        {
+            _getCharacters = getCharacters;
+            _findBonusRow = findBonusRow;
+        }
+
         // 팝업을 띄웁니다. 선택하면 onSelected로 해당 캐릭터 데이터가 전달됩니다.
         public void Show(Action<CharacterStatDataRow> onSelected)
         {
@@ -41,9 +52,10 @@ namespace MainGame.UI
 
             _rows.Clear();
 
-            var table = DataTableManager.Instance?.CharacterStatDataTable;
-            if (table?.Rows != null)
-                _rows.AddRange(table.Rows);
+            var rows = _getCharacters?.Invoke();
+
+            if (rows != null)
+                _rows.AddRange(rows);
 
             if (_rows.Count == 0)
                 Debug.LogError("[CharacterSelect] 캐릭터 스탯 데이터가 없습니다.");
@@ -86,8 +98,53 @@ namespace MainGame.UI
                     : $"캐릭터 {i + 1}";
 
                 slot.SetVisible(true);
-                slot.SetData(row, displayName, () => Select(index));
+                slot.SetData(row, displayName, BuildStartSkills(row), () => Select(index));
             }
+        }
+
+        // 캐릭터가 미리 들고 시작하는 스킬을 (이름, 레벨)로 정리합니다.
+        // 같은 타입이 여러 번 들어 있으면 그 개수가 곧 시작 레벨입니다.
+        // 시트에 최대 레벨보다 많이 적혀 있어도 실제 부여는 최대 레벨까지이므로 여기서 잘라줍니다.
+        private List<(string name, int level)> BuildStartSkills(CharacterStatDataRow row)
+        {
+            var result = new List<(string, int)>();
+            var types = row?.StartSkillTypeList;
+
+            if (types == null || types.Count == 0 || _findBonusRow == null)
+                return result;
+
+            // 등장 순서를 유지하면서 타입별 개수를 셉니다.
+            var order = new List<ELevelUpBonusEffectType>();
+            var counts = new Dictionary<ELevelUpBonusEffectType, int>();
+
+            foreach (var type in types)
+            {
+                if (counts.ContainsKey(type))
+                {
+                    counts[type]++;
+                    continue;
+                }
+
+                counts[type] = 1;
+                order.Add(type);
+            }
+
+            foreach (var type in order)
+            {
+                var found = _findBonusRow.Invoke(type);
+
+                if (found == null)
+                    continue;
+
+                var level = counts[type];
+
+                if (found.MaxLevel >= 0)
+                    level = Mathf.Min(level, found.MaxLevel);
+
+                result.Add((found.Name, level));
+            }
+
+            return result;
         }
 
         private void Select(int index)

@@ -1,13 +1,16 @@
 using System;
-using Data;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 namespace MainGame.UI
 {
-    // 강화 팝업의 항목 한 줄.
-    // '지금 값 → 다음 값'과 레벨, 가격을 한 줄에 담습니다.
+    // 강화 팝업의 항목 한 줄. 받은 문자열을 그리기만 합니다.
+    //
+    // 예전에는 이 뷰가 row.GetPrice(level)로 가격을 조회하고
+    // canBuy 판정까지 직접 했습니다. 그런데 같은 판정이 UpgradePopup.Buy에도 있어서,
+    // 한쪽만 고치면 '버튼은 눌리는데 안 사지는' 상태가 될 수 있었습니다.
+    // 판정은 팝업 한 곳에서 하고 여기로는 결과만 넘어옵니다.
     public class UpgradeItemView : MonoBehaviour
     {
         [SerializeField]
@@ -39,31 +42,19 @@ namespace MainGame.UI
             buyButton.onClick.AddListener(() => _onBuy?.Invoke());
         }
 
-        // row: 강화 항목 / level: 이번에 사면 도달할 레벨 / gold: 보유 골드
-        public void SetData(LevelUpBonusSkillDataTableRow row, int level, int gold, string detail, Action onBuy)
+        // 전부 팝업이 계산해서 넘겨준 값입니다.
+        public void SetData(string name, string detail, string price, bool canBuy, Action onBuy)
         {
             _onBuy = onBuy;
 
-            if (row == null)
-                return;
-
             if (nameText != null)
-                nameText.text = row.Name;
-
-            var isMax = row.MaxLevel >= 0 && level > row.MaxLevel;
-            var price = row.GetPrice(level);
-            var canBuy = !isMax && gold >= price;
+                nameText.text = name;
 
             if (detailText != null)
-            {
-                // 최대 레벨이면 더 살 수 없다는 것만 알려줍니다.
-                detailText.text = isMax
-                    ? $"Lv.{row.MaxLevel} / {row.MaxLevel} (최대)"
-                    : $"{detail}   Lv.{level} / {(row.MaxLevel < 0 ? "-" : row.MaxLevel.ToString())}";
-            }
+                detailText.text = detail;
 
             if (priceText != null)
-                priceText.text = isMax ? "최대" : $"{price} 골드";
+                priceText.text = price;
 
             // 항목 전체를 어둡게 덮으면 글자 대비가 무너지므로 가격 버튼 색만 바꿉니다.
             if (background != null)

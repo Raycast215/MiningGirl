@@ -35,7 +35,11 @@ namespace MainGame.UI
             }
         }
 
-        public void SetData(CharacterStatDataRow row, string displayName, Action onClick)
+        // startSkills: 팝업이 계산해 넘겨준 (스킬 이름, 시작 레벨) 목록.
+        // 예전에는 이 뷰가 LevelUpBonusSkillDataTable을 직접 뒤지고
+        // 최대 레벨 clamp 규칙까지 여기서 다시 구현했습니다.
+        public void SetData(CharacterStatDataRow row, string displayName,
+            IReadOnlyList<(string name, int level)> startSkills, Action onClick)
         {
             _onClick = onClick;
 
@@ -46,11 +50,11 @@ namespace MainGame.UI
                 nameText.text = displayName;
 
             if (statText != null)
-                statText.text = BuildStatText(row);
+                statText.text = BuildStatText(row, startSkills);
         }
 
         // 주요 스탯을 한눈에 비교할 수 있게 정리합니다. 수치는 색으로 강조합니다.
-        private string BuildStatText(CharacterStatDataRow row)
+        private string BuildStatText(CharacterStatDataRow row, IReadOnlyList<(string name, int level)> startSkills)
         {
             var hex = ColorUtility.ToHtmlStringRGB(valueColor);
 
@@ -79,70 +83,24 @@ namespace MainGame.UI
                 $"피격 무적 시간 {V(row.InvincibleDuration, "초")}",
             };
 
-            return string.Join("\n", lines) + BuildStartSkillText(row, hex);
+            return string.Join("\n", lines) + BuildStartSkillText(startSkills, hex);
         }
 
-        // 캐릭터가 미리 들고 시작하는 스킬을 '이름 Lv.N' 형태로 보여줍니다.
-        // 같은 타입이 여러 번 들어 있으면 그 개수가 곧 시작 레벨입니다.
-        private string BuildStartSkillText(CharacterStatDataRow row, string hex)
+        // 받은 목록을 '이름 Lv.N' 형태로 늘어놓기만 합니다.
+        private string BuildStartSkillText(IReadOnlyList<(string name, int level)> startSkills, string hex)
         {
-            var types = row?.StartSkillTypeList;
-            if (types == null || types.Count == 0)
+            if (startSkills == null || startSkills.Count == 0)
                 return string.Empty;
-
-            var table = DataTableManager.Instance?.LevelUpBonusSkillDataTable;
-            if (table?.Rows == null)
-                return string.Empty;
-
-            // 등장 순서를 유지하면서 타입별 개수를 셉니다.
-            var order = new List<ELevelUpBonusEffectType>();
-            var counts = new Dictionary<ELevelUpBonusEffectType, int>();
-
-            foreach (var type in types)
-            {
-                if (counts.ContainsKey(type))
-                {
-                    counts[type]++;
-                    continue;
-                }
-
-                counts[type] = 1;
-                order.Add(type);
-            }
 
             var text = new StringBuilder();
 
-            foreach (var type in order)
+            foreach (var skill in startSkills)
             {
-                LevelUpBonusSkillDataTableRow found = null;
-
-                foreach (var skill in table.Rows)
-                {
-                    if (skill.EffectType != type)
-                        continue;
-
-                    found = skill;
-                    break;
-                }
-
-                if (found == null)
-                    continue;
-
                 if (text.Length > 0)
                     text.Append("\n");
 
-                // 시트에 최대 레벨보다 많이 적혀 있어도 실제 부여는 최대 레벨까지만 되므로
-                // 표시도 최대 레벨을 넘지 않게 잘라줍니다.
-                var level = counts[type];
-                if (found.MaxLevel >= 0)
-                    level = Mathf.Min(level, found.MaxLevel);
-
-                // 스킬 이름과 레벨을 통째로 강조합니다.
-                text.Append($"<color=#{hex}>{found.Name} Lv.{level}</color>");
+                text.Append($"<color=#{hex}>{skill.name} Lv.{skill.level}</color>");
             }
-
-            if (text.Length == 0)
-                return string.Empty;
 
             return $"\n\n시작 스킬\n{text}";
         }

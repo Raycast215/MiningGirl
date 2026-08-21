@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using Data;
 using MainGame.UI;
-using Manager;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
@@ -22,6 +21,8 @@ namespace Scene.InGame.UI
         private TextMeshProUGUI goldText;
         [SerializeField]
         private TextMeshProUGUI titleText;
+        [SerializeField]
+        private TextMeshProUGUI descText;
         [SerializeField]
         private TextMeshProUGUI emptyText;
         [SerializeField]
@@ -51,14 +52,20 @@ namespace Scene.InGame.UI
         private Action<LevelUpBonusSkillDataTableRow> _onPurchase;
         private Action _onClose;
 
+        // 강화 항목 목록을 밖에서 받습니다.
+        // (예전에는 팝업이 DataTableManager를 직접 뒤졌습니다.)
+        private Func<IReadOnlyList<LevelUpBonusSkillDataTableRow>> _getAllRows;
+
         // 닫기를 누른 뒤에도 팝업은 잠시 떠 있습니다.
         // 그 동안 강화를 더 사거나 탭을 바꾸지 못하게 입력만 잠가는 용도입니다.
         private CanvasGroup _canvasGroup;
 
         public void Init(Func<int> getGold, Func<int, bool> trySpendGold,
             Func<LevelUpBonusSkillDataTableRow, int> getLevel,
-            Action<LevelUpBonusSkillDataTableRow> onPurchase)
+            Action<LevelUpBonusSkillDataTableRow> onPurchase,
+            Func<IReadOnlyList<LevelUpBonusSkillDataTableRow>> getAllRows = null)
         {
+            _getAllRows = getAllRows;
             _getGold = getGold;
             _trySpendGold = trySpendGold;
             _getLevel = getLevel;
@@ -103,8 +110,13 @@ namespace Scene.InGame.UI
 
             SetInputEnabled(true);
 
+            // 클리어/실패와 획득 골드는 앞의 결과 창(StageResultPopup)이 알려줍니다.
+            // 여기는 강화라는 목적만 남깁니다.
             if (titleText != null)
-                titleText.text = isCleared ? $"스테이지 {stage} 클리어" : $"스테이지 {stage} 실패";
+                titleText.text = "업그레이드";
+
+            if (descText != null)
+                descText.text = "골드를 사용해 능력을 강화하세요";
 
             if (closeButtonText != null)
                 closeButtonText.text = isCleared ? "다음 스테이지" : "다시 도전";
@@ -156,15 +168,15 @@ namespace Scene.InGame.UI
         // 살 수 있는 항목이 하나도 없으면 바깥에서 팝업을 건너뛸 수 있게 알려줍니다.
         public bool HasAnyAffordable(int stage)
         {
-            // 표시용 _rows와 섞이지 않도록 여기서는 테이블을 직접 훑습니다.
-            var table = DataTableManager.Instance?.LevelUpBonusSkillDataTable;
+            // 표시용 _rows와 섞이지 않도록 여기서는 전체 목록을 다시 받아 훑습니다.
+            var rows = _getAllRows?.Invoke();
 
-            if (table?.Rows == null)
+            if (rows == null)
                 return false;
 
             var gold = _getGold?.Invoke() ?? 0;
 
-            foreach (var row in table.Rows)
+            foreach (var row in rows)
             {
                 if (row == null)
                     continue;
@@ -186,16 +198,17 @@ namespace Scene.InGame.UI
         }
 
         // tab이 null이면 모든 탭에서 모읍니다(구매 가능 여부 판단용).
+        // tab이 null이면 모든 탭에서 모읍니다(구매 가능 여부 판단용).
         private void CollectRows(EUpgradeTabType? tab)
         {
             _rows.Clear();
 
-            var table = DataTableManager.Instance?.LevelUpBonusSkillDataTable;
+            var rows = _getAllRows?.Invoke();
 
-            if (table?.Rows == null)
+            if (rows == null)
                 return;
 
-            foreach (var row in table.Rows)
+            foreach (var row in rows)
             {
                 if (row == null)
                     continue;
@@ -234,8 +247,18 @@ namespace Scene.InGame.UI
                 var row = _rows[i];
                 var level = (_getLevel?.Invoke(row) ?? 0) + 1;
 
+                // 가격·최대레벨·구매가능 판정은 여기서 한 번만 합니다.
+                // 뷰는 결과 문자열만 받아 그립니다.
+                var isMax = row.MaxLevel >= 0 && level > row.MaxLevel;
+                var price = row.GetPrice(level);
+                var canBuy = !isMax && gold >= price;
+
+                var detail = isMax
+                    ? $"Lv.{row.MaxLevel} / {row.MaxLevel} (최대)"
+                    : $"{BuildDetail(row, level)}   Lv.{level} / {(row.MaxLevel < 0 ? "-" : row.MaxLevel.ToString())}";
+
                 _items[i].SetVisible(true);
-                _items[i].SetData(row, level, gold, BuildDetail(row, level), () => Buy(row));
+                _items[i].SetData(row.Name, detail, isMax ? "최대" : $"{price} 골드", canBuy, () => Buy(row));
             }
 
             if (emptyText != null)
