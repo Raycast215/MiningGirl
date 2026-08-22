@@ -91,6 +91,12 @@ namespace UI.Common
 
             // 값이 줄었는지 판단해 소모 연출을 고릅니다.
             var decreased = _lastRatio >= 0f && ratio < _lastRatio - 0.0001f;
+            var increased = _lastRatio >= 0f && ratio > _lastRatio + 0.0001f;
+
+            // 회복은 트윈 없이 즉시 채웁니다.
+            // 앞바만 tweenDuration에 걸쳐 차오르면 그 동안 뒷바(피격으로 깎인 표시)가
+            // 앞바보다 넓어져서, 회복하는 내내 주황색 띠가 드러나 보였습니다.
+            var snap = immediate || increased;
 
             // 슬라이더를 넣었으면 그쪽을 씁니다.
             if (slider != null)
@@ -103,7 +109,7 @@ namespace UI.Common
                 _fillTween?.Kill();
                 _fillTween = null;
 
-                if (immediate || tweenDuration <= 0f)
+                if (snap || tweenDuration <= 0f)
                     slider.value = ratio;
                 else
                     _fillTween = DOTween.To(() => slider.value, v => slider.value = v, ratio, tweenDuration)
@@ -118,13 +124,13 @@ namespace UI.Common
                 _fillTween?.Kill();
                 _fillTween = null;
 
-                if (immediate || tweenDuration <= 0f)
+                if (snap || tweenDuration <= 0f)
                     fill.fillAmount = ratio;
                 else
                     _fillTween = fill.DOFillAmount(ratio, tweenDuration).SetEase(Ease.OutQuad);
             }
 
-            UpdateDelayedFill(ratio, immediate, decreased);
+            UpdateDelayedFill(ratio, snap, decreased);
 
             _lastRatio = ratio;
 

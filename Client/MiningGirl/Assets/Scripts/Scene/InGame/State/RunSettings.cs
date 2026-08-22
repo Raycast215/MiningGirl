@@ -24,7 +24,7 @@ namespace Scene.InGame.State
 
         // ── 스태미나 ──
         public float MaxStamina = 100f;
-        public float MiningStaminaCost = 5f;
+        public float MiningStaminaCost = 10f;
         public float HitStaminaCost = 1f;
 
         // 상수 테이블에서 읽어옵니다. 테이블이 없으면(테스트 등) 위 기본값을 그대로 씁니다.

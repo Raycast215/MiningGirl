@@ -20,6 +20,11 @@ namespace InGame.temp.System.FloatingDamage
         {
             OnReleased = null;
             OnReleased += onReleased;
+
+            // 풀에서 재사용될 때 이전 사용의 정지 상태가 남아 있으면,
+            // 아래 ApplyPause()가 시작하자마자 트윈을 멈춰 화면에 그대로 박힙니다.
+            // (OnComplete가 오지 않아 풀로도 돌아오지 못하고 영원히 남습니다.)
+            _isPaused = false;
             
             gameObject.SetActive(true);
             

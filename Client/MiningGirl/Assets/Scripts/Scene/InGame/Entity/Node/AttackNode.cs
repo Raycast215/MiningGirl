@@ -56,9 +56,9 @@ namespace Scene.InGame.Entity.Node
         
         private async UniTaskVoid Attack(IEntity target)
         {
-            _cts?.Cancel();
-            _cts?.Dispose();
-            _cts = new CancellationTokenSource();
+            // 예전에는 공격할 때마다 CTS를 새로 만들고 버렸습니다(몬스터 수 x 공격 횟수만큼 할당).
+            // 취소된 적이 없으면 쓰던 것을 그대로 재사용합니다.
+            var token = EnsureToken();
             
             IsPlaying = true;
             IsAttackDone = false;
@@ -87,17 +87,18 @@ namespace Scene.InGame.Entity.Node
                 
                 if (isExtraHit)
                 {
-                    await UniTask.WaitForSeconds(0.2f, cancellationToken: _cts.Token);
+                    await UniTask.WaitForSeconds(0.2f, cancellationToken: token);
                     
                     if (!IsValidAttackTarget(target))
                         return;
                     
-                    target.Hit(damage, isCritical);
+                    // 추가타는 스태미나를 더 쓰지 않는 덤 타격입니다.
+                    target.Hit(damage, isCritical, true);
                     SoundManager.Instance.PlaySfx("Hit1");
                 }
 
                 // 타격이 끝난 뒤 다음 공격까지 대기합니다(쿨다운).
-                await UniTask.WaitForSeconds(_entity.GetAttackDelay(), cancellationToken: _cts.Token);
+                await UniTask.WaitForSeconds(_entity.GetAttackDelay(), cancellationToken: token);
                 
                 IsAttackDone = true;
             }
@@ -116,6 +117,20 @@ namespace Scene.InGame.Entity.Node
             }
         }
         
+        // 취소되지 않은 CTS는 계속 재사용합니다. 취소된 뒤에만 새로 만듭니다.
+        // (CancellationTokenSource는 한 번 취소되면 되돌릴 수 없습니다.)
+        private CancellationToken EnsureToken()
+        {
+            if (_cts == null || _cts.IsCancellationRequested)
+            {
+                _cts?.Dispose();
+                _cts = new CancellationTokenSource();
+            }
+
+            // await 도중 _cts가 교체돼도 이번 공격은 자기 토큰을 계속 봅니다.
+            return _cts.Token;
+        }
+
         private bool IsValidAttackTarget(IEntity target)
         {
             if (_entity == null || !_entity.GetActiveState())

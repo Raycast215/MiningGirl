@@ -44,6 +44,25 @@ namespace MainGame.Bonus
         public int MonsterKillGoldAdd { get; private set; }
         public int ResourceMineGoldAdd { get; private set; }
 
+        // 규칙 항목 — 화면에 들어오는 수량, 클리어 보상, 코스트 회복 속도.
+        // 캐릭터 스탯과 달리 '판이 돌아가는 조건' 자체를 바꿉니다.
+        public int MonsterMaxCountAdd { get; private set; }
+        public int ResourceMaxCountAdd { get; private set; }
+        public int StageClearGoldAdd { get; private set; }
+
+        // 광물 내구도 감소량. 소모 감소와 같은 방향(값이 클수록 유리)으로 누적합니다.
+        public float ResourceHealthReduce { get; private set; }
+
+        // 몬스터를 잡을 때 돌려받는 스태미나. 몬스터 처치가 '위험'에서
+        // '연료 보급'으로 바뀌는 지점이라, 전투를 피하지 않게 만드는 축입니다.
+        public float KillStaminaRecoverAdd { get; private set; }
+
+        // 보유 가능한 최대 코스트
+        public int MaxCostAdd { get; private set; }
+
+        // 값이 클수록 코스트 1이 차오르는 간격이 짧아집니다.
+        public float CostRegenReduce { get; private set; }
+
         // 스킬별 획득 레벨 (Id -> 획득 횟수)
         private readonly Dictionary<string, int> _levels = new Dictionary<string, int>();
 
@@ -103,6 +122,14 @@ namespace MainGame.Bonus
 
             MonsterKillGoldAdd = 0;
             ResourceMineGoldAdd = 0;
+
+            MonsterMaxCountAdd = 0;
+            ResourceMaxCountAdd = 0;
+            StageClearGoldAdd = 0;
+            ResourceHealthReduce = 0f;
+            KillStaminaRecoverAdd = 0f;
+            MaxCostAdd = 0;
+            CostRegenReduce = 0f;
 
             _levels.Clear();
         }
@@ -170,6 +197,35 @@ namespace MainGame.Bonus
 
                 case ELevelUpBonusEffectType.ResourceMineGold:
                     ResourceMineGoldAdd += Mathf.RoundToInt(value);
+                    break;
+
+                case ELevelUpBonusEffectType.MonsterMaxCount:
+                    MonsterMaxCountAdd += Mathf.RoundToInt(value);
+                    break;
+
+                case ELevelUpBonusEffectType.ResourceMaxCount:
+                    ResourceMaxCountAdd += Mathf.RoundToInt(value);
+                    break;
+
+                case ELevelUpBonusEffectType.StageClearGold:
+                    StageClearGoldAdd += Mathf.RoundToInt(value);
+                    break;
+
+                case ELevelUpBonusEffectType.ResourceHealth:
+                    ResourceHealthReduce += value;
+                    break;
+
+                case ELevelUpBonusEffectType.KillStaminaRecover:
+                    KillStaminaRecoverAdd += value;
+                    break;
+
+                case ELevelUpBonusEffectType.MaxCost:
+                    MaxCostAdd += Mathf.RoundToInt(value);
+                    break;
+
+                case ELevelUpBonusEffectType.CostRegen:
+                    // 간격을 '줄이는' 값이라 누적만 하고, 하한은 CostState가 겁니다.
+                    CostRegenReduce += value;
                     break;
             }
         }

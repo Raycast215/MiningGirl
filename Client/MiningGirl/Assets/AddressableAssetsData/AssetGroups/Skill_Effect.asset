@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
+  m_Name: Skill_Effect
+  m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
+  m_GroupName: Skill_Effect
+  m_GUID: 528e8f04f1ab0fd47aebf0253dc35230
+  m_SerializeEntries:
+  - m_GUID: 9d33e44048253fc45b57450726681a45
+    m_Address: Effect_IceBolt
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Skill_Effect
+    FlaggedDuringContentUpdateRestriction: 0
+  m_ReadOnly: 0
+  m_Settings: {fileID: 11400000, guid: 768474f74753eb84289176247933f264, type: 2}
+  m_SchemaSet:
+    m_Schemas:
+    - {fileID: 11400000, guid: a6f759d2c5b376246941ee0704637b03, type: 2}
+    - {fileID: 11400000, guid: 2dac2a83be812df4c85eaa2d082c9384, type: 2}

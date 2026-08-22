@@ -36,6 +36,9 @@ public enum ELevelUpBonusEffectType
     ResourceMaxCount,  // 광물 수량
     StageClearGold,    // 클리어 보상 골드
     HandSize,          // 손패 장수
+    ResourceHealth,    // 광물 내구도 감소(값이 클수록 적게 때려도 캐집니다)
+    KillStaminaRecover,// 몬스터 처치 시 스태미나 회복
+    MaxCost,           // 보유 가능한 최대 코스트
     CostRegen,         // 코스트 회복 속도
 
     None,
@@ -63,8 +66,11 @@ public enum EGameConstantType
 {
     CardDeckSize,       // 시작 덱 장수
     CardRerollCost,     // 카드 리롤(버리기) 비용
-    MonsterSpawnCount,  // 몬스터 최대 소환 수(레벨업 보너스로 상향 예정)
-    ResourceSpawnCount, // 광물 초기 소환 수 겸 최대 수량(레벨업 보너스로 상향 예정)
+    MonsterSpawnCount,  // 스테이지 1의 몬스터 최대 소환 수
+    ResourceSpawnCount, // 스테이지 1의 광물 수량(초기 배치 수 겸 최대 수량)
+
+    MonsterSpawnCountPerStage,  // 스테이지가 오를 때마다 몬스터 최대 수에 더해지는 양
+    ResourceSpawnCountPerStage, // 스테이지가 오를 때마다 광물 수량에 더해지는 양
 
     MonsterSpawnInterval,  // 몬스터 스폰 간격(초)
     ResourceSpawnInterval, // 광물 스폰 간격(초)

@@ -15,11 +15,23 @@ namespace Scene.InGame.State
 
         private float _regenTimer;
 
+        // 강화 보정치(회복 간격 감소 초, 최대치 가산). 스태미나와 같은 방식으로 바깥에서 넣어줍니다.
+        private Func<(float regenReduce, int maxAdd)> _bonusProvider;
+
         public int Cost { get; private set; }
-        public int Max => _settings.MaxCost;
+        // 강화를 반영한 최대치. 아래 계산은 전부 이 값을 기준으로 합니다.
+        public int Max
+        {
+            get
+            {
+                var add = _bonusProvider != null ? _bonusProvider.Invoke().maxAdd : 0;
+
+                return Mathf.Max(1, _settings.MaxCost + add);
+            }
+        }
 
         // 최대치를 초과한 상태인지(보스전 오버차지)
-        public bool IsOvercharged => Cost > _settings.MaxCost;
+        public bool IsOvercharged => Cost > Max;
 
         // 스테이지 후반 가속이 켜졌는지
         public bool IsSpeedUp { get; private set; }
@@ -35,17 +47,31 @@ namespace Scene.InGame.State
             }
         }
 
+        // 강화를 반영한 기본 회복 간격. 하한을 두는 이유는 0이 되면
+        // 한 프레임에 코스트가 최대치까지 차서 카드 코스트가 의미를 잃기 때문입니다.
+        public float BaseRegenInterval
+        {
+            get
+            {
+                var reduce = _bonusProvider != null ? _bonusProvider.Invoke().regenReduce : 0f;
+
+                return Mathf.Max(0.5f, _settings.CostRegenInterval - reduce);
+            }
+        }
+
         // 지금 적용 중인 회복 간격. 후반에는 배율만큼 짧아집니다.
         public float CurrentRegenInterval
         {
             get
             {
+                var baseInterval = BaseRegenInterval;
+
                 if (!IsSpeedUp)
-                    return _settings.CostRegenInterval;
+                    return baseInterval;
 
                 var multiplier = Mathf.Max(0.01f, _settings.CostLateSpeedMultiplier);
 
-                return Mathf.Max(0.05f, _settings.CostRegenInterval / multiplier);
+                return Mathf.Max(0.05f, baseInterval / multiplier);
             }
         }
 
@@ -75,7 +101,7 @@ namespace Scene.InGame.State
 
             // 최대치를 넘은 상태에서는 자연 회복을 멈춥니다.
             // (오버차지 감소 처리는 보스전 작업 때 여기에 붙습니다)
-            if (Cost >= _settings.MaxCost)
+            if (Cost >= Max)
             {
                 _regenTimer = 0f;
 
@@ -87,7 +113,7 @@ namespace Scene.InGame.State
             var interval = CurrentRegenInterval;
             var gained = false;
 
-            while (_regenTimer >= interval && Cost < _settings.MaxCost)
+            while (_regenTimer >= interval && Cost < Max)
             {
                 _regenTimer -= interval;
                 Cost++;
@@ -98,6 +124,11 @@ namespace Scene.InGame.State
 
             if (gained)
                 OnChanged?.Invoke();
+        }
+
+        public void SetBonusProvider(Func<(float, int)> provider)
+        {
+            _bonusProvider = provider;
         }
 
         public void SetSpeedUp(bool value)
@@ -134,7 +165,7 @@ namespace Scene.InGame.State
             Cost += amount;
 
             if (!allowOvercharge)
-                Cost = Mathf.Min(Cost, _settings.MaxCost);
+                Cost = Mathf.Min(Cost, Max);
 
             OnCostChanged?.Invoke(Cost);
             OnChanged?.Invoke();

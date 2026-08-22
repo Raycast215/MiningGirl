@@ -26,6 +26,9 @@ namespace MainGame.Entity.Monster
         private float _currentHp;
         private bool _isDead;
 
+        // 겹침 해소 / 넉백에서 매 프레임 GetComponent를 하지 않도록 캐시합니다.
+        private Rigidbody _body;
+
         private Tween _posTween;
                 private Tween _colorTween;
 
@@ -48,6 +51,9 @@ namespace MainGame.Entity.Monster
             _riskModifier = riskModifier;
             _damagePresenter = damagePresenter;
             _stageIndex = stageIndex;
+
+            // 풀에서 재사용될 때 캐시가 실제 렌더러 상태와 어긋나지 않게 맞춥니다.
+            _rendererVisible = spriteRenderer != null && spriteRenderer.enabled;
 
             _isDead = false;
             _currentHp = GetMaxHp();
@@ -81,10 +87,17 @@ namespace MainGame.Entity.Monster
         }
 
         // 화면 밖에 있을 때 렌더링을 꺼서 최적화하기 위해 MonsterController가 호출합니다.
+        // 매 프레임 같은 값을 다시 넣으면 네이티브 호출만 낭비됩니다.
+        // 1000마리면 프레임당 1000번이라 값이 바뀔 때만 씁니다.
+        private bool _rendererVisible = true;
+
         public void SetRendererVisible(bool visible)
         {
-            if (spriteRenderer != null)
-                spriteRenderer.enabled = visible;
+            if (spriteRenderer == null || _rendererVisible == visible)
+                return;
+
+            _rendererVisible = visible;
+            spriteRenderer.enabled = visible;
         }
 
 #region EntityBase
@@ -95,11 +108,15 @@ namespace MainGame.Entity.Monster
 
             // 몬스터는 스폰 시 지정된 타겟(플레이어)을 향해 이동하다가 사거리에 들면 공격합니다.
             // 몬스터끼리 너무 붙어 보이지 않도록 기본값보다 겹침 보정을 넓게 잡습니다.
-            MoveNode.SetSeparationDistance(1.0f)
-                .SetSeparationStrength(0.5f)
-                .SetMaxSeparationOffset(0.8f)
-                // 광물은 몬스터끼리보다 훨씬 넓고 강하게 비껴가도록 별도 파라미터를 적용합니다.
-                .SetObstacleProvider(() => _owner?.GetObstacles())
+            // 조향(부드러운 비껴가기)과 자리 막기(하드 제한)를 함께 씁니다.
+            MoveNode.SetSeparationDistance(1.45f)
+                .SetSeparationStrength(0.8f)
+                .SetMaxSeparationOffset(1.0f)
+                // 다른 몬스터와 겹칠 자리로는 들어가지 않도록 막는 반경.
+                .SetBlockRadius(1.3f)
+                // 근접 조회는 컨트롤러가 프레임당 한 번 만들어 둔 격자를 씁니다.
+                .SetNeighborGrid(_owner != null ? _owner.NeighborGrid : null)
+                .SetObstacleGrid(_owner != null ? _owner.ObstacleGrid : null)
                 .SetObstacleAvoidance(3.5f, 1.2f, 1.5f);
 
             _attackNode = new AttackNode(this);
@@ -116,11 +133,19 @@ namespace MainGame.Entity.Monster
 
         // IEnumerable<T>는 공변(covariant)이라 List<Monster>를 IEnumerable<IEntity>로 그대로 반환할 수 있습니다.
         // (이전에는 .Cast<IEntity>()로 매 프레임/몬스터마다 새 이터레이터를 할당하고 있었습니다 — GC 부담의 원인)
-        public override IEnumerable<IEntity> GetNearCheckEntities()
+        public override IReadOnlyList<IEntity> GetNearCheckEntities()
         {
             // 몬스터끼리의 겹침 보정 대상입니다. 광물은 여기 포함하지 않고,
             // MoveNode의 장애물 회피(더 넓은 반경/강한 힘)로 따로 처리합니다.
             return _owner?.ActivateList;
+        }
+
+        private Rigidbody GetBody()
+        {
+            if (_body == null)
+                _body = GetComponent<Rigidbody>();
+
+            return _body;
         }
 
         // 피해 없이 밀려나기만 합니다(터치 밀치기용).
@@ -146,7 +171,7 @@ namespace MainGame.Entity.Monster
 
             // 비키네마틱 리지드바디라 transform을 직접 트윈하면 물리와 서로 덮어써서
             // 목표 거리에 못 미칩니다. 리지드바디의 MovePosition으로 옮깁니다.
-            var body = GetComponent<Rigidbody>();
+            var body = GetBody();
             var from = myPos;
             var to = myPos + dir.normalized * distance;
             var progress = 0f;
@@ -165,7 +190,7 @@ namespace MainGame.Entity.Monster
                 .SetEase(Ease.OutQuad);
         }
 
-        public override void Hit(float damage, bool isCritical)
+        public override void Hit(float damage, bool isCritical, bool isExtraHit = false)
         {
             if (_isDead)
                 return;

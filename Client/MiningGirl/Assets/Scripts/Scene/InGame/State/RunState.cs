@@ -163,16 +163,21 @@ namespace Scene.InGame.State
             Cost.Tick(deltaTime);
         }
 
-        // 광물을 캤을 때 — 진행도가 오르고 그만큼 스태미나를 씁니다.
-        // 이 두 가지가 한 세트라는 규칙이 여기 있습니다.
+        // 광물 하나를 다 캤을 때 — 채굴 진행도만 올립니다.
+        // 스태미나는 '캐는 시도'마다 따로 나갑니다(AddMiningAttempt).
         public void AddMinedCount(int amount = 1)
         {
             if (amount <= 0)
                 return;
 
             Mining.Add(amount);
+        }
 
-            for (var i = 0; i < amount; i++)
+        // 광물을 한 번 내려칠 때마다 호출됩니다. 다 캤는지와 무관하게 소모합니다.
+        // (예전에는 광물 하나를 완전히 캤을 때 한 번만 소모했습니다.)
+        public void AddMiningAttempt(int count = 1)
+        {
+            for (var i = 0; i < count; i++)
                 Stamina.ConsumeByMining();
         }
     }

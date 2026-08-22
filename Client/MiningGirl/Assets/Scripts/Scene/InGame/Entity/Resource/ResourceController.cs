@@ -14,15 +14,18 @@ namespace Scene.InGame.Entity.Resource
 
         [Header("Reward")]
         [SerializeField]
-        private float resourceMaxHp = 30f;
+        private float resourceMaxHp = 20f;
         [SerializeField]
-        private int stoneReward = 1;
+        private int stoneReward = 10;
         [SerializeField]
         private int expReward = 1;
 
         [Header("Spawn")]
         [SerializeField]
         private int initialCount = 10;
+        [SerializeField]
+        [Tooltip("상수 테이블이 없을 때 쓸, 스테이지마다 늘어나는 광물 수")]
+        private int spawnCountPerStage = 5;
 
         // 광물 초기 소환 수 겸 최대 수량(게임 상수 테이블, 없으면 인스펙터 값).
         // 나중에 레벨업 보너스로 이 최대치를 올릴 예정입니다.
@@ -34,11 +37,59 @@ namespace Scene.InGame.Entity.Resource
             return table != null ? table.GetValue(EGameConstantType.ResourceSpawnInterval, spawnInterval) : spawnInterval;
         }
 
+        // 강화로 올린 광물 수량 보너스. InGameController가 넣어줍니다.
+        private System.Func<int> _maxCountBonusProvider;
+
+        public void SetMaxCountBonusProvider(System.Func<int> provider)
+        {
+            _maxCountBonusProvider = provider;
+        }
+
+        // 강화로 줄인 광물 내구도. 스태미나가 '내려친 횟수'로 나가기 때문에,
+        // 내구도를 줄이는 것은 곧 한 판에 캘 수 있는 광물 수를 늘리는 것과 같습니다.
+        private System.Func<float> _healthBonusProvider;
+
+        public void SetHealthBonusProvider(System.Func<float> provider)
+        {
+            _healthBonusProvider = provider;
+        }
+
+        // 하한을 두는 이유: 0이 되면 한 대도 안 때리고 캐져서 채굴 연출이 사라집니다.
+        private float GetResourceMaxHp()
+        {
+            var hp = resourceMaxHp;
+
+            if (_healthBonusProvider != null)
+                hp -= _healthBonusProvider.Invoke();
+
+            return Mathf.Max(5f, hp);
+        }
+
+        // 지금 몇 번째 스테이지인지(1부터). 스테이지가 오를수록 광물이 더 많이 깔립니다.
+        private System.Func<int> _stageProvider;
+
+        public void SetStageProvider(System.Func<int> provider)
+        {
+            _stageProvider = provider;
+        }
+
+        // 초기 배치 수 겸 동시에 존재할 수 있는 최대 수.
+        // 기본값 + 스테이지 가산 + 강화 보너스.
         private int GetInitialCount()
         {
             var table = Manager.DataTableManager.Instance?.GameConstantDataTable;
+            var count = table != null ? table.GetInt(EGameConstantType.ResourceSpawnCount, initialCount) : initialCount;
 
-            return table != null ? table.GetInt(EGameConstantType.ResourceSpawnCount, initialCount) : initialCount;
+            // 스테이지 1은 가산 0. 그래서 (스테이지 - 1)을 곱합니다.
+            var stage = _stageProvider != null ? _stageProvider.Invoke() : 1;
+            var perStage = table != null ? table.GetInt(EGameConstantType.ResourceSpawnCountPerStage, spawnCountPerStage) : spawnCountPerStage;
+
+            count += Mathf.Max(0, stage - 1) * perStage;
+
+            if (_maxCountBonusProvider != null)
+                count += _maxCountBonusProvider.Invoke();
+
+            return Mathf.Max(1, count);
         }
         [SerializeField]
         private int maxCount = 30;   // 상수 테이블이 없을 때만 쓰이는 폴백
@@ -95,7 +146,7 @@ namespace Scene.InGame.Entity.Resource
             if (resource == null)
                 return null;
 
-            resource.Setup(this, resourceMaxHp, stoneReward, expReward, _damagePresenter, this);
+            resource.Setup(this, GetResourceMaxHp(), stoneReward, expReward, _damagePresenter, this);
             resource.SetPosition(position);
             resource.SetActiveObject(true);
 
@@ -181,6 +232,20 @@ namespace Scene.InGame.Entity.Resource
             }
 
             return _activeResourceBuffer;
+        }
+
+        // 광물을 한 번 내려칠 때마다 호출됩니다(Resource.Hit).
+        // 스태미나 소모는 게임 규칙이라 여기서 처리하지 않고 InGameController로 넘깁니다.
+        private System.Action _onMiningAttempt;
+
+        public void SetMiningAttemptHandler(System.Action handler)
+        {
+            _onMiningAttempt = handler;
+        }
+
+        public void NotifyMiningAttempt()
+        {
+            _onMiningAttempt?.Invoke();
         }
 
         // Resource.Hit()에서 채굴 완료 시 호출됩니다. 실제 지급 여부는 rewardHandler 쪽 책임입니다.

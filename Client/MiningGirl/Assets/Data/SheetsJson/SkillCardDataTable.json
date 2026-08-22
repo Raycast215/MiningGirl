@@ -1,7 +1,7 @@
 [
   {
     "AssetId": "Skill_Icon_1033",
-    "Cost": 1,
+    "Cost": 2,
     "Desc": "주변의 적을 밀쳐내고 데미지 {0} 공격",
     "DurationTime": -1,
     "EffectRange": 3,
@@ -11,7 +11,7 @@
     "SkillCategoryType": "Attack",
     "SkillType": "AirShot",
     "Weight": 100,
-    "TargetCount": 5
+    "TargetCount": 4
   },
   {
     "AssetId": "Skill_Icon_1062",
@@ -33,7 +33,7 @@
     "Desc": "가까운 적 하나를 데미지 {0} 두번 공격",
     "DurationTime": -1,
     "EffectRange": 3,
-    "EffectValue": 2,
+    "EffectValue": 3,
     "Id": 1002,
     "Name": "더블 어택",
     "SkillCategoryType": "Attack",
@@ -103,7 +103,7 @@
     "Desc": "스태미나 {0}% 회복",
     "DurationTime": -1,
     "EffectRange": -1,
-    "EffectValue": 30,
+    "EffectValue": 20,
     "Id": 3000,
     "Name": "힐",
     "SkillCategoryType": "Assist",

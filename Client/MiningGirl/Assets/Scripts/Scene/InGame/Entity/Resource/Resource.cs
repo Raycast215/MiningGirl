@@ -164,12 +164,12 @@ namespace Scene.InGame.Entity.Resource
         }
 
         // 광물은 몰려서 밀어낼 필요가 없어(움직이지 않음) 근접 목록을 쓰지 않습니다.
-        public override IEnumerable<IEntity> GetNearCheckEntities()
+        public override IReadOnlyList<IEntity> GetNearCheckEntities()
         {
             return null;
         }
 
-        public override void Hit(float damage, bool isCritical)
+        public override void Hit(float damage, bool isCritical, bool isExtraHit = false)
         {
             if (BaseData.Health <= 0)
                 return;
@@ -181,6 +181,12 @@ namespace Scene.InGame.Entity.Resource
                 PlayHitStop().Forget();
 
             BaseData.Health -= damage;
+
+            // 채굴 '시도' 1회. 다 캤는지와 무관하게 여기서 스태미나가 나갑니다.
+            // 단, 추가타는 곡괭이를 한 번 더 휘두른 게 아니라 같은 한 번에 딸려온 덤이므로
+            // 시도로 세지 않습니다. (추가타 확률 강화가 곧 스태미나 효율이 됩니다.)
+            if (!isExtraHit)
+                _owner?.NotifyMiningAttempt();
 
             _shakeTween?.Kill();
             _shakeTween = spriteRenderer.transform.DOShakePosition(0.1f, new Vector3(0.2f, 0f, 0f))

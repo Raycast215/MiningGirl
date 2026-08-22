@@ -544,7 +544,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uD074\uB9AC\uC5B4 \uBCF4\uC0C1"
+  m_text: "\uBAA9\uD45C \uB2EC\uC131 \uBCF4\uC0C1"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 315899aa1408abb429f55265885d9bc7, type: 2}
   m_sharedMaterial: {fileID: -886888626728071061, guid: 315899aa1408abb429f55265885d9bc7, type: 2}
@@ -4776,7 +4776,7 @@ MonoBehaviour:
   confirmButton: {fileID: 1853149003}
   confirmButtonText: {fileID: 1231335637}
   clearedTitleColor: {r: 0.896, g: 0.646, b: 0.148, a: 1}
-  failedTitleColor: {r: 0.851, g: 0.325, b: 0.325, a: 1}
+  failedTitleColor: {r: 0.62, g: 0.7, b: 0.82, a: 1}
   popDuration: 0.22
   popFromScale: 0.85
 --- !u!1 &927343551
@@ -6056,7 +6056,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "\uC2A4\uD14C\uC774\uC9C0 1 \uD074\uB9AC\uC5B4"
+  m_text: "\uC2A4\uD14C\uC774\uC9C0 1 \uC644\uB8CC"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 315899aa1408abb429f55265885d9bc7, type: 2}
   m_sharedMaterial: {fileID: -886888626728071061, guid: 315899aa1408abb429f55265885d9bc7, type: 2}
@@ -10255,9 +10255,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::MainGame.Entity.Monster.MonsterController
   prefabName: Monster
+  neighborCellSize: 1.6
+  obstacleCellSize: 3.6
   testSpawnOffscreenMarginRatio: 0.5
   testSpawnInterval: 2
   testMaxSpawnCount: 30
+  spawnCountPerStage: 5
 --- !u!4 &1816489774
 Transform:
   m_ObjectHideFlags: 0
@@ -11202,10 +11205,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scene.InGame.Resources.ResourceController
   prefabName: Stone
-  resourceMaxHp: 30
-  stoneReward: 1
+  resourceMaxHp: 20
+  stoneReward: 10
   expReward: 1
   initialCount: 10
+  spawnCountPerStage: 5
   maxCount: 30
   spawnInterval: 10
   minDistanceBetween: 2

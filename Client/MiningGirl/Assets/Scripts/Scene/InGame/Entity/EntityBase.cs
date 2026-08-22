@@ -104,8 +104,8 @@ public virtual async UniTaskVoid InitAsync()
             };
         }
         
-        public abstract IEnumerable<IEntity> GetNearCheckEntities();
-        public abstract void Hit(float damage, bool isCritical);
+        public abstract IReadOnlyList<IEntity> GetNearCheckEntities();
+        public abstract void Hit(float damage, bool isCritical, bool isExtraHit = false);
 
         // 기본적으로 모든 엔티티는 공격 대상이 됩니다. 필요하면 파생 클래스에서 막습니다.
         // 이동을 즉시 멈춥니다.

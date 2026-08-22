@@ -114,8 +114,22 @@ namespace Scene.InGame
             // 광물을 캘 때마다 채굴 진행도(클리어 조건)를 올립니다.
             levelUpController.SetResourceMinedHandler(() => _runState.AddMinedCount());
 
+            // 스태미나는 광물을 캐낸 순간이 아니라 '내려칠 때마다' 소모됩니다.
+            resourceController.SetMiningAttemptHandler(() => _runState.AddMiningAttempt());
+
+            // 스테이지가 오를수록 몬스터·광물이 더 많이 깔립니다.
+            // 첫 배치보다 먼저 넣어야 스테이지 가산이 처음부터 반영됩니다.
+            monsterController.SetStageProvider(() => _runState.Stage);
+            resourceController.SetStageProvider(() => _runState.Stage);
+
             // 몬스터를 잡으면 데이터의 GoldReward에 강화 보너스를 얹어 지급합니다.
-            monsterController.SetKilledHandler(gold => levelUpController.OnMonsterKilled(gold));
+            monsterController.SetKilledHandler(gold =>
+            {
+                levelUpController.OnMonsterKilled(gold);
+
+                // 강화를 사지 않았으면 0이라 Recover가 그대로 빠져나갑니다.
+                _runState.Stamina.Recover(levelUpController.BonusState.KillStaminaRecoverAdd);
+            });
 
             // 카드 버프 표시 시작
             uIController.InitBuffList(levelUpController.StatContext.Buffs);
@@ -270,7 +284,9 @@ namespace Scene.InGame
             _runState.Start();
 
             // 몬스터 스폰 루프 시작 (내부에서 몬스터 이동/공격도 함께 켜집니다)
-            monsterController.ExecuteTestSpawn(_playerEntity, 0);
+            // stageIndex는 0부터입니다(스테이지 1 = 배율 1.0).
+            // 예전에는 0이 박혀 있어 스테이지가 올라도 몬스터 체력·공격력이 그대로였습니다.
+            monsterController.ExecuteTestSpawn(_playerEntity, Mathf.Max(0, _runState.Stage - 1));
 
             // 광물 보충 루프 시작 (초기 배치는 InitAsync/Next에서 이미 끝난 상태)
             resourceController.ExecuteSpawn(_playerEntity);
@@ -326,6 +342,25 @@ namespace Scene.InGame
                 return (bonus.MaxStaminaAdd, bonus.MaxStaminaMultiplier,
                     bonus.MiningStaminaCostReduce, bonus.HitStaminaCostReduce);
             });
+
+            // 코스트 회복 간격도 강화로 줄어듭니다.
+            _runState.Cost.SetBonusProvider(() =>
+            {
+                var bonus = levelUpController.BonusState;
+
+                return (bonus.CostRegenReduce, bonus.MaxCostAdd);
+            });
+
+            // 화면에 동시에 존재하는 몬스터·광물 수를 강화로 늘립니다.
+            // (몬스터는 수입과 위험이 함께 오르고, 광물은 채굴 대기 시간이 줄어듭니다.)
+            if (monsterController != null)
+                monsterController.SetMaxCountBonusProvider(() => levelUpController.BonusState.MonsterMaxCountAdd);
+
+            if (resourceController != null)
+            {
+                resourceController.SetMaxCountBonusProvider(() => levelUpController.BonusState.ResourceMaxCountAdd);
+                resourceController.SetHealthBonusProvider(() => levelUpController.BonusState.ResourceHealthReduce);
+            }
 
             // 터치 사거리 판정 기준(캐릭터 위치)을 넘겨줍니다.
             if (touchController != null)
@@ -563,13 +598,23 @@ namespace Scene.InGame
             return Mathf.Max(1, Mathf.RoundToInt(value));
         }
 
+        // 이번 스테이지의 클리어 보상. 기본값 + 스테이지 가산 + 강화로 올린 보너스입니다.
+        // (예전에는 두 군데서 같은 식을 따로 계산해 강화를 한쪽만 태울 위험이 있었습니다.)
+        private int GetStageClearGold()
+        {
+            var gold = stageClearGold + (_runState.Stage - 1) * stageClearGoldPerStage;
+            var bonus = levelUpController != null ? levelUpController.BonusState.StageClearGoldAdd : 0;
+
+            return Mathf.Max(0, gold + bonus);
+        }
+
         // 데모 종료 — 안내를 보여주고 저장을 지운 뒤 시작 씬으로 돌아갑니다.
         private void ShowDemoClear()
         {
             SetGamePaused(true);
 
             // 마지막 클리어 보상은 지급해 성과 표시가 어색하지 않게 합니다.
-            _runState.AddGold(stageClearGold + (_runState.Stage - 1) * stageClearGoldPerStage);
+            _runState.AddGold(GetStageClearGold());
 
             if (demoClearPopup == null)
             {
@@ -631,7 +676,7 @@ namespace Scene.InGame
 
             if (isCleared)
             {
-                clearBonus = stageClearGold + (_runState.Stage - 1) * stageClearGoldPerStage;
+                clearBonus = GetStageClearGold();
 
                 _runState.AddGold(clearBonus);
             }
@@ -726,7 +771,7 @@ namespace Scene.InGame
         private string startSceneName = "StartScene";
 
         [SerializeField]
-        [Tooltip("스테이지를 클리어했을 때 주는 기본 골드. 실패하면 주지 않습니다.")]
+        [Tooltip("목표 채굴량을 채웠을 때 주는 기본 골드. 못 채우면 주지 않습니다.")]
         private int stageClearGold = 100;
 
         [SerializeField]

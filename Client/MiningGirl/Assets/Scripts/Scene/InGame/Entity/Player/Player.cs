@@ -160,7 +160,7 @@ namespace Scene.InGame.Entity.Player
             IsInitialized = true;
         }
         
-        public override IEnumerable<IEntity> GetNearCheckEntities()
+        public override IReadOnlyList<IEntity> GetNearCheckEntities()
         {
             return null;
         }
@@ -168,7 +168,7 @@ namespace Scene.InGame.Entity.Player
         // 피격 — 실패 판정은 스태미나가 맡습니다.
         // 여기서는 무적 시간을 걸고 깜빡임만 보여주며,
         // 실제 소모는 _onDamaged 콜백을 받는 쪽(MainGameUIController)이 처리합니다.
-        public override void Hit(float damage, bool isCritical)
+        public override void Hit(float damage, bool isCritical, bool isExtraHit = false)
         {
             // 무적 중에는 피해를 받지 않습니다.
             if (IsInvincible)

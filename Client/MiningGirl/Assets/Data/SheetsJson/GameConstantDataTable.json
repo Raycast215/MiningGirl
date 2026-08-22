@@ -85,14 +85,26 @@
   },
   {
     "ConstantType": "MiningStaminaCost",
-    "Desc": "광물 하나를 캘 때 소모하는 스태미나",
+    "Desc": "광물을 한 번 내려칠 때 소모하는 스태미나(채굴 시도 1회당)",
     "Id": 15,
-    "Value": 5
+    "Value": 10
   },
   {
     "ConstantType": "HitStaminaCost",
     "Desc": "몬스터에게 한 번 맞을 때 소모하는 스태미나",
     "Id": 16,
     "Value": 1
+  },
+  {
+    "ConstantType": "MonsterSpawnCountPerStage",
+    "Desc": "스테이지마다 몬스터 최대 수에 더해지는 양",
+    "Id": 17,
+    "Value": 5
+  },
+  {
+    "ConstantType": "ResourceSpawnCountPerStage",
+    "Desc": "스테이지마다 광물 수량에 더해지는 양",
+    "Id": 18,
+    "Value": 5
   }
 ]

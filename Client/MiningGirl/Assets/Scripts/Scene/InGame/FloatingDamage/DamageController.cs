@@ -45,8 +45,8 @@ namespace InGame.temp.System.FloatingDamage
       
             dmg.Init(damage, pos, PoolRelease, isCritical);
 
-            if (_isPaused)
-                dmg.SetPaused(true);
+            // 조건부로 true만 넣으면 false로 되돌릴 기회가 없습니다. 항상 현재 상태를 넣습니다.
+            dmg.SetPaused(_isPaused);
         }
         
         // 화면에 떠 있는 모든 플로팅 데미지의 연출을 멈추거나 재개합니다.

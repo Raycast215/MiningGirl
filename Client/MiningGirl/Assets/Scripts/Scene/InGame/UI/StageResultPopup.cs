@@ -22,13 +22,13 @@ namespace Scene.InGame.UI
 
         [Header("Rows")]
         [SerializeField]
-        [Tooltip("플레이로 번 골드 줄 — 클리어 보상이 없으면 통째로 숨깁니다")]
+        [Tooltip("플레이로 번 골드 줄 — 목표 달성 보상이 없으면 통째로 숨깁니다")]
         private GameObject minedRow;
         [SerializeField]
         private TextMeshProUGUI minedValueText;
 
         [SerializeField]
-        [Tooltip("클리어 보상 줄 — 실패했을 때는 숨깁니다")]
+        [Tooltip("목표 달성 보상 줄 — 목표를 못 채웠을 때는 숨깁니다")]
         private GameObject clearBonusRow;
         [SerializeField]
         private TextMeshProUGUI clearBonusValueText;
@@ -51,9 +51,11 @@ namespace Scene.InGame.UI
 
         [Header("Colors")]
         [SerializeField]
+        [Tooltip("목표를 채웠을 때")]
         private Color clearedTitleColor = new Color(0.896f, 0.646f, 0.148f, 1f);
         [SerializeField]
-        private Color failedTitleColor = new Color(0.851f, 0.325f, 0.325f, 1f);
+        [Tooltip("스태미나가 다 되어 끝났을 때. 경고색이 아니라 중립색을 씁니다")]
+        private Color failedTitleColor = new Color(0.620f, 0.700f, 0.820f, 1f);
 
         [Header("Animation")]
         [SerializeField]
@@ -89,11 +91,15 @@ namespace Scene.InGame.UI
 
             if (titleText != null)
             {
-                titleText.text = isCleared ? $"스테이지 {stage} 클리어" : $"스테이지 {stage} 실패";
+                // 성공/실패가 아니라 '무슨 일이 있었는지'만 알려줍니다.
+                // 실패해도 골드·강화·덱이 그대로 남으므로 벌처럼 보일 이유가 없습니다.
+                titleText.text = isCleared
+                    ? $"스테이지 {stage} 완료"
+                    : $"스테이지 {stage} 채굴 종료";
                 titleText.color = isCleared ? clearedTitleColor : failedTitleColor;
             }
 
-            // 클리어 보상이 없으면 나눠 보여줄 것이 없습니다.
+            // 목표 달성 보상이 없으면 나눠 보여줄 것이 없습니다.
             // 그때는 합계 줄 하나만 남기고 '획득 골드'로 이름을 바꿔 답니다.
             var hasBreakdown = clearBonus > 0;
 

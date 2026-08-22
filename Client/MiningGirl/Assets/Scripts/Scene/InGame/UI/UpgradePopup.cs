@@ -119,7 +119,8 @@ namespace Scene.InGame.UI
                 descText.text = "골드를 사용해 능력을 강화하세요";
 
             if (closeButtonText != null)
-                closeButtonText.text = isCleared ? "다음 스테이지" : "다시 도전";
+                // '다시 도전'은 졌다는 뉘앙스라 이어서 한다는 표현으로 바꿉니다.
+                closeButtonText.text = isCleared ? "다음 스테이지" : "계속 채굴";
 
             Refresh();
         }
@@ -265,11 +266,8 @@ namespace Scene.InGame.UI
             {
                 emptyText.gameObject.SetActive(_rows.Count == 0);
 
-                // 왜 비었는지 구분해서 알려줍니다.
-                // (해금 대기와 '아직 안 만든 탭'은 유저에게 전혀 다른 의미입니다.)
-                emptyText.text = _tab == EUpgradeTabType.Character
-                    ? "살 수 있는 항목이 없습니다"
-                    : "준비 중입니다";
+                // 모든 탭에 항목이 있으므로, 비어 보이는 이유는 해금 대기뿐입니다.
+                emptyText.text = "아직 열리지 않은 항목입니다";
             }
         }
 
