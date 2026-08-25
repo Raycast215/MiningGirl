@@ -103,7 +103,7 @@ namespace Scene.StartScene
 
             _hasStarted = true;
             
-            CoverUIManager.Instance.CoverUI.Show(() => SceneManager.LoadScene("InGameScene")).Forget();
+            CoverUIManager.Instance.CoverUI.Show(() => SceneManager.LoadScene("MainGame")).Forget();
         }
     }
 }
