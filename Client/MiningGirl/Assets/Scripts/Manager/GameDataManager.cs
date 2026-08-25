@@ -132,6 +132,15 @@ namespace Manager
             return new List<string>(Data.Deck);
         }
 
+        // 카드 갱신을 한 번 쓸 때마다 호출합니다.
+        // 갱신은 되돌릴 수 없는 소모라, 쓴 즉시 남겨야 앱을 껐다 켜서 되살리는 일이 없습니다.
+        public void SaveCardReroll(int used)
+        {
+            Data.CardRerollUsed = Mathf.Max(0, used);
+
+            Save();
+        }
+
         public void SaveCharacter(string characterId)
         {
             Data.CharacterId = characterId ?? string.Empty;

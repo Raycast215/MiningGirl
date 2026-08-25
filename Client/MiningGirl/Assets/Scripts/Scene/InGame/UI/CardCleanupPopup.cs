@@ -35,6 +35,14 @@ namespace Scene.InGame.UI
         [Tooltip("현재 장수 / 목표 장수를 보여줍니다")]
         private TextMeshProUGUI confirmButtonText;
 
+        [SerializeField]
+        [Tooltip("제시된 새 카드를 다시 뽑는 버튼")]
+        private Button rerollButton;
+
+        [SerializeField]
+        [Tooltip("남은 갱신 횟수 표시")]
+        private TextMeshProUGUI rerollButtonText;
+
         [Header("Colors")]
         [SerializeField]
         [Tooltip("목표 장수에 맞췄을 때 버튼 색")]
@@ -77,6 +85,14 @@ namespace Scene.InGame.UI
         private int _deckSize;
         private Action<List<string>> _onConfirm;
 
+        // 갱신할 때 기존 덱은 그대로 두고 새 카드만 다시 뽑아야 하므로,
+        // 이번에 받은 원본 덱 구성을 따로 들고 있습니다.
+        private readonly List<string> _deckCards = new List<string>();
+
+        // 남은 갱신 횟수 조회 / 실제 갱신(새 카드 목록을 돌려줍니다. 못 쓰면 null)
+        private Func<int> _getRemainReroll;
+        private Func<IReadOnlyList<SkillCardDataTableRow>> _reroll;
+
         // 카드 데이터 조회와 'NEW 붙일지' 판단을 밖에서 받습니다.
         // 예전에는 이 팝업이 DataTableManager와 GameDataManager를 직접 썼습니다.
         // 특히 세이브 기록(MarkCardSeen)까지 여기서 했어서,
@@ -91,15 +107,25 @@ namespace Scene.InGame.UI
         private int RemainCount => _cards.Count - _discardIndexes.Count;
 
         public void Init(Func<string, SkillCardDataTableRow> getCard = null,
-            Func<string, bool> isNewCard = null)
+            Func<string, bool> isNewCard = null,
+            Func<int> getRemainReroll = null,
+            Func<IReadOnlyList<SkillCardDataTableRow>> reroll = null)
         {
             _getCard = getCard;
             _isNewCard = isNewCard;
+            _getRemainReroll = getRemainReroll;
+            _reroll = reroll;
 
             if (confirmButton != null)
             {
                 confirmButton.onClick.RemoveAllListeners();
                 confirmButton.onClick.AddListener(Confirm);
+            }
+
+            if (rerollButton != null)
+            {
+                rerollButton.onClick.RemoveAllListeners();
+                rerollButton.onClick.AddListener(Reroll);
             }
 
             Hide();
@@ -112,39 +138,16 @@ namespace Scene.InGame.UI
             _onConfirm = onConfirm;
             _deckSize = Mathf.Max(1, deckSize);
 
-            _cards.Clear();
-            _rewardIndexes.Clear();
-            _newIndexes.Clear();
-            _discardIndexes.Clear();
+            // 갱신하면 새 카드만 다시 뽑고 기존 덱은 그대로 둬야 하므로 따로 보관합니다.
+            _deckCards.Clear();
 
-            if (deckCards != null && _getCard != null)
+            if (deckCards != null)
             {
                 foreach (var id in deckCards)
-                {
-                    var row = _getCard.Invoke(id);
-
-                    if (row != null)
-                        _cards.Add(row);
-                }
+                    _deckCards.Add(id);
             }
 
-            if (rewards != null)
-            {
-                foreach (var row in rewards)
-                {
-                    if (row == null)
-                        continue;
-
-                    // 새로 받은 카드는 뒤에 붙이고 위치를 기억해 연출에 씁니다.
-                    _rewardIndexes.Add(_cards.Count);
-
-                    // NEW는 이번에 '처음 얻은' 카드에만 붙입니다.
-                    if (_isNewCard != null && _isNewCard.Invoke(row.Id))
-                        _newIndexes.Add(_cards.Count);
-
-                    _cards.Add(row);
-                }
-            }
+            BuildCards(rewards);
 
             _isDrawing = true;
 
@@ -162,7 +165,94 @@ namespace Scene.InGame.UI
             // 남아 있어서, 트윈을 쓰면 화면이 뜨고 난 뒤에 천천히 바로서는 것이 보입니다.
             Refresh(animate: false);
 
-            PlayDrawAsync().Forget();
+            PlayDrawAsync(drawStartDelay).Forget();
+        }
+
+        // 기존 덱 + 이번에 제시된 새 카드로 화면에 늘어놓을 목록을 만듭니다.
+        // Show와 갱신이 같은 경로를 쓰도록 뽑아냈습니다.
+        private void BuildCards(IReadOnlyList<SkillCardDataTableRow> rewards)
+        {
+            _cards.Clear();
+            _rewardIndexes.Clear();
+            _newIndexes.Clear();
+
+            // 카드가 통째로 바뀌므로 골라둔 '버릴 카드'는 의미를 잃습니다.
+            _discardIndexes.Clear();
+
+            if (_getCard != null)
+            {
+                foreach (var id in _deckCards)
+                {
+                    var row = _getCard.Invoke(id);
+
+                    if (row != null)
+                        _cards.Add(row);
+                }
+            }
+
+            if (rewards == null)
+                return;
+
+            foreach (var row in rewards)
+            {
+                if (row == null)
+                    continue;
+
+                // 새로 받은 카드는 뒤에 붙이고 위치를 기억해 연출에 씁니다.
+                _rewardIndexes.Add(_cards.Count);
+
+                // NEW는 이번에 '처음 얻은' 카드에만 붙입니다.
+                if (_isNewCard != null && _isNewCard.Invoke(row.Id))
+                    _newIndexes.Add(_cards.Count);
+
+                _cards.Add(row);
+            }
+        }
+
+        // 제시된 새 카드만 다시 뽑습니다. 남은 횟수는 바깥이 셉니다.
+        private void Reroll()
+        {
+            // 연출 중에는 누를 수 없습니다(뽑히는 중에 목록이 바뀌면 인덱스가 어긋납니다).
+            if (_isDrawing || _reroll == null)
+                return;
+
+            var rewards = _reroll.Invoke();
+
+            // null이면 남은 횟수가 없다는 뜻입니다.
+            if (rewards == null)
+            {
+                RefreshRerollButton();
+
+                return;
+            }
+
+            BuildCards(rewards);
+
+            _isDrawing = true;
+
+            Refresh(animate: false);
+
+            // 갱신은 이미 화면을 보고 있는 상태라, 처음처럼 뜸을 들일 이유가 없습니다.
+            PlayDrawAsync(0f).Forget();
+        }
+
+        private void RefreshRerollButton()
+        {
+            var remain = _getRemainReroll != null ? _getRemainReroll.Invoke() : 0;
+
+            if (rerollButtonText != null)
+                rerollButtonText.text = $"갱신 {remain}";
+
+            if (rerollButton != null)
+            {
+                // 연출 중에도 잠급니다. 남은 횟수가 0이면 계속 잠깁니다.
+                rerollButton.interactable = remain > 0 && !_isDrawing;
+
+                var image = rerollButton.GetComponent<Image>();
+
+                if (image != null)
+                    image.color = remain > 0 ? confirmReadyColor : confirmDisabledColor;
+            }
         }
 
         public void Hide()
@@ -171,7 +261,7 @@ namespace Scene.InGame.UI
         }
 
         // 새로 받은 카드를 한 장씩 나타나게 합니다.
-        private async UniTaskVoid PlayDrawAsync()
+        private async UniTaskVoid PlayDrawAsync(float startDelay)
         {
             var order = new List<int>(_rewardIndexes);
 
@@ -181,8 +271,12 @@ namespace Scene.InGame.UI
             {
                 _isDrawing = false;
 
+                RefreshRerollButton();
+
                 return;
             }
+
+            RefreshRerollButton();
 
             // 먼저 감춰두고
             foreach (var index in order)
@@ -192,7 +286,8 @@ namespace Scene.InGame.UI
             }
 
             // 잠깐 기다렸다가 한 장씩 나타냅니다.
-            await UniTask.Delay(TimeSpan.FromSeconds(drawStartDelay), ignoreTimeScale: true);
+            if (startDelay > 0f)
+                await UniTask.Delay(TimeSpan.FromSeconds(startDelay), ignoreTimeScale: true);
 
             // 기다리는 사이에 화면이 닫혔을 수 있습니다.
             if (this == null || !gameObject.activeInHierarchy)
@@ -212,6 +307,8 @@ namespace Scene.InGame.UI
             await UniTask.Delay(TimeSpan.FromSeconds(drawDuration), ignoreTimeScale: true);
 
             _isDrawing = false;
+
+            RefreshRerollButton();
         }
 
         private void Toggle(int index)
@@ -261,6 +358,7 @@ namespace Scene.InGame.UI
             }
 
             RefreshConfirmText();
+            RefreshRerollButton();
         }
 
         // 남길 장수 / 목표 장수. 목표를 넘으면 붉고 크게 보여줍니다.

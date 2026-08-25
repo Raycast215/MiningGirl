@@ -240,7 +240,7 @@ namespace Scene.InGame
             // 페이드로 들어오면 그 0.3초 동안 인게임 화면이 그대로 보입니다.
             //
             // 스테이지 사이 연출과 달리 칸 이동은 없고, 지금 칸에 자리잡는 모양만 보입니다.
-            stageMapPopup.PlayAsync(startStage, startStage, GetMaxStage(), IsCardCleanupStage,
+            stageMapPopup.PlayAsync(startStage, startStage, GetMaxStage(), null,
                 onComplete: () => GameStart(0f).Forget(),
                 onShown: () => HideCover(),
                 showInstantly: true).Forget();
@@ -307,7 +307,9 @@ namespace Scene.InGame
             // 화면이 데이터를 직접 뒤지지 않도록 조회 함수를 넣어줍니다.
             cardCleanupPopup?.Init(
                 getCard: id => Manager.DataTableManager.Instance?.SkillCardDataTable?.GetRow(id),
-                isNewCard: id => Manager.GameDataManager.Instance?.IsFirstSeenCard(id) ?? false);
+                isNewCard: id => Manager.GameDataManager.Instance?.IsFirstSeenCard(id) ?? false,
+                getRemainReroll: GetRemainCardReroll,
+                reroll: TryRerollCards);
 
             upgradePopup?.Init(
                 getGold: () => _runState.Gold,
@@ -452,8 +454,8 @@ namespace Scene.InGame
             if (cardHandController != null)
                 cardHandController.SetPaused(paused);
 
-            // 카드로 소환된 불덩이도 함께 멈춥니다(지속시간도 같이 멈춤).
-            MainGame.Card.Effects.FireBallObject.SetPausedAll(paused);
+            // 카드로 소환된 효과(불덩이·아이스볼트 등)도 함께 멈춥니다(지속시간도 같이 멈춤).
+            MainGame.Card.Effects.SkillEffectObjectBase.SetPausedAll(paused);
         }
 
         // 다음 스테이지로 넘어갈 때(또는 Reset 버튼) 호출됩니다.
@@ -494,43 +496,47 @@ namespace Scene.InGame
             _runState.Stamina.Consume(float.MaxValue);
         }
 
-        // 이 스테이지를 시작하기 전에 카드 정리를 열지 판단합니다.
-        // 주기가 3이면 3·6·9 스테이지에 들어가기 직전에 열립니다.
-        private bool IsCardCleanupStage(int stage)
+        // 이번 런에 남은 카드 갱신 횟수.
+        // 쓴 횟수는 세이브에 있으므로 앱을 껐다 켜도 되살아나지 않습니다.
+        private int GetRemainCardReroll()
         {
-            if (cardCleanupInterval <= 0)
-                return false;
+            var save = Manager.GameDataManager.Instance;
+            var used = save != null ? save.Data.CardRerollUsed : 0;
 
-            if (stage > GetMaxStage())
-                return false;
+            return Mathf.Max(0, cardRerollLimit - used);
+        }
 
-            return stage % cardCleanupInterval == 0;
+        // 남은 횟수가 있으면 한 번 쓰고 새 카드를 뽑아 돌려줍니다. 없으면 null.
+        // 세는 일은 여기서 하고, 화면은 결과만 받습니다.
+        private System.Collections.Generic.IReadOnlyList<global::Data.SkillCardDataTableRow> TryRerollCards()
+        {
+            if (GetRemainCardReroll() <= 0)
+                return null;
+
+            var save = Manager.GameDataManager.Instance;
+
+            // 뽑기 전에 먼저 차감합니다. 뽑은 뒤에 저장하면 그 사이에 앱이 꺼졌을 때
+            // 갱신은 이미 화면에 반영됐는데 횟수만 돌아옵니다.
+            if (save != null)
+                save.SaveCardReroll(save.Data.CardRerollUsed + 1);
+
+            return MainGame.Card.SkillDeck.PickRandomRewards(cardRewardCount);
         }
 
         // 맵이 화면을 덮고 있는 동안 카드 정리를 띄우고, 닫힐 때까지 기다립니다.
         // 이렇게 해야 맵이 걷히기 전에 카드 화면이 올라와 인게임이 드러나지 않습니다.
-        private Cysharp.Threading.Tasks.UniTask ShowCardCleanupIfNeededAsync(int stage)
+        //
+        // 예전에는 3·6·9 스테이지에만 열렸습니다. 지금은 목표를 채운 판 뒤에 항상 열립니다.
+        // 카드 정리가 '클리어의 보상'이 되어야 목표를 채울 이유가 하나 더 생깁니다.
+        private Cysharp.Threading.Tasks.UniTask ShowCardCleanupAsync()
         {
             var completion = new Cysharp.Threading.Tasks.UniTaskCompletionSource();
 
-            ShowCardCleanupIfNeeded(stage, () => completion.TrySetResult());
+            ShowCardCleanupThen(() => completion.TrySetResult());
 
             return completion.Task;
         }
 
-        // 들어갈 스테이지가 카드 정리 주기면 먼저 카드를 고르게 하고,
-        // 아니면 그대로 다음 동작으로 넘어갑니다.
-        private void ShowCardCleanupIfNeeded(int stage, System.Action next)
-        {
-            if (!IsCardCleanupStage(stage))
-            {
-                next?.Invoke();
-
-                return;
-            }
-
-            ShowCardCleanupThen(next);
-        }
 
         // 새 카드를 뽑아 덱과 함께 보여주고, 남길 카드로 덱을 교체합니다.
         private void ShowCardCleanupThen(System.Action next)
@@ -692,9 +698,9 @@ namespace Scene.InGame
             // 결과 창을 먼저 띄우고, 버튼을 눌렀을 때 강화로 넘어갑니다.
             if (showResult && stageResultPopup != null)
             {
-                // StageGold에는 방금 더한 클리어 보상까지 들어 있으므로 빼서 넘깁니다.
+                // 채굴·처치는 RunState가 출처별로 따로 세어 둡니다.
                 stageResultPopup.Show(_runState.Stage, isCleared,
-                    _runState.StageGold - clearBonus, clearBonus, _runState.Gold, () =>
+                    _runState.StageResourceGold, _runState.StageMonsterGold, clearBonus, _runState.Gold, () =>
                 {
                     // 강화 팝업을 먼저 띄운 뒤에 결과 창을 내립니다.
                     // 순서가 반대면 그 사이에 인게임 화면이 한 프레임 비칩니다.
@@ -755,12 +761,12 @@ namespace Scene.InGame
         private CardCleanupPopup cardCleanupPopup;
 
         [SerializeField]
-                [Tooltip("카드 정리가 열리는 주기. 3이면 3, 6, 9 스테이지가 시작되기 직전")]
-        private int cardCleanupInterval = 3;
-
-        [SerializeField]
         [Tooltip("한 번에 제시할 새 카드 장수")]
         private int cardRewardCount = 3;
+
+        [SerializeField]
+        [Tooltip("한 런에서 쓸 수 있는 카드 갱신 횟수")]
+        private int cardRerollLimit = 10;
 
         [SerializeField]
         [Tooltip("상수 테이블에 값이 없을 때 쓸 마지막 스테이지 번호")]
@@ -813,11 +819,12 @@ namespace Scene.InGame
                 // 따로 화면 덮개를 또 쓰면 맵이 걷힐 때 다시 어두워져 전환이 두 번 보입니다.
                 // 맵 자체가 덮개 역할을 합니다.
                 //
-                // 그 스테이지가 카드 정리 주기면 맵이 걷힌 뒤 카드를 먼저 고르게 합니다.
-                stageMapPopup.PlayAsync(from, to, GetMaxStage(), IsCardCleanupStage,
+                // 목표를 채워 다음 칸으로 가는 길이므로, 맵이 걷히기 전에 카드를 고르게 합니다.
+                // (advanceStage가 true인 경우가 곧 '목표 달성'입니다 — ShowUpgradeThen 참고)
+                stageMapPopup.PlayAsync(from, to, GetMaxStage(), null,
                     onComplete: () => GameStart(0f).Forget(),
                     onShown: () => PrepareNextStage(true),
-                    onBeforeHide: () => ShowCardCleanupIfNeededAsync(to)).Forget();
+                    onBeforeHide: ShowCardCleanupAsync).Forget();
 
                 return;
             }
@@ -873,8 +880,8 @@ namespace Scene.InGame
             // 화면에 떠 있는 플로팅 데미지도 모두 풀로 정리
             damageController.Clear();
 
-            // 카드로 소환된 불덩이도 정리(정지 상태도 함께 해제)
-            MainGame.Card.Effects.FireBallObject.ClearAll();
+            // 카드로 소환된 효과도 정리(정지 상태도 함께 해제)
+            MainGame.Card.Effects.SkillEffectObjectBase.ClearAll();
 
             // 광물도 모두 풀로 정리
             resourceController.StopSpawn();

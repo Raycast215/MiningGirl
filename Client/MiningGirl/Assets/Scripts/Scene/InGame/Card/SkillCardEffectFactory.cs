@@ -16,6 +16,7 @@ namespace MainGame.Card
                 { ESkillType.AirShot,       new AirShotSkillEffect() },
                 { ESkillType.Strike,        new StrikeSkillEffect() },
                 { ESkillType.DoubleAttack,  new DoubleAttackSkillEffect() },
+                { ESkillType.IceBolt,       new IceBoltSkillEffect() },
 
                 { ESkillType.MoveSpeedUp,   new MoveSpeedUpSkillEffect() },
                 { ESkillType.MiningSpeedUp, new MiningSpeedUpSkillEffect() },

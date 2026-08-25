@@ -104,7 +104,8 @@ namespace Scene.InGame
             }
         }
 
-        private Action<int> _onGoldGranted;
+        // 골드 지급. 출처를 함께 넘겨야 결과 창이 '무엇으로 벌었는지'를 나눠 보여줄 수 있습니다.
+        private Action<int, EGoldSource> _onGoldGranted;
 
         // onGoldGranted / onExpGranted: 실제 지급을 수행할 대상(UI 컨트롤러)을 연결합니다.
         // 광물을 하나 캘 때마다 알립니다(클리어 조건인 채굴량 집계용)
@@ -115,7 +116,7 @@ namespace Scene.InGame
             _onResourceMined = handler;
         }
 
-        public void Init(Action<int> onGoldGranted)
+        public void Init(Action<int, EGoldSource> onGoldGranted)
         {
             _onGoldGranted = onGoldGranted;
         }
@@ -138,7 +139,7 @@ namespace Scene.InGame
             switch (row.EffectType)
             {
                 case ELevelUpBonusEffectType.InstantGold:
-                    _onGoldGranted?.Invoke(Mathf.RoundToInt(row.EffectValue));
+                    _onGoldGranted?.Invoke(Mathf.RoundToInt(row.EffectValue), EGoldSource.Other);
                     break;
             }
 
@@ -165,13 +166,13 @@ namespace Scene.InGame
         // 몬스터 처치 보상. 강화로 올린 처치 골드 보너스를 더해 지급합니다.
         public void OnMonsterKilled(int goldReward)
         {
-            _onGoldGranted?.Invoke(ApplyGoldBuff(goldReward + _bonusState.MonsterKillGoldAdd));
+            _onGoldGranted?.Invoke(ApplyGoldBuff(goldReward + _bonusState.MonsterKillGoldAdd), EGoldSource.Monster);
         }
 
         // IResourceRewardHandler 구현 — 광물을 다 캐면 호출됩니다.
         public void OnResourceMined(int stoneReward, int expReward)
         {
-            _onGoldGranted?.Invoke(ApplyGoldBuff(stoneReward + _bonusState.ResourceMineGoldAdd));
+            _onGoldGranted?.Invoke(ApplyGoldBuff(stoneReward + _bonusState.ResourceMineGoldAdd), EGoldSource.Resource);
 
             // 채굴량은 보상과 별개로 하나씩 셉니다(클리어 조건).
             _onResourceMined?.Invoke();

@@ -39,6 +39,9 @@ namespace Manager.Save
         // NEW 표시는 여기 없는 카드에만 붙입니다.
         public List<string> SeenCards = new List<string>();
 
+        // 이번 런에서 카드 갱신을 몇 번 썼는지. 런을 새로 시작하면 0으로 돌아갑니다.
+        public int CardRerollUsed;
+
         // 저장 시각(문제 추적용).
         public string SavedAt = string.Empty;
 

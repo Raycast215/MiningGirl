@@ -1,110 +1,104 @@
 [
-  {
-    "ConstantType": "CardDeckSize",
-    "Desc": "시작 덱 장수",
-    "Id": 1,
-    "Value": 10
-  },
-  {
-    "ConstantType": "CardRerollCost",
-    "Desc": "카드 리롤(버리기) 비용",
-    "Id": 2,
-    "Value": 1
-  },
-  {
-    "ConstantType": "MonsterSpawnCount",
-    "Desc": "몬스터 최대 소환 수",
-    "Id": 3,
-    "Value": 10
-  },
-  {
-    "ConstantType": "ResourceSpawnCount",
-    "Desc": "광물 초기 소환 수 겸 최대 수량",
-    "Id": 4,
-    "Value": 10
-  },
-  {
-    "ConstantType": "MonsterSpawnInterval",
-    "Desc": "몬스터 스폰 간격(초)",
-    "Id": 5,
-    "Value": 2
-  },
-  {
-    "ConstantType": "ResourceSpawnInterval",
-    "Desc": "광물 스폰 간격(초)",
-    "Id": 6,
-    "Value": 2
-  },
-  {
-    "ConstantType": "MaxStage",
-    "Desc": "마지막 스테이지 번호",
-    "Id": 7,
-    "Value": 10
-  },
-  {
-    "ConstantType": "MaxCost",
-    "Desc": "보유 가능한 최대 코스트",
-    "Id": 8,
-    "Value": 10
-  },
-  {
-    "ConstantType": "CostRegenInterval",
-    "Desc": "코스트 1이 차오르는 데 걸리는 시간(초)",
-    "Id": 9,
-    "Value": 3
-  },
-  {
-    "ConstantType": "CostLateSpeedMultiplier",
-    "Desc": "스테이지 후반 회복 속도 배율",
-    "Id": 10,
-    "Value": 2
-  },
-  {
-    "ConstantType": "CostSpeedUpProgress",
-    "Desc": "채굴 진행도가 이 값을 넘기면 코스트 회복 가속(0~1)",
-    "Id": 11,
-    "Value": 0.5
-  },
-  {
-    "ConstantType": "MiningGoalBase",
-    "Desc": "스테이지 1의 목표 채굴량",
-    "Id": 12,
-    "Value": 10
-  },
-  {
-    "ConstantType": "MiningGoalPerStage",
-    "Desc": "스테이지마다 목표에 더해지는 양",
-    "Id": 13,
-    "Value": 5
-  },
-  {
-    "ConstantType": "MaxStamina",
-    "Desc": "기본 최대 스태미나(강화 보정 전)",
-    "Id": 14,
-    "Value": 100
-  },
-  {
-    "ConstantType": "MiningStaminaCost",
-    "Desc": "광물을 한 번 내려칠 때 소모하는 스태미나(채굴 시도 1회당)",
-    "Id": 15,
-    "Value": 10
-  },
-  {
-    "ConstantType": "HitStaminaCost",
-    "Desc": "몬스터에게 한 번 맞을 때 소모하는 스태미나",
-    "Id": 16,
-    "Value": 1
-  },
-  {
-    "ConstantType": "MonsterSpawnCountPerStage",
-    "Desc": "스테이지마다 몬스터 최대 수에 더해지는 양",
-    "Id": 17,
-    "Value": 5
-  },
-  {
-    "ConstantType": "ResourceSpawnCountPerStage",
-    "Desc": "스테이지마다 광물 수량에 더해지는 양",
-    "Id": 18,
-    "Value": 5
-  }
+{
+  "ConstantType": "CardDeckSize",
+  "Desc": "시작 덱 장수",
+  "Id": 1,
+  "Value": 10
+},
+{
+  "ConstantType": "CardRerollCost",
+  "Desc": "카드 리롤(버리기) 비용",
+  "Id": 2,
+  "Value": 1
+},
+{
+  "ConstantType": "MonsterSpawnCount",
+  "Desc": "몬스터 최대 소환 수",
+  "Id": 3,
+  "Value": 10
+},
+{
+  "ConstantType": "ResourceSpawnCount",
+  "Desc": "광물 초기 소환 수 겸 최대 수량",
+  "Id": 4,
+  "Value": 10
+},
+{
+  "ConstantType": "MonsterSpawnInterval",
+  "Desc": "몬스터 스폰 간격(초)",
+  "Id": 5,
+  "Value": 2
+},
+{
+  "ConstantType": "ResourceSpawnInterval",
+  "Desc": "광물 스폰 간격(초)",
+  "Id": 6,
+  "Value": 2
+},
+{
+  "ConstantType": "MaxStage",
+  "Desc": "마지막 스테이지 번호",
+  "Id": 7,
+  "Value": 10
+},
+{
+  "ConstantType": "MaxCost",
+  "Desc": "보유 가능한 최대 코스트",
+  "Id": 8,
+  "Value": 10
+},
+{
+  "ConstantType": "CostRegenInterval",
+  "Desc": "코스트 1이 차오르는 데 걸리는 시간(초)",
+  "Id": 9,
+  "Value": 3
+},
+{
+  "ConstantType": "CostLateSpeedMultiplier",
+  "Desc": "스테이지 후반 회복 속도 배율",
+  "Id": 10,
+  "Value": 2
+},
+{
+  "ConstantType": "CostSpeedUpProgress",
+  "Desc": "채굴 진행도가 이 값을 넘기면 코스트 회복 가속(0~1)",
+  "Id": 11,
+  "Value": 0.5
+},
+{
+  "ConstantType": "MiningGoalBase",
+  "Desc": "스테이지 1의 목표 채굴량",
+  "Id": 12,
+  "Value": 10
+},
+{
+  "ConstantType": "MiningGoalPerStage",
+  "Desc": "스테이지마다 목표에 더해지는 양",
+  "Id": 13,
+  "Value": 5
+},
+{
+  "ConstantType": "MaxStamina",
+  "Desc": "기본 최대 스태미나(강화 보정 전)",
+  "Id": 14,
+  "Value": 100
+},
+{
+  "ConstantType": "MiningStaminaCost",
+  "Desc": "광물을 한 번 내려칠 때 소모하는 스태미나(채굴 시도 1회당)",
+  "Id": 15,
+  "Value": 10
+},
+{
+  "ConstantType": "MonsterSpawnCountPerStage",
+  "Desc": "스테이지마다 몬스터 최대 수에 더해지는 양",
+  "Id": 17,
+  "Value": 5
+},
+{
+  "ConstantType": "ResourceSpawnCountPerStage",
+  "Desc": "스테이지마다 광물 수량에 더해지는 양",
+  "Id": 18,
+  "Value": 5
+}
 ]

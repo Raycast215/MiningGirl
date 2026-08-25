@@ -9,6 +9,14 @@ public enum EStatType
     ExtraHitRate,
 }
 
+// 골드가 어디서 들어왔는지. 결과 창이 출처별로 나눠 보여주는 데 씁니다.
+public enum EGoldSource
+{
+    Other,     // 클리어 보상, 카드 즉시 골드 등
+    Monster,   // 몬스터 처치
+    Resource,  // 광물 채굴
+}
+
 public enum EEffectValueType
 {
     Add, // 합연산
@@ -98,6 +106,7 @@ public enum ESkillType
     AirShot,        // 주변 적 공격 + 넉백
     Strike,         // 단일 공격
     DoubleAttack,   // 단일 2회 공격
+    IceBolt,        // 놓은 방향으로 직선 발사, 처음 맞은 적에게 피해
 
     MoveSpeedUp,    // 이동속도 증가
     MiningSpeedUp,  // 채굴속도 증가

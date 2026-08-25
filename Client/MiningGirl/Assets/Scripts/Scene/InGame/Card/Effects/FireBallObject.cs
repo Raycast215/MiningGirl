@@ -9,34 +9,9 @@ namespace MainGame.Card.Effects
     //
     // 표적이 없을 때 가만히 붙어 있으면 죽은 오브젝트처럼 보여서,
     // 대기 중에는 캐릭터 주위를 천천히 자전하게 했습니다.
-    public class FireBallObject : MonoBehaviour
+    // 정지·정리는 SkillEffectObjectBase가 다른 카드 효과들과 함께 처리합니다.
+    public class FireBallObject : SkillEffectObjectBase
     {
-        // 게임이 멈춘 동안에는 불덩이도 멈춥니다.
-        // 지속시간도 함께 멈춰야 정지 시간만큼 손해 보지 않습니다.
-        private static bool _isPausedAll;
-
-        // 스테이지 정리 때 한꺼번에 없애기 위한 목록
-        private static readonly List<FireBallObject> Actives = new List<FireBallObject>();
-
-        public static void SetPausedAll(bool paused)
-        {
-            _isPausedAll = paused;
-        }
-
-        // 스테이지 재시작 시 남아있는 불덩이를 모두 정리합니다.
-        public static void ClearAll()
-        {
-            _isPausedAll = false;
-
-            for (var i = Actives.Count - 1; i >= 0; i--)
-            {
-                if (Actives[i] != null)
-                    Destroy(Actives[i].gameObject);
-            }
-
-            Actives.Clear();
-        }
-
         private enum EState
         {
             Idle,       // 캐릭터 주위를 자전하며 대기
@@ -85,21 +60,10 @@ namespace MainGame.Card.Effects
             transform.position = GetOrbitPosition();
         }
 
-        private void OnEnable()
-        {
-            if (!Actives.Contains(this))
-                Actives.Add(this);
-        }
-
-        private void OnDisable()
-        {
-            Actives.Remove(this);
-        }
-
         private void Update()
         {
             // 정지 중에는 아무것도 하지 않습니다(지속시간도 흐르지 않음).
-            if (_isPausedAll)
+            if (IsPausedAll)
                 return;
 
             var delta = Time.deltaTime;

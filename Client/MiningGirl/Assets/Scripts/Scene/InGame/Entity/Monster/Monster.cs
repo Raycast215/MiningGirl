@@ -29,6 +29,10 @@ namespace MainGame.Entity.Monster
         // 겹침 해소 / 넉백에서 매 프레임 GetComponent를 하지 않도록 캐시합니다.
         private Rigidbody _body;
 
+        [SerializeField]
+        [Tooltip("머리 위 체력 표시. 없어도 동작합니다.")]
+        private MonsterHealthBar healthBar;
+
         private Tween _posTween;
                 private Tween _colorTween;
 
@@ -57,6 +61,13 @@ namespace MainGame.Entity.Monster
 
             _isDead = false;
             _currentHp = GetMaxHp();
+
+            // 풀에서 재사용되므로 이전 몬스터의 체력 표시가 남지 않도록 다시 그립니다.
+            if (healthBar != null)
+            {
+                healthBar.SetVisible(_rendererVisible);
+                healthBar.SetValue(_currentHp, GetMaxHp());
+            }
 
                         SetTarget(target);
 
@@ -98,6 +109,9 @@ namespace MainGame.Entity.Monster
 
             _rendererVisible = visible;
             spriteRenderer.enabled = visible;
+
+            if (healthBar != null)
+                healthBar.SetVisible(visible);
         }
 
 #region EntityBase
@@ -196,6 +210,9 @@ namespace MainGame.Entity.Monster
                 return;
 
             _currentHp -= damage;
+
+            if (healthBar != null)
+                healthBar.SetValue(_currentHp, GetMaxHp());
 
             // 받은 데미지를 몬스터 위치에 플로팅 숫자로 표시합니다.
             _damagePresenter?.Show(Mathf.RoundToInt(damage), GetPosition(), isCritical);

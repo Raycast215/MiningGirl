@@ -32,6 +32,12 @@ namespace Scene.InGame.State
         // (강화로 쓴 금액은 빼지 않습니다 — '이번 판에 얼마를 벌었나'를 보여주는 값입니다.)
         public int StageGold { get; private set; }
 
+        // 이번 스테이지 획득 골드를 출처별로 나눠 둡니다(결과 창 표기용).
+        // 합계는 StageGold 하나로 보면 되지만, '무엇으로 벌었는지'가 보여야
+        // 다음 판에 무엇을 늘릴지 판단할 수 있습니다.
+        public int StageMonsterGold { get; private set; }
+        public int StageResourceGold { get; private set; }
+
         public event Action OnStageChanged;
         public event Action OnGoldChanged;
 
@@ -70,13 +76,18 @@ namespace Scene.InGame.State
             OnStageChanged?.Invoke();
         }
 
-        public void AddGold(int amount)
+        public void AddGold(int amount, EGoldSource source = EGoldSource.Other)
         {
             if (amount <= 0)
                 return;
 
             Gold += amount;
             StageGold += amount;
+
+            if (source == EGoldSource.Monster)
+                StageMonsterGold += amount;
+            else if (source == EGoldSource.Resource)
+                StageResourceGold += amount;
 
             OnGoldChanged?.Invoke();
         }
@@ -101,7 +112,8 @@ namespace Scene.InGame.State
         public void RestoreProgress(int stage, int gold)
         {
             Gold = Mathf.Max(0, gold);
-            StageGold = 0;
+
+            ResetStageGold();
 
             SetStage(stage);
 
@@ -115,7 +127,8 @@ namespace Scene.InGame.State
         public void ResetStage(bool advanceStage = true)
         {
             _isFinished = false;
-            StageGold = 0;
+
+            ResetStageGold();
 
             if (advanceStage)
                 SetStage(Stage + 1);
@@ -123,6 +136,13 @@ namespace Scene.InGame.State
             Cost.Reset(0);
             Stamina.Reset();
             Mining.SetGoalByStage(Stage);
+        }
+
+        private void ResetStageGold()
+        {
+            StageGold = 0;
+            StageMonsterGold = 0;
+            StageResourceGold = 0;
         }
 
         // 실제 진행 시작 — 이 시점부터 코스트가 차오릅니다.

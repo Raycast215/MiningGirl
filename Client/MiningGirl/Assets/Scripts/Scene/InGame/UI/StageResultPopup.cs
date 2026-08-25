@@ -22,10 +22,16 @@ namespace Scene.InGame.UI
 
         [Header("Rows")]
         [SerializeField]
-        [Tooltip("플레이로 번 골드 줄 — 목표 달성 보상이 없으면 통째로 숨깁니다")]
+        [Tooltip("광물을 캐서 번 골드 줄")]
         private GameObject minedRow;
         [SerializeField]
         private TextMeshProUGUI minedValueText;
+
+        [SerializeField]
+        [Tooltip("몬스터를 잡아서 번 골드 줄")]
+        private GameObject killRow;
+        [SerializeField]
+        private TextMeshProUGUI killValueText;
 
         [SerializeField]
         [Tooltip("목표 달성 보상 줄 — 목표를 못 채웠을 때는 숨깁니다")]
@@ -74,9 +80,9 @@ namespace Scene.InGame.UI
             confirmButton.onClick.AddListener(Confirm);
         }
 
-        // minedGold: 채굴·처치로 번 골드, clearBonus: 스테이지 클리어 보상(실패면 0),
-        // ownedGold: 지금 보유한 전체 골드
-        public void Show(int stage, bool isCleared, int minedGold, int clearBonus, int ownedGold, Action onConfirm)
+        // minedGold: 광물 채굴로 번 골드, killGold: 몬스터 처치로 번 골드,
+        // clearBonus: 목표 달성 보상(못 채웠으면 0), ownedGold: 지금 보유한 전체 골드
+        public void Show(int stage, bool isCleared, int minedGold, int killGold, int clearBonus, int ownedGold, Action onConfirm)
         {
             OnConfirm = null;
             OnConfirm += onConfirm;
@@ -87,42 +93,47 @@ namespace Scene.InGame.UI
             SetInputEnabled(true);
 
             minedGold = Mathf.Max(0, minedGold);
+            killGold = Mathf.Max(0, killGold);
             clearBonus = Mathf.Max(0, clearBonus);
 
             if (titleText != null)
             {
-                // 성공/실패가 아니라 '무슨 일이 있었는지'만 알려줍니다.
-                // 실패해도 골드·강화·덱이 그대로 남으므로 벌처럼 보일 이유가 없습니다.
-                titleText.text = isCleared
-                    ? $"스테이지 {stage} 완료"
-                    : $"스테이지 {stage} 채굴 종료";
+                // 목표를 채웠든 아니든 '채굴이 끝났다'는 사실만 알려줍니다.
+                // 성패는 아래 '목표 달성 보상' 줄이 있고 없고로 드러납니다.
+                titleText.text = $"스테이지 {stage} 채굴 종료";
                 titleText.color = isCleared ? clearedTitleColor : failedTitleColor;
             }
 
-            // 목표 달성 보상이 없으면 나눠 보여줄 것이 없습니다.
-            // 그때는 합계 줄 하나만 남기고 '획득 골드'로 이름을 바꿔 답니다.
-            var hasBreakdown = clearBonus > 0;
-
+            // 채굴·처치 줄은 0이어도 그대로 보여줍니다.
+            // '이번 판에 무엇으로 벌었나'가 다음 판에 무엇을 늘릴지 정하는 근거라,
+            // 0이라는 사실 자체가 정보입니다.
             if (minedRow != null)
-                minedRow.SetActive(hasBreakdown);
+                minedRow.SetActive(true);
 
+            if (killRow != null)
+                killRow.SetActive(true);
+
+            // 목표를 못 채우면 보상 줄만 사라집니다.
             if (clearBonusRow != null)
-                clearBonusRow.SetActive(hasBreakdown);
+                clearBonusRow.SetActive(clearBonus > 0);
 
             if (divider != null)
-                divider.SetActive(hasBreakdown);
+                divider.SetActive(true);
 
             if (minedValueText != null)
                 minedValueText.text = $"+{minedGold}";
+
+            if (killValueText != null)
+                killValueText.text = $"+{killGold}";
 
             if (clearBonusValueText != null)
                 clearBonusValueText.text = $"+{clearBonus}";
 
             if (totalLabelText != null)
-                totalLabelText.text = hasBreakdown ? "합계" : "획득 골드";
+                totalLabelText.text = "합계";
 
             if (totalValueText != null)
-                totalValueText.text = $"+{minedGold + clearBonus}";
+                totalValueText.text = $"+{minedGold + killGold + clearBonus}";
 
             if (ownedGoldText != null)
                 ownedGoldText.text = $"보유 골드 {Mathf.Max(0, ownedGold)}";
