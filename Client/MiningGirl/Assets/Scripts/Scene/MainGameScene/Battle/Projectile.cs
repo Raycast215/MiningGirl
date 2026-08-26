@@ -42,6 +42,12 @@ namespace Scene.MainGameScene.Battle
         // 앞으로 더 맞힐 수 있는 수. 0이 되면 소멸합니다.
         private int _remainingHits;
 
+        // 조준한 적. 이 발의 피해량을 여기에 예약해 두었습니다.
+        private MonsterUnit _target;
+
+        // 예약을 아직 풀지 않았는지. 명중해도, 그냥 사라져도 한 번만 풀어야 합니다.
+        private bool _hasReservation;
+
         private bool _isActive;
 
 #if UNITY_EDITOR
@@ -101,14 +107,11 @@ namespace Scene.MainGameScene.Battle
             table[id] = count + 1;
         }
 
-        // 조준했던 대상. 빗나간 이유를 가르는 데만 씁니다.
-        public MonsterUnit DebugIntendedTarget { get; set; }
-
         // 조준 시점의 종류 Id. 대상이 풀로 돌아가 다른 종류로 재사용될 수 있어 따로 들고 있습니다.
-        public string DebugIntendedId { get; set; }
+        private string _debugIntendedId;
 
         // 조준 시점의 대상 일련번호. 도착했을 때 번호가 다르면 그 사이에 죽고 새로 나온 개체입니다.
-        public int DebugIntendedSerial { get; set; }
+        private int _debugIntendedSerial;
 
         // 빗나간 이유를 세 갈래로 나눈 집계입니다.
         public static int DebugMissTargetGone;   // 날아가는 사이에 대상이 죽었습니다
@@ -134,6 +137,7 @@ namespace Scene.MainGameScene.Battle
             Vector3 direction,
             float targetDistance,
             ProjectileSpec spec,
+            MonsterUnit target,
             Action<Projectile> onFinished)
         {
             _field = field;
@@ -165,15 +169,27 @@ namespace Scene.MainGameScene.Battle
 
             _isActive = true;
 
+            // 이 발의 피해량을 조준한 적에게 예약합니다.
+            //
+            // 관통이 있어도 첫 대상에만 겁니다. 뒤에 몇 마리가 걸릴지는 발사 시점에
+            // 알 수 없어, 걸지 않은 몫을 예약하면 아무도 조준하지 않는 적이 생깁니다.
+            _target = target;
+            _hasReservation = false;
+
+            if (_target != null && _damage > 0f)
+            {
+                _target.Reserve(_damage);
+                _hasReservation = true;
+            }
+
 #if UNITY_EDITOR
             DebugFired++;
             _debugClosest = float.MaxValue;
             _debugClosestToTarget = float.MaxValue;
             _debugHitAny = false;
             _debugHitTarget = false;
-            DebugIntendedTarget = null;
-            DebugIntendedId = null;
-            DebugIntendedSerial = 0;
+            _debugIntendedId = _target != null && _target.Row != null ? _target.Row.Id : null;
+            _debugIntendedSerial = _target != null ? _target.DebugSerial : 0;
 #endif
         }
 
@@ -216,9 +232,9 @@ namespace Scene.MainGameScene.Battle
         // TryHit은 맞은 순간 멈추므로, 놓친 발이 어디까지 갔는지는 여기서만 남습니다.
         private void DebugTrackTarget(Vector3 from, Vector3 to)
         {
-            var target = DebugIntendedTarget;
+            var target = _target;
 
-            if (target == null || !target.IsAlive || target.DebugSerial != DebugIntendedSerial)
+            if (target == null || !target.IsAlive || target.DebugSerial != _debugIntendedSerial)
                 return;
 
             var reach = _hitRange + target.BodyRadius;
@@ -282,12 +298,18 @@ namespace Scene.MainGameScene.Battle
                     continue;
 
                 _hit.Add(unit);
+
+                // 조준한 그 놈을 맞혔으면 예약을 먼저 풉니다.
+                // 피해를 넣기 전에 풀어야 남은 체력과 예약이 어긋나지 않습니다.
+                if (unit == _target)
+                    ReleaseReservation();
+
                 unit.TakeDamage(_damage);
 
 #if UNITY_EDITOR
                 _debugHitAny = true;
 
-                if (unit == DebugIntendedTarget)
+                if (unit == _target)
                     _debugHitTarget = true;
 #endif
 
@@ -323,17 +345,17 @@ namespace Scene.MainGameScene.Battle
             _isActive = false;
 
 #if UNITY_EDITOR
-            DebugCount(DebugFiredBy, DebugIntendedId);
+            DebugCount(DebugFiredBy, _debugIntendedId);
 
             if (_debugHitTarget)
             {
                 DebugHit++;
-                DebugCount(DebugHitTargetBy, DebugIntendedId);
+                DebugCount(DebugHitTargetBy, _debugIntendedId);
             }
             else if (_debugHitAny)
             {
                 DebugHit++;
-                DebugCount(DebugHitOtherBy, DebugIntendedId);
+                DebugCount(DebugHitOtherBy, _debugIntendedId);
             }
             else
             {
@@ -342,34 +364,50 @@ namespace Scene.MainGameScene.Battle
                 if (_debugClosest < float.MaxValue)
                     DebugMissClosest.Add(_debugClosest);
 
-                var target = DebugIntendedTarget;
+                var target = _target;
                 var targetGone = target == null
                     || !target.IsAlive
-                    || target.DebugSerial != DebugIntendedSerial;
+                    || target.DebugSerial != _debugIntendedSerial;
 
                 if (targetGone)
                 {
                     DebugMissTargetDead++;
                     DebugMissTargetGone++;
-                    DebugCount(DebugMissGoneBy, DebugIntendedId);
+                    DebugCount(DebugMissGoneBy, _debugIntendedId);
                 }
                 else if (_debugClosestToTarget <= 1.5f)
                 {
                     DebugMissNear++;
-                    DebugCount(DebugMissNearBy, DebugIntendedId);
+                    DebugCount(DebugMissNearBy, _debugIntendedId);
                 }
                 else
                 {
                     DebugMissWide++;
-                    DebugCount(DebugMissWideBy, DebugIntendedId);
+                    DebugCount(DebugMissWideBy, _debugIntendedId);
                 }
             }
 
-            DebugIntendedTarget = null;
-            DebugIntendedId = null;
+            _debugIntendedId = null;
 #endif
 
+            // 맞히지 못하고 사라진 발도 예약을 풀어야 합니다.
+            // 남겨 두면 그 적은 죽을 예정으로 취급돼 아무도 다시 조준하지 않습니다.
+            ReleaseReservation();
+
+            _target = null;
+
             _onFinished?.Invoke(this);
+        }
+
+        private void ReleaseReservation()
+        {
+            if (!_hasReservation)
+                return;
+
+            _hasReservation = false;
+
+            if (_target != null)
+                _target.ReleaseReservation(_damage);
         }
     }
 }

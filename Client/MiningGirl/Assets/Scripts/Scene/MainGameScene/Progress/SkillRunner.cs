@@ -61,18 +61,12 @@ namespace Scene.MainGameScene.Progress
                         continue;
                 }
 
-                // 타겟이 없으면 쏘지 않고 쿨이 찬 채로 기다립니다.
+                // 조준할 적이 없으면 쏘지 않고 쿨이 찬 채로 기다립니다.
                 // 적이 들어오는 순간 바로 나가야 초반 웨이브가 답답하지 않습니다.
-                if (_field.AliveCount == 0)
-                {
-                    _cooldowns[skill.Row.Id] = 0f;
-
-                    continue;
-                }
-
-                Fire(skill);
-
-                _cooldowns[skill.Row.Id] = skill.Cooldown;
+                //
+                // 화면에 적이 보여도 전부 죽을 예정이면 쏘지 않습니다. 시체에 쏘고
+                // 쿨을 돌리는 것보다 0.2~0.4초 기다렸다 쏘는 쪽이 실질 화력이 높습니다.
+                _cooldowns[skill.Row.Id] = Fire(skill) ? skill.Cooldown : 0f;
             }
         }
 
@@ -83,56 +77,52 @@ namespace Scene.MainGameScene.Progress
                 _cooldowns[skill.Row.Id] = 0f;
         }
 
-        private void Fire(SkillState skill)
+        // 한 발이라도 나갔으면 true. 조준할 적이 없어 못 쐈으면 false입니다.
+        private bool Fire(SkillState skill)
         {
             var count = skill.ProjectileCount;
             var origin = _muzzle.position;
 
-            // 1발이면 가장 가까운 적, 2발 이상이면 가까운 적들 중에서 발사체마다 따로 뽑습니다.
-            // 같은 적이 나와도 상관없습니다. 목적은 효율이 아니라 겹쳐 보이지 않는 것입니다.
             if (count <= 1)
             {
-                var target = _field.FindNearest(origin);
+                var target = _field.FindNearestTargetable(origin);
 
                 if (target == null)
-                    return;
+                    return false;
 
                 FireOne(skill, origin, target);
 
-                return;
+                return true;
             }
 
-            _field.FillNearest(origin, count * 2, _targetBuffer);
+            // 발사체마다 서로 다른 적을 하나씩 맡습니다.
+            //
+            // 후보가 발사체 수보다 적으면 그만큼만 쏘고 남는 발은 버립니다. 같은 적에
+            // 몰아 쏘면 앞 발이 죽인 뒤 나머지가 시체로 날아가기 때문입니다. 그래서
+            // 다발형은 적이 많을 때 강하고 적을 때는 단발과 다르지 않습니다.
+            _field.FillNearestTargetable(origin, count, _targetBuffer);
 
-            if (_targetBuffer.Count == 0)
-                return;
+            var fired = _targetBuffer.Count;
 
-            for (var i = 0; i < count; i++)
+            if (fired == 0)
+                return false;
+
+            for (var i = 0; i < fired; i++)
             {
-                // 가운데를 기준으로 좌우 대칭이 되게 벌립니다.
-                var offset = (i - (count - 1) * 0.5f) * MuzzleSpacing;
-                var muzzle = origin + new Vector3(offset, 0f, 0f);
-                var target = _targetBuffer[Random.Range(0, _targetBuffer.Count)];
+                // 실제로 나가는 수를 기준으로 가운데 대칭이 되게 벌립니다.
+                var offset = (i - (fired - 1) * 0.5f) * MuzzleSpacing;
 
-                FireOne(skill, muzzle, target);
+                FireOne(skill, origin + new Vector3(offset, 0f, 0f), _targetBuffer[i]);
             }
+
+            return true;
         }
 
         private void FireOne(SkillState skill, Vector3 origin, MonsterUnit target)
         {
             var toTarget = target.Position - origin;
 
-            var projectile = _launcher.Fire(skill.BuildProjectileSpec(), origin, toTarget, toTarget.magnitude);
-
-#if UNITY_EDITOR
-            // 빗나간 이유와 몬스터 종류별 명중률을 가리는 데만 씁니다.
-            if (projectile != null)
-            {
-                projectile.DebugIntendedTarget = target;
-                projectile.DebugIntendedId = target.Row?.Id;
-                projectile.DebugIntendedSerial = target.DebugSerial;
-            }
-#endif
+            _launcher.Fire(skill.BuildProjectileSpec(), origin, toTarget, toTarget.magnitude, target);
         }
     }
 }

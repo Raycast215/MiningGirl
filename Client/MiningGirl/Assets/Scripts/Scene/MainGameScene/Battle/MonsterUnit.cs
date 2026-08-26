@@ -34,6 +34,30 @@ namespace Scene.MainGameScene.Battle
 
         public Vector3 Position => transform.position;
 
+        // 이 몬스터에게 이미 날아오고 있는 피해량의 합.
+        //
+        // 세지 않으면 쿨이 겹치는 순간 여러 발이 같은 놈에게 몰리고, 첫 발이 죽이면
+        // 나머지는 시체로 날아갑니다. 위력이 체력에 맞춰져 있어 그 낭비가 100%입니다.
+        public float ReservedDamage { get; private set; }
+
+        // 조준해도 되는 대상인지. 이미 죽을 만큼 예약이 걸린 놈은 제외합니다.
+        public bool IsTargetable => IsAlive && _currentHealth - ReservedDamage > 0f;
+
+        public void Reserve(float amount)
+        {
+            if (amount > 0f)
+                ReservedDamage += amount;
+        }
+
+        // 명중했거나 발사체가 사라졌을 때 풉니다.
+        //
+        // 대상이 먼저 죽으면 예약이 통째로 지워지므로, 뒤늦게 푸는 발이 있어도
+        // 음수로 내려가지 않게 막습니다.
+        public void ReleaseReservation(float amount)
+        {
+            ReservedDamage = Mathf.Max(0f, ReservedDamage - amount);
+        }
+
 #if UNITY_EDITOR
         // 스폰될 때마다 올라가는 일련번호입니다.
         //
@@ -87,6 +111,7 @@ namespace Scene.MainGameScene.Battle
             IsAlive = true;
             IsBlocked = false;
             _attackTimer = 0f;
+            ReservedDamage = 0f;
 
 #if UNITY_EDITOR
             DebugSerial = ++_debugSerialSeed;
@@ -151,6 +176,10 @@ namespace Scene.MainGameScene.Battle
                 return;
 
             IsAlive = false;
+
+            // 죽으면 걸려 있던 예약은 의미가 없습니다. 남겨 두면 풀에서 다시 나올 때
+            // 이미 예약이 찬 상태로 시작해 아무도 조준하지 않습니다.
+            ReservedDamage = 0f;
 
             // 풀로 돌아가는 건 다음 프레임이라, 그때까지 시체가 화면에 남지 않게 바로 끕니다.
             gameObject.SetActive(false);

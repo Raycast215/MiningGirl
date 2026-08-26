@@ -57,9 +57,11 @@ namespace Scene.MainGameScene.Battle
             }
         }
 
-        // 쏜 발사체를 돌려줍니다. 호출부가 쏜 뒤에 표시를 붙일 수 있게 하려는 것이고,
-        // 쏘지 못하면 null입니다.
-        public Projectile Fire(ProjectileSpec spec, Vector3 origin, Vector3 direction, float targetDistance)
+        // 쏜 발사체를 돌려줍니다. 쏘지 못하면 null입니다.
+        //
+        // target은 조준한 적입니다. 이 발의 피해량을 그 적에게 예약해 두어야
+        // 다음 발이 같은 놈을 다시 조준하지 않습니다.
+        public Projectile Fire(ProjectileSpec spec, Vector3 origin, Vector3 direction, float targetDistance, MonsterUnit target)
         {
             if (string.IsNullOrEmpty(spec.EffectAssetId) || !_pools.TryGetValue(spec.EffectAssetId, out var pool))
                 return null;
@@ -67,7 +69,7 @@ namespace Scene.MainGameScene.Battle
             var projectile = pool.Get();
 
             projectile.PoolKey = spec.EffectAssetId;
-            projectile.Setup(_field, _bounds, origin, direction, targetDistance, spec, HandleFinished);
+            projectile.Setup(_field, _bounds, origin, direction, targetDistance, spec, target, HandleFinished);
 
             _flying.Add(projectile);
 

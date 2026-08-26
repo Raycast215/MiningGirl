@@ -127,8 +127,11 @@ namespace Scene.MainGameScene.Battle
             _deadBuffer.Clear();
         }
 
-        // 발사체가 1발일 때. 가장 가까운 적 하나입니다.
-        public MonsterUnit FindNearest(Vector3 from)
+        // 발사체가 1발일 때. 조준해도 되는 적 중 가장 가까운 하나입니다.
+        //
+        // 이미 죽을 만큼 피해가 날아오고 있는 놈은 후보에서 빠집니다.
+        // 없으면 null이고, 그때는 쏘지 않습니다.
+        public MonsterUnit FindNearestTargetable(Vector3 from)
         {
             MonsterUnit nearest = null;
             var best = float.MaxValue;
@@ -137,7 +140,7 @@ namespace Scene.MainGameScene.Battle
             {
                 var unit = _alive[i];
 
-                if (!unit.IsAlive)
+                if (!unit.IsTargetable)
                     continue;
 
                 var distance = (unit.Position - from).sqrMagnitude;
@@ -152,11 +155,12 @@ namespace Scene.MainGameScene.Battle
             return nearest;
         }
 
-        // 발사체가 2발 이상일 때 쓰는 후보 목록. 가까운 순으로 count마리를 담습니다.
+        // 발사체가 2발 이상일 때 쓰는 후보 목록. 조준해도 되는 적을 가까운 순으로 count마리 담습니다.
         //
-        // 효율이 목적이 아니라 그림이 목적입니다. 발사체가 늘었는데 전부 같은 지점으로
-        // 날아가면 겹쳐서 한 발처럼 보이고, 강화를 고른 보람이 사라집니다.
-        public void FillNearest(Vector3 from, int count, List<MonsterUnit> buffer)
+        // 서로 다른 적을 하나씩 맡습니다. 같은 놈에 몰아 쏘면 앞 발이 죽인 뒤에
+        // 나머지가 시체로 날아가므로, 후보가 모자라면 그 수만큼만 쏘고 남는 발은 버립니다.
+        // 그래서 다발형은 적이 많을 때 강하고 적을 때는 단발과 같아집니다.
+        public void FillNearestTargetable(Vector3 from, int count, List<MonsterUnit> buffer)
         {
             buffer.Clear();
 
@@ -167,7 +171,7 @@ namespace Scene.MainGameScene.Battle
             {
                 var unit = _alive[i];
 
-                if (!unit.IsAlive)
+                if (!unit.IsTargetable)
                     continue;
 
                 var distance = (unit.Position - from).sqrMagnitude;
