@@ -142,17 +142,93 @@ Assets/Download/Layer Lab/GUI Pro-FantasyRPG/
   이쪽을 참조하는 코드를 새로 쓰지 말 것
 - **스프라이트를 복제해 색만 바꾸지 않는다.** 셰이더로 처리한다
 
-## 라이선스
+## 라이선스 — 저장소만으로는 판정할 수 없습니다
 
-각 팩에 동봉된 문서를 그대로 둔다. 상업적 이용 조건은 확인하지 않았다 —
-**출시 판단이 필요한 시점에 PM이 별도로 검토할 항목이다.**
+2026-08-27 조사. **각 팩에 동봉된 문서를 그대로 읽어 정리했습니다. 법적 판단은 하지 않았습니다.**
+
+### 결론
+
+**"상업적으로 써도 되는가"에 대한 답이 저장소 안에 없습니다.**
+
+아홉 팩 중 **라이선스 조항을 실제로 동봉한 것은 하나뿐**입니다(StompyRobot, MIT). 나머지는
+readme에 소개글만 있거나 아예 문서가 없습니다. Unity Asset Store 팩은 보통 조항을 동봉하지
+않고 **Asset Store EULA**에 기대는데, 그 EULA는 어느 라이선스로 구입했는지에 따라 달라집니다.
+
+**따라서 확인해야 할 것은 팩 안이 아니라 구입 기록입니다.**
 
 ```
-150 Fantasy Skill Icons/readme.rtf
-2DScrollingBattleBG/Readme_2DScrollingBattleBG.txt
-Layer Lab/GUI Pro-FantasyRPG/+README+
-Sprite Shaders Ultimate/ASE/Readme.txt
+각 팩을 어디서 받았는가 (Unity Asset Store / 다른 경로 / 무료 배포)
+Asset Store라면 어느 라이선스인가 (Single Entity / Multi Entity)
+계정에 구입 기록이 남아 있는가
 ```
+
+**이건 저장소를 뒤져서 알 수 없고 유저만 확인할 수 있습니다.**
+
+### 팩별 실태
+
+| 팩 | 동봉 문서 | 명시된 조항 | 현재 사용 |
+|---|---|---|---|
+| **Pixel Effects 1** | **없음** | — | **사용 중** (4/38) |
+| **Pixel Effects 4** | **없음** | — | **사용 중** (7/41) |
+| **150 Fantasy Skill Icons** | readme.rtf | **없음** (소개글과 연락처뿐) | **사용 중** (150/158) |
+| **Layer Lab / GUI Pro** | 사용 가이드 링크 | **팩 조항 없음.** 번들 폰트만 OFL | **사용 중** (25/4996) |
+| 2DScrollingBattleBG | Readme txt/pdf | 없음 (사양 설명뿐) | 미사용 |
+| GoldenSkullStudios | README.txt | 없음 (제작자 소개) | 미사용 |
+| Sprite Shaders Ultimate | ASE/Readme.txt | 없음 (ASE 사용법) | 일부 (5/450) |
+| Cainos | Changelog.txt | 없음 | 일부 (3/311) |
+| StompyRobot (SRDebugger) | **SRF/LICENSE** | **MIT** — 저작권 고지 유지 의무 | 미사용 (0/325) |
+
+### 지금 걸리는 것
+
+**1. `Pixel Effects 1 / 4` — 문서가 한 장도 없는데 이미 아홉 개 이펙트가 여기 얹혀 있습니다.**
+기존 3종(FireBolt / IceBolt / LightningBolt)과 신규 6종 전부입니다. **되돌리려면 스킬 아홉 개의
+이펙트를 통째로 바꿔야 합니다.** 우선 확인 대상입니다.
+
+**2. `Layer Lab`은 3차 이야기가 아니라 이미 인게임에 들어가 있습니다.**
+
+```
+로딩 스피너 12프레임    ResourcesData/Animatons/Loading_rotate_00~11
+카드 프레임             CardFrame_02_BgGradient / LineFrame_02 / LineTextFrame_03
+역할 아이콘 3종         IconSet_Role_Assassin / Gladiator / Priest
+코인·적 아이콘          icon_coin / function_icon_enemy
+슬라이더 프리팹         Slider_Border_Tapered_01_Yellow
+```
+
+3차에서 쓸 예정이라 미리 보자는 이야기였는데, **이미 쓰고 있습니다.** 3차까지 가면 UI 전체가
+여기 물리므로 되돌릴 범위가 지금과 비교가 안 됩니다.
+
+**3. 아이콘 150종은 readme에 라이선스 조항이 아예 없습니다.** 소개글과 제작자 이메일뿐입니다.
+어드레서블에 150건 전부 등록돼 있어 의존도가 가장 높습니다.
+
+### 명확한 것
+
+**StompyRobot (SRDebugger / SRF) — MIT입니다.** 조항이 파일로 들어 있고, **저작권 고지를 유지하면
+상업적 이용·수정·배포가 됩니다.** 다만 **현재 참조 0건**이라 지금은 쓰지 않고 있습니다.
+
+**Layer Lab 번들 폰트 3종(Alata / Josefin Sans / Play) — SIL Open Font License 1.1입니다.**
+Google Fonts에서 온 것이고 각 폰트 폴더에 OFL 전문이 들어 있습니다. **현재 참조되지 않습니다**
+(프로젝트는 TextMesh Pro 기본 LiberationSans를 씁니다). 다만 **저장소에 파일이 들어 있는 이상
+재배포 조건은 그대로 걸립니다** — OFL은 폰트를 단독 판매할 수 없고, 예약된 폰트 이름을 바꿔
+쓸 수 없습니다.
+
+### 애매해서 유저가 정해야 하는 것
+
+- **구입 경로와 라이선스 등급.** 위에 적은 대로 저장소로는 알 수 없습니다
+- **크레딧 표기 의무가 있는지.** 어느 팩도 "표기하라"고 쓰지 않았지만, **안 쓰여 있다는 것이
+  면제를 뜻하지는 않습니다.** Asset Store EULA 쪽에 있을 수 있습니다
+- **원본 시트를 그대로 참조하는 방식이 재배포에 해당하는지.** 신규 이펙트 6종은 스프라이트를
+  복제하지 않고 팩 안의 PNG를 프리팹이 직접 참조합니다. 빌드에는 그 이미지가 포함됩니다
+- **`2DScrollingBattleBG` readme의 "Hand-painted, Not By AI" 문구** — 제작자의 제작 방식 주장입니다.
+  다른 팩에는 그런 언급이 없습니다
+
+### 되돌리기 비용 (지금 기준)
+
+| 팩 | 문제가 생기면 |
+|---|---|
+| Pixel Effects 1/4 | 스킬 이펙트 9종 교체. 대체 팩이 프로젝트에 없어 **코드 드로잉으로 새로 그려야 함** |
+| 150 아이콘 | 스킬·강화 아이콘 전량 교체. 어드레서블 주소 150건 재구성 |
+| Layer Lab | 로딩·카드 프레임·아이콘 교체. **3차 착수 후에는 UI 전체** |
+| 나머지 | 미사용이라 폴더 삭제로 끝남 |
 
 ---
 
