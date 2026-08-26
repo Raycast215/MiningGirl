@@ -58,10 +58,7 @@
 {
   "AssetId": "Skill_Icon_1041",
   "Cost": 2,
-  "Desc": [
-    "놓은 방향으로 얼음 화살 발사",
-    "명중한 적에게 데미지 {0}"
-  ],
+  "Desc": "놓은 방향으로 얼음 화살을 쏴 데미지 {0}",
   "DurationTime": -1,
   "EffectRange": 15,
   "EffectValue": 6,
