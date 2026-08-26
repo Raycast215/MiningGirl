@@ -15,8 +15,38 @@ MonoBehaviour:
   m_GroupName: Entity
   m_GUID: a01e9bced178c5046b9d3935aa6b59b6
   m_SerializeEntries:
+  - m_GUID: 03483d2b32ca7d0449a2ded7c5ad0512
+    m_Address: Monster_003
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Entity
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 2360ca94d0bfcc44d8ff54d8c993381b
+    m_Address: Monster_001
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Entity
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 480a8998e9118db4b938d13957b44a4e
+    m_Address: Monster_005
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Entity
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9763551092219244fbc56b9c474148c0
+    m_Address: Monster_004
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Entity
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: a49fcba4b65d2874c9cba8ab8c5d5d12
     m_Address: Player
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Entity
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bbca9d1e86eeb17448a9850acf05dcd1
+    m_Address: Monster_002
     m_ReadOnly: 0
     m_SerializedLabels:
     - Entity

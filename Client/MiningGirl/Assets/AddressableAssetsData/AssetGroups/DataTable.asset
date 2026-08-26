@@ -21,6 +21,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - DataTable
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 1f0e999968a73c54299bcf6c25fecc36
+    m_Address: StageDataTable
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - DataTable
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 2442a1e24ab930a41b356d89df5c5aff
     m_Address: DefaultSkillCardDataTable
     m_ReadOnly: 0
