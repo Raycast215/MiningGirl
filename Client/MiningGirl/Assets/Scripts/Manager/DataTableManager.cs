@@ -9,12 +9,16 @@ namespace Manager
 {
     public class DataTableManager : SingletonBase<DataTableManager>
     {
+        // 삭제 예정
         public CharacterStatDataTable CharacterStatDataTable { get; private set; }
         public CharacterStatGrowthDataTable CharacterStatGrowthDataTable { get; private set; }
         public LevelUpBonusSkillDataTable LevelUpBonusSkillDataTable { get; private set; }
         public SkillCardDataTable SkillCardDataTable { get; private set; }
         public DefaultSkillCardDataTable DefaultSkillCardDataTable { get; private set; }
         public GameConstantDataTable GameConstantDataTable { get; private set; }
+        //
+        
+        public StageDataTable StageDataTable { get; private set; }
 
         public async UniTaskVoid PreLoadData()
         {
@@ -29,12 +33,16 @@ namespace Manager
                 return;
             }
 
+            // 삭제 예정
             CharacterStatDataTable = Create<CharacterStatDataTable>();
             CharacterStatGrowthDataTable = Create<CharacterStatGrowthDataTable>();
             LevelUpBonusSkillDataTable = Create<LevelUpBonusSkillDataTable>();
             SkillCardDataTable = Create<SkillCardDataTable>();
             DefaultSkillCardDataTable = Create<DefaultSkillCardDataTable>();
             GameConstantDataTable = Create<GameConstantDataTable>();
+            // 
+            
+            StageDataTable = Create<StageDataTable>();
 
             IsInitialized = true;
         }

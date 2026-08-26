@@ -1,0 +1,16 @@
+[
+{
+  "BgAssetId": "Bg_Mine_01",
+  "BgmId": "Bgm_Stage_01",
+  "ClearGoldList": [
+    200,
+    350,
+    500
+  ],
+  "Id": "Stage_01",
+  "MonsterStatMultiplier": 1,
+  "Name": "첫 번째 갱도",
+  "TotalMonsterCount": 200,
+  "WaveCount": 20
+}
+]
