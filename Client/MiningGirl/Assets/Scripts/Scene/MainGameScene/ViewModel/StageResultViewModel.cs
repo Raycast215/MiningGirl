@@ -28,12 +28,22 @@ namespace Scene.MainGameScene.ViewModel
         public ObservableProperty<int> StarCount { get; } = new ObservableProperty<int>();
 
         public ObservableProperty<string> TitleText { get; } = new ObservableProperty<string>(string.Empty);
-        public ObservableProperty<string> WaveText { get; } = new ObservableProperty<string>(string.Empty);
-        public ObservableProperty<string> ElapsedText { get; } = new ObservableProperty<string>(string.Empty);
-        public ObservableProperty<string> TowerText { get; } = new ObservableProperty<string>(string.Empty);
+        public ObservableProperty<string> StageText { get; } = new ObservableProperty<string>(string.Empty);
+
+        // 각 줄을 라벨과 값으로 나눠 둡니다.
+        //
+        // 한 문자열에 공백으로 붙여 두면 값의 자릿수가 달라질 때마다 세로줄이 어긋납니다.
+        // 라벨을 우측, 값을 좌측으로 정렬해야 가운데에서 맞춰집니다.
+        public ObservableProperty<string> WaveLabel { get; } = new ObservableProperty<string>(string.Empty);
+        public ObservableProperty<string> WaveValue { get; } = new ObservableProperty<string>(string.Empty);
+        public ObservableProperty<string> ElapsedLabel { get; } = new ObservableProperty<string>(string.Empty);
+        public ObservableProperty<string> ElapsedValue { get; } = new ObservableProperty<string>(string.Empty);
+        public ObservableProperty<string> TowerLabel { get; } = new ObservableProperty<string>(string.Empty);
+        public ObservableProperty<string> TowerValue { get; } = new ObservableProperty<string>(string.Empty);
 
         public void Show(
             bool cleared,
+            string stageId,
             int reachedWave,
             int totalWave,
             float elapsedSeconds,
@@ -41,9 +51,16 @@ namespace Scene.MainGameScene.ViewModel
             float towerMaxHealth)
         {
             TitleText.Value = cleared ? "STAGE CLEAR" : "STAGE FAILED";
-            WaveText.Value = $"도달 웨이브    {reachedWave} / {totalWave}";
-            ElapsedText.Value = $"소요 시간    {InGameHudViewModel.FormatTime(elapsedSeconds)}";
-            TowerText.Value = $"남은 타워 체력    {Ceil(towerHealth)} / {Ceil(towerMaxHealth)}";
+            StageText.Value = InGameHudViewModel.FormatStage(stageId);
+
+            WaveLabel.Value = "도달 웨이브";
+            WaveValue.Value = $"{reachedWave} / {totalWave}";
+
+            ElapsedLabel.Value = "소요 시간";
+            ElapsedValue.Value = InGameHudViewModel.FormatTime(elapsedSeconds);
+
+            TowerLabel.Value = "남은 타워 체력";
+            TowerValue.Value = $"{Ceil(towerHealth)} / {Ceil(towerMaxHealth)}";
 
             // 처치 수는 넣지 않습니다. 클리어 조건이 전멸이라 클리어면 항상 총량과 같아 정보가 없습니다.
             StarCount.Value = CalculateStars(cleared, towerHealth, towerMaxHealth);

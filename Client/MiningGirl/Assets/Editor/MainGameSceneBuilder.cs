@@ -44,6 +44,10 @@ public static class MainGameSceneBuilder
     private const string StarIconPrefabPath = UiPrefabFolder + "/StarIcon.prefab";
     private const string FloatingDamagePrefabPath = "Assets/Prefabs/MainGame/Effect/FloatingDamageText.prefab";
 
+    // 결과 화면 한 줄의 좌우 칸 폭과, 가운데에서 벌어지는 간격.
+    private const float ResultColumnWidth = 380f;
+    private const float ResultColumnGap = 24f;
+
     [MenuItem("Tools/MainGame/Build In-Game Scene")]
     public static void Build()
     {
@@ -75,6 +79,7 @@ public static class MainGameSceneBuilder
         var hud = BuildHud();
         var levelUpUI = BuildLevelUpChoiceUI();
         var resultUI = BuildResultUI();
+        var pauseMenuUI = BuildPauseMenuUI();
 
         var so = new SerializedObject(controller);
         so.FindProperty("battleCamera").objectReferenceValue = camera;
@@ -90,6 +95,7 @@ public static class MainGameSceneBuilder
         so.FindProperty("hud").objectReferenceValue = hud;
         so.FindProperty("levelUpChoiceUI").objectReferenceValue = levelUpUI;
         so.FindProperty("resultUI").objectReferenceValue = resultUI;
+        so.FindProperty("pauseMenuUI").objectReferenceValue = pauseMenuUI;
         so.ApplyModifiedPropertiesWithoutUndo();
 
         EditorSceneManager.MarkSceneDirty(scene);
@@ -398,6 +404,16 @@ public static class MainGameSceneBuilder
 
         var hud = root.AddComponent<InGameHudUI>();
 
+        // 상단 좌측 — 스테이지 번호. 기존 요소를 밀지 않도록 빈 자리에 둡니다.
+        var stageText = CreateText("StageText", root.transform, "STAGE 1", 36f, FontStyles.Bold);
+        stageText.alignment = TextAlignmentOptions.Left;
+        var stageRect = stageText.rectTransform;
+        stageRect.anchorMin = new Vector2(0f, 1f);
+        stageRect.anchorMax = new Vector2(0f, 1f);
+        stageRect.pivot = new Vector2(0f, 1f);
+        stageRect.sizeDelta = new Vector2(320f, 56f);
+        stageRect.anchoredPosition = new Vector2(30f, -20f);
+
         // 상단 중앙 — 웨이브 번호
         var waveText = CreateText("WaveText", root.transform, "WAVE 1/20", 56f, FontStyles.Bold);
         AnchorTop(waveText.rectTransform, new Vector2(700f, TopBarHeight), -20f);
@@ -406,7 +422,8 @@ public static class MainGameSceneBuilder
         //
         // 경고 색은 꺼 둡니다. 체력이면 낮을수록 빨개져야 하지만, 경험치는
         // 매 구간이 0에서 시작하므로 켜 두면 레벨업 직후마다 빨갛게 물듭니다.
-        var expGauge = CreateGauge("ExpGauge", root.transform, new Color(0.35f, 0.72f, 0.95f, 1f), "{0} / {1}");
+        // 숫자는 띄우지 않습니다. 처치 수는 플레이어가 셀 값이 아니라 게이지로 읽는 값입니다.
+        var expGauge = CreateGauge("ExpGauge", root.transform, new Color(0.35f, 0.72f, 0.95f, 1f), null);
         AnchorTop(expGauge.GetComponent<RectTransform>(), new Vector2(660f, 40f), -132f);
         SetGaugeDangerRatio(expGauge, 0f);
 
@@ -414,7 +431,7 @@ public static class MainGameSceneBuilder
         var elapsedText = CreateText("ElapsedText", root.transform, "00:00", 40f, FontStyles.Normal);
         AnchorTop(elapsedText.rectTransform, new Vector2(300f, 52f), -182f);
 
-        // 상단 우측 — 메뉴 버튼 (1차에서는 자리만 잡습니다)
+        // 상단 우측 — 메뉴 버튼
         var menu = CreateImage("MenuButton", root.transform, new Color(0f, 0f, 0f, 0.45f));
         var menuRect = menu.rectTransform;
         menuRect.anchorMin = new Vector2(1f, 1f);
@@ -422,17 +439,31 @@ public static class MainGameSceneBuilder
         menuRect.pivot = new Vector2(1f, 1f);
         menuRect.sizeDelta = new Vector2(96f, 96f);
         menuRect.anchoredPosition = new Vector2(-30f, -20f);
-        menu.gameObject.AddComponent<Button>();
+        var menuButton = menu.gameObject.AddComponent<Button>();
 
         var menuLabel = CreateText("Label", menu.transform, "≡", 52f, FontStyles.Bold);
         Stretch(menuLabel.rectTransform);
+
+        // 그 아래 — 배속 버튼. 메뉴를 열지 않고 바로 누릅니다.
+        var speed = CreateImage("SpeedButton", root.transform, new Color(0f, 0f, 0f, 0.45f));
+        var speedRect = speed.rectTransform;
+        speedRect.anchorMin = new Vector2(1f, 1f);
+        speedRect.anchorMax = new Vector2(1f, 1f);
+        speedRect.pivot = new Vector2(1f, 1f);
+        speedRect.sizeDelta = new Vector2(96f, 96f);
+        speedRect.anchoredPosition = new Vector2(-30f, -128f);
+        var speedButton = speed.gameObject.AddComponent<Button>();
+
+        var speedLabel = CreateText("Label", speed.transform, "x1", 40f, FontStyles.Bold);
+        Stretch(speedLabel.rectTransform);
 
         // 하단 띠 — 위에서부터 타워 체력바, 스킬 슬롯.
         // 타워(월드)는 이 띠 위에 서고, 배치는 MainGameController가 여기서 역산합니다.
         var bottomRoot = CreateRect("HUD Bottom", bottom);
         Stretch(bottomRoot.GetComponent<RectTransform>());
 
-        var towerGauge = CreateGauge("TowerHealth", bottomRoot.transform, new Color(0.85f, 0.35f, 0.30f, 1f), "{0} / {1}");
+        // 최대 체력은 빼고 현재 체력만 보여 줍니다.
+        var towerGauge = CreateGauge("TowerHealth", bottomRoot.transform, new Color(0.85f, 0.35f, 0.30f, 1f), "{0}");
         AnchorBottom(towerGauge.GetComponent<RectTransform>(), new Vector2(1080f, TowerHealthBarHeight), SkillSlotAreaHeight);
 
         var slots = CreateRect("SkillSlots", bottomRoot.transform);
@@ -455,6 +486,7 @@ public static class MainGameSceneBuilder
         }
 
         var hudSo = new SerializedObject(hud);
+        hudSo.FindProperty("stageText").objectReferenceValue = stageText;
         hudSo.FindProperty("waveText").objectReferenceValue = waveText;
         hudSo.FindProperty("expGauge").objectReferenceValue = expGauge;
         hudSo.FindProperty("elapsedText").objectReferenceValue = elapsedText;
@@ -462,7 +494,88 @@ public static class MainGameSceneBuilder
         FillArray(hudSo.FindProperty("skillSlots"), slotViews);
         hudSo.ApplyModifiedPropertiesWithoutUndo();
 
+        // 메뉴 버튼과 배속 버튼은 HUD에 있지만 동작은 정지 메뉴가 맡습니다.
+        // 여기서 만든 버튼을 그쪽에 넘겨 줍니다.
+        _menuButton = menuButton;
+        _speedButton = speedButton;
+        _speedLabel = speedLabel;
+
         return hud;
+    }
+
+    // BuildHud가 만든 버튼을 BuildPauseMenuUI로 넘기는 자리입니다.
+    // 인자로 넘기려면 BuildHud의 반환값을 튜플로 바꿔야 해서 필드로 두었습니다.
+    private static Button _menuButton;
+    private static Button _speedButton;
+    private static TMP_Text _speedLabel;
+
+    private static PauseMenuUI BuildPauseMenuUI()
+    {
+        var popupCanvas = GameObject.Find("Canvas - Popup").transform;
+
+        DestroyChild(popupCanvas, "PauseMenu");
+
+        // 3택·결과와 같은 팝업 캔버스에 둡니다. HUD에 두면 하단 스킬 슬롯 위로 못 덮습니다.
+        var root = CreateImage("PauseMenu", popupCanvas, new Color(0f, 0f, 0f, 0.78f));
+        Stretch(root.rectTransform);
+
+        var ui = root.gameObject.AddComponent<PauseMenuUI>();
+
+        // 뒷판을 눌러도 닫힙니다. 되묻는 중이면 되묻기만 취소합니다.
+        var dimmed = root.gameObject.AddComponent<Button>();
+        dimmed.transition = Selectable.Transition.None;
+
+        var panel = CreateImage("Panel", root.transform, new Color(0.10f, 0.11f, 0.14f, 0.98f));
+        var panelRect = panel.rectTransform;
+        panelRect.anchorMin = new Vector2(0.5f, 0.5f);
+        panelRect.anchorMax = new Vector2(0.5f, 0.5f);
+        panelRect.pivot = new Vector2(0.5f, 0.5f);
+        panelRect.anchoredPosition = Vector2.zero;
+        panelRect.sizeDelta = new Vector2(820f, 560f);
+
+        var header = CreateText("Header", panel.transform, "메뉴", 56f, FontStyles.Bold);
+        AnchorTop(header.rectTransform, new Vector2(700f, 80f), -50f);
+
+        var hint = CreateText("ConfirmHint", panel.transform, "포기하면 실패로 기록됩니다. 다시 누르면 확정됩니다.", 30f, FontStyles.Normal);
+        AnchorTop(hint.rectTransform, new Vector2(740f, 60f), -150f);
+        hint.color = new Color(0.95f, 0.72f, 0.35f, 1f);
+
+        var resume = CreateImage("ResumeButton", panel.transform, new Color(0.16f, 0.52f, 0.40f, 1f));
+        var resumeRect = resume.rectTransform;
+        resumeRect.anchorMin = new Vector2(0.5f, 0.5f);
+        resumeRect.anchorMax = new Vector2(0.5f, 0.5f);
+        resumeRect.pivot = new Vector2(0.5f, 0.5f);
+        resumeRect.sizeDelta = new Vector2(640f, 130f);
+        resumeRect.anchoredPosition = new Vector2(0f, -10f);
+        var resumeButton = resume.gameObject.AddComponent<Button>();
+        Stretch(CreateText("Label", resume.transform, "계속하기", 42f, FontStyles.Bold).rectTransform);
+
+        var surrender = CreateImage("SurrenderButton", panel.transform, new Color(0.55f, 0.22f, 0.22f, 1f));
+        var surrenderRect = surrender.rectTransform;
+        surrenderRect.anchorMin = new Vector2(0.5f, 0.5f);
+        surrenderRect.anchorMax = new Vector2(0.5f, 0.5f);
+        surrenderRect.pivot = new Vector2(0.5f, 0.5f);
+        surrenderRect.sizeDelta = new Vector2(640f, 130f);
+        surrenderRect.anchoredPosition = new Vector2(0f, -170f);
+        var surrenderButton = surrender.gameObject.AddComponent<Button>();
+        var surrenderLabel = CreateText("Label", surrender.transform, "게임 포기하기", 42f, FontStyles.Bold);
+        Stretch(surrenderLabel.rectTransform);
+
+        var so = new SerializedObject(ui);
+        so.FindProperty("menuButton").objectReferenceValue = _menuButton;
+        so.FindProperty("speedButton").objectReferenceValue = _speedButton;
+        so.FindProperty("speedLabel").objectReferenceValue = _speedLabel;
+        so.FindProperty("root").objectReferenceValue = root.gameObject;
+        so.FindProperty("resumeButton").objectReferenceValue = resumeButton;
+        so.FindProperty("surrenderButton").objectReferenceValue = surrenderButton;
+        so.FindProperty("surrenderLabel").objectReferenceValue = surrenderLabel;
+        so.FindProperty("confirmHint").objectReferenceValue = hint.gameObject;
+        so.FindProperty("dimmedBackground").objectReferenceValue = dimmed;
+        so.ApplyModifiedPropertiesWithoutUndo();
+
+        root.gameObject.SetActive(false);
+
+        return ui;
     }
 
 #endregion
@@ -551,14 +664,22 @@ public static class MainGameSceneBuilder
         var title = CreateText("Title", root.transform, "STAGE CLEAR", 76f, FontStyles.Bold);
         AnchorTop(title.rectTransform, new Vector2(900f, 100f), -640f);
 
-        var wave = CreateText("Wave", root.transform, "도달 웨이브    20 / 20", 40f, FontStyles.Normal);
-        AnchorTop(wave.rectTransform, new Vector2(760f, 56f), -800f);
+        var stageLabel = CreateText("Stage", root.transform, "STAGE 1", 44f, FontStyles.Bold);
+        AnchorTop(stageLabel.rectTransform, new Vector2(900f, 60f), -740f);
+        stageLabel.color = new Color(0.75f, 0.80f, 0.88f, 1f);
 
-        var elapsed = CreateText("Elapsed", root.transform, "소요 시간    05:00", 40f, FontStyles.Normal);
-        AnchorTop(elapsed.rectTransform, new Vector2(760f, 56f), -866f);
+        // 각 줄을 라벨과 값으로 나눕니다.
+        //
+        // 한 문자열에 공백으로 붙이면 값의 자릿수가 달라질 때마다 세로줄이 어긋납니다.
+        // 라벨은 우측, 값은 좌측으로 정렬해 가운데에서 맞춥니다.
+        var waveLabel = CreateResultLabel("WaveLabel", root.transform, "도달 웨이브", -820f);
+        var waveValue = CreateResultValue("WaveValue", root.transform, "20 / 20", -820f);
 
-        var towerText = CreateText("Tower", root.transform, "남은 타워 체력    1000 / 1000", 40f, FontStyles.Normal);
-        AnchorTop(towerText.rectTransform, new Vector2(760f, 56f), -932f);
+        var elapsedLabel = CreateResultLabel("ElapsedLabel", root.transform, "소요 시간", -886f);
+        var elapsedValue = CreateResultValue("ElapsedValue", root.transform, "05:00", -886f);
+
+        var towerLabel = CreateResultLabel("TowerLabel", root.transform, "남은 타워 체력", -952f);
+        var towerValue = CreateResultValue("TowerValue", root.transform, "1000 / 1000", -952f);
 
         var retry = CreateImage("RetryButton", root.transform, new Color(0.22f, 0.44f, 0.72f, 1f));
         AnchorTop(retry.rectTransform, new Vector2(520f, 120f), -1090f);
@@ -573,9 +694,13 @@ public static class MainGameSceneBuilder
         so.FindProperty("root").objectReferenceValue = root.gameObject;
         FillArray(so.FindProperty("stars"), stars);
         so.FindProperty("titleText").objectReferenceValue = title;
-        so.FindProperty("waveText").objectReferenceValue = wave;
-        so.FindProperty("elapsedText").objectReferenceValue = elapsed;
-        so.FindProperty("towerText").objectReferenceValue = towerText;
+        so.FindProperty("stageText").objectReferenceValue = stageLabel;
+        so.FindProperty("waveLabel").objectReferenceValue = waveLabel;
+        so.FindProperty("waveValue").objectReferenceValue = waveValue;
+        so.FindProperty("elapsedLabel").objectReferenceValue = elapsedLabel;
+        so.FindProperty("elapsedValue").objectReferenceValue = elapsedValue;
+        so.FindProperty("towerLabel").objectReferenceValue = towerLabel;
+        so.FindProperty("towerValue").objectReferenceValue = towerValue;
         so.FindProperty("retryButton").objectReferenceValue = retryButton;
         so.ApplyModifiedPropertiesWithoutUndo();
 
@@ -624,6 +749,39 @@ public static class MainGameSceneBuilder
         image.color = color;
 
         return image;
+    }
+
+    // 결과 화면 한 줄의 왼쪽(라벨). 가운데를 기준으로 왼쪽에 놓고 우측 정렬합니다.
+    private static TMP_Text CreateResultLabel(string name, Transform parent, string text, float y)
+    {
+        var label = CreateText(name, parent, text, 40f, FontStyles.Normal);
+        label.alignment = TextAlignmentOptions.Right;
+        label.color = new Color(0.72f, 0.76f, 0.82f, 1f);
+
+        var rect = label.rectTransform;
+        rect.anchorMin = new Vector2(0.5f, 1f);
+        rect.anchorMax = new Vector2(0.5f, 1f);
+        rect.pivot = new Vector2(1f, 1f);
+        rect.sizeDelta = new Vector2(ResultColumnWidth, 56f);
+        rect.anchoredPosition = new Vector2(-ResultColumnGap, y);
+
+        return label;
+    }
+
+    // 오른쪽(값). 좌측 정렬해야 라벨과 마주 봅니다.
+    private static TMP_Text CreateResultValue(string name, Transform parent, string text, float y)
+    {
+        var label = CreateText(name, parent, text, 40f, FontStyles.Bold);
+        label.alignment = TextAlignmentOptions.Left;
+
+        var rect = label.rectTransform;
+        rect.anchorMin = new Vector2(0.5f, 1f);
+        rect.anchorMax = new Vector2(0.5f, 1f);
+        rect.pivot = new Vector2(0f, 1f);
+        rect.sizeDelta = new Vector2(ResultColumnWidth, 56f);
+        rect.anchoredPosition = new Vector2(ResultColumnGap, y);
+
+        return label;
     }
 
     private static TMP_Text CreateText(string name, Transform parent, string text, float size, FontStyles style)

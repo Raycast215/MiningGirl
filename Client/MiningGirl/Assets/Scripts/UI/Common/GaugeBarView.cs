@@ -134,8 +134,20 @@ namespace UI.Common
 
             _lastRatio = ratio;
 
-            if (label != null)
-                label.text = string.Format(format, Mathf.CeilToInt(current), Mathf.CeilToInt(max));
+            if (label == null)
+                return;
+
+            // 형식이 비어 있으면 숫자를 띄우지 않겠다는 뜻입니다.
+            // 게이지만 보여 주고 싶은 곳이 있어서 라벨 오브젝트를 지우는 대신 여기서 끕니다.
+            if (string.IsNullOrEmpty(format))
+            {
+                if (label.gameObject.activeSelf)
+                    label.gameObject.SetActive(false);
+
+                return;
+            }
+
+            label.text = string.Format(format, Mathf.CeilToInt(current), Mathf.CeilToInt(max));
         }
 
         // 줄어든 만큼을 잠깐 남겨 보여줍니다.

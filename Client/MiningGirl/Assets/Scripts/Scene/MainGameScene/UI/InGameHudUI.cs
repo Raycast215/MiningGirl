@@ -11,6 +11,9 @@ namespace Scene.MainGameScene.UI
     {
         [Header("Top")]
         [SerializeField]
+        private TMP_Text stageText;
+
+        [SerializeField]
         private TMP_Text waveText;
 
         [SerializeField]
@@ -60,6 +63,10 @@ namespace Scene.MainGameScene.UI
         // 타워 체력은 첫 표시만 트윈 없이 즉시 채웁니다.
         private bool _towerFirstDraw = true;
 
+        // 경험치가 줄어들었는지 보려면 직전 값이 필요합니다.
+        private bool _expFirstDraw = true;
+        private float _lastExp;
+
         private void OnDestroy()
         {
             Unbind();
@@ -91,6 +98,7 @@ namespace Scene.MainGameScene.UI
             if (_viewModel == null)
                 return;
 
+            _viewModel.StageText.Bind(OnStageTextChanged);
             _viewModel.WaveText.Bind(OnWaveTextChanged);
             _viewModel.ElapsedText.Bind(OnElapsedTextChanged);
             _viewModel.Exp.Bind(OnExpChanged);
@@ -104,6 +112,7 @@ namespace Scene.MainGameScene.UI
             if (_viewModel == null)
                 return;
 
+            _viewModel.StageText.Unbind(OnStageTextChanged);
             _viewModel.WaveText.Unbind(OnWaveTextChanged);
             _viewModel.ElapsedText.Unbind(OnElapsedTextChanged);
             _viewModel.Exp.Unbind(OnExpChanged);
@@ -115,6 +124,12 @@ namespace Scene.MainGameScene.UI
         }
 
 #region 바인딩 대상
+
+        private void OnStageTextChanged(string value)
+        {
+            if (stageText != null)
+                stageText.text = value;
+        }
 
         private void OnWaveTextChanged(string value)
         {
@@ -130,8 +145,18 @@ namespace Scene.MainGameScene.UI
 
         private void OnExpChanged(GaugeValue value)
         {
-            if (expGauge != null)
-                expGauge.SetValue(value.Current, value.Max);
+            if (expGauge == null)
+                return;
+
+            // 레벨업하면 경험치가 0으로 돌아갑니다. 이때 트윈을 태우면 게이지가
+            // 주르륵 줄어들어 "경험치를 잃었다"로 보입니다. 오른쪽 끝까지 찼다가
+            // 사라지는 게 맞는 그림이라, 줄어드는 방향은 트윈 없이 즉시 반영합니다.
+            var reset = value.Current < _lastExp;
+
+            expGauge.SetValue(value.Current, value.Max, reset || _expFirstDraw);
+
+            _lastExp = value.Current;
+            _expFirstDraw = false;
         }
 
         private void OnTowerHealthChanged(GaugeValue value)

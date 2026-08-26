@@ -19,13 +19,27 @@ namespace Scene.MainGameScene.UI
         private TMP_Text titleText;
 
         [SerializeField]
-        private TMP_Text waveText;
+        private TMP_Text stageText;
+
+        [Header("Rows")]
+        [SerializeField]
+        [Tooltip("라벨은 우측 정렬, 값은 좌측 정렬로 두어야 세로줄이 가운데에서 맞습니다.")]
+        private TMP_Text waveLabel;
 
         [SerializeField]
-        private TMP_Text elapsedText;
+        private TMP_Text waveValue;
 
         [SerializeField]
-        private TMP_Text towerText;
+        private TMP_Text elapsedLabel;
+
+        [SerializeField]
+        private TMP_Text elapsedValue;
+
+        [SerializeField]
+        private TMP_Text towerLabel;
+
+        [SerializeField]
+        private TMP_Text towerValue;
 
         [SerializeField]
         private Button retryButton;
@@ -55,9 +69,13 @@ namespace Scene.MainGameScene.UI
             _viewModel.IsVisible.Bind(OnVisibleChanged);
             _viewModel.StarCount.Bind(OnStarCountChanged);
             _viewModel.TitleText.Bind(OnTitleChanged);
-            _viewModel.WaveText.Bind(OnWaveChanged);
-            _viewModel.ElapsedText.Bind(OnElapsedChanged);
-            _viewModel.TowerText.Bind(OnTowerChanged);
+            _viewModel.StageText.Bind(OnStageChanged);
+            _viewModel.WaveLabel.Bind(OnWaveLabelChanged);
+            _viewModel.WaveValue.Bind(OnWaveValueChanged);
+            _viewModel.ElapsedLabel.Bind(OnElapsedLabelChanged);
+            _viewModel.ElapsedValue.Bind(OnElapsedValueChanged);
+            _viewModel.TowerLabel.Bind(OnTowerLabelChanged);
+            _viewModel.TowerValue.Bind(OnTowerValueChanged);
         }
 
         private void Unbind()
@@ -68,9 +86,13 @@ namespace Scene.MainGameScene.UI
             _viewModel.IsVisible.Unbind(OnVisibleChanged);
             _viewModel.StarCount.Unbind(OnStarCountChanged);
             _viewModel.TitleText.Unbind(OnTitleChanged);
-            _viewModel.WaveText.Unbind(OnWaveChanged);
-            _viewModel.ElapsedText.Unbind(OnElapsedChanged);
-            _viewModel.TowerText.Unbind(OnTowerChanged);
+            _viewModel.StageText.Unbind(OnStageChanged);
+            _viewModel.WaveLabel.Unbind(OnWaveLabelChanged);
+            _viewModel.WaveValue.Unbind(OnWaveValueChanged);
+            _viewModel.ElapsedLabel.Unbind(OnElapsedLabelChanged);
+            _viewModel.ElapsedValue.Unbind(OnElapsedValueChanged);
+            _viewModel.TowerLabel.Unbind(OnTowerLabelChanged);
+            _viewModel.TowerValue.Unbind(OnTowerValueChanged);
 
             _viewModel = null;
         }
@@ -96,22 +118,46 @@ namespace Scene.MainGameScene.UI
                 titleText.text = value;
         }
 
-        private void OnWaveChanged(string value)
+        private void OnStageChanged(string value)
         {
-            if (waveText != null)
-                waveText.text = value;
+            if (stageText != null)
+                stageText.text = value;
         }
 
-        private void OnElapsedChanged(string value)
+        private void OnWaveLabelChanged(string value)
         {
-            if (elapsedText != null)
-                elapsedText.text = value;
+            if (waveLabel != null)
+                waveLabel.text = value;
         }
 
-        private void OnTowerChanged(string value)
+        private void OnWaveValueChanged(string value)
         {
-            if (towerText != null)
-                towerText.text = value;
+            if (waveValue != null)
+                waveValue.text = value;
+        }
+
+        private void OnElapsedLabelChanged(string value)
+        {
+            if (elapsedLabel != null)
+                elapsedLabel.text = value;
+        }
+
+        private void OnElapsedValueChanged(string value)
+        {
+            if (elapsedValue != null)
+                elapsedValue.text = value;
+        }
+
+        private void OnTowerLabelChanged(string value)
+        {
+            if (towerLabel != null)
+                towerLabel.text = value;
+        }
+
+        private void OnTowerValueChanged(string value)
+        {
+            if (towerValue != null)
+                towerValue.text = value;
         }
     }
 }

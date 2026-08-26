@@ -91,6 +91,13 @@ namespace Scene.MainGameScene
         [SerializeField]
         private StageResultUI resultUI;
 
+        [SerializeField]
+        private PauseMenuUI pauseMenuUI;
+
+        [SerializeField]
+        [Tooltip("배속 버튼을 누를 때마다 이 순서로 돕니다. 마지막 다음은 처음으로 돌아옵니다.")]
+        private float[] speedSteps = { 1f, 2f };
+
         private StageDataTableRow _stage;
         private CharacterDataTableRow _character;
 
@@ -106,6 +113,7 @@ namespace Scene.MainGameScene
         private InGameHudViewModel _hudViewModel;
         private LevelUpChoiceViewModel _choiceViewModel;
         private StageResultViewModel _resultViewModel;
+        private PauseMenuViewModel _pauseMenuViewModel;
 
         private float _elapsed;
         private bool _isRunning;
@@ -120,6 +128,13 @@ namespace Scene.MainGameScene
 
         // 한 프레임에 두 레벨이 오를 수 있어 밀린 만큼 세어 둡니다.
         private int _pendingLevelUps;
+
+        // 3택이 떠서 멈춘 상태와 메뉴로 멈춘 상태. 둘은 따로 켜지고 따로 꺼집니다.
+        private bool _isChoicePaused;
+        private bool _isMenuPaused;
+
+        // 배속. 정지가 풀렸을 때 돌아갈 속도입니다.
+        private float _speedMultiplier = 1f;
 
         private void Start()
         {
@@ -269,10 +284,19 @@ namespace Scene.MainGameScene
                 constants.GetValue(EGameConstantType.Star2HealthRate, 0.5f));
             _resultViewModel.RetryRequested += Retry;
 
+            _pauseMenuViewModel = new PauseMenuViewModel(speedSteps);
+            _pauseMenuViewModel.PauseRequested += HandleMenuPause;
+            _pauseMenuViewModel.SurrenderRequested += HandleSurrender;
+            _pauseMenuViewModel.SpeedChanged += HandleSpeedChanged;
+
             hud.Bind(_hudViewModel);
             levelUpChoiceUI.Bind(_choiceViewModel);
             resultUI.Bind(_resultViewModel);
 
+            if (pauseMenuUI != null)
+                pauseMenuUI.Bind(_pauseMenuViewModel);
+
+            _hudViewModel.StageText.Value = InGameHudViewModel.FormatStage(_stage.Id);
             _hudViewModel.Tick(_elapsed);
         }
 
@@ -512,11 +536,40 @@ namespace Scene.MainGameScene
             }
         }
 
+        private void HandleMenuPause(bool paused)
+        {
+            _isMenuPaused = paused;
+
+            ApplyTimeScale();
+        }
+
+        private void HandleSpeedChanged(float speed)
+        {
+            _speedMultiplier = Mathf.Max(0.1f, speed);
+
+            ApplyTimeScale();
+        }
+
+        // 3택이 떠 있는 동안의 정지입니다. 메뉴 정지와 겹칠 수 있어 따로 셉니다.
         private void SetPaused(bool paused)
         {
-            Time.timeScale = paused ? 0f : 1f;
+            _isChoicePaused = paused;
 
-            _hudViewModel.IsPaused.Value = paused;
+            ApplyTimeScale();
+        }
+
+        // 정지와 배속을 한 곳에서 계산합니다.
+        //
+        // 3택 정지와 메뉴 정지가 각자 timeScale을 건드리면, 메뉴를 닫는 순간
+        // 3택이 떠 있는데도 시간이 흐르기 시작합니다. 둘 중 하나라도 켜져 있으면 멈춥니다.
+        private void ApplyTimeScale()
+        {
+            var paused = _isChoicePaused || _isMenuPaused;
+
+            Time.timeScale = paused ? 0f : _speedMultiplier;
+
+            if (_hudViewModel != null)
+                _hudViewModel.IsPaused.Value = paused;
         }
 
 #endregion
@@ -552,13 +605,25 @@ namespace Scene.MainGameScene
             _choiceViewModel.Hide();
             _launcher.Clear();
 
+            _pauseMenuViewModel?.Lock();
+
             _resultViewModel.Show(
                 cleared,
+                _stage.Id,
                 _waveRunner.CurrentWaveNo,
                 _waveRunner.TotalWaveCount,
                 _elapsed,
                 tower.CurrentHealth,
                 tower.MaxHealth);
+        }
+
+        // 메뉴에서 포기했을 때. 타워가 부서진 것과 같은 실패 처리로 갑니다.
+        //
+        // 결과 화면으로 가는 것·별 0개·보상 미지급이 기획 확정 대기 중입니다.
+        // 지금은 기존 실패 경로를 그대로 쓰므로, 확정이 오면 이 메서드만 고치면 됩니다.
+        private void HandleSurrender()
+        {
+            Finish(false);
         }
 
         private static void Retry()

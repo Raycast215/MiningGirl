@@ -56,6 +56,9 @@ namespace Scene.MainGameScene.ViewModel
     // 형태로 바꿉니다. 포맷 문자열도 여기서 만듭니다. View는 받아 그리기만 합니다.
     public class InGameHudViewModel
     {
+        // 몇 번째 스테이지인지. 판이 도는 동안 바뀌지 않아 Tick에서 매번 넣지 않습니다.
+        public ObservableProperty<string> StageText { get; } = new ObservableProperty<string>(string.Empty);
+
         public ObservableProperty<string> WaveText { get; } = new ObservableProperty<string>(string.Empty);
         public ObservableProperty<string> ElapsedText { get; } = new ObservableProperty<string>(string.Empty);
         public ObservableProperty<GaugeValue> Exp { get; } = new ObservableProperty<GaugeValue>();
@@ -116,6 +119,25 @@ namespace Scene.MainGameScene.ViewModel
             TowerHealth.Value = new GaugeValue(_tower.CurrentHealth, _tower.MaxHealth);
 
             RefreshSlots();
+        }
+
+        // 스테이지 Id에서 번호를 뽑아 표시 문자열을 만듭니다.
+        //
+        // Id는 "Stage_01" 꼴입니다. 규칙이 깨진 Id가 들어오면 Id를 그대로 보여 줍니다 -
+        // 화면이 비는 것보다 "Stage_XX"라도 뜨는 편이 무엇이 잘못됐는지 알기 쉽습니다.
+        public static string FormatStage(string stageId)
+        {
+            if (string.IsNullOrEmpty(stageId))
+                return string.Empty;
+
+            var separator = stageId.LastIndexOf('_');
+
+            if (separator < 0 || separator + 1 >= stageId.Length)
+                return stageId;
+
+            var tail = stageId.Substring(separator + 1);
+
+            return int.TryParse(tail, out var number) ? $"STAGE {number}" : stageId;
         }
 
         public static string FormatTime(float seconds)
