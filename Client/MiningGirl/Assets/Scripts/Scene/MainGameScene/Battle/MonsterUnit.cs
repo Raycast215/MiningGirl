@@ -15,10 +15,6 @@ namespace Scene.MainGameScene.Battle
         public const float BodyRadius = 0.9f;
 
         [SerializeField]
-        [Tooltip("머리 위 체력 표시. 없어도 동작합니다.")]
-        private MonsterHealthBarView healthBar;
-
-        [SerializeField]
         private SpriteRenderer spriteRenderer;
 
         public MonsterDataTableRow Row { get; private set; }
@@ -74,13 +70,6 @@ namespace Scene.MainGameScene.Battle
 
             if (spriteRenderer != null)
                 spriteRenderer.enabled = true;
-
-            if (healthBar != null)
-            {
-                // 풀에서 재사용되므로 이전 몬스터의 체력이 남지 않게 다시 그립니다.
-                healthBar.gameObject.SetActive(true);
-                healthBar.SetValue(_currentHealth, _maxHealth);
-            }
         }
 
         // MainGameController가 매 프레임 돌려줍니다.
@@ -133,9 +122,6 @@ namespace Scene.MainGameScene.Battle
                 return;
 
             _currentHealth -= amount;
-
-            if (healthBar != null)
-                healthBar.SetValue(Mathf.Max(0f, _currentHealth), _maxHealth);
 
             if (_currentHealth > 0f)
                 return;

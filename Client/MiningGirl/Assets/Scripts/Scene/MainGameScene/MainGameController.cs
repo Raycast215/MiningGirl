@@ -92,6 +92,10 @@ namespace Scene.MainGameScene
         private bool _isRunning;
         private bool _isFinished;
 
+        // 첫 레벨업까지 걸린 시간. 진입 구간이 뚫렸는지 보는 지표라 밸런스를 잡을 때 씁니다.
+        // 여기가 늦어지면 못 잡아서 레벨이 안 오르고, 안 올라서 더 못 잡는 되먹임이 걸립니다.
+        public float FirstLevelUpElapsed { get; private set; } = -1f;
+
         // 한 프레임에 두 레벨이 오를 수 있어 밀린 만큼 세어 둡니다.
         private int _pendingLevelUps;
 
@@ -362,6 +366,9 @@ namespace Scene.MainGameScene
 
         private void HandleLevelUp(int level)
         {
+            if (FirstLevelUpElapsed < 0f)
+                FirstLevelUpElapsed = _elapsed;
+
             _pendingLevelUps++;
 
             if (!_choiceViewModel.IsVisible.Value)
