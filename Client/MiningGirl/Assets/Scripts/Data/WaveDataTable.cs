@@ -21,6 +21,10 @@ namespace Data
         // 종류별 마리 수. MonsterIds와 순서·길이가 같아야 합니다.
         [JsonConverter(typeof(ListFromStringConverter<int>))]
         public List<int>? Counts { get; set; }
+
+        // 이 웨이브가 지속되는 시간(초).
+        // 이 시간이 지나면 몬스터가 남아 있어도 다음 웨이브로 넘어갑니다.
+        public float Duration { get; set; }
     }
 
     public class WaveDataTable : DataTableBase<WaveDataTableRow>

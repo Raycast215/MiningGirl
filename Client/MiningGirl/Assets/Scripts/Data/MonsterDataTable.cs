@@ -25,13 +25,10 @@ namespace Data
         public float AttackDelay { get; set; }
         public float AttackDistance { get; set; }
 
-        // 경험치 상대 비중. 절대값이 아니라 스테이지 총량을 나누는 몫입니다.
-        public float ExpWeight { get; set; }
-
         public int Gold { get; set; }
 
-        // 웨이브가 아니라 몬스터의 성질로 보고 여기 둡니다.
-        public float SpawnInterval { get; set; }
+        // 웨이브 안에서 이 종류가 등장하기 시작하는 시차(초).
+        // 스폰 간격은 몬스터 고정값이 아니라 WaveDataTable.Duration ÷ Count 로 나옵니다.
         public float SpawnDelay { get; set; }
 
         // 0~1. 1이면 넉백 무효.
