@@ -20,6 +20,14 @@ namespace Scene.MainGameScene
     // UI는 직접 건드리지 않습니다. ViewModel에 상태를 넣으면 View가 알아서 그립니다.
     public class MainGameController : GameMonoInitializer
     {
+#if UNITY_EDITOR
+        // 에디터의 스테이지 지정 진입이 고른 값을 넣어 두는 자리입니다.
+        //
+        // SessionState는 에디터 메모리에만 남습니다. 파일로 새지 않으니 저장 시스템도,
+        // 씬 파일도 건드리지 않고, 에디터를 닫으면 알아서 사라집니다.
+        public const string DebugStageIdKey = "MiningGirl.Debug.StageId";
+#endif
+
         [Header("Stage")]
         [SerializeField]
         [Tooltip("1차에서는 스테이지 선택이 없어 고정입니다.")]
@@ -268,14 +276,37 @@ namespace Scene.MainGameScene
             await UniTask.WaitUntil(() => DataTableManager.Instance.IsInitialized);
         }
 
+        // 실제로 들어갈 스테이지 Id.
+        //
+        // 평소에는 인스펙터 값 그대로입니다. 에디터에서 스테이지를 지정해 들어온 경우에만
+        // 그 값이 이깁니다. 씬 파일의 stageId는 손대지 않으므로 지정 진입을 몇 번을 하든
+        // 저장소에는 아무 변화가 남지 않습니다.
+        private string ResolveStageId()
+        {
+#if UNITY_EDITOR
+            var debugStageId = UnityEditor.SessionState.GetString(DebugStageIdKey, string.Empty);
+
+            if (!string.IsNullOrEmpty(debugStageId))
+            {
+                Debug.Log($"[MainGame] 스테이지 지정 진입: {debugStageId}");
+
+                return debugStageId;
+            }
+#endif
+
+            return stageId;
+        }
+
         private bool ResolveStageData()
         {
-            _stage = DataTableManager.Instance.StageDataTable?.GetRow(stageId);
+            var id = ResolveStageId();
+
+            _stage = DataTableManager.Instance.StageDataTable?.GetRow(id);
             _character = DataTableManager.Instance.CharacterDataTable?.GetRow(characterId);
 
             if (_stage == null)
             {
-                Debug.LogError($"[MainGame] 스테이지를 찾지 못했습니다: {stageId}");
+                Debug.LogError($"[MainGame] 스테이지를 찾지 못했습니다: {id}");
 
                 return false;
             }
