@@ -336,9 +336,15 @@ namespace Scene.MainGameScene
             // 웨이브 도중에 처음 등장하는 종류를 그때 불러오면 그 프레임이 튑니다.
             await _field.PreloadAsync(_waveRunner.CollectMonsterIds());
 
-            // 3택으로 아직 없는 스킬을 고를 수 있으니 이펙트는 전부 미리 불러 둡니다.
+            // 3택으로 아직 없는 스킬을 고를 수 있으니 이펙트를 미리 불러 둡니다.
+            //
+            // 다만 이 판에 나올 수 있는 것만 봅니다. Weight가 0인 스킬은 3택 후보에서
+            // 빠지므로(LevelUpChoiceBuilder) 얻을 방법이 없고, 아직 이펙트가 없는
+            // 준비 중인 스킬이 여기 들어가면 스테이지 진입마다 로드 실패가 쌓입니다.
+            // 에러가 깔리면 진짜 에러가 묻힙니다.
             var effectIds = DataTableManager.Instance.SkillDataTable?.Rows?
                 .Where(row => row != null && !string.IsNullOrEmpty(row.EffectAssetId))
+                .Where(row => row.Weight > 0 || row.Id == _character.StartSkillId)
                 .Select(row => row.EffectAssetId)
                 .Distinct() ?? Enumerable.Empty<string>();
 
