@@ -99,6 +99,19 @@ public enum EGameConstantType
     MaxStamina,              // 기본 최대 스태미나(강화 보정 전)
     MiningStaminaCost,       // 광물 하나를 캘 때 소모
     HitStaminaCost,          // 몬스터에게 한 번 맞을 때 소모
+
+    // ── 웨이브 디펜스 개편 ──
+    SkillSlotMax,        // 한 런에 들 수 있는 스킬 수
+    LevelUpChoiceCount,  // 레벨업 시 제시하는 스킬 장수
+    WaveStartDelay,      // 스테이지 시작 후 1웨이브까지 대기(초)
+    WaveClearDelay,      // 웨이브 전멸 후 다음 웨이브까지 대기(초)
+}
+
+public enum EMonsterType
+{
+    Normal,
+    Elite,
+    Boss,
 }
 
 public enum ESkillType

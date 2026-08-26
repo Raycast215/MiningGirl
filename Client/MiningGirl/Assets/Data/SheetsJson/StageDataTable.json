@@ -7,6 +7,7 @@
     350,
     500
   ],
+  "ExpTotalPoint": 10000,
   "Id": "Stage_01",
   "MonsterStatMultiplier": 1,
   "Name": "첫 번째 갱도",

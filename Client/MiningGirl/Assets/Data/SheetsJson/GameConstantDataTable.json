@@ -100,5 +100,29 @@
   "Desc": "스테이지마다 광물 수량에 더해지는 양",
   "Id": 18,
   "Value": 5
+},
+{
+  "ConstantType": "SkillSlotMax",
+  "Desc": "[개편] 한 런에 들 수 있는 스킬 수",
+  "Id": 100,
+  "Value": 5
+},
+{
+  "ConstantType": "LevelUpChoiceCount",
+  "Desc": "[개편] 레벨업 시 제시하는 스킬 장수",
+  "Id": 101,
+  "Value": 3
+},
+{
+  "ConstantType": "WaveStartDelay",
+  "Desc": "[개편] 스테이지 시작 후 1웨이브까지 대기(초)",
+  "Id": 102,
+  "Value": 2
+},
+{
+  "ConstantType": "WaveClearDelay",
+  "Desc": "[개편] 웨이브 전멸 후 다음 웨이브까지 대기(초)",
+  "Id": 103,
+  "Value": 1.5
 }
 ]

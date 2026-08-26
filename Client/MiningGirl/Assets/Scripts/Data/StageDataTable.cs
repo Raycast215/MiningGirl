@@ -19,6 +19,11 @@ namespace Data
         // 총 경험치가 여기서 결정되므로 어긋나면 성장 곡선이 통째로 틀어집니다.
         public int TotalMonsterCount { get; set; }
 
+        // 이 스테이지를 완주했을 때 얻는 총 경험치.
+        // 몬스터 수와 무관하게 고정이라, 웨이브 구성을 바꿔도 도달 레벨이 흔들리지 않습니다.
+        // 몬스터 1마리 획득량 = ExpTotalPoint × (ExpWeight / 스테이지 총 가중치)
+        public int ExpTotalPoint { get; set; }
+
         // 몬스터 체력·공격력에 곱하는 스테이지 난이도 배율.
         public float MonsterStatMultiplier { get; set; }
 
