@@ -10,14 +10,17 @@ namespace Scene.MainGameScene.Battle
     // 방향 전환도 회피도 없으므로 공간 탐색 구조가 필요 없습니다.
     public class MonsterUnit : MonoBehaviour
     {
-        // 명중 판정에 쓰는 몸통 반경.
-        //
-        // 스프라이트는 1.28유닛이지만 투명 여백을 빼면 실제 몸통은 0.88~1.28유닛입니다.
-        // 종별로는 0.44~0.64로 갈리는데, 한 값으로 묶어 가장 흔한 크기에 맞췄습니다.
-        // 여백까지 판정에 넣으면 스쳐 지나간 발사체가 맞은 것으로 보입니다.
-        public const float BodyRadius = 0.5f;
+        [SerializeField]
+        [Tooltip("명중 판정에 쓰는 몸통 반경(스케일 적용 전). 스프라이트의 불투명 영역 폭 ÷ 2입니다.")]
+        private float bodyRadius = 0.5f;
 
-        // 타워 앞에 나란히 설 때의 최소 간격. 스프라이트 폭(1.28)보다 조금 넓게 잡아야 안 겹칩니다.
+        // 실제 판정에 쓰는 반경. 프리팹 스케일이 걸린 정예·보스는 그만큼 커집니다.
+        //
+        // 스프라이트 전체(1.28유닛)가 아니라 불투명 영역을 씁니다.
+        // 투명 여백까지 판정에 넣으면 스쳐 지나간 발사체가 맞은 것으로 보입니다.
+        public float BodyRadius => bodyRadius * Mathf.Abs(transform.lossyScale.x);
+
+        // 타워 앞에 나란히 설 때의 최소 간격. 그림 폭(1.28)보다 조금 넓게 잡아야 안 겹칩니다.
         public const float BlockedSpacing = 1.3f;
 
         [SerializeField]

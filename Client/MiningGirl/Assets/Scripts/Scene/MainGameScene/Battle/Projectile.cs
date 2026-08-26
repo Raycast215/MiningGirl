@@ -148,8 +148,9 @@ namespace Scene.MainGameScene.Battle
                     continue;
 
                 // HitRange는 몬스터 크기에 더해지는 추가 반경입니다.
-                // 몸통 폭이 1.8유닛인데 0.3만으로 중심을 맞히라고 하면 거의 스쳐 지나갑니다.
-                var reach = _hitRange + MonsterUnit.BodyRadius;
+                // 0.3만으로 중심을 맞히라고 하면 거의 스쳐 지나갑니다.
+                // 반경은 종마다 다르고 프리팹 스케일도 반영되므로 개체에서 읽습니다.
+                var reach = _hitRange + unit.BodyRadius;
 
                 if (SqrDistanceToSegment(unit.Position, from, to) > reach * reach)
                     continue;

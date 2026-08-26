@@ -18,6 +18,9 @@ namespace Scene.MainGameScene.Battle
         // 판정 반경이 아니라 그림 폭 기준입니다. 반경으로 잡으면 여백만큼 겹쳐 보입니다.
         private const float BlockedSpacing = MonsterUnit.BlockedSpacing;
 
+        // 스폰·정렬에서 화면 가장자리를 물리는 여유. 그림 반폭(1.28 ÷ 2)입니다.
+        private const float SpawnMargin = BlockedSpacing * 0.5f;
+
         public event Action<MonsterUnit> OnMonsterKilled;
 
         public IReadOnlyList<MonsterUnit> Alive => _alive;
@@ -89,7 +92,10 @@ namespace Scene.MainGameScene.Battle
                 return;
 
             var unit = pool.Get();
-            var position = new Vector3(_bounds.RandomSpawnX(MonsterUnit.BodyRadius), _bounds.SpawnY, 0f);
+
+            // 스폰 x는 그림이 화면 밖으로 삐져나오지 않을 만큼만 안쪽으로 물립니다.
+            // 판정 반경이 아니라 그림 반폭 기준입니다.
+            var position = new Vector3(_bounds.RandomSpawnX(SpawnMargin), _bounds.SpawnY, 0f);
 
             unit.Setup(row, _statMultiplier, _tower, position, HandleDied, HandleBlocked);
 
@@ -213,7 +219,7 @@ namespace Scene.MainGameScene.Battle
                 var step = BlockedSpacing * (attempt / 2 + 1) * 0.5f;
                 var x = attempt == 0
                     ? origin
-                    : _bounds.ClampX(origin + (attempt % 2 == 1 ? step : -step), MonsterUnit.BodyRadius);
+                    : _bounds.ClampX(origin + (attempt % 2 == 1 ? step : -step), SpawnMargin);
 
                 if (!IsOccupied(x, unit))
                 {

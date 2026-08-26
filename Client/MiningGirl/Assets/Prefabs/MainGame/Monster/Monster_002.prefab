@@ -45,6 +45,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3a2f57373840fcc48ab37ee7c2985487, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::Scene.MainGameScene.Battle.MonsterUnit
+  bodyRadius: 0.56
   spriteRenderer: {fileID: 8485634267236676581}
 --- !u!1 &5882417992929092335
 GameObject:
