@@ -397,6 +397,39 @@ def build(e, check_only=False):
           f"길이 {n*dt:.2f}s  스케일 {e['scale']}  guid {pref_guid}")
 
 
+LIVE = os.path.join(ASSETS, "Prefabs", "MainGame", "Effect")
+SCALE_RE = re.compile(r"m_LocalScale:\s*\{x:\s*([\d.]+)")
+
+
+def sync_check():
+    """어드레서블이 물고 있는 MainGame 사본과 루트 스케일이 맞는지 본다
+
+    이 생성기는 InGame(레거시) 쪽만 쓴다. 스케일을 바꾸고 잊으면 게임에는 옛 크기가
+    그대로 나가므로, 어긋난 것만 짚어 개발에 알릴 수 있게 한다.
+    MainGame 프리팹은 Projectile이 붙은 개발 소관 파일이라 여기서 고치지 않는다.
+    """
+    if not os.path.isdir(LIVE):
+        return 0
+    drift = 0
+    for e in EFFECTS:
+        q = os.path.join(LIVE, "Effect_" + e["id"] + ".prefab")
+        if not os.path.exists(q):
+            print("  MainGame 사본 없음: Effect_%s  (개발에 등록 요청)" % e["id"])
+            drift += 1
+            continue
+        m = SCALE_RE.search(io.open(q, encoding="utf-8", errors="replace").read())
+        if m and abs(float(m.group(1)) - e["scale"]) > 1e-6:
+            print("  스케일 어긋남: Effect_%s  MainGame=%s 생성기=%s"
+                  % (e["id"], m.group(1), e["scale"]))
+            drift += 1
+    if drift:
+        print("%d건 어긋났습니다. MainGame 프리팹은 개발 소관이라 여기서 안 고칩니다 - "
+              "개발에 스케일 값을 알려 주십시오." % drift)
+    else:
+        print("MainGame 사본과 스케일 일치")
+    return drift
+
+
 def main():
     check = "--check" in sys.argv
     if not os.path.isdir(OUT):
@@ -407,6 +440,8 @@ def main():
         build(e, check)
     if not check:
         print("\n어드레서블 등록은 개발 영역입니다 - Effect_{Id}를 주소로 올려야 합니다.")
+    print()
+    sync_check()
     return 0
 
 
