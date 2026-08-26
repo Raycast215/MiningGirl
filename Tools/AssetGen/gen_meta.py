@@ -18,17 +18,22 @@ GUID는 기존 .meta가 있으면 그 값을 그대로 재사용하고, 없을 �
 import hashlib, os, re, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-SPRITES = os.path.join(ROOT, "Client", "MiningGirl", "Assets", "Sprites", "InGame")
+SPRITES = os.path.join(ROOT, "Client", "MiningGirl", "Assets", "Sprites")
 
 # ---------------------------------------------------------------- 프리셋
+# folder        : Assets/Sprites 아래 상대 경로
 # ppu           : Pixels Per Unit
 # max_size      : maxTextureSize (실제 픽셀 크기보다 작으면 Unity가 강제로 축소한다)
 # wrap          : 0=Repeat, 1=Clamp  (가로, 세로)
-# alpha_is_transparency : 알파가 있는 그림은 1, 불투명 배경은 0
+# filter        : 0=Point, 1=Bilinear
+#                 인게임 도트 아트는 Point. UI는 기기마다 크기가 달라 정수배로 안 떨어지므로
+#                 Point로 두면 픽셀 폭이 들쭉날쭉해진다 - Bilinear가 맞다.
+# alpha         : alphaIsTransparency. 알파가 있는 그림은 1, 불투명 배경은 0
 PRESETS = {
-    "monster":    dict(folder="Monster",    ppu=50, max_size=512,  wrap=(1, 1), alpha=1),
-    "background": dict(folder="Background", ppu=88, max_size=4096, wrap=(0, 0), alpha=0),
-    "tower":      dict(folder="Tower",      ppu=88, max_size=2048, wrap=(0, 1), alpha=1),
+    "monster":    dict(folder="InGame/Monster",    ppu=50,  max_size=512,  wrap=(1, 1), filter=0, alpha=1),
+    "background": dict(folder="InGame/Background", ppu=88,  max_size=4096, wrap=(0, 0), filter=0, alpha=0),
+    "tower":      dict(folder="InGame/Tower",      ppu=88,  max_size=2048, wrap=(0, 1), filter=0, alpha=1),
+    "ui":         dict(folder="UI",                ppu=100, max_size=2048, wrap=(1, 1), filter=1, alpha=1),
 }
 
 TEX_META = """fileFormatVersion: 2
@@ -67,7 +72,7 @@ TextureImporter:
   maxTextureSize: {max_size}
   textureSettings:
     serializedVersion: 2
-    filterMode: 0
+    filterMode: {filter}
     aniso: 1
     mipBias: 0
     wrapU: {wrap_u}
@@ -187,12 +192,15 @@ def main():
         return 1
 
     preset = PRESETS[args[0]]
-    folder = os.path.join(SPRITES, preset["folder"])
+    folder = os.path.join(SPRITES, *preset["folder"].split("/"))
     if not os.path.isdir(folder):
         print("폴더가 없습니다:", folder)
         return 1
 
-    for d in (SPRITES, folder):                       # 폴더 .meta
+    d = SPRITES                                       # 상위 폴더들의 .meta까지 확인
+    for part in [None] + preset["folder"].split("/"):
+        if part:
+            d = os.path.join(d, part)
         key = d.replace("\\", "/")
         write(d + ".meta", FOLDER_META.format(guid=resolve_guid(d + ".meta", key)), False)
 
@@ -202,7 +210,8 @@ def main():
         meta_path = os.path.join(folder, name + ".meta")
         text = TEX_META.format(guid=resolve_guid(meta_path, name), ppu=preset["ppu"],
                                max_size=preset["max_size"], alpha=preset["alpha"],
-                               wrap_u=preset["wrap"][0], wrap_v=preset["wrap"][1])
+                               wrap_u=preset["wrap"][0], wrap_v=preset["wrap"][1],
+                               filter=preset["filter"])
         write(meta_path, text, force)
     return 0
 
