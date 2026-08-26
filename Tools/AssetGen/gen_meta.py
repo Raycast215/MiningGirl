@@ -30,7 +30,7 @@ SPRITES = os.path.join(ROOT, "Client", "MiningGirl", "Assets", "Sprites")
 #                 Point로 두면 픽셀 폭이 들쭉날쭉해진다 - Bilinear가 맞다.
 # alpha         : alphaIsTransparency. 알파가 있는 그림은 1, 불투명 배경은 0
 PRESETS = {
-    "monster":    dict(folder="InGame/Monster",    ppu=50,  max_size=512,  wrap=(1, 1), filter=0, alpha=1),
+    "monster":    dict(folder="InGame/Monster",    ppu=100, max_size=512,  wrap=(1, 1), filter=0, alpha=1),
     "background": dict(folder="InGame/Background", ppu=88,  max_size=4096, wrap=(0, 0), filter=0, alpha=0),
     "tower":      dict(folder="InGame/Tower",      ppu=88,  max_size=2048, wrap=(0, 1), filter=0, alpha=1),
     "ui":         dict(folder="UI",                ppu=100, max_size=2048, wrap=(1, 1), filter=1, alpha=1),
