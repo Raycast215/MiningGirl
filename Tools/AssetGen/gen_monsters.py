@@ -209,9 +209,121 @@ def wraith():
     return g
 
 
+def rat():
+    """Monster_006 : 갱도 쥐 - 작고 빠른 잡몹
+
+    가장 작게 잡는다. 슬라임(24x19)보다 작아야 '빠른 놈'으로 읽힌다.
+    분홍 귀/코/꼬리로 흙색 계열(골렘)과 갈라 놓는다.
+    """
+    g = blank()
+    FUR = (112, 96, 84, 255); DARK = (74, 62, 54, 255); LIT = (148, 130, 114, 255)
+    PINK = (214, 138, 142, 255); PINK_D = (166, 96, 102, 255)
+    EYE = (255, 208, 72, 255); INK = (40, 32, 28, 255)
+    ellipse(g, 15, 21, 8, 6, FUR, y0=15, y1=27)           # 몸통
+    ellipse(g, 15, 25, 7, 3, DARK, y0=24, y1=27)          # 아래 음영
+    ellipse(g, 9, 12, 4, 4, FUR)                          # 왼쪽 귀
+    ellipse(g, 9, 12, 2, 2, PINK)
+    ellipse(g, 15, 16, 6, 5, FUR, y0=11, y1=21)           # 머리
+    ellipse(g, 12, 14, 2, 2, LIT)
+    mirror(g)
+    line(g, 23, 24, 28, 20, PINK_D, w=2)                  # 꼬리 - 대칭 뒤에 그려야 한쪽에만 남는다
+    line(g, 27, 21, 29, 15, PINK_D, w=2)
+    put(g, 29, 14, PINK); put(g, 29, 13, PINK)
+    rect(g, 13, 19, 18, 20, FUR)                          # 앞으로 뺀 주둥이
+    rect(g, 14, 21, 17, 22, FUR)
+    rect(g, 14, 22, 17, 23, PINK)
+    put(g, 15, 24, PINK_D); put(g, 16, 24, PINK_D)        # 코끝
+    rect(g, 12, 16, 13, 17, EYE); rect(g, 18, 16, 19, 17, EYE)
+    put(g, 12, 16, (255, 248, 216, 255)); put(g, 18, 16, (255, 248, 216, 255))
+    put(g, 15, 25, (250, 250, 240, 255)); put(g, 16, 25, (250, 250, 240, 255))  # 앞니
+    for x, y in ((10, 20), (11, 21), (19, 20), (20, 21)):
+        put(g, x, y, INK)                                 # 수염
+    outline(g, (32, 26, 22, 255))
+    return g
+
+
+def slag():
+    """Monster_007 : 광재 덩이 - 느리고 단단한 놈
+
+    제련 찌꺼기가 굳은 덩어리. 팔다리를 주지 않아 '둔하다'가 실루엣에 남는다.
+    골렘(밝은 흙색 + 주황 보석)과 겹치지 않게 거의 검은 껍질에 용암 균열로 간다.
+    """
+    g = blank()
+    CRUST = (58, 52, 54, 255); DARK = (34, 30, 32, 255); LIT = (88, 80, 82, 255)
+    GLOW = (255, 132, 40, 255); HOT = (255, 214, 120, 255); EMBER = (196, 64, 24, 255)
+    ellipse(g, 15, 19, 12, 10, CRUST, y0=9, y1=29)        # 본체
+    for x0, y0, x1, y1 in ((5, 14, 9, 20), (7, 8, 13, 13), (4, 21, 10, 26)):
+        rect(g, x0, y0, x1, y1, CRUST)                    # 울퉁불퉁한 돌기
+    mirror(g)
+    rect(g, 11, 6, 19, 11, CRUST)                         # 위쪽 봉우리
+    ellipse(g, 15, 25, 12, 5, DARK, y0=23, y1=29)         # 아래 음영
+    for x, y in ((8, 12), (10, 10), (20, 11), (22, 13), (13, 7), (17, 8)):
+        put(g, x, y, LIT)                                 # 윗면 반사
+    for pts in (((10, 16), (12, 18), (11, 21), (13, 23)),
+                ((20, 15), (18, 18), (20, 20), (18, 23)),
+                ((15, 12), (15, 15), (14, 18), (16, 21), (15, 24))):
+        for i in range(len(pts) - 1):
+            line(g, pts[i][0], pts[i][1], pts[i + 1][0], pts[i + 1][1], GLOW)
+    for x, y in ((15, 15), (15, 18), (11, 19), (19, 19), (15, 22)):
+        put(g, x, y, HOT)                                 # 균열 안쪽 고온부
+    rect(g, 12, 17, 13, 18, EMBER); rect(g, 18, 17, 19, 18, EMBER)   # 눈처럼 읽히는 잉걸
+    put(g, 12, 17, HOT); put(g, 19, 17, HOT)
+    outline(g, (22, 18, 20, 255))
+    return g
+
+
+def brokenminer():
+    """Monster_008 : 무너진 갱부 - Elite
+
+    망령(반투명 청록 + 금 헬멧)과 갈라야 한다. 이쪽은 불투명한 흙빛 시체다.
+    곡괭이가 실루엣 밖으로 튀어나오는 유일한 몬스터라 그것만으로 구분된다.
+    """
+    g = blank()
+    COAT = (126, 74, 58, 255); COAT_D = (84, 46, 34, 255); COAT_L = (158, 100, 78, 255)
+    SKIN = (150, 140, 126, 255); SKIN_D = (104, 96, 86, 255)
+    HELM = (96, 100, 108, 255); HELM_L = (134, 138, 146, 255); HELM_D = (62, 66, 72, 255)
+    LAMP = (255, 246, 190, 255); EYE = (255, 122, 48, 255); INK = (34, 28, 26, 255)
+    HAFT = (110, 78, 48, 255); HEAD = (128, 132, 140, 255); HEAD_L = (170, 174, 182, 255)
+    rect(g, 9, 15, 21, 26, COAT)                          # 상체
+    rect(g, 9, 23, 21, 26, COAT_D)
+    rect(g, 5, 16, 9, 24, COAT); rect(g, 4, 22, 9, 26, SKIN)         # 왼팔 + 손
+    rect(g, 10, 26, 14, 30, COAT_D)                       # 왼다리
+    ellipse(g, 15, 12, 6, 5, SKIN, y0=7, y1=17)           # 얼굴
+    ellipse(g, 12, 10, 2, 2, SKIN_D)
+    rect(g, 8, 5, 22, 9, HELM)                            # 안전모
+    rect(g, 8, 9, 22, 9, HELM_D)
+    ellipse(g, 15, 5, 8, 4, HELM, y0=2, y1=6)
+    rect(g, 8, 3, 22, 3, HELM_L)
+    rect(g, 6, 17, 8, 18, COAT_L)                         # 어깨 하이라이트
+    for x, y in ((11, 19), (13, 22), (18, 20), (16, 24), (10, 21)):
+        put(g, x, y, COAT_D)                              # 찢긴 자국
+    mirror(g)
+    line(g, 22, 28, 27, 8, HAFT, w=2)                     # 곡괭이 자루 - 대칭 뒤 = 한쪽만
+    for x, y in ((23, 9), (24, 8), (25, 7), (26, 7), (27, 7), (28, 8), (29, 9),
+                 (24, 10), (28, 10), (22, 8), (29, 11)):
+        put(g, x, y, HEAD)                                # 곡괭이 날
+    put(g, 25, 6, HEAD_L); put(g, 26, 6, HEAD_L); put(g, 27, 6, HEAD_L)
+    rect(g, 13, 2, 18, 4, LAMP)                           # 헬멧 램프
+    rect(g, 14, 2, 17, 2, (255, 255, 240, 255))
+    rect(g, 12, 11, 13, 13, EYE); rect(g, 18, 11, 19, 13, EYE)      # 눈
+    put(g, 12, 11, (255, 226, 176, 255)); put(g, 18, 11, (255, 226, 176, 255))
+    rect(g, 13, 15, 18, 16, INK)                          # 벌린 입
+    put(g, 14, 17, INK); put(g, 17, 17, INK)
+    for x, y in ((10, 4), (11, 5), (12, 4), (19, 5), (20, 4), (21, 6)):
+        put(g, x, y, HELM_D)                              # 안전모 찌그러진 자국
+    for x, y in ((9, 26), (11, 27), (14, 26), (17, 27), (19, 26), (21, 27)):
+        put(g, x, y, None)                                # 찢겨 나간 옷자락
+    for y in (19, 21):
+        put(g, 14, y, SKIN_D); put(g, 15, y, SKIN)
+        put(g, 16, y, SKIN); put(g, 17, y, SKIN_D)        # 벌어진 옷 사이 갈비
+    outline(g, (30, 22, 18, 255))
+    return g
+
+
 MONSTERS = [("Monster_001_Slime", slime), ("Monster_002_Bat", bat),
             ("Monster_003_Spider", spider), ("Monster_004_Golem", golem),
-            ("Monster_005_Wraith", wraith)]
+            ("Monster_005_Wraith", wraith), ("Monster_006_Rat", rat),
+            ("Monster_007_Slag", slag), ("Monster_008_BrokenMiner", brokenminer)]
 
 os.makedirs(OUT, exist_ok=True)
 for name, fn in MONSTERS:
@@ -221,7 +333,7 @@ for name, fn in MONSTERS:
 # 확인용 컨택트 시트 (체커보드 배경 합성)
 if len(sys.argv) > 2:
     grids = [fn() for _, fn in MONSTERS]
-    w = S * 5
+    w = S * len(MONSTERS)
     sheet = [[None] * w for _ in range(S)]
     for i, g in enumerate(grids):
         for y in range(S):
