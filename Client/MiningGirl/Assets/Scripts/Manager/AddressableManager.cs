@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading;
 using Cysharp.Threading.Tasks;
 using UnityEngine.AddressableAssets;
+using UnityEngine.ResourceManagement.AsyncOperations;
 
 namespace Manager
 {
@@ -12,26 +13,58 @@ namespace Manager
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
         
         /// Asset을 Load하고 반환합니다.
+        ///
+        /// 등록되지 않은 주소를 넣으면 null을 돌려주고 경고만 남깁니다.
+        /// 예전에는 Result가 채워지기를 기다렸는데, 없는 주소는 Result가 영영 null이라
+        /// 여기서 멈춘 채 초기화가 끝나지 않았습니다.
+        /// (아직 만들지 못한 스테이지 BGM처럼, 비어 있는 게 정상인 주소가 있습니다.)
         public async UniTask<T> LoadAsset<T>(string assetName, Action<T> onComplete = null) where T : UnityEngine.Object
         {
+            if (string.IsNullOrEmpty(assetName))
+                return null;
+
             if (_assetCacheDic.TryGetValue(assetName, out var asset))
             {
                 var ret = asset as T;
-                
+
                 onComplete?.Invoke(ret);
                 return ret;
             }
-           
-            var handle = Addressables.LoadAssetAsync<T>(assetName);
 
-            handle.Completed += loadedAsset =>  _assetCacheDic.TryAdd(assetName, loadedAsset.Result);
-            handle.Completed += loadedAsset =>  onComplete?.Invoke(loadedAsset.Result);
-            
-            await UniTask.WaitUntil(() => handle.Result != null, cancellationToken: _cts.Token);
-            
+            AsyncOperationHandle<T> handle;
+
+            try
+            {
+                handle = Addressables.LoadAssetAsync<T>(assetName);
+            }
+            catch (Exception e)
+            {
+                UnityEngine.Debug.LogWarning($"[Addressable] 불러오지 못했습니다: {assetName}\n{e.Message}");
+
+                return null;
+            }
+
+            // 성공이든 실패든 끝나기를 기다립니다.
+            await UniTask.WaitUntil(() => handle.IsDone, cancellationToken: _cts.Token);
+
             if (_cts == null || _cts.IsCancellationRequested)
                 return null;
-            
+
+            if (handle.Status != AsyncOperationStatus.Succeeded || handle.Result == null)
+            {
+                UnityEngine.Debug.LogWarning($"[Addressable] 불러오지 못했습니다: {assetName}");
+
+                // 실패했을 때는 onComplete를 부르지 않습니다.
+                // 받는 쪽이 null을 정상 값으로 받아 그대로 쓰다 터지는 게 더 나쁩니다.
+                Addressables.Release(handle);
+
+                return null;
+            }
+
+            _assetCacheDic.TryAdd(assetName, handle.Result);
+
+            onComplete?.Invoke(handle.Result);
+
             return handle.Result;
         }
 
