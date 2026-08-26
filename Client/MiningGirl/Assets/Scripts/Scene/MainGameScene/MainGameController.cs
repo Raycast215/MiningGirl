@@ -59,8 +59,12 @@ namespace Scene.MainGameScene
         private float towerExposedHeight = 1.54f;
 
         [SerializeField]
-        [Tooltip("타워 윗변에서 캐릭터 기준점까지의 거리. 각목이 다리를 살짝 가리는 양입니다.")]
+        [Tooltip("타워 윗변에서 캐릭터 발까지의 거리. 각목이 다리를 살짝 가리는 양입니다.")]
         private float characterFootOffset = 0.21f;
+
+        [SerializeField]
+        [Tooltip("캐릭터 스프라이트에서 피벗과 발 사이 거리(스케일 1 기준). 그림의 불투명 영역을 재서 나온 값입니다.")]
+        private float characterFootFromPivot = 0.42f;
 
         [Header("UI")]
         [SerializeField]
@@ -91,6 +95,9 @@ namespace Scene.MainGameScene
         private float _elapsed;
         private bool _isRunning;
         private bool _isFinished;
+
+        // 하단 UI 띠에서 역산한 타워 윗변. 캐릭터 배치도 여기서 잽니다.
+        private float _towerTopY;
 
         // 첫 레벨업까지 걸린 시간. 진입 구간이 뚫렸는지 보는 지표라 밸런스를 잡을 때 씁니다.
         // 여기가 늦어지면 못 잡아서 레벨이 안 오르고, 안 올라서 더 못 잡는 되먹임이 걸립니다.
@@ -199,18 +206,31 @@ namespace Scene.MainGameScene
             if (hud == null || tower == null || !hud.TryGetBottomBandWorldTopY(out var uiTopY))
                 return;
 
-            var towerTopY = uiTopY + towerExposedHeight;
+            _towerTopY = uiTopY + towerExposedHeight;
 
             var towerPosition = tower.transform.position;
-            towerPosition.y = towerTopY - tower.HalfHeight;
+            towerPosition.y = _towerTopY - tower.HalfHeight;
             tower.transform.position = towerPosition;
+        }
 
+        // 캐릭터는 그림을 붙인 뒤에 놓습니다.
+        //
+        // 스프라이트 피벗이 가운데라 발이 그보다 0.42유닛(스케일 1 기준) 아래에 있습니다.
+        // 피벗을 기준선에 맞추면 캐릭터가 그만큼 파묻힙니다. 스케일이 바뀌면 그 거리도 같이
+        // 늘어나므로 실제 스케일을 곱합니다.
+        private void PlaceCharacter(GameObject character)
+        {
             if (characterAnchor == null)
                 return;
 
-            var characterPosition = characterAnchor.position;
-            characterPosition.y = towerTopY - characterFootOffset;
-            characterAnchor.position = characterPosition;
+            // 스케일은 루트가 아니라 그림이 붙은 렌더러에서 읽습니다.
+            // 프리팹 구조상 크기 조정이 자식에 걸려 있어, 루트를 보면 항상 1이 나옵니다.
+            var renderer = character != null ? character.GetComponentInChildren<SpriteRenderer>(true) : null;
+            var scale = renderer != null ? Mathf.Abs(renderer.transform.lossyScale.y) : 1f;
+
+            var position = characterAnchor.position;
+            position.y = _towerTopY - characterFootOffset + characterFootFromPivot * scale;
+            characterAnchor.position = position;
         }
 
         // Model이 다 만들어진 뒤에 붙입니다. View는 여기서 처음 값을 받습니다.
@@ -302,6 +322,8 @@ namespace Scene.MainGameScene
             var instance = Instantiate(prefab, characterAnchor);
 
             instance.transform.localPosition = Vector3.zero;
+
+            PlaceCharacter(instance);
         }
 
         private async UniTask LoadBackground()
