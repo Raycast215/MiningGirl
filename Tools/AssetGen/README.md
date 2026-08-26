@@ -115,7 +115,23 @@ Unity 기본값(PPU 100 / Bilinear / 압축)은 도트 아트에 맞지 않아�
 python Tools/AssetGen/gen_meta.py monster
 python Tools/AssetGen/gen_meta.py background
 python Tools/AssetGen/gen_meta.py tower
+python Tools/AssetGen/gen_meta.py ui
 ```
+
+> **`.meta`를 손으로 고쳤다면 프리셋도 같이 고치세요.**
+> Unity 인스펙터나 편집기로 임포트 설정을 바꿔 놓고 여기 `PRESETS`를 그대로 두면,
+> 다음에 이 스크립트를 돌리는 순간 **조용히 되돌아갑니다.** 한참 뒤에 "왜 갑자기
+> 크기가 바뀌었지"로 나타나서 원인을 찾기 어렵습니다.
+> 실제로 몬스터 PPU를 50에서 100으로 바꿨을 때 이 어긋남이 생겼었습니다.
+>
+> 어긋났는지는 `--check`로 확인합니다. 아무것도 쓰지 않고 보고만 합니다.
+>
+> ```bash
+> python Tools/AssetGen/gen_meta.py monster --check
+> ```
+>
+> 어긋남이 나오면 **파일 쪽이 옳으면 `PRESETS`를 고치고, 프리셋 쪽이 옳으면 `--force`로
+> 덮어씁니다.** 어느 쪽이 옳은지는 사람이 정할 문제라 자동으로 맞추지 않습니다.
 
 | 프리셋 | PPU | maxTextureSize | Wrap (U, V) | alphaIsTransparency |
 |---|---|---|---|---|

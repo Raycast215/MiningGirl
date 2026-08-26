@@ -10,6 +10,7 @@ GUID는 기존 .meta가 있으면 그 값을 그대로 재사용하고, 없을 �
     python Tools/AssetGen/gen_meta.py background
     python Tools/AssetGen/gen_meta.py tower
     python Tools/AssetGen/gen_meta.py tower --force     # 기존 .meta도 덮어씀
+    python Tools/AssetGen/gen_meta.py tower --check     # 프리셋과 어긋난 .meta만 보고
 
 기본값은 '이미 있는 .meta는 건드리지 않음'이다. Unity가 임포트하면서 스프라이트
 서브에셋 정보를 .meta에 덧붙이는 경우가 있어, 덮어쓰면 그 정보가 날아갈 수 있다.
@@ -184,11 +185,44 @@ def write(path, text, force):
     print("wrote:", os.path.basename(path))
 
 
+def check(folder, preset):
+    """.meta가 프리셋과 어긋났는지만 확인하고 아무것도 쓰지 않는다
+
+    누가 Unity 인스펙터나 손으로 .meta를 고치면, 다음에 생성기를 돌리는 순간
+    조용히 되돌아간다. 어느 쪽이 옳은지는 사람이 정해야 하므로 보고만 한다.
+    """
+    drift = 0
+    for name in sorted(os.listdir(folder)):
+        if not name.endswith(".png"):
+            continue
+        meta_path = os.path.join(folder, name + ".meta")
+        if not os.path.exists(meta_path):
+            print("없음:", name + ".meta")
+            drift += 1
+            continue
+        cur = open(meta_path, encoding="utf-8").read()
+        for label, pattern, expected in (
+                ("PPU", r"spritePixelsToUnits: (\d+)", preset["ppu"]),
+                ("maxTextureSize", r"maxTextureSize: (\d+)", preset["max_size"]),
+                ("filterMode", r"filterMode: (\d+)", preset["filter"]),
+                ("alphaIsTransparency", r"alphaIsTransparency: (\d+)", preset["alpha"])):
+            m = re.search(pattern, cur)
+            if m and int(m.group(1)) != expected:
+                print(f"어긋남: {name}  {label} 파일={m.group(1)} 프리셋={expected}")
+                drift += 1
+    if drift:
+        print(f"{drift}건 어긋남. 파일 쪽이 맞다면 PRESETS를 고치고, "
+              "프리셋 쪽이 맞다면 --force로 덮어쓰세요.")
+    else:
+        print("어긋남 없음")
+    return 1 if drift else 0
+
+
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("--")]
     force = "--force" in sys.argv
     if not args or args[0] not in PRESETS:
-        print("usage: gen_meta.py {%s} [--force]" % "|".join(PRESETS))
+        print("usage: gen_meta.py {%s} [--force|--check]" % "|".join(PRESETS))
         return 1
 
     preset = PRESETS[args[0]]
@@ -196,6 +230,9 @@ def main():
     if not os.path.isdir(folder):
         print("폴더가 없습니다:", folder)
         return 1
+
+    if "--check" in sys.argv:
+        return check(folder, preset)
 
     d = SPRITES                                       # 상위 폴더들의 .meta까지 확인
     for part in [None] + preset["folder"].split("/"):
