@@ -15,8 +15,20 @@ MonoBehaviour:
   m_GroupName: Skill_Effect
   m_GUID: 528e8f04f1ab0fd47aebf0253dc35230
   m_SerializeEntries:
+  - m_GUID: 5c20661def135af4bac7effe56e473de
+    m_Address: Effect_FireBolt
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Skill_Effect
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 9d33e44048253fc45b57450726681a45
     m_Address: Effect_IceBolt
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - Skill_Effect
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f0287ce9a52e2cf4faf37e47db24fe80
+    m_Address: Effect_LightningBolt
     m_ReadOnly: 0
     m_SerializedLabels:
     - Skill_Effect

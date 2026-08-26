@@ -10,7 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7347268974387684527}
   m_Layer: 0
-  m_Name: Effect_IceBolt
+  m_Name: Effect_LightningBolt
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -114,7 +114,7 @@ SpriteRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_MaskInteraction: 0
-  m_Sprite: {fileID: 1800102225227684685, guid: be6890f4dc204e74ebedd797896e3d99, type: 3}
+  m_Sprite: {fileID: -6278663978556736651, guid: db01faf123279f740bf1ebdb48f551b4, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -134,7 +134,7 @@ Animator:
   m_GameObject: {fileID: 8931555221798311146}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 22100000, guid: fc16ed086baeb804cbfdf92437a55809, type: 2}
+  m_Controller: {fileID: 22100000, guid: e2040c875770cdf46945ebffaada4581, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
