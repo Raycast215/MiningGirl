@@ -6,12 +6,21 @@ namespace Scene.MainGameScene.ViewModel
     // 1차에서는 보상 지급이 없어 별 표시와 기록만 담습니다.
     public class StageResultViewModel
     {
-        // 별 셋을 다 받으려면 타워를 한 대도 안 맞아야 합니다.
-        private const float ThreeStarHealthRatio = 1f;
-        private const float TwoStarHealthRatio = 0.5f;
-
         // 컨트롤러가 구독합니다. 씬을 다시 여는 건 컨트롤러 몫입니다.
         public event Action RetryRequested;
+
+        // 별 기준. 시트에서 옵니다.
+        //
+        // 밸런스를 잡다 보면 자주 건드릴 값이라 코드에 박지 않았습니다.
+        // 기본값 1.0은 "한 대도 안 맞아야 별 셋"이라는 뜻이고, 그게 확정된 규칙입니다.
+        private readonly float _threeStarHealthRate;
+        private readonly float _twoStarHealthRate;
+
+        public StageResultViewModel(float threeStarHealthRate, float twoStarHealthRate)
+        {
+            _threeStarHealthRate = threeStarHealthRate;
+            _twoStarHealthRate = twoStarHealthRate;
+        }
 
         public ObservableProperty<bool> IsVisible { get; } = new ObservableProperty<bool>();
 
@@ -39,6 +48,8 @@ namespace Scene.MainGameScene.ViewModel
             // 처치 수는 넣지 않습니다. 클리어 조건이 전멸이라 클리어면 항상 총량과 같아 정보가 없습니다.
             StarCount.Value = CalculateStars(cleared, towerHealth, towerMaxHealth);
 
+            // 남은 타워 체력을 같이 보여 줘야 왜 별이 둘인지 납득이 됩니다.
+
             IsVisible.Value = true;
         }
 
@@ -53,18 +64,17 @@ namespace Scene.MainGameScene.ViewModel
             RetryRequested?.Invoke();
         }
 
-        // 남은 타워 체력을 보여 줘야 왜 별이 둘인지 납득이 됩니다.
-        private static int CalculateStars(bool cleared, float towerHealth, float towerMaxHealth)
+        private int CalculateStars(bool cleared, float towerHealth, float towerMaxHealth)
         {
             if (!cleared)
                 return 0;
 
             var ratio = towerMaxHealth <= 0f ? 0f : towerHealth / towerMaxHealth;
 
-            if (ratio >= ThreeStarHealthRatio)
+            if (ratio >= _threeStarHealthRate)
                 return 3;
 
-            return ratio >= TwoStarHealthRatio ? 2 : 1;
+            return ratio >= _twoStarHealthRate ? 2 : 1;
         }
 
         private static int Ceil(float value)

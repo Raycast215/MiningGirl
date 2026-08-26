@@ -130,5 +130,20 @@
   "Desc": "[개편] 레벨업 곱선 강도. 마지막 구간 필요량 ÷ 첫 구간 필요량. 1이면 균등",
   "Id": 104,
   "Value": 1.5
+},
+{
+  "ConstantType": "Star3HealthRate",
+  "Desc": "[개편] 별 3개 기준. 남은 타워 체력 비율이 이 값 이상(0~1)",
+  "Id": 105,
+  "Value": 1
+},
+{
+  "ConstantType": "Star2HealthRate",
+  "Desc": [
+    "[개편] 별 2개 기준. 미만이면 별 1개",
+    "실패는 0개"
+  ],
+  "Id": 106,
+  "Value": 0.5
 }
 ]

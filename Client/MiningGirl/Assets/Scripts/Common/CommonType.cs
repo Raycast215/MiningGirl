@@ -106,6 +106,9 @@ public enum EGameConstantType
     WaveStartDelay,      // 스테이지 시작 후 1웨이브까지 대기(초)
     WaveClearDelay,      // 웨이브 전멸 후 다음 웨이브까지 대기(초)
     LevelUpCurveRate,    // 레벨업 곡선 강도. 마지막 구간 필요량 ÷ 첫 구간 필요량. 1이면 균등
+
+    Star3HealthRate,     // 별 3개 기준. 남은 타워 체력 비율이 이 값 이상(0~1)
+    Star2HealthRate,     // 별 2개 기준. 미만이면 별 1개, 실패는 0개
 }
 
 public enum EMonsterType

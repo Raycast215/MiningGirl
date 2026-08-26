@@ -218,7 +218,11 @@ namespace Scene.MainGameScene
             _choiceViewModel = new LevelUpChoiceViewModel(_inventory);
             _choiceViewModel.Selected += HandleChoiceSelected;
 
-            _resultViewModel = new StageResultViewModel();
+            var constants = DataTableManager.Instance.GameConstantDataTable;
+
+            _resultViewModel = new StageResultViewModel(
+                constants.GetValue(EGameConstantType.Star3HealthRate, 1f),
+                constants.GetValue(EGameConstantType.Star2HealthRate, 0.5f));
             _resultViewModel.RetryRequested += Retry;
 
             hud.Bind(_hudViewModel);
