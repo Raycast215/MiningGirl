@@ -34,6 +34,17 @@ namespace Scene.MainGameScene.Battle
 
         public Vector3 Position => transform.position;
 
+#if UNITY_EDITOR
+        // 스폰될 때마다 올라가는 일련번호입니다.
+        //
+        // 풀에서 재사용되므로 같은 오브젝트가 다른 몬스터로 되살아납니다. 발사체가
+        // "조준한 그 놈이 아직 살아 있나"를 참조로만 보면, 죽고 다시 나온 개체를
+        // 살아 있다고 착각합니다. 진단에서만 씁니다.
+        private static int _debugSerialSeed;
+
+        public int DebugSerial { get; private set; }
+#endif
+
         private Tower _tower;
         private Action<MonsterUnit> _onDied;
         private Action<MonsterUnit> _onBlocked;
@@ -76,6 +87,10 @@ namespace Scene.MainGameScene.Battle
             IsAlive = true;
             IsBlocked = false;
             _attackTimer = 0f;
+
+#if UNITY_EDITOR
+            DebugSerial = ++_debugSerialSeed;
+#endif
 
             if (spriteRenderer != null)
                 spriteRenderer.enabled = true;

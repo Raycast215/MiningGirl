@@ -97,7 +97,7 @@ namespace Scene.MainGameScene.Progress
                 if (target == null)
                     return;
 
-                FireOne(skill, origin, target.Position);
+                FireOne(skill, origin, target);
 
                 return;
             }
@@ -114,15 +114,25 @@ namespace Scene.MainGameScene.Progress
                 var muzzle = origin + new Vector3(offset, 0f, 0f);
                 var target = _targetBuffer[Random.Range(0, _targetBuffer.Count)];
 
-                FireOne(skill, muzzle, target.Position);
+                FireOne(skill, muzzle, target);
             }
         }
 
-        private void FireOne(SkillState skill, Vector3 origin, Vector3 targetPosition)
+        private void FireOne(SkillState skill, Vector3 origin, MonsterUnit target)
         {
-            var toTarget = targetPosition - origin;
+            var toTarget = target.Position - origin;
 
-            _launcher.Fire(skill.BuildProjectileSpec(), origin, toTarget, toTarget.magnitude);
+            var projectile = _launcher.Fire(skill.BuildProjectileSpec(), origin, toTarget, toTarget.magnitude);
+
+#if UNITY_EDITOR
+            // 빗나간 이유와 몬스터 종류별 명중률을 가리는 데만 씁니다.
+            if (projectile != null)
+            {
+                projectile.DebugIntendedTarget = target;
+                projectile.DebugIntendedId = target.Row?.Id;
+                projectile.DebugIntendedSerial = target.DebugSerial;
+            }
+#endif
         }
     }
 }

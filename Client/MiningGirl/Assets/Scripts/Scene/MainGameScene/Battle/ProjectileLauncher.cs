@@ -57,10 +57,12 @@ namespace Scene.MainGameScene.Battle
             }
         }
 
-        public void Fire(ProjectileSpec spec, Vector3 origin, Vector3 direction, float targetDistance)
+        // 쏜 발사체를 돌려줍니다. 호출부가 쏜 뒤에 표시를 붙일 수 있게 하려는 것이고,
+        // 쏘지 못하면 null입니다.
+        public Projectile Fire(ProjectileSpec spec, Vector3 origin, Vector3 direction, float targetDistance)
         {
             if (string.IsNullOrEmpty(spec.EffectAssetId) || !_pools.TryGetValue(spec.EffectAssetId, out var pool))
-                return;
+                return null;
 
             var projectile = pool.Get();
 
@@ -68,6 +70,8 @@ namespace Scene.MainGameScene.Battle
             projectile.Setup(_field, _bounds, origin, direction, targetDistance, spec, HandleFinished);
 
             _flying.Add(projectile);
+
+            return projectile;
         }
 
         public void Tick(float deltaTime)

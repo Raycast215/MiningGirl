@@ -44,6 +44,89 @@ namespace Scene.MainGameScene.Battle
 
         private bool _isActive;
 
+#if UNITY_EDITOR
+        // 명중 진단용 계측입니다. 에디터에서만 돌고 빌드에는 들어가지 않습니다.
+        //
+        // "안 맞는다"를 고치려면 먼저 갈라야 합니다.
+        //  - 판정이 닿았는데 처리되지 않은 것    -> 코드 결함
+        //  - 애초에 닿지 않은 것                 -> 유도하지 않는다는 사양대로의 결과
+        // 눈으로 보면 둘이 똑같아 보이므로 숫자로만 구분됩니다.
+        public static int DebugFired;
+        public static int DebugHit;
+        public static int DebugMissed;
+
+        // 빗나간 발이 가장 가까이 스친 거리 ÷ 판정 반경. 1에 가까울수록 아슬아슬했습니다.
+        public static readonly List<float> DebugMissClosest = new List<float>();
+
+        // 빗나갔을 때 조준했던 대상이 이미 죽어 있었는지.
+        public static int DebugMissTargetDead;
+
+        // 몬스터 종류별 집계. 조준한 대상의 Id로 셉니다.
+        //
+        // 전체 비율 하나로는 원인을 못 가릅니다. 유도하지 않는 사양이라면 빠른 몬스터에
+        // 빗나감이 몰려야 하고, 종류와 무관하게 고르게 퍼져 있다면 판정 쪽 문제입니다.
+        public static readonly Dictionary<string, int> DebugFiredBy = new Dictionary<string, int>();
+
+        // 조준한 그 몬스터를 맞힌 수.
+        public static readonly Dictionary<string, int> DebugHitTargetBy = new Dictionary<string, int>();
+
+        // 조준한 대상은 놓쳤지만 다른 몬스터를 맞힌 수.
+        // 플레이어 눈에는 "옆에 있던 놈이 죽는다"로 보입니다.
+        public static readonly Dictionary<string, int> DebugHitOtherBy = new Dictionary<string, int>();
+
+        public static void DebugResetCounters()
+        {
+            DebugFired = 0;
+            DebugHit = 0;
+            DebugMissed = 0;
+            DebugMissTargetDead = 0;
+            DebugMissTargetGone = 0;
+            DebugMissNear = 0;
+            DebugMissWide = 0;
+            DebugMissClosest.Clear();
+            DebugFiredBy.Clear();
+            DebugHitTargetBy.Clear();
+            DebugHitOtherBy.Clear();
+            DebugMissGoneBy.Clear();
+            DebugMissNearBy.Clear();
+            DebugMissWideBy.Clear();
+        }
+
+        private static void DebugCount(Dictionary<string, int> table, string id)
+        {
+            if (string.IsNullOrEmpty(id))
+                return;
+
+            table.TryGetValue(id, out var count);
+            table[id] = count + 1;
+        }
+
+        // 조준했던 대상. 빗나간 이유를 가르는 데만 씁니다.
+        public MonsterUnit DebugIntendedTarget { get; set; }
+
+        // 조준 시점의 종류 Id. 대상이 풀로 돌아가 다른 종류로 재사용될 수 있어 따로 들고 있습니다.
+        public string DebugIntendedId { get; set; }
+
+        // 조준 시점의 대상 일련번호. 도착했을 때 번호가 다르면 그 사이에 죽고 새로 나온 개체입니다.
+        public int DebugIntendedSerial { get; set; }
+
+        // 빗나간 이유를 세 갈래로 나눈 집계입니다.
+        public static int DebugMissTargetGone;   // 날아가는 사이에 대상이 죽었습니다
+        public static int DebugMissNear;         // 대상은 살아 있고, 판정 반경 언저리를 스쳤습니다
+        public static int DebugMissWide;         // 대상은 살아 있는데 한참 벗어났습니다
+
+        // 같은 세 갈래를 몬스터 종류별로도 셉니다.
+        // 종류별로 갈라야 "빠른 놈이라 놓친 것"과 "죽은 놈에게 쏜 것"이 구분됩니다.
+        public static readonly Dictionary<string, int> DebugMissGoneBy = new Dictionary<string, int>();
+        public static readonly Dictionary<string, int> DebugMissNearBy = new Dictionary<string, int>();
+        public static readonly Dictionary<string, int> DebugMissWideBy = new Dictionary<string, int>();
+
+        private float _debugClosest;
+        private float _debugClosestToTarget;
+        private bool _debugHitAny;
+        private bool _debugHitTarget;
+#endif
+
         public void Setup(
             MonsterField field,
             BattleBounds bounds,
@@ -81,6 +164,17 @@ namespace Scene.MainGameScene.Battle
             transform.rotation = Quaternion.Euler(0f, 0f, Mathf.Atan2(_direction.y, _direction.x) * Mathf.Rad2Deg);
 
             _isActive = true;
+
+#if UNITY_EDITOR
+            DebugFired++;
+            _debugClosest = float.MaxValue;
+            _debugClosestToTarget = float.MaxValue;
+            _debugHitAny = false;
+            _debugHitTarget = false;
+            DebugIntendedTarget = null;
+            DebugIntendedId = null;
+            DebugIntendedSerial = 0;
+#endif
         }
 
         public void Tick(float deltaTime)
@@ -111,7 +205,32 @@ namespace Scene.MainGameScene.Battle
             }
 
             TryHit(previous, position);
+
+#if UNITY_EDITOR
+            DebugTrackTarget(previous, position);
+#endif
         }
+
+#if UNITY_EDITOR
+        // 조준했던 그 대상에 얼마나 가까이 갔는지만 따로 잽니다.
+        // TryHit은 맞은 순간 멈추므로, 놓친 발이 어디까지 갔는지는 여기서만 남습니다.
+        private void DebugTrackTarget(Vector3 from, Vector3 to)
+        {
+            var target = DebugIntendedTarget;
+
+            if (target == null || !target.IsAlive || target.DebugSerial != DebugIntendedSerial)
+                return;
+
+            var reach = _hitRange + target.BodyRadius;
+
+            if (reach <= 0f)
+                return;
+
+            _debugClosestToTarget = Mathf.Min(
+                _debugClosestToTarget,
+                Mathf.Sqrt(SqrDistanceToSegment(target.Position, from, to)) / reach);
+        }
+#endif
 
         private Vector3 CalculatePosition()
         {
@@ -151,12 +270,26 @@ namespace Scene.MainGameScene.Battle
                 // 0.3만으로 중심을 맞히라고 하면 거의 스쳐 지나갑니다.
                 // 반경은 종마다 다르고 프리팹 스케일도 반영되므로 개체에서 읽습니다.
                 var reach = _hitRange + unit.BodyRadius;
+                var sqrDistance = SqrDistanceToSegment(unit.Position, from, to);
 
-                if (SqrDistanceToSegment(unit.Position, from, to) > reach * reach)
+#if UNITY_EDITOR
+                // 맞히지 못한 발도 얼마나 가까이 스쳤는지 남겨 둡니다.
+                if (reach > 0f)
+                    _debugClosest = Mathf.Min(_debugClosest, Mathf.Sqrt(sqrDistance) / reach);
+#endif
+
+                if (sqrDistance > reach * reach)
                     continue;
 
                 _hit.Add(unit);
                 unit.TakeDamage(_damage);
+
+#if UNITY_EDITOR
+                _debugHitAny = true;
+
+                if (unit == DebugIntendedTarget)
+                    _debugHitTarget = true;
+#endif
 
                 _remainingHits--;
 
@@ -188,6 +321,54 @@ namespace Scene.MainGameScene.Battle
                 return;
 
             _isActive = false;
+
+#if UNITY_EDITOR
+            DebugCount(DebugFiredBy, DebugIntendedId);
+
+            if (_debugHitTarget)
+            {
+                DebugHit++;
+                DebugCount(DebugHitTargetBy, DebugIntendedId);
+            }
+            else if (_debugHitAny)
+            {
+                DebugHit++;
+                DebugCount(DebugHitOtherBy, DebugIntendedId);
+            }
+            else
+            {
+                DebugMissed++;
+
+                if (_debugClosest < float.MaxValue)
+                    DebugMissClosest.Add(_debugClosest);
+
+                var target = DebugIntendedTarget;
+                var targetGone = target == null
+                    || !target.IsAlive
+                    || target.DebugSerial != DebugIntendedSerial;
+
+                if (targetGone)
+                {
+                    DebugMissTargetDead++;
+                    DebugMissTargetGone++;
+                    DebugCount(DebugMissGoneBy, DebugIntendedId);
+                }
+                else if (_debugClosestToTarget <= 1.5f)
+                {
+                    DebugMissNear++;
+                    DebugCount(DebugMissNearBy, DebugIntendedId);
+                }
+                else
+                {
+                    DebugMissWide++;
+                    DebugCount(DebugMissWideBy, DebugIntendedId);
+                }
+            }
+
+            DebugIntendedTarget = null;
+            DebugIntendedId = null;
+#endif
+
             _onFinished?.Invoke(this);
         }
     }
