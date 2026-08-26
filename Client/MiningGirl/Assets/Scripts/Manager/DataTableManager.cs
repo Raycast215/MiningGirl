@@ -19,6 +19,7 @@ namespace Manager
         //
         
         public StageDataTable StageDataTable { get; private set; }
+        public WaveDataTable WaveDataTable { get; private set; }
 
         public async UniTaskVoid PreLoadData()
         {
@@ -43,6 +44,7 @@ namespace Manager
             // 
             
             StageDataTable = Create<StageDataTable>();
+            WaveDataTable = Create<WaveDataTable>();
 
             IsInitialized = true;
         }
