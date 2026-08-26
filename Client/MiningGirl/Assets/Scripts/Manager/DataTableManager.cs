@@ -21,6 +21,7 @@ namespace Manager
         public StageDataTable StageDataTable { get; private set; }
         public WaveDataTable WaveDataTable { get; private set; }
         public MonsterDataTable MonsterDataTable { get; private set; }
+        public ExpDataTable ExpDataTable { get; private set; }
 
         public async UniTaskVoid PreLoadData()
         {
@@ -47,6 +48,7 @@ namespace Manager
             StageDataTable = Create<StageDataTable>();
             WaveDataTable = Create<WaveDataTable>();
             MonsterDataTable = Create<MonsterDataTable>();
+            ExpDataTable = Create<ExpDataTable>();
 
             IsInitialized = true;
         }

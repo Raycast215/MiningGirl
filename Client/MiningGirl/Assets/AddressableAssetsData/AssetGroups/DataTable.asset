@@ -63,6 +63,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - DataTable
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9016a070b9487b94983883abb6f2d685
+    m_Address: ExpDataTable
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - DataTable
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: c4cb4a9532eefc1459259f7aa25c5c0b
     m_Address: CharacterStatDataTable
     m_ReadOnly: 0
