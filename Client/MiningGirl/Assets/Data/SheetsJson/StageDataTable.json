@@ -10,7 +10,7 @@
   "Id": "Stage_01",
   "MonsterStatMultiplier": 1,
   "Name": "첫 번째 갱도",
-  "TotalMonsterCount": 200,
-  "WaveCount": 20
+  "TotalMonsterCount": 145,
+  "WaveCount": 16
 }
 ]

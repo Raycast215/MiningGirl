@@ -63,5 +63,44 @@
   "MoveSpeed": 1.6,
   "Name": "심층의 것",
   "SpawnDelay": 0
+},
+{
+  "AttackDelay": 0.9,
+  "AttackDistance": 1.2,
+  "Damage": 6,
+  "Gold": 20,
+  "Id": "Monster_006",
+  "KnockbackResist": 0.2,
+  "MaxHealth": 23,
+  "MonsterType": "Normal",
+  "MoveSpeed": 3.6,
+  "Name": "갱도 쥐",
+  "SpawnDelay": 4
+},
+{
+  "AttackDelay": 1.4,
+  "AttackDistance": 1.2,
+  "Damage": 10,
+  "Gold": 26,
+  "Id": "Monster_007",
+  "KnockbackResist": 0.6,
+  "MaxHealth": 30,
+  "MonsterType": "Normal",
+  "MoveSpeed": 2.4,
+  "Name": "광재 덩이",
+  "SpawnDelay": 6
+},
+{
+  "AttackDelay": 1.6,
+  "AttackDistance": 1.4,
+  "Damage": 24,
+  "Gold": 150,
+  "Id": "Monster_008",
+  "KnockbackResist": 0.9,
+  "MaxHealth": 180,
+  "MonsterType": "Elite",
+  "MoveSpeed": 2.2,
+  "Name": "무너진 갱부",
+  "SpawnDelay": 10
 }
 ]

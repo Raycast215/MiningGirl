@@ -130,5 +130,203 @@
   "UpgradeType": "HitRange",
   "ValueType": "Mul",
   "Weight": 80
+},
+{
+  "Desc": "데미지가 {0}% 증가합니다",
+  "EffectValue": 0.2,
+  "Id": "Upg_QuartzShot_Damage",
+  "Name": "석영 탄 위력",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_QuartzShot",
+  "UpgradeType": "Damage",
+  "ValueType": "Mul",
+  "Weight": 100
+},
+{
+  "Desc": "피격 범위가 {0}% 증가합니다",
+  "EffectValue": 0.25,
+  "Id": "Upg_QuartzShot_HitRange",
+  "Name": "석영 탄 범위",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_QuartzShot",
+  "UpgradeType": "HitRange",
+  "ValueType": "Mul",
+  "Weight": 80
+},
+{
+  "Desc": "관통 수가 {0} 늘어납니다",
+  "EffectValue": 1,
+  "Id": "Upg_QuartzShot_Pierce",
+  "Name": "석영 탄 관통",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_QuartzShot",
+  "UpgradeType": "PierceCount",
+  "ValueType": "Add",
+  "Weight": 50
+},
+{
+  "Desc": "관통 수가 {0} 늘어납니다",
+  "EffectValue": 1,
+  "Id": "Upg_MineGust_Pierce",
+  "Name": "삭풍 관통",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_MineGust",
+  "UpgradeType": "PierceCount",
+  "ValueType": "Add",
+  "Weight": 100
+},
+{
+  "Desc": "데미지가 {0}% 증가합니다",
+  "EffectValue": 0.2,
+  "Id": "Upg_MineGust_Damage",
+  "Name": "삭풍 위력",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_MineGust",
+  "UpgradeType": "Damage",
+  "ValueType": "Mul",
+  "Weight": 80
+},
+{
+  "Desc": "피격 범위가 {0}% 증가합니다",
+  "EffectValue": 0.25,
+  "Id": "Upg_MineGust_HitRange",
+  "Name": "삭풍 범위",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_MineGust",
+  "UpgradeType": "HitRange",
+  "ValueType": "Mul",
+  "Weight": 60
+},
+{
+  "Desc": "관통 수가 {0} 늘어납니다",
+  "EffectValue": 1,
+  "Id": "Upg_ShaftArrow_Pierce",
+  "Name": "갱도 화살 관통",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_ShaftArrow",
+  "UpgradeType": "PierceCount",
+  "ValueType": "Add",
+  "Weight": 100
+},
+{
+  "Desc": "데미지가 {0}% 증가합니다",
+  "EffectValue": 0.2,
+  "Id": "Upg_ShaftArrow_Damage",
+  "Name": "갱도 화살 위력",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_ShaftArrow",
+  "UpgradeType": "Damage",
+  "ValueType": "Mul",
+  "Weight": 80
+},
+{
+  "Desc": "피격 범위가 {0}% 증가합니다",
+  "EffectValue": 0.25,
+  "Id": "Upg_ShaftArrow_HitRange",
+  "Name": "갱도 화살 범위",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_ShaftArrow",
+  "UpgradeType": "HitRange",
+  "ValueType": "Mul",
+  "Weight": 60
+},
+{
+  "Desc": "관통 수가 {0} 늘어납니다",
+  "EffectValue": 1,
+  "Id": "Upg_DrillWedge_Pierce",
+  "Name": "곱궜이 투척 관통",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_DrillWedge",
+  "UpgradeType": "PierceCount",
+  "ValueType": "Add",
+  "Weight": 100
+},
+{
+  "Desc": "데미지가 {0}% 증가합니다",
+  "EffectValue": 0.2,
+  "Id": "Upg_DrillWedge_Damage",
+  "Name": "곱궜이 투척 위력",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_DrillWedge",
+  "UpgradeType": "Damage",
+  "ValueType": "Mul",
+  "Weight": 80
+},
+{
+  "Desc": "피격 범위가 {0}% 증가합니다",
+  "EffectValue": 0.25,
+  "Id": "Upg_DrillWedge_HitRange",
+  "Name": "곱궜이 투척 범위",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_DrillWedge",
+  "UpgradeType": "HitRange",
+  "ValueType": "Mul",
+  "Weight": 60
+},
+{
+  "Desc": "발사체가 {0}개 늘어납니다",
+  "EffectValue": 1,
+  "Id": "Upg_OreShard_Projectile",
+  "Name": "광석 파편 발사체",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_OreShard",
+  "UpgradeType": "ProjectileCount",
+  "ValueType": "Add",
+  "Weight": 100
+},
+{
+  "Desc": "피격 범위가 {0}% 증가합니다",
+  "EffectValue": 0.25,
+  "Id": "Upg_OreShard_HitRange",
+  "Name": "광석 파편 범위",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_OreShard",
+  "UpgradeType": "HitRange",
+  "ValueType": "Mul",
+  "Weight": 80
+},
+{
+  "Desc": "데미지가 {0}% 증가합니다",
+  "EffectValue": 0.2,
+  "Id": "Upg_OreShard_Damage",
+  "Name": "광석 파편 위력",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_OreShard",
+  "UpgradeType": "Damage",
+  "ValueType": "Mul",
+  "Weight": 60
+},
+{
+  "Desc": "발사체가 {0}개 늘어납니다",
+  "EffectValue": 1,
+  "Id": "Upg_Cavein_Projectile",
+  "Name": "낙반 발사체",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_Cavein",
+  "UpgradeType": "ProjectileCount",
+  "ValueType": "Add",
+  "Weight": 100
+},
+{
+  "Desc": "피격 범위가 {0}% 증가합니다",
+  "EffectValue": 0.25,
+  "Id": "Upg_Cavein_HitRange",
+  "Name": "낙반 범위",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_Cavein",
+  "UpgradeType": "HitRange",
+  "ValueType": "Mul",
+  "Weight": 80
+},
+{
+  "Desc": "데미지가 {0}% 증가합니다",
+  "EffectValue": 0.2,
+  "Id": "Upg_Cavein_Damage",
+  "Name": "낙반 위력",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_Cavein",
+  "UpgradeType": "Damage",
+  "ValueType": "Mul",
+  "Weight": 60
 }
 ]

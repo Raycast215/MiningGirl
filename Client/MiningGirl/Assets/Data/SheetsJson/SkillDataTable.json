@@ -94,5 +94,197 @@
   ],
   "SkillType": "Bolt",
   "Weight": 100
+},
+{
+  "CooldownList": [
+    2.7,
+    2.45,
+    2.15,
+    1.9,
+    1.6
+  ],
+  "Desc": "석영 조각을 쏘아 {0}의 피해",
+  "EffectAssetId": "Effect_QuartzShot",
+  "EffectValueList": [
+    17,
+    23,
+    30,
+    39,
+    51
+  ],
+  "HitRange": 0.3,
+  "IconAssetId": "Skill_Icon_1079",
+  "Id": "Skill_QuartzShot",
+  "Name": "석영 탄",
+  "PierceCount": 0,
+  "ProjectileCount": 1,
+  "ProjectileMoveType": "Linear",
+  "ProjectileSpeed": 14,
+  "ProjectileWaveList": [
+    0,
+    0
+  ],
+  "SkillType": "Bolt",
+  "Weight": 0
+},
+{
+  "CooldownList": [
+    2.6,
+    2.35,
+    2.1,
+    1.8,
+    1.55
+  ],
+  "Desc": "갱도 바람을 날려 {0}의 피해. 하나를 더 뚫는다",
+  "EffectAssetId": "Effect_MineGust",
+  "EffectValueList": [
+    12,
+    17,
+    23,
+    30,
+    39
+  ],
+  "HitRange": 0.3,
+  "IconAssetId": "Skill_Icon_1055",
+  "Id": "Skill_MineGust",
+  "Name": "삭풍",
+  "PierceCount": 1,
+  "ProjectileCount": 1,
+  "ProjectileMoveType": "Linear",
+  "ProjectileSpeed": 12,
+  "ProjectileWaveList": [
+    0,
+    0
+  ],
+  "SkillType": "Bolt",
+  "Weight": 0
+},
+{
+  "CooldownList": [
+    3.5,
+    3.15,
+    2.8,
+    2.45,
+    2.1
+  ],
+  "Desc": "화살을 쏘아 {0}의 피해. 하나를 더 뚫는다",
+  "EffectAssetId": "Effect_ShaftArrow",
+  "EffectValueList": [
+    17,
+    23,
+    30,
+    39,
+    51
+  ],
+  "HitRange": 0.3,
+  "IconAssetId": "Skill_Icon_1056",
+  "Id": "Skill_ShaftArrow",
+  "Name": "갱도 화살",
+  "PierceCount": 1,
+  "ProjectileCount": 1,
+  "ProjectileMoveType": "Linear",
+  "ProjectileSpeed": 14,
+  "ProjectileWaveList": [
+    0,
+    0
+  ],
+  "SkillType": "Bolt",
+  "Weight": 0
+},
+{
+  "CooldownList": [
+    4.7,
+    4.25,
+    3.75,
+    3.3,
+    2.8
+  ],
+  "Desc": "곱궜이를 던져 {0}의 피해. 하나를 더 뚫는다",
+  "EffectAssetId": "Effect_DrillWedge",
+  "EffectValueList": [
+    23,
+    30,
+    39,
+    51,
+    66
+  ],
+  "HitRange": 0.3,
+  "IconAssetId": "Skill_Icon_1123",
+  "Id": "Skill_DrillWedge",
+  "Name": "곱궜이 투척",
+  "PierceCount": 1,
+  "ProjectileCount": 1,
+  "ProjectileMoveType": "Linear",
+  "ProjectileSpeed": 16,
+  "ProjectileWaveList": [
+    0,
+    0
+  ],
+  "SkillType": "Bolt",
+  "Weight": 0
+},
+{
+  "CooldownList": [
+    4,
+    3.6,
+    3.2,
+    2.8,
+    2.4
+  ],
+  "Desc": "파편 두 개를 날려 각각 {0}의 피해",
+  "EffectAssetId": "Effect_OreShard",
+  "EffectValueList": [
+    17,
+    23,
+    30,
+    39,
+    51
+  ],
+  "HitRange": 0.3,
+  "IconAssetId": "Skill_Icon_1111",
+  "Id": "Skill_OreShard",
+  "Name": "광석 파편",
+  "PierceCount": 0,
+  "ProjectileCount": 2,
+  "ProjectileMoveType": "Sine",
+  "ProjectileSpeed": 14,
+  "ProjectileWaveList": [
+    0.5,
+    2
+  ],
+  "SkillType": "Bolt",
+  "Weight": 0
+},
+{
+  "CooldownList": [
+    5.4,
+    4.85,
+    4.3,
+    3.8,
+    3.25
+  ],
+  "Desc": "돌덩이 두 개를 떨어뜨려 각각 {0}의 피해",
+  "EffectAssetId": "Effect_Cavein",
+  "EffectValueList": [
+    23,
+    30,
+    39,
+    51,
+    66
+  ],
+  "HitRange": 0.3,
+  "IconAssetId": "Skill_Icon_1050",
+  "Id": "Skill_Cavein",
+  "Name": "낙반",
+  "PierceCount": 0,
+  "ProjectileCount": 2,
+  "ProjectileMoveType": "Sine",
+  "ProjectileSpeed": 16,
+  "ProjectileWaveList": [
+    0.6,
+    1.5
+  ],
+  "SkillType": "Bolt",
+  "Weight": 0
 }
 ]
