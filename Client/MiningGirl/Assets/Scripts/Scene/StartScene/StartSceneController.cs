@@ -1,36 +1,21 @@
 using Cysharp.Threading.Tasks;
-using DG.Tweening;
 using Manager;
-using TMPro;
+using Scene.StartScene.UI;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 namespace Scene.StartScene
 {
     public class StartSceneController : GameMonoInitializer
     {
         [SerializeField]
-        private Button touchButton;
-
-        [Header("Slider")]
+        private LoadingProgressUI loadingProgressUI;
         [SerializeField]
-        private Slider slider;
-        [SerializeField] 
-        private TMP_Text text;
-        
-        [Header("StartUI")]
-        [SerializeField] 
-        private GameObject startObject;
-        [SerializeField]
-        private TMP_Text startText;
-        
-        private bool _hasStarted;
+        private StartPromptUI startPromptUI;
 
         private void Awake()
         {
-            touchButton.onClick.RemoveAllListeners();
-            touchButton.onClick.AddListener(StartGame);
+            startPromptUI.Bind(StartGame);
         }
 
         private void Start()
@@ -40,10 +25,10 @@ namespace Scene.StartScene
 
         private async UniTaskVoid Initialize()
         {
+            // 고정 프레임 설정.
             Application.targetFrameRate = 120;
 
             // 플레이 중 화면이 꺼지지 않도록 합니다.
-            // 자동 채굴이라 손을 대지 않는 시간이 길어서, 기본 설정이면 화면이 꺼져버립니다.
             Screen.sleepTimeout = SleepTimeout.NeverSleep;
 
             // 메인씬 재진입 시 예외.
@@ -52,38 +37,32 @@ namespace Scene.StartScene
                 CoverUIManager.Instance.CoverUI.Hide().Forget();
                 await UniTask.WaitUntil(() => !CoverUIManager.Instance.CoverUI.gameObject.activeInHierarchy);
             }
-            
-            text.gameObject.SetActive(true);
-            slider.gameObject.SetActive(true);
-            startObject.SetActive(false);
-            touchButton.gameObject.SetActive(false);
-            
-            text.text = "데이터 초기화...";
-            slider.value = 0;
+
+            loadingProgressUI.Show();
+            startPromptUI.Hide();
+
+            loadingProgressUI.SetMessage("데이터 초기화...");
+            loadingProgressUI.SetProgress(0f);
             await UniTask.Yield();
-            
+
             DataTableManager.Instance.PreLoadData().Forget();
             CoverUIManager.Instance.PreLoadData();
             SoundManager.Instance.PreLoadData();
-            
+
             await UniTask.WaitUntil(() => DataTableManager.Instance.IsInitialized);
             await UniTask.WaitUntil(() => CoverUIManager.Instance.IsInitialized);
             await UniTask.WaitUntil(() => SoundManager.Instance.IsInitialized);
 
             SoundManager.Instance.PlayBgm("Bgm_1");
-            
-            slider.DOValue(1.0f, 1.0f);
+
+            loadingProgressUI.AnimateProgress(1.0f, 1.0f);
             await UniTask.WaitForSeconds(1.0f);
-            
-            text.text = "초기화 완료...";
+
+            loadingProgressUI.SetMessage("초기화 완료...");
             await UniTask.WaitForSeconds(1.0f);
-            
-            text.gameObject.SetActive(false);
-            slider.gameObject.SetActive(false);
-            startObject.SetActive(true);
-            touchButton.gameObject.SetActive(true);
-            
-            startText.DOFade(0.1f, 1.0f).SetLoops(-1, LoopType.Yoyo);
+
+            loadingProgressUI.Hide();
+            startPromptUI.Show();
 
             // 테스트 편의를 위해 터치하지 않아도 3초 뒤 자동으로 다음 씬으로 넘어갑니다.
             // 그 전에 터치하면 기존처럼 즉시 넘어갑니다.
@@ -95,14 +74,14 @@ namespace Scene.StartScene
             await UniTask.WaitForSeconds(delaySeconds);
             StartGame();
         }
-        
+
         private void StartGame()
         {
-            if (_hasStarted)
+            if (IsInitialized)
                 return;
 
-            _hasStarted = true;
-            
+            IsInitialized = true;
+
             CoverUIManager.Instance.CoverUI.Show(() => SceneManager.LoadScene("MainGameScene")).Forget();
         }
     }

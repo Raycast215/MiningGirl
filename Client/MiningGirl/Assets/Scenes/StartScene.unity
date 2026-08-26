@@ -545,7 +545,10 @@ PrefabInstance:
     - targetCorrespondingSourceObject: {fileID: 6762444359272240078, guid: 3244e81f6a36842208618a4c786c4a67, type: 3}
       insertIndex: -1
       addedObject: {fileID: 1032260628}
-    m_AddedComponents: []
+    m_AddedComponents:
+    - targetCorrespondingSourceObject: {fileID: 242345934390285347, guid: 3244e81f6a36842208618a4c786c4a67, type: 3}
+      insertIndex: -1
+      addedObject: {fileID: 577631388}
   m_SourcePrefab: {fileID: 100100000, guid: 3244e81f6a36842208618a4c786c4a67, type: 3}
 --- !u!224 &577631385 stripped
 RectTransform:
@@ -557,12 +560,31 @@ MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 7475008441809014677, guid: 3244e81f6a36842208618a4c786c4a67, type: 3}
   m_PrefabInstance: {fileID: 577631384}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 0}
+  m_GameObject: {fileID: 577631387}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &577631387 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 242345934390285347, guid: 3244e81f6a36842208618a4c786c4a67, type: 3}
+  m_PrefabInstance: {fileID: 577631384}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &577631388
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 577631387}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e5f250aa6b6b4e94da3b5870a3c3b643, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Scene.StartScene.UI.LoadingProgressUI
+  slider: {fileID: 577631386}
+  messageText: {fileID: 1032260629}
 --- !u!1 &670299965
 GameObject:
   m_ObjectHideFlags: 0
@@ -653,6 +675,7 @@ GameObject:
   - component: {fileID: 916547020}
   - component: {fileID: 916547023}
   - component: {fileID: 916547022}
+  - component: {fileID: 916547024}
   m_Layer: 5
   m_Name: StartObject
   m_TagString: Untagged
@@ -719,6 +742,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 916547019}
   m_CullTransparentMesh: 0
+--- !u!114 &916547024
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 916547019}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a06bf699ae1dd27409bcc7f80e9f900a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Scene.StartScene.UI.StartPromptUI
+  root: {fileID: 916547019}
+  promptText: {fileID: 1060852772}
+  touchButton: {fileID: 1205295281}
+  blinkAlpha: 0.1
+  blinkDuration: 1
 --- !u!1 &1032260627
 GameObject:
   m_ObjectHideFlags: 0
@@ -1249,11 +1289,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e97b288f6bd2dfc4d993e7d9454d9b2d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  touchButton: {fileID: 1205295281}
-  slider: {fileID: 577631386}
-  text: {fileID: 1032260629}
-  startObject: {fileID: 916547019}
-  startText: {fileID: 1060852772}
+  loadingProgressUI: {fileID: 577631388}
+  startPromptUI: {fileID: 916547024}
 --- !u!4 &1705267681
 Transform:
   m_ObjectHideFlags: 0
