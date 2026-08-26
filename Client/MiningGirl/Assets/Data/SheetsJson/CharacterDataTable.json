@@ -12,14 +12,14 @@
   "AssetId": "Player",
   "Desc": "한 방이 무거운 시작 스킬",
   "Id": "Character_002",
-  "Name": "가넫",
+  "Name": "가넷",
   "StartSkillId": "Skill_LightningBolt",
   "TowerMaxHealth": 1000,
   "UnlockPrice": 3000
 },
 {
   "AssetId": "Player",
-  "Desc": "자잔하게 자주 때리는 시작 스킬",
+  "Desc": "자잘하게 자주 때리는 시작 스킬",
   "Id": "Character_003",
   "Name": "오팔",
   "StartSkillId": "Skill_IceBolt",
