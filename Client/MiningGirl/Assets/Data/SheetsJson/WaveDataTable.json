@@ -17,7 +17,7 @@
 },
 {
   "Counts": 6,
-  "Duration": 10,
+  "Duration": 9,
   "Id": "W_S01_03",
   "MonsterIds": "Monster_001",
   "StageId": "Stage_01",
@@ -28,7 +28,7 @@
     5,
     1
   ],
-  "Duration": 11,
+  "Duration": 9,
   "Id": "W_S01_04",
   "MonsterIds": [
     "Monster_001",
@@ -42,7 +42,7 @@
     5,
     2
   ],
-  "Duration": 12,
+  "Duration": 9,
   "Id": "W_S01_05",
   "MonsterIds": [
     "Monster_001",
@@ -56,7 +56,7 @@
     5,
     3
   ],
-  "Duration": 12,
+  "Duration": 9,
   "Id": "W_S01_06",
   "MonsterIds": [
     "Monster_001",
@@ -70,7 +70,7 @@
     5,
     3
   ],
-  "Duration": 12,
+  "Duration": 10,
   "Id": "W_S01_07",
   "MonsterIds": [
     "Monster_001",
@@ -85,7 +85,7 @@
     3,
     1
   ],
-  "Duration": 13,
+  "Duration": 10,
   "Id": "W_S01_08",
   "MonsterIds": [
     "Monster_001",
@@ -99,9 +99,9 @@
   "Counts": [
     5,
     3,
-    2
+    1
   ],
-  "Duration": 13,
+  "Duration": 10,
   "Id": "W_S01_09",
   "MonsterIds": [
     "Monster_001",
@@ -114,10 +114,10 @@
 {
   "Counts": [
     5,
-    4,
+    3,
     2
   ],
-  "Duration": 13,
+  "Duration": 10,
   "Id": "W_S01_10",
   "MonsterIds": [
     "Monster_001",
@@ -129,11 +129,11 @@
 },
 {
   "Counts": [
-    5,
-    4,
+    6,
+    3,
     2
   ],
-  "Duration": 14,
+  "Duration": 10,
   "Id": "W_S01_11",
   "MonsterIds": [
     "Monster_001",
@@ -145,11 +145,11 @@
 },
 {
   "Counts": [
-    5,
+    6,
     4,
-    3
+    2
   ],
-  "Duration": 14,
+  "Duration": 10,
   "Id": "W_S01_12",
   "MonsterIds": [
     "Monster_001",
@@ -161,12 +161,12 @@
 },
 {
   "Counts": [
+    6,
     4,
-    4,
-    3,
+    1,
     1
   ],
-  "Duration": 14,
+  "Duration": 10,
   "Id": "W_S01_13",
   "MonsterIds": [
     "Monster_001",
@@ -179,12 +179,12 @@
 },
 {
   "Counts": [
+    6,
     4,
-    4,
-    3,
+    2,
     1
   ],
-  "Duration": 15,
+  "Duration": 10,
   "Id": "W_S01_14",
   "MonsterIds": [
     "Monster_001",
@@ -197,12 +197,12 @@
 },
 {
   "Counts": [
+    6,
     4,
-    4,
-    4,
-    2
+    2,
+    1
   ],
-  "Duration": 15,
+  "Duration": 11,
   "Id": "W_S01_15",
   "MonsterIds": [
     "Monster_001",
@@ -215,16 +215,88 @@
 },
 {
   "Counts": [
-    1,
-    8
+    6,
+    4,
+    3,
+    1
   ],
-  "Duration": 22,
+  "Duration": 11,
   "Id": "W_S01_16",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_003",
+    "Monster_004"
+  ],
+  "StageId": "Stage_01",
+  "WaveNo": 16
+},
+{
+  "Counts": [
+    6,
+    4,
+    3,
+    1
+  ],
+  "Duration": 11,
+  "Id": "W_S01_17",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_003",
+    "Monster_004"
+  ],
+  "StageId": "Stage_01",
+  "WaveNo": 17
+},
+{
+  "Counts": [
+    6,
+    4,
+    3,
+    2
+  ],
+  "Duration": 11,
+  "Id": "W_S01_18",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_003",
+    "Monster_004"
+  ],
+  "StageId": "Stage_01",
+  "WaveNo": 18
+},
+{
+  "Counts": [
+    6,
+    4,
+    3,
+    2
+  ],
+  "Duration": 11,
+  "Id": "W_S01_19",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_003",
+    "Monster_004"
+  ],
+  "StageId": "Stage_01",
+  "WaveNo": 19
+},
+{
+  "Counts": [
+    1,
+    7
+  ],
+  "Duration": 18,
+  "Id": "W_S01_20",
   "MonsterIds": [
     "Monster_005",
     "Monster_001"
   ],
   "StageId": "Stage_01",
-  "WaveNo": 16
+  "WaveNo": 20
 }
 ]

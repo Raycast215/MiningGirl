@@ -125,7 +125,7 @@
     0
   ],
   "SkillType": "Bolt",
-  "Weight": 0
+  "Weight": 100
 },
 {
   "CooldownList": [
@@ -157,7 +157,7 @@
     0
   ],
   "SkillType": "Bolt",
-  "Weight": 0
+  "Weight": 100
 },
 {
   "CooldownList": [
@@ -189,7 +189,7 @@
     0
   ],
   "SkillType": "Bolt",
-  "Weight": 0
+  "Weight": 100
 },
 {
   "CooldownList": [
@@ -199,7 +199,7 @@
     3.3,
     2.8
   ],
-  "Desc": "곱궜이를 던져 {0}의 피해. 하나를 더 뚫는다",
+  "Desc": "곡괭이를 던져 {0}의 피해. 하나를 더 뚫는다",
   "EffectAssetId": "Effect_DrillWedge",
   "EffectValueList": [
     23,
@@ -211,7 +211,7 @@
   "HitRange": 0.3,
   "IconAssetId": "Skill_Icon_1123",
   "Id": "Skill_DrillWedge",
-  "Name": "곱궜이 투척",
+  "Name": "곡괭이 투척",
   "PierceCount": 1,
   "ProjectileCount": 1,
   "ProjectileMoveType": "Linear",
@@ -221,7 +221,7 @@
     0
   ],
   "SkillType": "Bolt",
-  "Weight": 0
+  "Weight": 100
 },
 {
   "CooldownList": [
@@ -253,7 +253,7 @@
     2
   ],
   "SkillType": "Bolt",
-  "Weight": 0
+  "Weight": 100
 },
 {
   "CooldownList": [
@@ -285,6 +285,6 @@
     1.5
   ],
   "SkillType": "Bolt",
-  "Weight": 0
+  "Weight": 100
 }
 ]

@@ -15,6 +15,11 @@ MonoBehaviour:
   m_GroupName: Skill_Effect
   m_GUID: 528e8f04f1ab0fd47aebf0253dc35230
   m_SerializeEntries:
+  - m_GUID: 175bf7cee7bb7d04eab4e66bfbad641a
+    m_Address: Effect_OreShard
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 23b132c5cc1ac9b4daec3675b16c5862
     m_Address: Effect_FireBolt
     m_ReadOnly: 0
@@ -25,8 +30,33 @@ MonoBehaviour:
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 4ffc3e0c08412c14c96a8fa2e4f8d5f2
+    m_Address: Effect_MineGust
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5c2aaf3399b69f345b026f520a2b8188
+    m_Address: Effect_Cavein
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 6f685d785455c4a46b4296c1594cb582
+    m_Address: Effect_QuartzShot
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 95b3c344c15a0054295249b921b29c90
     m_Address: Effect_LightningBolt
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 9951a79fd5b8b9b4ab9c9d44f3a42875
+    m_Address: Effect_DrillWedge
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: be4803b0c5a7e3d4caf6ace2accf2722
+    m_Address: Effect_ShaftArrow
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0

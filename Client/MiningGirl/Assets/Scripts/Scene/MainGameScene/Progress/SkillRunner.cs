@@ -13,6 +13,12 @@ namespace Scene.MainGameScene.Progress
         // 같은 지점에서 동시에 나가면 초반 구간이 겹쳐 한 발처럼 보입니다.
         private const float MuzzleSpacing = 0.4f;
 
+        // 발사체 사이의 간격. 동시에 나가면 여러 발이 한 발처럼 보입니다.
+        private const float FireDelay = 0.2f;
+
+        // 한 번의 발사가 퍼지는 총 길이의 상한.
+        private const float MaxFireSpread = 0.6f;
+
         private readonly SkillInventory _inventory;
         private readonly MonsterField _field;
         private readonly ProjectileLauncher _launcher;
@@ -23,6 +29,26 @@ namespace Scene.MainGameScene.Progress
 
         private readonly List<MonsterUnit> _targetBuffer = new List<MonsterUnit>();
 
+        // 아직 나가지 않은 발. 자기 차례가 되면 그때의 적을 조준합니다.
+        private readonly List<PendingShot> _pending = new List<PendingShot>();
+
+        private struct PendingShot
+        {
+            public readonly SkillState Skill;
+            public readonly int Index;
+            public readonly int Count;
+
+            public float Remaining;
+
+            public PendingShot(SkillState skill, float remaining, int index, int count)
+            {
+                Skill = skill;
+                Remaining = remaining;
+                Index = index;
+                Count = count;
+            }
+        }
+
 #if UNITY_EDITOR
         // 쿨이 찼는데 쏘지 못하고 기다린 시간입니다. 스킬별로 합산합니다.
         //
@@ -32,20 +58,33 @@ namespace Scene.MainGameScene.Progress
         public static float DebugHoldEmptyTime;
         public static float DebugHoldAllReservedTime;
 
-        // 한 번에 가장 오래 이어진 대기.
+        // 위 두 값은 스킬별 합산이라 판 길이를 넘을 수 있습니다.
+        //
+        // 아래가 벽시계입니다 — "한 스킬이라도 적을 두고 기다린 프레임"의 시간 합.
+        // 스킬 수로 나눌 필요가 없어 그대로 비율로 읽히고, 스킬이 늘어도 해석이
+        // 흔들리지 않습니다. 밀도 판단에 쓰는 건 이쪽입니다.
+        public static float DebugHoldWallClockTime;
+
+        // 판이 시작한 뒤 흐른 시간. 위 값을 비율로 만들 때 분모입니다.
+        public static float DebugTickedTime;
+
+        // 한 번에 가장 오래 이어진 대기(벽시계).
         //
         // 합계만으로는 판단이 안 됩니다. 0.3초짜리 대기가 백 번이면 눈에 안 보이지만
         // 3초가 한 번이면 멈춰 선 것으로 보입니다. 쟁점은 합이 아니라 최장 구간입니다.
         public static float DebugHoldLongestStreak;
 
-        // 스킬별로 지금 이어지고 있는 대기.
-        private readonly Dictionary<string, float> _debugHoldStreaks = new Dictionary<string, float>();
+        // 지금 이어지고 있는 벽시계 대기.
+        private static float _debugHoldStreak;
 
         public static void DebugResetHoldCounters()
         {
             DebugHoldEmptyTime = 0f;
             DebugHoldAllReservedTime = 0f;
+            DebugHoldWallClockTime = 0f;
+            DebugTickedTime = 0f;
             DebugHoldLongestStreak = 0f;
+            _debugHoldStreak = 0f;
         }
 #endif
 
@@ -72,6 +111,16 @@ namespace Scene.MainGameScene.Progress
         {
             var skills = _inventory.Skills;
 
+            TickPending(deltaTime);
+
+#if UNITY_EDITOR
+            DebugTickedTime += deltaTime;
+
+            // 이번 프레임에 "적을 두고 기다린" 스킬이 하나라도 있었는지.
+            // 벽시계 대기는 스킬 수와 무관하게 프레임 단위로 셉니다.
+            var heldThisFrame = false;
+#endif
+
             for (var i = 0; i < skills.Count; i++)
             {
                 var skill = skills[i];
@@ -96,10 +145,6 @@ namespace Scene.MainGameScene.Progress
                 {
                     _cooldowns[skill.Row.Id] = skill.Cooldown;
 
-#if UNITY_EDITOR
-                    _debugHoldStreaks[skill.Row.Id] = 0f;
-#endif
-
                     continue;
                 }
 
@@ -110,21 +155,30 @@ namespace Scene.MainGameScene.Progress
                 if (_field.AliveCount == 0)
                 {
                     DebugHoldEmptyTime += deltaTime;
-                    _debugHoldStreaks[skill.Row.Id] = 0f;
                 }
                 else
                 {
                     DebugHoldAllReservedTime += deltaTime;
-
-                    _debugHoldStreaks.TryGetValue(skill.Row.Id, out var streak);
-                    streak += deltaTime;
-                    _debugHoldStreaks[skill.Row.Id] = streak;
-
-                    if (streak > DebugHoldLongestStreak)
-                        DebugHoldLongestStreak = streak;
+                    heldThisFrame = true;
                 }
 #endif
             }
+
+#if UNITY_EDITOR
+            if (heldThisFrame)
+            {
+                DebugHoldWallClockTime += deltaTime;
+
+                _debugHoldStreak += deltaTime;
+
+                if (_debugHoldStreak > DebugHoldLongestStreak)
+                    DebugHoldLongestStreak = _debugHoldStreak;
+            }
+            else
+            {
+                _debugHoldStreak = 0f;
+            }
+#endif
         }
 
         // 스킬을 새로 얻으면 첫 발이 바로 나가도록 쿨을 0으로 둡니다.
@@ -135,44 +189,73 @@ namespace Scene.MainGameScene.Progress
         }
 
         // 한 발이라도 나갔으면 true. 조준할 적이 없어 못 쐈으면 false입니다.
+        //
+        // 2발 이상이면 첫 발만 지금 나가고 나머지는 예약해 둡니다. 예약된 발은
+        // 자기 차례가 왔을 때 그 시점의 적을 조준합니다 - 미리 조준해 두면 그 사이
+        // 대상이 죽었을 때 그 발이 그대로 낭비됩니다.
         private bool Fire(SkillState skill)
         {
-            var count = skill.ProjectileCount;
+            var count = Mathf.Max(1, skill.ProjectileCount);
             var origin = _muzzle.position;
 
+            var target = _field.FindNearestTargetable(origin);
+
+            if (target == null)
+                return false;
+
+            FireOne(skill, MuzzleFor(origin, 0, count), target);
+
             if (count <= 1)
+                return true;
+
+            // 발사체가 늘어도 확산이 쿨다운을 잡아먹지 않게 총 길이를 묶습니다.
+            // 0.2초 고정이면 5발에 0.8초가 걸려 연사가 아니라 점사로 보입니다.
+            var spacing = Mathf.Min(FireDelay, MaxFireSpread / (count - 1));
+
+            for (var i = 1; i < count; i++)
+                _pending.Add(new PendingShot(skill, spacing * i, i, count));
+
+            return true;
+        }
+
+        // 예약된 발을 시간이 되면 하나씩 내보냅니다.
+        //
+        // 자기 차례에 조준할 적이 없으면 그 발은 버립니다. 남는 발을 아무 데나
+        // 보내면 다발형의 "여러 마리를 친다"가 무너집니다.
+        private void TickPending(float deltaTime)
+        {
+            for (var i = _pending.Count - 1; i >= 0; i--)
             {
+                var shot = _pending[i];
+                shot.Remaining -= deltaTime;
+
+                if (shot.Remaining > 0f)
+                {
+                    _pending[i] = shot;
+
+                    continue;
+                }
+
+                _pending.RemoveAt(i);
+
+                var origin = _muzzle.position;
                 var target = _field.FindNearestTargetable(origin);
 
                 if (target == null)
-                    return false;
+                    continue;
 
-                FireOne(skill, origin, target);
-
-                return true;
+                FireOne(shot.Skill, MuzzleFor(origin, shot.Index, shot.Count), target);
             }
+        }
 
-            // 발사체마다 서로 다른 적을 하나씩 맡습니다.
-            //
-            // 후보가 발사체 수보다 적으면 그만큼만 쏘고 남는 발은 버립니다. 같은 적에
-            // 몰아 쏘면 앞 발이 죽인 뒤 나머지가 시체로 날아가기 때문입니다. 그래서
-            // 다발형은 적이 많을 때 강하고 적을 때는 단발과 다르지 않습니다.
-            _field.FillNearestTargetable(origin, count, _targetBuffer);
+        // 여러 발이 같은 점에서 나가면 초반 구간이 겹칩니다.
+        // 시차가 생긴 뒤에도 출발점을 조금 벌려 두면 궤적이 더 갈라져 보입니다.
+        private static Vector3 MuzzleFor(Vector3 origin, int index, int count)
+        {
+            if (count <= 1)
+                return origin;
 
-            var fired = _targetBuffer.Count;
-
-            if (fired == 0)
-                return false;
-
-            for (var i = 0; i < fired; i++)
-            {
-                // 실제로 나가는 수를 기준으로 가운데 대칭이 되게 벌립니다.
-                var offset = (i - (fired - 1) * 0.5f) * MuzzleSpacing;
-
-                FireOne(skill, origin + new Vector3(offset, 0f, 0f), _targetBuffer[i]);
-            }
-
-            return true;
+            return origin + new Vector3((index - (count - 1) * 0.5f) * MuzzleSpacing, 0f, 0f);
         }
 
         private void FireOne(SkillState skill, Vector3 origin, MonsterUnit target)
