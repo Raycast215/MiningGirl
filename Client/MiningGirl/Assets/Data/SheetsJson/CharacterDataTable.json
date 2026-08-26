@@ -4,7 +4,7 @@
   "Desc": "무난한 시작 스킬. 처음 고르기 좋다",
   "Id": "Character_001",
   "Name": "루비",
-  "StartSkillId": "Skill_LightningBolt",
+  "StartSkillId": "Skill_FireBolt",
   "TowerMaxHealth": 1000,
   "UnlockPrice": 0
 },
@@ -13,7 +13,7 @@
   "Desc": "한 방이 무거운 시작 스킬",
   "Id": "Character_002",
   "Name": "가넫",
-  "StartSkillId": "Skill_FireBolt",
+  "StartSkillId": "Skill_LightningBolt",
   "TowerMaxHealth": 1000,
   "UnlockPrice": 3000
 },

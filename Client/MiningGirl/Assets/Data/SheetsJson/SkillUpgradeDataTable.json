@@ -1,0 +1,134 @@
+[
+{
+  "Desc": "데미지가 {0}% 증가합니다",
+  "EffectValue": 0.2,
+  "Id": "Upg_FireBolt_Damage",
+  "Name": "파이어볼트 위력",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_FireBolt",
+  "UpgradeType": "Damage",
+  "ValueType": "Mul",
+  "Weight": 100
+},
+{
+  "Desc": "발사체가 {0}개 늘어납니다",
+  "EffectValue": 1,
+  "Id": "Upg_FireBolt_Projectile",
+  "Name": "파이어볼트 발사체",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_FireBolt",
+  "UpgradeType": "ProjectileCount",
+  "ValueType": "Add",
+  "Weight": 60
+},
+{
+  "Desc": "관통 수가 {0} 늘어납니다",
+  "EffectValue": 1,
+  "Id": "Upg_FireBolt_Pierce",
+  "Name": "파이어볼트 관통",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_FireBolt",
+  "UpgradeType": "PierceCount",
+  "ValueType": "Add",
+  "Weight": 60
+},
+{
+  "Desc": "피격 범위가 {0}% 증가합니다",
+  "EffectValue": 0.25,
+  "Id": "Upg_FireBolt_HitRange",
+  "Name": "파이어볼트 범위",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_FireBolt",
+  "UpgradeType": "HitRange",
+  "ValueType": "Mul",
+  "Weight": 80
+},
+{
+  "Desc": "데미지가 {0}% 증가합니다",
+  "EffectValue": 0.2,
+  "Id": "Upg_IceBolt_Damage",
+  "Name": "아이스볼트 위력",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_IceBolt",
+  "UpgradeType": "Damage",
+  "ValueType": "Mul",
+  "Weight": 100
+},
+{
+  "Desc": "발사체가 {0}개 늘어납니다",
+  "EffectValue": 1,
+  "Id": "Upg_IceBolt_Projectile",
+  "Name": "아이스볼트 발사체",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_IceBolt",
+  "UpgradeType": "ProjectileCount",
+  "ValueType": "Add",
+  "Weight": 60
+},
+{
+  "Desc": "관통 수가 {0} 늘어납니다",
+  "EffectValue": 1,
+  "Id": "Upg_IceBolt_Pierce",
+  "Name": "아이스볼트 관통",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_IceBolt",
+  "UpgradeType": "PierceCount",
+  "ValueType": "Add",
+  "Weight": 60
+},
+{
+  "Desc": "피격 범위가 {0}% 증가합니다",
+  "EffectValue": 0.25,
+  "Id": "Upg_IceBolt_HitRange",
+  "Name": "아이스볼트 범위",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_IceBolt",
+  "UpgradeType": "HitRange",
+  "ValueType": "Mul",
+  "Weight": 80
+},
+{
+  "Desc": "데미지가 {0}% 증가합니다",
+  "EffectValue": 0.2,
+  "Id": "Upg_LightningBolt_Damage",
+  "Name": "라이트닝볼트 위력",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_LightningBolt",
+  "UpgradeType": "Damage",
+  "ValueType": "Mul",
+  "Weight": 100
+},
+{
+  "Desc": "발사체가 {0}개 늘어납니다",
+  "EffectValue": 1,
+  "Id": "Upg_LightningBolt_Projectile",
+  "Name": "라이트닝볼트 발사체",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_LightningBolt",
+  "UpgradeType": "ProjectileCount",
+  "ValueType": "Add",
+  "Weight": 60
+},
+{
+  "Desc": "관통 수가 {0} 늘어납니다",
+  "EffectValue": 1,
+  "Id": "Upg_LightningBolt_Pierce",
+  "Name": "라이트닝볼트 관통",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_LightningBolt",
+  "UpgradeType": "PierceCount",
+  "ValueType": "Add",
+  "Weight": 60
+},
+{
+  "Desc": "피격 범위가 {0}% 증가합니다",
+  "EffectValue": 0.25,
+  "Id": "Upg_LightningBolt_HitRange",
+  "Name": "라이트닝볼트 범위",
+  "RequireSkillLevel": 2,
+  "SkillId": "Skill_LightningBolt",
+  "UpgradeType": "HitRange",
+  "ValueType": "Mul",
+  "Weight": 80
+}
+]

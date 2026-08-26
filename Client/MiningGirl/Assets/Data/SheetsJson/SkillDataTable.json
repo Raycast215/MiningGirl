@@ -16,10 +16,18 @@
     30,
     39
   ],
+  "HitRange": 0.3,
   "IconAssetId": "Skill_Icon_1115",
   "Id": "Skill_FireBolt",
   "Name": "파이어볼트",
+  "PierceCount": 0,
+  "ProjectileCount": 1,
+  "ProjectileMoveType": "Linear",
   "ProjectileSpeed": 12,
+  "ProjectileWaveList": [
+    0,
+    0
+  ],
   "SkillType": "Bolt",
   "Weight": 100
 },
@@ -40,10 +48,18 @@
     30,
     39
   ],
+  "HitRange": 0.3,
   "IconAssetId": "Skill_Icon_1041",
   "Id": "Skill_IceBolt",
   "Name": "아이스볼트",
+  "PierceCount": 0,
+  "ProjectileCount": 1,
+  "ProjectileMoveType": "Linear",
   "ProjectileSpeed": 12,
+  "ProjectileWaveList": [
+    0,
+    0
+  ],
   "SkillType": "Bolt",
   "Weight": 100
 },
@@ -64,10 +80,18 @@
     30,
     39
   ],
+  "HitRange": 0.3,
   "IconAssetId": "Skill_Icon_1046",
   "Id": "Skill_LightningBolt",
   "Name": "라이트닝볼트",
+  "PierceCount": 0,
+  "ProjectileCount": 1,
+  "ProjectileMoveType": "Sine",
   "ProjectileSpeed": 12,
+  "ProjectileWaveList": [
+    0.6,
+    2
+  ],
   "SkillType": "Bolt",
   "Weight": 100
 }

@@ -105,6 +105,7 @@ public enum EGameConstantType
     LevelUpChoiceCount,  // 레벨업 시 제시하는 스킬 장수
     WaveStartDelay,      // 스테이지 시작 후 1웨이브까지 대기(초)
     WaveClearDelay,      // 웨이브 전멸 후 다음 웨이브까지 대기(초)
+    LevelUpCurveRate,    // 레벨업 곡선 강도. 마지막 구간 필요량 ÷ 첫 구간 필요량. 1이면 균등
 }
 
 public enum EMonsterType
@@ -112,6 +113,23 @@ public enum EMonsterType
     Normal,
     Elite,
     Boss,
+}
+
+// 발사체가 날아가는 모양. 위력·탄속과는 무관하고 그림만 다릅니다.
+public enum EProjectileMoveType
+{
+    Linear, // 직진
+    Sine,   // 진행 방향에 수직으로 흔들리며 나아갑니다. 타겟에 가까워질수록 흔들림이 잦아듭니다
+}
+
+// 레벨업 3택에서 고르는 스킬 강화의 종류.
+// 스킬 하나마다 따로 쌓이며, 값은 SkillUpgradeDataTable에서 옵니다.
+public enum ESkillUpgradeType
+{
+    Damage,          // 위력
+    ProjectileCount, // 한 번에 나가는 발사체 수
+    PierceCount,     // 발사체 하나가 관통하는 수
+    HitRange,        // 명중 판정 반경
 }
 
 public enum ESkillType

@@ -121,8 +121,14 @@
 },
 {
   "ConstantType": "WaveClearDelay",
-  "Desc": "[개편] 웨이브 전멸 후 다음 웨이브까지 대기(초)",
+  "Desc": "[개편] 웨이브 종료 후 다음 웨이브까지 대기(초). 전멸이 아니라 시간 종료 기준",
   "Id": 103,
+  "Value": 0.5
+},
+{
+  "ConstantType": "LevelUpCurveRate",
+  "Desc": "[개편] 레벨업 곱선 강도. 마지막 구간 필요량 ÷ 첫 구간 필요량. 1이면 균등",
+  "Id": 104,
   "Value": 1.5
 }
 ]
