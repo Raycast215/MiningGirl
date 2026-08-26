@@ -15,6 +15,7 @@ MiningGirl의 임시 스프라이트를 **파이썬으로 직접 그려서** PNG
 python Tools/AssetGen/gen_monsters.py
 python Tools/AssetGen/gen_bg.py
 python Tools/AssetGen/gen_tower.py
+python Tools/AssetGen/gen_star.py
 ```
 
 출력 경로를 인자로 주면 그쪽에 씁니다 (에셋을 건드리지 않고 시험해 볼 때).
@@ -32,8 +33,9 @@ python Tools/AssetGen/gen_tower.py C:\temp\out C:\temp\preview.png
 | `gen_monsters.py` | `Assets/Sprites/InGame/Monster/Monster_00N_*.png` (5장) | 128×128 | 50 | 2.56 × 2.56 |
 | `gen_bg.py` | `Assets/Sprites/InGame/Background/Bg_Mine_01.png` | 2048×2304 | 88 | 23.27 × 26.18 |
 | `gen_tower.py` | `Assets/Sprites/InGame/Tower/Tower_01{,_Damaged,_Broken}.png` (3장) | 1792×240 | 88 | 20.36 × 2.73 |
+| `gen_star.py` | `Assets/Sprites/UI/Star.png`, `Star_Empty.png` (2장) | 256×256 | 100 | UI (월드 무관) |
 
-전부 **32×32 같은 작은 도트 격자를 4배로 확대**하는 방식입니다. 즉 화면상 1도트 = 4픽셀이고,
+인게임 스프라이트는 **32×32 같은 작은 도트 격자를 4배로 확대**하는 방식입니다. 즉 화면상 1도트 = 4픽셀이고,
 PPU 88 기준으로 1도트 = `4 / 88` = **0.045454 유닛**입니다. 레이아웃 계산은 이 값에서 나옵니다.
 
 ## 지켜야 하는 제약
@@ -80,6 +82,30 @@ PPU 88 기준으로 1도트 = `4 / 88` = **0.045454 유닛**입니다. 레이아
 
 인게임에서는 체력 66% / 33%를 경계로 세 장을 교체합니다.
 
+### `gen_star.py` — 결과 화면 별 아이콘
+
+인게임 아트와 만드는 방식이 다릅니다. 도트를 확대하는 대신 **4배 크기로 그린 뒤 평균내어
+줄여서**(슈퍼샘플링) 가장자리를 부드럽게 만듭니다. UI는 기기마다 배율이 정수로 안 떨어져서
+도트를 그대로 쓰면 픽셀 폭이 들쭉날쭉해지기 때문입니다.
+
+| 항목 | 위치 |
+|---|---|
+| 채운 별 색 | `GEM_LIT` `GEM_MID` `GEM_DIM` `GEM_DEEP` `GEM_RIM` `SPARK` |
+| 빈 별 색 | `HOLE_IN` `HOLE_RIM` (안쪽), `STONE` 계열 (테두리) |
+| 광원 방향 | `LIGHT` (기본 -125° = 왼쪽 위) |
+| 면 대비 | `FACET.append(0.72 + 0.46 * ...)` — 앞이 하한, 뒤가 폭 |
+| 반짝임 위치·크기 | `SP_X` `SP_Y` `SP_R` |
+| 별 비율 | `R_OUT`(바깥 반지름), `R_IN`(안쪽 = 뾰족한 정도) |
+| 테두리 두께 | `INNER = star_points(R_OUT * 0.86, R_IN * 0.80)` |
+
+**두 별의 테두리 색은 같은 계열로 유지하세요.** 결과 화면에서 ★★☆처럼 세 칸이 한 줄로
+붙는데, 테두리 색이 다르면 "같은 칸의 채움/비움"이 아니라 서로 다른 아이콘 두 종류로
+읽힙니다. 구분은 **안쪽 채움으로만** 주는 게 안정적입니다.
+
+빈 별은 어둡되 초라해 보이면 안 됩니다 — 실패하면 셋 다 빈 별로 뜨는데, 그게 "다시 하면
+채울 수 있다"로 읽혀야 합니다. 그래서 반투명 실루엣이 아니라 **테두리가 살아 있는 파낸 홈**
+으로 그렸습니다.
+
 ## `gen_meta.py` — 임포트 설정
 
 Unity 기본값(PPU 100 / Bilinear / 압축)은 도트 아트에 맞지 않아서 `.meta`를 직접 씁니다.
@@ -96,8 +122,10 @@ python Tools/AssetGen/gen_meta.py tower
 | `monster` | 50 | 512 | Clamp, Clamp | 1 |
 | `background` | 88 | 4096 | Repeat, Repeat | 0 |
 | `tower` | 88 | 2048 | Repeat, Clamp | 1 |
+| `ui` | 100 | 2048 | Clamp, Clamp | 1 |
 
-공통으로 **Point 필터 / 무압축 / 밉맵 없음 / 피벗 중앙**입니다.
+공통으로 **무압축 / 밉맵 없음 / 피벗 중앙**입니다. 필터는 인게임 프리셋이 **Point**,
+`ui`만 **Bilinear**입니다(위의 `gen_star.py` 설명 참고).
 
 - `maxTextureSize`가 실제 픽셀 크기보다 작으면 Unity가 **말없이 축소**합니다. 배경이 4096인 이유는 세로 2304px 때문입니다.
 - **GUID는 기존 `.meta`가 있으면 그 값을 읽어 그대로 재사용**합니다. 없을 때만 파일 이름의 MD5에서 뽑습니다. Unity가 자동 생성한 랜덤 GUID도 보존되므로, `--force`로 덮어써도 프리팹·씬·Addressables 참조가 안 끊깁니다.
@@ -106,5 +134,5 @@ python Tools/AssetGen/gen_meta.py tower
 ## 결과가 항상 같은가
 
 같습니다. 난수는 고정 시드 LCG(`_seed`)이고 시간·환경에 의존하는 값을 쓰지 않습니다.
-실제로 리포에서 다시 돌려 기존 출력물 9장과 **바이트 단위로 동일**함을 확인했습니다.
+실제로 리포에서 다시 돌려 기존 출력물과 **바이트 단위로 동일**함을 확인했습니다.
 그래서 "스크립트를 고쳤을 때만 PNG가 바뀐다"가 보장되고, git diff가 의미를 가집니다.
