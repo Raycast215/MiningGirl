@@ -2,7 +2,7 @@
 {
   "AttackDelay": 1,
   "AttackDistance": 1.2,
-  "Damage": 1,
+  "Damage": 4,
   "Gold": 10,
   "Id": "Monster_001",
   "KnockbackResist": 0,
@@ -15,7 +15,7 @@
 {
   "AttackDelay": 0.8,
   "AttackDistance": 1.2,
-  "Damage": 1,
+  "Damage": 3,
   "Gold": 14,
   "Id": "Monster_002",
   "KnockbackResist": 0,
@@ -28,7 +28,7 @@
 {
   "AttackDelay": 1.5,
   "AttackDistance": 1.2,
-  "Damage": 2,
+  "Damage": 8,
   "Gold": 30,
   "Id": "Monster_003",
   "KnockbackResist": 0.5,
@@ -41,7 +41,7 @@
 {
   "AttackDelay": 1.2,
   "AttackDistance": 1.4,
-  "Damage": 4,
+  "Damage": 16,
   "Gold": 80,
   "Id": "Monster_004",
   "KnockbackResist": 0.8,
@@ -54,7 +54,7 @@
 {
   "AttackDelay": 2,
   "AttackDistance": 1.6,
-  "Damage": 8,
+  "Damage": 32,
   "Gold": 300,
   "Id": "Monster_005",
   "KnockbackResist": 1,
