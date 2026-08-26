@@ -11,8 +11,14 @@ namespace Scene.MainGameScene.Battle
     public class MonsterUnit : MonoBehaviour
     {
         // 명중 판정에 쓰는 몸통 반경.
-        // 스프라이트 폭이 2.56유닛이지만 그림 가장자리는 대부분 비어 있어 조금 줄여 잡았습니다.
-        public const float BodyRadius = 0.9f;
+        //
+        // 스프라이트는 1.28유닛이지만 투명 여백을 빼면 실제 몸통은 0.88~1.28유닛입니다.
+        // 종별로는 0.44~0.64로 갈리는데, 한 값으로 묶어 가장 흔한 크기에 맞췄습니다.
+        // 여백까지 판정에 넣으면 스쳐 지나간 발사체가 맞은 것으로 보입니다.
+        public const float BodyRadius = 0.5f;
+
+        // 타워 앞에 나란히 설 때의 최소 간격. 스프라이트 폭(1.28)보다 조금 넓게 잡아야 안 겹칩니다.
+        public const float BlockedSpacing = 1.3f;
 
         [SerializeField]
         private SpriteRenderer spriteRenderer;

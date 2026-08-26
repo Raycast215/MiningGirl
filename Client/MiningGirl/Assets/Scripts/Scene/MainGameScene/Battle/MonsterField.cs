@@ -15,7 +15,8 @@ namespace Scene.MainGameScene.Battle
     public class MonsterField
     {
         // 타워 앞에 나란히 설 때의 최소 간격.
-        private const float BlockedSpacing = MonsterUnit.BodyRadius * 1.6f;
+        // 판정 반경이 아니라 그림 폭 기준입니다. 반경으로 잡으면 여백만큼 겹쳐 보입니다.
+        private const float BlockedSpacing = MonsterUnit.BlockedSpacing;
 
         public event Action<MonsterUnit> OnMonsterKilled;
 
