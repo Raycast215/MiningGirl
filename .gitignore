@@ -105,6 +105,8 @@ InitTestScene*.unity*
 # Unity 에디터 개인 설정 / 레이아웃 (사용자별 파일, 커밋 불필요)
 EditorUserSettings.asset
 /[Uu]ser[Ss]ettings/Layouts/default-6000.dwlt
+# 유니티 프로젝트가 Client/MiningGirl/ 하위에 있어 루트 고정 경로로는 안 잡힘
+**/[Uu]ser[Ss]ettings/Layouts/default-6000.dwlt
 
 # Unity/MSBuild 중간 산출물 (하위 폴더 포함, 예: Client/MiningGirl/obj)
 **/[Oo]bj/
