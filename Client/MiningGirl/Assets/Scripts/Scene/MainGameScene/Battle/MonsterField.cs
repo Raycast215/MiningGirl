@@ -43,13 +43,35 @@ namespace Scene.MainGameScene.Battle
         private readonly Tower _tower;
         private readonly BattleBounds _bounds;
         private readonly float _statMultiplier;
+        private readonly FloatingDamageSpawner _floatingDamage;
 
-        public MonsterField(Transform layer, Tower tower, BattleBounds bounds, float statMultiplier)
+        public MonsterField(
+            Transform layer,
+            Tower tower,
+            BattleBounds bounds,
+            float statMultiplier,
+            FloatingDamageSpawner floatingDamage)
         {
             _layer = layer;
             _tower = tower;
             _bounds = bounds;
             _statMultiplier = statMultiplier;
+            _floatingDamage = floatingDamage;
+        }
+
+        // 피해를 넣는 자리를 한곳으로 모읍니다.
+        //
+        // 숫자를 띄우는 건 맞은 순간에만 해야 하는데, 발사체가 직접 TakeDamage를 부르면
+        // 그 호출부마다 띄우는 걸 잊지 않아야 합니다. 여기로 모으면 한 번만 적으면 됩니다.
+        public void ApplyDamage(MonsterUnit unit, float amount)
+        {
+            if (unit == null || !unit.IsAlive || amount <= 0f)
+                return;
+
+            // 띄우는 숫자는 표기 위력이 아니라 실제로 깎인 양입니다.
+            var applied = unit.TakeDamage(amount);
+
+            _floatingDamage?.Show(applied, unit.Position);
         }
 
         // 스테이지가 시작되기 전에 쓸 프리팹을 전부 불러 둡니다.
@@ -200,6 +222,8 @@ namespace Scene.MainGameScene.Battle
 
             _alive.Clear();
             _deadBuffer.Clear();
+
+            _floatingDamage?.Clear();
         }
 
         private void HandleDied(MonsterUnit unit)

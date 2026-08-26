@@ -304,7 +304,7 @@ namespace Scene.MainGameScene.Battle
                 if (unit == _target)
                     ReleaseReservation();
 
-                unit.TakeDamage(_damage);
+                _field.ApplyDamage(unit, _damage);
 
 #if UNITY_EDITOR
                 _debugHitAny = true;

@@ -171,15 +171,25 @@ namespace Scene.MainGameScene.Battle
             _tower.TakeDamage(_damage);
         }
 
-        public void TakeDamage(float amount)
+        // 이 몬스터에게 실제로 적용된 피해를 돌려줍니다.
+        //
+        // 화면에 띄우는 숫자는 이 값이어야 합니다. 표기 위력이나 예약치를 띄우면
+        // 나중에 방어력·저항이 붙는 순간 화면과 실제가 갈라집니다. 경감이 생기면
+        // 여기서 빼고, 뺀 뒤의 값을 돌려주면 화면이 저절로 따라옵니다.
+        //
+        // 남은 체력으로 자르지는 않습니다. 체력 12에 위력 39가 들어가면 12가 아니라
+        // 39를 띄웁니다 - 넘치는 건 경감이 아니라 초과 피해라 다른 이야기입니다.
+        public float TakeDamage(float amount)
         {
             if (!IsAlive || amount <= 0f)
-                return;
+                return 0f;
 
-            _currentHealth -= amount;
+            var applied = amount;
+
+            _currentHealth -= applied;
 
             if (_currentHealth > 0f)
-                return;
+                return applied;
 
             IsAlive = false;
 
@@ -191,6 +201,8 @@ namespace Scene.MainGameScene.Battle
             gameObject.SetActive(false);
 
             _onDied?.Invoke(this);
+
+            return applied;
         }
 
         // 타워 앞에 멈춘 개체가 겹쳐 보이지 않도록 MonsterField가 x만 밀어 줍니다.

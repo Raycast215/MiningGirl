@@ -55,6 +55,13 @@ namespace Scene.MainGameScene
         private Transform projectileLayer;
 
         [SerializeField]
+        private Transform floatingDamageLayer;
+
+        [SerializeField]
+        [Tooltip("맞은 자리에 떠오르는 피해 숫자. 비워 두면 숫자를 띄우지 않습니다.")]
+        private FloatingDamageText floatingDamagePrefab;
+
+        [SerializeField]
         private SpriteRenderer background;
 
         [SerializeField]
@@ -162,7 +169,12 @@ namespace Scene.MainGameScene
             tower.Setup(_character.TowerMaxHealth);
             tower.OnDestroyed += HandleTowerDestroyed;
 
-            _field = new MonsterField(monsterLayer, tower, _bounds, _stage.MonsterStatMultiplier);
+            // 프리팹을 안 꽂아 두면 숫자만 안 뜨고 나머지는 그대로 돕니다.
+            var floatingDamage = floatingDamagePrefab != null
+                ? new FloatingDamageSpawner(floatingDamagePrefab, floatingDamageLayer != null ? floatingDamageLayer : projectileLayer)
+                : null;
+
+            _field = new MonsterField(monsterLayer, tower, _bounds, _stage.MonsterStatMultiplier, floatingDamage);
             _field.OnMonsterKilled += HandleMonsterKilled;
 
             _launcher = new ProjectileLauncher(projectileLayer, _field, _bounds);

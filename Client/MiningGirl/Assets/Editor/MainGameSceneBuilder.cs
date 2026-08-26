@@ -42,6 +42,7 @@ public static class MainGameSceneBuilder
     private const string SkillSlotPrefabPath = UiPrefabFolder + "/SkillSlot.prefab";
     private const string ChoiceCardPrefabPath = UiPrefabFolder + "/LevelUpChoiceCard.prefab";
     private const string StarIconPrefabPath = UiPrefabFolder + "/StarIcon.prefab";
+    private const string FloatingDamagePrefabPath = "Assets/Prefabs/MainGame/Effect/FloatingDamageText.prefab";
 
     [MenuItem("Tools/MainGame/Build In-Game Scene")]
     public static void Build()
@@ -69,7 +70,7 @@ public static class MainGameSceneBuilder
         var camera = FixCamera();
 
         BuildBattleRoot(out var tower, out var characterAnchor, out var monsterLayer,
-            out var projectileLayer, out var background);
+            out var projectileLayer, out var floatingDamageLayer, out var background);
 
         var hud = BuildHud();
         var levelUpUI = BuildLevelUpChoiceUI();
@@ -81,6 +82,10 @@ public static class MainGameSceneBuilder
         so.FindProperty("characterAnchor").objectReferenceValue = characterAnchor;
         so.FindProperty("monsterLayer").objectReferenceValue = monsterLayer;
         so.FindProperty("projectileLayer").objectReferenceValue = projectileLayer;
+        so.FindProperty("floatingDamageLayer").objectReferenceValue = floatingDamageLayer;
+        so.FindProperty("floatingDamagePrefab").objectReferenceValue =
+            AssetDatabase.LoadAssetAtPath<GameObject>(FloatingDamagePrefabPath)?
+                .GetComponent<Scene.MainGameScene.Battle.FloatingDamageText>();
         so.FindProperty("background").objectReferenceValue = background;
         so.FindProperty("hud").objectReferenceValue = hud;
         so.FindProperty("levelUpChoiceUI").objectReferenceValue = levelUpUI;
@@ -290,6 +295,7 @@ public static class MainGameSceneBuilder
         out Transform characterAnchor,
         out Transform monsterLayer,
         out Transform projectileLayer,
+        out Transform floatingDamageLayer,
         out SpriteRenderer background)
     {
         var root = GameObject.Find("Battle");
@@ -357,6 +363,10 @@ public static class MainGameSceneBuilder
         var projectiles = new GameObject("ProjectileLayer");
         projectiles.transform.SetParent(root.transform, false);
         projectileLayer = projectiles.transform;
+
+        var floating = new GameObject("FloatingDamageLayer");
+        floating.transform.SetParent(root.transform, false);
+        floatingDamageLayer = floating.transform;
     }
 
     private static Sprite BuiltinSprite()
