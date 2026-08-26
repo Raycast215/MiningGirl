@@ -130,4 +130,7 @@ public enum ESkillType
     CostUp,         // 코스트 즉시 획득
     FireBall,       // 놓은 자리에 불덩이 소환(지속 피해)
     SpecialResource,// 놓은 자리에 황금 광물 소환
+
+    // ── 웨이브 디펜스 개편 ──
+    Bolt,   // 단일 대상 발사체. 세 볼트 스킬이 공유합니다.
 }

@@ -45,6 +45,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - DataTable
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: 5811e7d20625335449ba9c02acf4c040
+    m_Address: SkillDataTable
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - DataTable
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: 5b882d54e39d8234bbefbee55bd2848f
     m_Address: SkillCardDataTable
     m_ReadOnly: 0
@@ -71,6 +77,12 @@ MonoBehaviour:
     FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: c4cb4a9532eefc1459259f7aa25c5c0b
     m_Address: CharacterStatDataTable
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - DataTable
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: f55fd0b1aceb7104d91e3dccca0d4286
+    m_Address: CharacterDataTable
     m_ReadOnly: 0
     m_SerializedLabels:
     - DataTable

@@ -1,0 +1,74 @@
+[
+{
+  "CooldownList": [
+    2,
+    1.8,
+    1.6,
+    1.4,
+    1.2
+  ],
+  "Desc": "불덩어리를 쏘아 {0}의 피해",
+  "EffectAssetId": "Effect_FireBolt",
+  "EffectValueList": [
+    12,
+    17,
+    23,
+    30,
+    39
+  ],
+  "IconAssetId": "Skill_Icon_1115",
+  "Id": "Skill_FireBolt",
+  "Name": "파이어볼트",
+  "ProjectileSpeed": 12,
+  "SkillType": "Bolt",
+  "Weight": 100
+},
+{
+  "CooldownList": [
+    2,
+    1.8,
+    1.6,
+    1.4,
+    1.2
+  ],
+  "Desc": "얼음 화살을 쏘아 {0}의 피해",
+  "EffectAssetId": "Effect_IceBolt",
+  "EffectValueList": [
+    12,
+    17,
+    23,
+    30,
+    39
+  ],
+  "IconAssetId": "Skill_Icon_1041",
+  "Id": "Skill_IceBolt",
+  "Name": "아이스볼트",
+  "ProjectileSpeed": 12,
+  "SkillType": "Bolt",
+  "Weight": 100
+},
+{
+  "CooldownList": [
+    2,
+    1.8,
+    1.6,
+    1.4,
+    1.2
+  ],
+  "Desc": "번개를 쏘아 {0}의 피해",
+  "EffectAssetId": "Effect_LightningBolt",
+  "EffectValueList": [
+    12,
+    17,
+    23,
+    30,
+    39
+  ],
+  "IconAssetId": "Skill_Icon_1046",
+  "Id": "Skill_LightningBolt",
+  "Name": "라이트닝볼트",
+  "ProjectileSpeed": 12,
+  "SkillType": "Bolt",
+  "Weight": 100
+}
+]
