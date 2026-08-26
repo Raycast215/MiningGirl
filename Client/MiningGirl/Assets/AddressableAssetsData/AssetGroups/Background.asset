@@ -10,23 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: bbb281ee3bf0b054c82ac2347e9e782c, type: 3}
-  m_Name: Skill_Effect
+  m_Name: Background
   m_EditorClassIdentifier: Unity.Addressables.Editor::UnityEditor.AddressableAssets.Settings.AddressableAssetGroup
-  m_GroupName: Skill_Effect
-  m_GUID: 528e8f04f1ab0fd47aebf0253dc35230
+  m_GroupName: Background
+  m_GUID: 3065aab054f5d6e4cb5a35067f510cda
   m_SerializeEntries:
-  - m_GUID: 23b132c5cc1ac9b4daec3675b16c5862
-    m_Address: Effect_FireBolt
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 48edb7aa943a08844a1b6ebdcaadb4f6
-    m_Address: Effect_IceBolt
-    m_ReadOnly: 0
-    m_SerializedLabels: []
-    FlaggedDuringContentUpdateRestriction: 0
-  - m_GUID: 95b3c344c15a0054295249b921b29c90
-    m_Address: Effect_LightningBolt
+  - m_GUID: fed4a118571de4982bea4824fd97713f
+    m_Address: Bg_Mine_01
     m_ReadOnly: 0
     m_SerializedLabels: []
     FlaggedDuringContentUpdateRestriction: 0
@@ -34,5 +24,5 @@ MonoBehaviour:
   m_Settings: {fileID: 11400000, guid: 768474f74753eb84289176247933f264, type: 2}
   m_SchemaSet:
     m_Schemas:
-    - {fileID: 11400000, guid: a6f759d2c5b376246941ee0704637b03, type: 2}
-    - {fileID: 11400000, guid: 2dac2a83be812df4c85eaa2d082c9384, type: 2}
+    - {fileID: 11400000, guid: edce853585e2c544d982745586ef5d5c, type: 2}
+    - {fileID: 11400000, guid: e14e7fd6bd4cbd246928e871a59409f9, type: 2}
