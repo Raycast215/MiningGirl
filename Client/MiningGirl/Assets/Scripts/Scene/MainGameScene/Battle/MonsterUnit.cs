@@ -43,6 +43,12 @@ namespace Scene.MainGameScene.Battle
         // 조준해도 되는 대상인지. 이미 죽을 만큼 예약이 걸린 놈은 제외합니다.
         public bool IsTargetable => IsAlive && _currentHealth - ReservedDamage > 0f;
 
+        // 예측 사격이 쓰는 현재 하강 속도.
+        //
+        // 타워 앞에 멈춰 선 뒤에는 움직이지 않으므로 0입니다.
+        // 이 값이 틀리면 멈춘 적을 앞질러 쏘게 됩니다.
+        public float MoveSpeed => IsBlocked ? 0f : _moveSpeed;
+
         public void Reserve(float amount)
         {
             if (amount > 0f)
