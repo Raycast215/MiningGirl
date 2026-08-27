@@ -20,6 +20,10 @@ namespace Scene.MainGameScene.Battle
         public readonly float StatusValue;
         public readonly bool Knockback;
 
+        // 발동 순간 제자리에서 재생할 이펙트. 폭발만 씁니다 - 연쇄와 부채꼴은
+        // 발사체를 새로 내보내므로 그 발사체가 스킬의 이펙트를 그대로 달고 나갑니다.
+        public readonly string EffectAssetId;
+
         public MasterySpec(SkillMasteryDataTableRow row)
         {
             HasValue = row != null;
@@ -33,6 +37,7 @@ namespace Scene.MainGameScene.Battle
                 StatusDuration = 0f;
                 StatusValue = 0f;
                 Knockback = false;
+                EffectAssetId = null;
 
                 return;
             }
@@ -44,6 +49,7 @@ namespace Scene.MainGameScene.Battle
             StatusDuration = row.StatusDuration;
             StatusValue = row.StatusValue;
             Knockback = row.HasKnockback;
+            EffectAssetId = row.EffectAssetId;
         }
     }
 }

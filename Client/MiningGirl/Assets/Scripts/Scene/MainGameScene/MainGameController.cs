@@ -107,6 +107,8 @@ namespace Scene.MainGameScene
         private SkillInventory _inventory;
         private SkillRunner _skillRunner;
         private LevelSystem _levelSystem;
+
+        private EffectSpawner _effects;
         private LevelUpChoiceBuilder _choiceBuilder;
         private WaveRunner _waveRunner;
 
@@ -162,6 +164,7 @@ namespace Scene.MainGameScene
             _field.Tick(deltaTime);
             _skillRunner.Tick(deltaTime);
             _launcher.Tick(deltaTime);
+            _effects.Tick(deltaTime);
 
             _hudViewModel.Tick(_elapsed);
 
@@ -189,7 +192,9 @@ namespace Scene.MainGameScene
                 ? new FloatingDamageSpawner(floatingDamagePrefab, floatingDamageLayer != null ? floatingDamageLayer : projectileLayer)
                 : null;
 
-            _field = new MonsterField(monsterLayer, tower, _bounds, _stage.MonsterStatMultiplier, floatingDamage);
+            _effects = new EffectSpawner(projectileLayer);
+
+            _field = new MonsterField(monsterLayer, tower, _bounds, _stage.MonsterStatMultiplier, floatingDamage, _effects);
             _field.OnMonsterKilled += HandleMonsterKilled;
 
             _launcher = new ProjectileLauncher(projectileLayer, _field, _bounds);
@@ -374,6 +379,19 @@ namespace Scene.MainGameScene
                 .Distinct() ?? Enumerable.Empty<string>();
 
             await _launcher.PreloadAsync(effectIds);
+
+            // 강화스킬 이펙트는 폭발만 미리 불러 둡니다.
+            //
+            // 연쇄와 부채꼴은 발사체를 새로 내보내므로 그 스킬의 이펙트를 그대로
+            // 씁니다. 시트의 EffectAssetId도 그 발사체 프리팹을 가리키고 있어서,
+            // 걸러내지 않으면 OneShotEffect가 없다는 에러가 스테이지마다 쌓입니다.
+            var masteryEffectIds = DataTableManager.Instance.SkillMasteryDataTable?.Rows?
+                .Where(row => row != null && row.MasteryType == EMasteryType.Explosion)
+                .Where(row => !string.IsNullOrEmpty(row.EffectAssetId))
+                .Select(row => row.EffectAssetId)
+                .Distinct() ?? Enumerable.Empty<string>();
+
+            await _effects.PreloadAsync(masteryEffectIds);
 
             await LoadCharacter();
             await LoadBackground();

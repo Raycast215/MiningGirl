@@ -372,6 +372,10 @@ namespace Scene.MainGameScene.Battle
                 {
                     var center = unit.Position;
 
+                    // 피해보다 먼저 띄웁니다. 한 방에 죽는 대상이면 피해 처리 중에
+                    // 몬스터가 사라져 터진 자리를 알 수 없게 됩니다.
+                    _field.PlayEffect(_mastery.EffectAssetId, center);
+
                     // 본체에 맞은 대상은 폭발 피해를 중복으로 받지 않습니다.
                     _field.ApplyAreaDamage(center, _mastery.Range, _damage * _mastery.Value, unit);
 

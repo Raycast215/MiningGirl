@@ -47,19 +47,31 @@ namespace Scene.MainGameScene.Battle
         private readonly BattleBounds _bounds;
         private readonly float _statMultiplier;
         private readonly FloatingDamageSpawner _floatingDamage;
+        private readonly EffectSpawner _effects;
 
         public MonsterField(
             Transform layer,
             Tower tower,
             BattleBounds bounds,
             float statMultiplier,
-            FloatingDamageSpawner floatingDamage)
+            FloatingDamageSpawner floatingDamage,
+            EffectSpawner effects)
         {
             _layer = layer;
             _tower = tower;
             _bounds = bounds;
             _statMultiplier = statMultiplier;
             _floatingDamage = floatingDamage;
+            _effects = effects;
+        }
+
+        // 특정 위치에서 한 번 터지는 이펙트를 재생합니다.
+        //
+        // 피해 숫자와 같은 이유로 여기 둡니다 - 발사체가 스포너를 직접 들면 발사체를
+        // 만드는 자리마다 스포너를 넘겨야 합니다. 필드는 이미 발사체가 들고 있습니다.
+        public void PlayEffect(string effectAssetId, Vector3 position)
+        {
+            _effects?.Play(effectAssetId, position);
         }
 
         // 피해를 넣는 자리를 한곳으로 모읍니다.
@@ -227,6 +239,7 @@ namespace Scene.MainGameScene.Battle
             _deadBuffer.Clear();
 
             _floatingDamage?.Clear();
+            _effects?.Clear();
         }
 
         // 화상처럼 발사체가 아닌 피해도 같은 자리를 지나가게 합니다.
