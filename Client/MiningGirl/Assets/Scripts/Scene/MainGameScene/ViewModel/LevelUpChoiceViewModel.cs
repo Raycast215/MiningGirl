@@ -9,22 +9,24 @@ namespace Scene.MainGameScene.ViewModel
     // 카드 하단에 뜨는 강화스킬 조건 한 줄.
     public readonly struct MasteryProgressItem
     {
-        // 진행도 숫자만 담습니다. 종류는 아이콘이 말하므로 이름을 붙이지 않습니다 -
-        // "위력 강화" 카드에 "위력"이라고 또 적으면 같은 말이 두 번 나옵니다.
+        // "위력 0/3"처럼 종류 이름과 진행도를 함께 담습니다.
+        //
+        // 처음에는 숫자만 담고 종류는 아이콘이 말하게 했는데, 두 칩이 나란히
+        // "0/3" "0/3"으로 떠서 어느 쪽이 모자란지 구분되지 않았습니다. 위력과
+        // 발사체는 사물이 아니라 개념이라 아이콘을 키워도 안 읽힙니다.
+        //
+        // 단어는 시트의 카드 이름(파이어볼트 위력 / 파이어볼트 발사체)과 같은
+        // 것을 씁니다. 그래야 "이 카드를 더 먹어야 한다"로 이어 읽힙니다.
         public readonly string Text;
-
-        // 아이콘을 고르는 열쇠. 어떤 그림을 쓸지는 View가 정합니다.
-        public readonly ESkillUpgradeType Type;
 
         // 이 카드를 고르면 올라가는 쪽인지. 강조 표현은 View가 정합니다.
         public readonly bool IsAdvancing;
 
         public readonly bool IsMet;
 
-        public MasteryProgressItem(string text, ESkillUpgradeType type, bool isAdvancing, bool isMet)
+        public MasteryProgressItem(string text, bool isAdvancing, bool isMet)
         {
             Text = text;
-            Type = type;
             IsAdvancing = isAdvancing;
             IsMet = isMet;
         }
@@ -256,13 +258,28 @@ namespace Scene.MainGameScene.ViewModel
                 var requirement = source[i];
 
                 items[i] = new MasteryProgressItem(
-                    $"{requirement.Current}/{requirement.Required}",
-                    requirement.Type,
+                    $"{UpgradeTypeName(requirement.Type)} {requirement.Current}/{requirement.Required}",
                     requirement.IsAdvancedByThisCard,
                     requirement.IsMet);
             }
 
             return items;
+        }
+
+        // 조건 칩에 적을 강화 종류 이름.
+        //
+        // 시트의 카드 이름에서 스킬 이름을 뺀 단어와 같아야 합니다 - "데미지"나
+        // "투사체"로 바꾸면 카드 이름과 달라져 이어 읽히지 않습니다.
+        private static string UpgradeTypeName(ESkillUpgradeType type)
+        {
+            switch (type)
+            {
+                case ESkillUpgradeType.Damage: return "위력";
+                case ESkillUpgradeType.ProjectileCount: return "발사체";
+                case ESkillUpgradeType.PierceCount: return "관통";
+                case ESkillUpgradeType.HitRange: return "범위";
+                default: return string.Empty;
+            }
         }
 
         private static string FormatUpgradeDetail(SkillUpgradeDataTableRow upgrade)

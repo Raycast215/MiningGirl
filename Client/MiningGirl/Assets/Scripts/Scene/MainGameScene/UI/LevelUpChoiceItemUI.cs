@@ -12,25 +12,19 @@ namespace Scene.MainGameScene.UI
     // 부모가 값을 밀어넣는 순수 표시 컴포넌트라 ViewModel을 따로 두지 않았습니다.
     public class LevelUpChoiceItemUI : MonoBehaviour
     {
-        // 조건 알약 한 개. 아이콘이 종류를, 숫자가 진행도를 말합니다.
+        // 조건 알약 한 개. 글자 하나가 종류와 진행도를 함께 말합니다.
+        //
+        // 아이콘 칸이 있었는데 뺐습니다 - 26x26으로는 위력과 발사체가 구분되지
+        // 않아, 두 알약이 같은 말을 두 번 하는 것처럼 보였습니다.
         [Serializable]
         private class MasteryPill
         {
             public GameObject root;
             public Image background;
-            public Image icon;
             public TMP_Text label;
 
             [Tooltip("강조된 알약 아래 깔리는 금색 선. 색만으로는 약해서 선을 더합니다")]
             public GameObject underline;
-        }
-
-        // 조건 종류별 아이콘. 종류가 늘면 여기에 한 줄 더합니다.
-        [Serializable]
-        private class ConditionIcon
-        {
-            public ESkillUpgradeType type;
-            public Sprite sprite;
         }
 
         [SerializeField]
@@ -64,9 +58,6 @@ namespace Scene.MainGameScene.UI
         [SerializeField]
         [Tooltip("조건 알약. 왼쪽부터 채웁니다. 좌우 순서가 종류를 읽는 단서라 흔들리면 안 됩니다")]
         private MasteryPill[] masteryPills;
-
-        [SerializeField]
-        private ConditionIcon[] conditionIcons;
 
         [Header("강화스킬 색")]
         [SerializeField]
@@ -174,37 +165,11 @@ namespace Scene.MainGameScene.UI
             if (pill.underline != null)
                 pill.underline.SetActive(entry.IsAdvancing);
 
-            if (pill.label != null)
-            {
-                pill.label.text = entry.Text;
-                pill.label.color = color;
-            }
-
-            if (pill.icon == null)
+            if (pill.label == null)
                 return;
 
-            var sprite = FindConditionIcon(entry.Type);
-
-            pill.icon.sprite = sprite;
-            pill.icon.enabled = sprite != null;
-
-            // 강조된 알약에서는 아이콘을 글자와 같은 밝기로 둡니다. 완료 초록은
-            // 숫자에만 남겨야 "무엇이 끝났는가"가 숫자에서 읽힙니다.
-            pill.icon.color = entry.IsAdvancing ? textOnColor : color;
-        }
-
-        private Sprite FindConditionIcon(ESkillUpgradeType type)
-        {
-            if (conditionIcons == null)
-                return null;
-
-            for (var i = 0; i < conditionIcons.Length; i++)
-            {
-                if (conditionIcons[i] != null && conditionIcons[i].type == type)
-                    return conditionIcons[i].sprite;
-            }
-
-            return null;
+            pill.label.text = entry.Text;
+            pill.label.color = color;
         }
 
         public void Hide()
