@@ -33,6 +33,15 @@ public static class CaptureConditions
     // 컨트롤러 인스턴스가 새로 생깁니다.
     private const string LastControllerKey = "MiningGirl.Capture.LastController";
 
+    // 화면에 동시에 뜬 볼리 수. 매 프레임 셉니다.
+    //
+    // 캡처 프레임 셋에서 세면 200초짜리 판을 표본 셋으로 말하는 것이라, 전 프레임을
+    // 훑어 최댓값과 평균을 냅니다. 각도 등차수열로 추론하지 않고 발사체가 들고 있는
+    // 볼리 번호를 셉니다 - 부채 둘이 겹치면 어디까지가 한 볼리인지 정할 근거가 없습니다.
+    private const string VolleyMaxKey = "MiningGirl.Capture.VolleyMax";
+    private const string VolleySumKey = "MiningGirl.Capture.VolleySum";
+    private const string VolleyFramesKey = "MiningGirl.Capture.VolleyFrames";
+
     // 조건마다 몇 장까지 찍을지. 같은 화면을 계속 찍어도 새로 아는 게 없습니다.
     private const int ShotsPerCondition = 3;
 
@@ -56,6 +65,9 @@ public static class CaptureConditions
         SessionState.SetBool(EnabledKey, true);
         SessionState.SetInt(RunsKey, 0);
         SessionState.SetInt(LastControllerKey, 0);
+        SessionState.SetInt(VolleyMaxKey, 0);
+        SessionState.SetInt(VolleySumKey, 0);
+        SessionState.SetInt(VolleyFramesKey, 0);
 
         EditorApplication.update -= Tick;
         EditorApplication.update += Tick;
@@ -90,6 +102,16 @@ public static class CaptureConditions
             var shots = SessionState.GetInt(CountKeyPrefix + keys[i], 0);
 
             report.AppendLine($"  {keys[i],-22} {shots}장");
+        }
+
+        var frames = SessionState.GetInt(VolleyFramesKey, 0);
+
+        if (frames > 0)
+        {
+            var max = SessionState.GetInt(VolleyMaxKey, 0);
+            var avg = SessionState.GetInt(VolleySumKey, 0) / (float)frames;
+
+            report.AppendLine($"  동시에 뜬 볼리   최대 {max}개 / 평균 {avg:0.00}개  (발사체가 있던 {frames}프레임)");
         }
 
         Debug.Log(report.ToString());
@@ -134,6 +156,8 @@ public static class CaptureConditions
         var alive = (int)field.GetType().GetProperty("AliveCount").GetValue(field, null);
         var monsters = Object.FindObjectsOfType<MonsterUnit>();
 
+        SampleVolleyCount();
+
         var stage = typeof(MainGameController).GetField("_stage", Hidden)?.GetValue(controller) as Data.StageDataTableRow;
 
         TryStrayVolley(alive);
@@ -143,38 +167,73 @@ public static class CaptureConditions
         TrySlagCluster(monsters);
     }
 
-    // 무조준 발사만 있는 프레임.
+    // 지금 화면에 몇 개 볼리가 떠 있는지. 발사체가 들고 있는 번호를 셉니다.
+    private static void SampleVolleyCount()
+    {
+        var projectiles = Object.FindObjectsOfType<Projectile>();
+
+        if (projectiles.Length == 0)
+            return;
+
+        var ids = new HashSet<int>();
+
+        for (var i = 0; i < projectiles.Length; i++)
+            ids.Add(projectiles[i].DebugVolleyId);
+
+        var count = ids.Count;
+
+        if (count > SessionState.GetInt(VolleyMaxKey, 0))
+            SessionState.SetInt(VolleyMaxKey, count);
+
+        SessionState.SetInt(VolleySumKey, SessionState.GetInt(VolleySumKey, 0) + count);
+        SessionState.SetInt(VolleyFramesKey, SessionState.GetInt(VolleyFramesKey, 0) + 1);
+    }
+
+    // 흘려보낸 예약분만 있는 프레임.
     //
-    // 생존 0이어야 합니다. 한 마리라도 살아 있으면 그 한 마리를 조준한 발이 섞여
-    // 부채 범위 밖의 각도가 나오고, 그 프레임으로 폭을 판정하면 틀립니다.
+    // 생존 0으로 조입니다. 한 마리라도 살아 있으면 그 한 마리를 조준한 발이 섞입니다.
     //
-    // 다만 생존 0이어도 한 프레임이 한 볼리는 아닙니다. 0.2초 간격으로 나가고
-    // 발사체가 오래 살아서 앞 볼리가 남은 채로 다음 볼리가 나갑니다. 그래서 각도를
-    // 같이 남깁니다 - 간격이 일정한 것끼리가 한 볼리입니다.
+    // 그런데 생존 0으로도 부채꼴은 안 걸러집니다 - 부채꼴은 조준을 안 하므로 적이
+    // 없어도 나갑니다. 실제로 물렸습니다: 각도 목록에 -26.7도가 나와서 "앞 볼리의
+    // 바깥쪽 발"이라고 설명했는데, 흘려보낸 예약분의 상한은 ±15.3도라 나올 수 없는
+    // 값이었습니다. 부채꼴(arc = Mastery.Range)이 섞인 것이었습니다.
+    //
+    // 그래서 조건이 아니라 종류로 거릅니다. 발이 스스로 자기 종류를 알고 있으니
+    // 그걸 읽으면 됩니다.
     private static void TryStrayVolley(int alive)
     {
         if (alive != 0)
             return;
 
         var projectiles = Object.FindObjectsOfType<Projectile>();
+        var strays = new List<Projectile>();
 
-        if (projectiles.Length < 3)
+        for (var i = 0; i < projectiles.Length; i++)
+        {
+            // 2 = 흘려보낸 예약분
+            if (projectiles[i].DebugAimKind == 2)
+                strays.Add(projectiles[i]);
+        }
+
+        // 다른 종류가 섞여 있으면 화면이 그것 때문에 어수선한 것이라 판정이 안 섭니다.
+        if (strays.Count < 3 || strays.Count != projectiles.Length)
             return;
 
-        if (!Take("stray_volley", projectiles.Length))
+        if (!Take("stray_volley", strays.Count))
             return;
 
         var field = typeof(Projectile).GetField("_direction", Hidden);
         var angles = new List<string>();
 
-        foreach (var projectile in projectiles)
+        for (var i = 0; i < strays.Count; i++)
         {
-            var direction = (Vector3)field.GetValue(projectile);
+            var direction = (Vector3)field.GetValue(strays[i]);
+            var degree = Mathf.Atan2(direction.x, direction.y) * Mathf.Rad2Deg;
 
-            angles.Add((Mathf.Atan2(direction.x, direction.y) * Mathf.Rad2Deg).ToString("0.0"));
+            angles.Add($"{degree:0.0}(#{strays[i].DebugVolleyId})");
         }
 
-        Shoot("stray_volley", $"무조준 {projectiles.Length}발 생존0  수직에서 {string.Join(" / ", angles)}  [판정] 보류 - 무조준 비율이 내려간 뒤 \"어수선한가\"로 봅니다. 간격이 일정한 것끼리가 한 볼리입니다");
+        Shoot("stray_volley", $"무조준 {strays.Count}발 생존0  수직에서(볼리번호) {string.Join(" / ", angles)}  [판정] 보류 - 무조준 비율이 내려간 뒤 \"어수선한가\"로 봅니다");
     }
 
     // 몬스터가 타워 체력바에 겹친 프레임.

@@ -119,6 +119,22 @@ namespace Scene.MainGameScene.Battle
         public static float DebugAimedLifeSum;
         public static int DebugAimedLifeCount;
 
+        // 이 발이 몇 번째 볼리에서 나왔는지.
+        //
+        // 화면에 동시에 뜬 볼리 수를 세는 데 씁니다. 각도가 등차수열인 것끼리
+        // 묶어 추론할 수도 있는데, 부채 둘이 겹치면 어디까지가 한 볼리인지
+        // 정할 근거가 없습니다. 번호를 달고 다니면 셀 필요가 없습니다.
+        //
+        // SkillRunner 가 볼리를 시작할 때 넣고, Setup 이 그때 값을 집습니다.
+        public static int DebugNextVolleyId;
+
+        private int _debugVolleyId;
+
+        public int DebugVolleyId => _debugVolleyId;
+
+        // 0=조준, 1=부채꼴, 2=흘려보낸 예약분. 측정에서 셋을 갈라야 합니다.
+        public int DebugAimKind => _debugAimKind;
+
         // 이 발이 어느 쪽인지. 0=조준, 1=부채꼴, 2=흘려보낸 예약분.
         private int _debugAimKind;
 
@@ -274,6 +290,7 @@ namespace Scene.MainGameScene.Battle
             _debugHitTarget = false;
             _debugIntendedId = _target != null && _target.Row != null ? _target.Row.Id : null;
             _debugIntendedSerial = _target != null ? _target.DebugSerial : 0;
+            _debugVolleyId = DebugNextVolleyId;
 #endif
         }
 

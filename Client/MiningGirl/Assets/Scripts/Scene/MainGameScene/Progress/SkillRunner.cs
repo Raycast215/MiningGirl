@@ -68,16 +68,24 @@ namespace Scene.MainGameScene.Progress
             public readonly int Index;
             public readonly int Count;
 
+            // 이 발이 속한 볼리 번호. 예약된 발이 나중에 나가도 자기 볼리를 압니다.
+            // 측정에만 씁니다 - 화면에 동시에 뜬 볼리 수를 세는 데 필요합니다.
+            public readonly int VolleyId;
+
             public float Remaining;
 
-            public PendingShot(SkillState skill, float remaining, int index, int count)
+            public PendingShot(SkillState skill, float remaining, int index, int count, int volleyId)
             {
                 Skill = skill;
                 Remaining = remaining;
                 Index = index;
                 Count = count;
+                VolleyId = volleyId;
             }
         }
+
+        // 볼리마다 번호를 하나씩 씁니다. 측정 전용이라 값 자체에 뜻은 없습니다.
+        private int _volleySeq;
 
 #if UNITY_EDITOR
         // 쿨이 찼는데 쏘지 못하고 기다린 시간입니다. 스킬별로 합산합니다.
@@ -245,6 +253,13 @@ namespace Scene.MainGameScene.Progress
             var count = Mathf.Max(1, skill.ProjectileCount);
             var origin = _muzzle.position;
 
+            _volleySeq++;
+
+#if UNITY_EDITOR
+            // 부채꼴은 아래에서 먼저 return 하므로 여기서 넣어야 같이 받습니다.
+            Battle.Projectile.DebugNextVolleyId = _volleySeq;
+#endif
+
             // 부채꼴은 조준하지 않고 각도로 뿌립니다.
             //
             // 대상을 고르는 개념이 없으므로 조준 규칙 2(서로 다른 적)와 3(대기)이
@@ -268,7 +283,7 @@ namespace Scene.MainGameScene.Progress
             var spacing = Mathf.Min(FireDelay, MaxFireSpread / (count - 1));
 
             for (var i = 1; i < count; i++)
-                _pending.Add(new PendingShot(skill, spacing * i, i, count));
+                _pending.Add(new PendingShot(skill, spacing * i, i, count, _volleySeq));
 
             return true;
         }
@@ -331,6 +346,12 @@ namespace Scene.MainGameScene.Progress
                 var origin = _muzzle.position;
                 var target = _field.FindNearestTargetable(origin);
                 var muzzle = MuzzleFor(origin, shot.Index, shot.Count);
+
+#if UNITY_EDITOR
+                // 예약된 발은 자기 볼리 번호를 그대로 씁니다. 그 사이 다른 볼리가
+                // 시작했어도 이 발은 앞 볼리 것입니다.
+                Battle.Projectile.DebugNextVolleyId = shot.VolleyId;
+#endif
 
                 if (target == null)
                 {
