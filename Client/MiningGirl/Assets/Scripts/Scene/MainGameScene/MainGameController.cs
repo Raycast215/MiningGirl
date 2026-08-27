@@ -336,11 +336,23 @@ namespace Scene.MainGameScene
 
         // 실제로 들어갈 스테이지 Id.
         //
-        // 평소에는 인스펙터 값 그대로입니다. 에디터에서 스테이지를 지정해 들어온 경우에만
-        // 그 값이 이깁니다. 씬 파일의 stageId는 손대지 않으므로 지정 진입을 몇 번을 하든
-        // 저장소에는 아무 변화가 남지 않습니다.
+        // 평소에는 인스펙터 값 그대로입니다. 스테이지 선택에서 고르고 들어왔거나
+        // 에디터에서 스테이지를 지정해 들어온 경우에만 그 값이 이깁니다. 씬 파일의
+        // stageId는 손대지 않으므로 지정 진입을 몇 번을 하든 저장소에는 아무
+        // 변화가 남지 않습니다.
         private string ResolveStageId()
         {
+            // 한 번 쓰고 비웁니다. 남겨 두면 다음에 이 씬만 단독으로 재생했을 때
+            // 지난 선택이 되살아나 인스펙터 값이 무시됩니다.
+            var selected = StageEntry.Consume();
+
+            if (!string.IsNullOrEmpty(selected))
+            {
+                Debug.Log($"[MainGame] 스테이지 선택 진입: {selected}");
+
+                return selected;
+            }
+
 #if UNITY_EDITOR
             var debugStageId = UnityEditor.SessionState.GetString(DebugStageIdKey, string.Empty);
 

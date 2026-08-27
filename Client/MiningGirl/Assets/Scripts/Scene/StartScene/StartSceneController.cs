@@ -1,6 +1,7 @@
 using Cysharp.Threading.Tasks;
 using Manager;
 using Scene.StartScene.UI;
+using Scene.StartScene.ViewModel;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -62,16 +63,44 @@ namespace Scene.StartScene
             await UniTask.WaitForSeconds(1.0f);
 
             loadingProgressUI.Hide();
-            startPromptUI.Show();
+            startPromptUI.Hide();
 
-            // 테스트 편의를 위해 터치하지 않아도 3초 뒤 자동으로 다음 씬으로 넘어갑니다.
-            // 그 전에 터치하면 기존처럼 즉시 넘어갑니다.
-            AutoStartAfterDelay(1.0f).Forget();
+            ShowStageSelect();
         }
 
-        private async UniTaskVoid AutoStartAfterDelay(float delaySeconds)
+        // 스테이지 선택을 띄웁니다(임시).
+        //
+        // 전에는 1초 뒤 자동으로 인게임에 들어갔습니다. 스테이지가 다섯 개가 되어
+        // 어디로 들어갈지 고를 데가 있어야 하고, 정식 화면은 다음 작업입니다.
+        private void ShowStageSelect()
         {
-            await UniTask.WaitForSeconds(delaySeconds);
+            // 씬에서 아무 캔버스나 집으면 안 됩니다. SRDebugger가 DontDestroyOnLoad에
+            // 물리 크기 캔버스를 하나 띄워 두고 있어서, FindObjectOfType으로는
+            // 그쪽이 잡혀 화면이 손톱만 하게 그려집니다.
+            var canvas = startPromptUI == null ? null : startPromptUI.GetComponentInParent<Canvas>();
+            var viewModel = new StageSelectViewModel(DataTableManager.Instance.StageDataTable);
+
+            if (canvas == null || viewModel.Items.Count == 0)
+            {
+                // 고를 게 없으면 예전처럼 바로 들어갑니다. 스테이지 선택이 없다고
+                // 게임을 못 켜면 데이터 문제 하나가 진입 자체를 막습니다.
+                Debug.LogWarning("[StartScene] 스테이지 목록을 만들지 못해 바로 들어갑니다.");
+
+                startPromptUI.Show();
+                StartGame();
+
+                return;
+            }
+
+            viewModel.Selected += HandleStageSelected;
+
+            StageSelectUI.Create(canvas, viewModel);
+        }
+
+        private void HandleStageSelected(string stageId)
+        {
+            StageEntry.Select(stageId);
+
             StartGame();
         }
 
