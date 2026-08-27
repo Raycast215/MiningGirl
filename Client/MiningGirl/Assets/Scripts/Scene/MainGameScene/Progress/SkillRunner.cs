@@ -23,6 +23,11 @@ namespace Scene.MainGameScene.Progress
         // Sine 발사체의 진폭 수렴 기준이라 화면을 넘길 만큼이면 됩니다.
         private const float FanTargetDistance = 30f;
 
+        // 조준할 적이 없어 아무 데나 나가는 예약 발사체가 흩어지는 각도 범위.
+        // 위쪽(90도)을 가운데로 두고 좌우로 벌립니다 - 몬스터가 위에서 내려오므로
+        // 옆이나 아래로 나가면 빗나간 게 아니라 엉뚱한 데 쏜 것으로 보입니다.
+        private const float StrayFireArc = 120f;
+
         private readonly SkillInventory _inventory;
         private readonly MonsterField _field;
         private readonly ProjectileLauncher _launcher;
@@ -266,8 +271,9 @@ namespace Scene.MainGameScene.Progress
 
         // 예약된 발을 시간이 되면 하나씩 내보냅니다.
         //
-        // 자기 차례에 조준할 적이 없으면 그 발은 버립니다. 남는 발을 아무 데나
-        // 보내면 다발형의 "여러 마리를 친다"가 무너집니다.
+        // 자기 차례에 조준할 적이 없으면 위쪽 아무 데나 쏩니다. 버리지 않습니다 -
+        // 쿨은 이미 돌아갔는데 발만 사라지면, 화면에는 "쏘다 만" 그림이 남습니다.
+        // 빗나간 발이 뒤에 들어온 몬스터에 맞을 수도 있어 손해도 아닙니다.
         private void TickPending(float deltaTime)
         {
             for (var i = _pending.Count - 1; i >= 0; i--)
@@ -286,11 +292,16 @@ namespace Scene.MainGameScene.Progress
 
                 var origin = _muzzle.position;
                 var target = _field.FindNearestTargetable(origin);
+                var muzzle = MuzzleFor(origin, shot.Index, shot.Count);
 
                 if (target == null)
-                    continue;
+                {
+                    FireStray(shot.Skill, muzzle);
 
-                FireOne(shot.Skill, MuzzleFor(origin, shot.Index, shot.Count), target);
+                    continue;
+                }
+
+                FireOne(shot.Skill, muzzle, target);
             }
         }
 
@@ -302,6 +313,19 @@ namespace Scene.MainGameScene.Progress
                 return origin;
 
             return origin + new Vector3((index - (count - 1) * 0.5f) * MuzzleSpacing, 0f, 0f);
+        }
+
+        // 조준 대상이 없을 때 위쪽으로 아무렇게나 내보냅니다.
+        //
+        // 부채꼴과 같은 길로 나갑니다 - 조준점이 없으니 사거리는 화면을 넘기는
+        // 값이면 되고, 타겟을 null로 넘겨 예측 조준을 건너뜁니다.
+        private void FireStray(SkillState skill, Vector3 origin)
+        {
+            var degree = 90f + Random.Range(-StrayFireArc * 0.5f, StrayFireArc * 0.5f);
+            var radian = degree * Mathf.Deg2Rad;
+            var direction = new Vector3(Mathf.Cos(radian), Mathf.Sin(radian), 0f);
+
+            _launcher.Fire(skill.BuildProjectileSpec(), origin, direction, FanTargetDistance, null);
         }
 
         private void FireOne(SkillState skill, Vector3 origin, MonsterUnit target)
