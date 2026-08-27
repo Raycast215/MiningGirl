@@ -44,7 +44,7 @@
   "EffectAssetId": "Effect_LightningBolt",
   "EffectRange": 0,
   "EffectValue": 1,
-  "IconAssetId": "Skill_Icon_1076",
+  "IconAssetId": "Skill_Icon_1144",
   "Id": "Mastery_LightningBolt",
   "Knockback": 0,
   "MasteryType": "ChainOnHit",
