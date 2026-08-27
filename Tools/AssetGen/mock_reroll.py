@@ -291,7 +291,7 @@ def main():
                         int(src[k] * f + base[k] * (1 - f)) for k in range(3))
             rect(ov, ox + SN - 30, oy + SN - 22, 26, 16, dim((18, 16, 22), a), round_=3)
             # 표시 레벨 실제 범위 1~14. 5의 배수로 두면 20/25가 나와 안 나오는 값이 된다.
-            text(ov, ("1", "3", "8", "13", "17")[i], ox + SN - 26, oy + SN - 19, 3,
+            text(ov, ("1", "4", "9", "14", "20")[i], ox + SN - 26, oy + SN - 19, 3,
                  dim((255, 248, 232), a))
         rect(ov, PAD, oy + SN + 12, 70, 7, dim((150, 144, 162), 0.2))
     p3 = os.path.join(out_dir, "overlay_alpha.png")
