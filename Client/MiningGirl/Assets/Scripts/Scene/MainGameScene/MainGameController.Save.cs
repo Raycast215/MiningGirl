@@ -86,7 +86,8 @@ namespace Scene.MainGameScene
             data.Wave.ScheduleCount = _waveRunner.CaptureScheduleCount();
 
             data.Level.Level = _levelSystem.Level;
-            data.Level.KillsInLevel = _levelSystem.KillsInLevel;
+            data.Level.ExpInLevel = _levelSystem.ExpInLevel;
+            data.Level.TotalExp = _levelSystem.TotalExp;
             data.Level.TotalKills = _levelSystem.TotalKills;
             data.Level.PendingLevelUps = _pendingLevelUps;
 
@@ -255,7 +256,11 @@ namespace Scene.MainGameScene
 
             RestoreSkills(save);
 
-            _levelSystem.Restore(save.Level.Level, save.Level.KillsInLevel, save.Level.TotalKills);
+            _levelSystem.Restore(
+                save.Level.Level,
+                save.Level.ExpInLevel,
+                save.Level.TotalExp,
+                save.Level.TotalKills);
             _pendingLevelUps = Mathf.Max(0, save.Level.PendingLevelUps);
 
             _elapsed = save.Elapsed;

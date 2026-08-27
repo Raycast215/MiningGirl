@@ -115,7 +115,7 @@ namespace Scene.MainGameScene.ViewModel
         {
             WaveText.Value = $"WAVE {_waveRunner.CurrentWaveNo}/{_waveRunner.TotalWaveCount}";
             ElapsedText.Value = FormatTime(elapsedSeconds);
-            Exp.Value = new GaugeValue(_levelSystem.KillsInLevel, _levelSystem.GaugeRequired);
+            Exp.Value = new GaugeValue(_levelSystem.ExpInLevel, _levelSystem.GaugeRequired);
             TowerHealth.Value = new GaugeValue(_tower.CurrentHealth, _tower.MaxHealth);
 
             RefreshSlots();

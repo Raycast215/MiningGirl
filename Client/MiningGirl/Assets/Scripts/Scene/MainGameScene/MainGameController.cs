@@ -219,8 +219,15 @@ namespace Scene.MainGameScene
             _rerollsLeft = Mathf.Max(0, constants.GetInt(EGameConstantType.LevelUpRerollCount, 10));
             _skillRunner = new SkillRunner(_inventory, _field, _launcher, characterAnchor);
 
+            // 첫 구간 필요량이 이제 시트 상수입니다. 예전에는 총 몬스터 수 / 웨이브 수라
+            // 마리 수를 건드릴 때마다 레벨 곡선이 따라 움직였습니다.
+            //
+            // 총 경험치는 웨이브 테이블에서 냅니다. 게이지의 마지막 구간 분모에만 쓰입니다.
             _levelSystem = new LevelSystem(
-                _stage.TotalMonsterCount,
+                constants.GetInt(EGameConstantType.LevelUpFirstStepExp, 100),
+                DataTableManager.Instance.WaveDataTable.SumExp(
+                    _stage.Id,
+                    DataTableManager.Instance.MonsterDataTable),
                 _stage.WaveCount,
                 constants.GetValue(EGameConstantType.LevelUpCurveRate, 1.5f));
             _levelSystem.OnLevelUp += HandleLevelUp;
@@ -506,8 +513,8 @@ namespace Scene.MainGameScene
 
         private void HandleMonsterKilled(MonsterUnit unit)
         {
-            // 몬스터 1마리 처치 = 경험치 1입니다.
-            _levelSystem.AddKill();
+            // 주는 경험치는 몬스터마다 다릅니다. 예전에는 1마리 = 1이었습니다.
+            _levelSystem.AddKill(unit != null && unit.Row != null ? unit.Row.Exp : 0);
         }
 
         private void HandleLevelUp(int level)

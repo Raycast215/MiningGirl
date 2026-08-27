@@ -61,7 +61,16 @@ namespace Manager.Save
     public class LevelSave
     {
         public int Level;
-        public int KillsInLevel;
+
+        // 이번 구간에서 번 경험치와 누적 경험치.
+        //
+        // 예전에는 처치 수로 저장했습니다. 그 저장은 지금 코드로 복원하면
+        // 경험치를 처치 수만큼으로 읽어 레벨이 크게 어긋나므로,
+        // SchemaVersion을 올려 통째로 버립니다.
+        public int ExpInLevel;
+        public int TotalExp;
+
+        // 레벨과는 무관합니다. 결과 화면과 기록에만 씁니다.
         public int TotalKills;
 
         // 아직 고르지 않은 레벨업 횟수. 3택이 밀려 있을 수 있습니다.

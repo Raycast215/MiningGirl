@@ -100,6 +100,7 @@ namespace Scene.MainGameScene
                 + $" 경과 {_elapsed:0}초"
                 + $" 레벨 {_levelSystem.Level}"
                 + $" 처치 {_levelSystem.TotalKills}/{_stage.TotalMonsterCount}"
+                + $" 경험치 {_levelSystem.TotalExp}"
                 + $" 도달 {_field.ReachedTowerCount}"
                 + $" 최대동시 {_field.PeakAliveCount}"
                 + $" 리롤 남음 {_rerollsLeft}");

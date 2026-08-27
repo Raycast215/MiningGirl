@@ -13,7 +13,7 @@ namespace Manager.Save
     public static class RunSaveStore
     {
         // 저장 구조가 바뀔 때만 올립니다. 시트 값이 바뀌었다고 올리지 마십시오.
-        public const int SchemaVersion = 1;
+        public const int SchemaVersion = 2;
 
         private const string FileName = "run_save.json";
 
