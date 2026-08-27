@@ -807,24 +807,31 @@ public static class MainGameSceneBuilder
         var track = CreateImage("Track", root.transform, new Color(0.08f, 0.08f, 0.10f, 0.85f));
         Stretch(track.rectTransform);
 
-        // 줄어든 만큼 잠깐 남겨 보여 주는 뒷바. 타워가 얼마나 맞았는지 눈에 띄게 합니다.
-        var delayed = CreateImage("Delayed", root.transform, new Color(0.85f, 0.35f, 0.25f, 0.9f));
-        Inset(delayed.rectTransform, 4f);
-        delayed.type = Image.Type.Filled;
-        delayed.fillMethod = Image.FillMethod.Horizontal;
+        // 뒷바(Delayed)는 만들지 않습니다.
+        //
+        // 줄어든 만큼을 잠깐 남겨 보여 주는 연출인데, 인게임 두 게이지에는 맞지 않습니다.
+        // 경험치는 레벨업마다 0으로 돌아가서 뒷바가 매번 길게 흘러내리고, 타워 체력은
+        // 잔몹이 계속 때려서 뒷바가 따라올 틈 없이 계속 끌려다닙니다.
+        // GaugeBarView는 참조가 비면 이 연출을 건너뜁니다.
 
         var fill = CreateImage("Fill", root.transform, fillColor);
         Inset(fill.rectTransform, 4f);
         fill.type = Image.Type.Filled;
         fill.fillMethod = Image.FillMethod.Horizontal;
 
-        var label = CreateText("Label", root.transform, "0 / 0", 28f, FontStyles.Bold);
-        Stretch(label.rectTransform);
+        // 형식이 비어 있으면 숫자를 안 띄우겠다는 뜻이라 라벨을 만들지 않습니다.
+        TMP_Text label = null;
+
+        if (!string.IsNullOrEmpty(format))
+        {
+            label = CreateText("Label", root.transform, "0", 28f, FontStyles.Bold);
+            Stretch(label.rectTransform);
+        }
 
         var so = new SerializedObject(view);
         so.FindProperty("track").objectReferenceValue = track;
         so.FindProperty("fill").objectReferenceValue = fill;
-        so.FindProperty("delayedFill").objectReferenceValue = delayed;
+        so.FindProperty("delayedFill").objectReferenceValue = null;
         so.FindProperty("label").objectReferenceValue = label;
         so.FindProperty("fillColor").colorValue = fillColor;
         so.FindProperty("format").stringValue = format;
