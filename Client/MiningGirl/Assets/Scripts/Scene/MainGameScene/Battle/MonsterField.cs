@@ -37,6 +37,9 @@ namespace Scene.MainGameScene.Battle
 
         private readonly List<MonsterUnit> _alive = new List<MonsterUnit>();
         private readonly List<MonsterUnit> _deadBuffer = new List<MonsterUnit>();
+
+        // 범위 피해를 넣는 동안 목록이 바뀌므로 대상을 먼저 모아 둡니다.
+        private readonly List<MonsterUnit> _areaBuffer = new List<MonsterUnit>();
         private readonly Dictionary<string, Pooling<MonsterUnit>> _pools = new Dictionary<string, Pooling<MonsterUnit>>();
 
         private readonly Transform _layer;
@@ -119,7 +122,7 @@ namespace Scene.MainGameScene.Battle
             // 판정 반경이 아니라 그림 반폭 기준입니다.
             var position = new Vector3(_bounds.RandomSpawnX(SpawnMargin), _bounds.SpawnY, 0f);
 
-            unit.Setup(row, _statMultiplier, _tower, position, HandleDied, HandleBlocked);
+            unit.Setup(row, _statMultiplier, _tower, position, HandleDied, HandleBlocked, HandleStatusDamage);
 
             _alive.Add(unit);
 
@@ -224,6 +227,94 @@ namespace Scene.MainGameScene.Battle
             _deadBuffer.Clear();
 
             _floatingDamage?.Clear();
+        }
+
+        // 화상처럼 발사체가 아닌 피해도 같은 자리를 지나가게 합니다.
+        // 숫자 표시와 처치 처리를 두 군데서 하면 한쪽을 빼먹습니다.
+        private void HandleStatusDamage(MonsterUnit unit, float amount)
+        {
+            ApplyDamage(unit, amount);
+        }
+
+        // 범위 피해. 폭발이 씁니다.
+        //
+        // 예약을 걸지 않습니다(기획 규칙) - 발사 시점에 누가 범위 안에 들어올지 알 수
+        // 없어서, 예약하면 실제로 안 맞을 적까지 조준 후보에서 빠집니다.
+        public void ApplyAreaDamage(Vector3 center, float radius, float damage, MonsterUnit exclude)
+        {
+            if (radius <= 0f || damage <= 0f)
+                return;
+
+            _areaBuffer.Clear();
+
+            var sqrRadius = radius * radius;
+
+            for (var i = 0; i < _alive.Count; i++)
+            {
+                var unit = _alive[i];
+
+                if (unit == exclude || !unit.IsAlive)
+                    continue;
+
+                // 반경은 몬스터 몸통까지 포함해서 봅니다. 중심점만 보면 큰 놈이 빠집니다.
+                var reach = radius + unit.BodyRadius;
+
+                if ((unit.Position - center).sqrMagnitude > reach * reach)
+                    continue;
+
+                _areaBuffer.Add(unit);
+            }
+
+            // ApplyDamage가 목록을 건드리므로 복사본으로 돕니다.
+            for (var i = 0; i < _areaBuffer.Count; i++)
+                ApplyDamage(_areaBuffer[i], damage);
+        }
+
+        // 범위 안의 살아 있는 적을 모읍니다. 상태이상과 넉백이 씁니다.
+        public void FillInRadius(Vector3 center, float radius, List<MonsterUnit> buffer)
+        {
+            buffer.Clear();
+
+            if (radius <= 0f)
+                return;
+
+            for (var i = 0; i < _alive.Count; i++)
+            {
+                var unit = _alive[i];
+
+                if (!unit.IsAlive)
+                    continue;
+
+                var reach = radius + unit.BodyRadius;
+
+                if ((unit.Position - center).sqrMagnitude <= reach * reach)
+                    buffer.Add(unit);
+            }
+        }
+
+        // 연쇄가 쓰는 조준. 방금 맞은 대상은 뺍니다.
+        public MonsterUnit FindNearestTargetableExcept(Vector3 from, MonsterUnit exclude)
+        {
+            MonsterUnit nearest = null;
+            var best = float.MaxValue;
+
+            for (var i = 0; i < _alive.Count; i++)
+            {
+                var unit = _alive[i];
+
+                if (unit == exclude || !unit.IsTargetable)
+                    continue;
+
+                var distance = (unit.Position - from).sqrMagnitude;
+
+                if (distance >= best)
+                    continue;
+
+                best = distance;
+                nearest = unit;
+            }
+
+            return nearest;
         }
 
         private void HandleDied(MonsterUnit unit)

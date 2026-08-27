@@ -12,6 +12,17 @@ namespace Scene.MainGameScene.Progress
 
         public bool HasFreeSlot => _skills.Count < SlotMax;
 
+        // 이번 런에서 강화스킬을 이미 골랐는지.
+        //
+        // 런당 하나뿐이라 하나를 고르면 나머지 둘은 조건을 채워도 후보에서 빠집니다.
+        // 스테이지를 나가면 인벤토리째 사라지므로 따로 지울 필요가 없습니다.
+        public bool HasMastery { get; private set; }
+
+        public void MarkMasteryTaken()
+        {
+            HasMastery = true;
+        }
+
         private readonly List<SkillState> _skills = new List<SkillState>();
 
         public SkillInventory(int slotMax)

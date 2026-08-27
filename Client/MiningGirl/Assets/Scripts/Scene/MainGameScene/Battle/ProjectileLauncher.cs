@@ -69,7 +69,7 @@ namespace Scene.MainGameScene.Battle
             var projectile = pool.Get();
 
             projectile.PoolKey = spec.EffectAssetId;
-            projectile.Setup(_field, _bounds, origin, direction, targetDistance, spec, target, HandleFinished);
+            projectile.Setup(_field, _bounds, origin, direction, targetDistance, spec, target, HandleFinished, HandleChain);
 
             _flying.Add(projectile);
 
@@ -112,6 +112,25 @@ namespace Scene.MainGameScene.Battle
         private void HandleFinished(Projectile projectile)
         {
             _finishedBuffer.Add(projectile);
+        }
+
+        // 연쇄로 한 발 더 내보냅니다.
+        //
+        // 발사체가 스스로 풀을 아는 대신 여기로 부탁합니다. 연쇄로 나간 발은 다시
+        // 연쇄하지 않도록 스펙에서 마스터리를 뺀 것으로 쏩니다.
+        private void HandleChain(Projectile source, MonsterUnit hitUnit)
+        {
+            var origin = hitUnit.Position;
+            var target = _field.FindNearestTargetableExcept(origin, hitUnit);
+
+            if (target == null)
+                return;
+
+            var spec = source.BuildChainSpec();
+            var aim = SkillAiming.PredictAimPoint(origin, target, spec.Speed);
+            var toAim = aim - origin;
+
+            Fire(spec, origin, toAim, toAim.magnitude, target);
         }
     }
 }

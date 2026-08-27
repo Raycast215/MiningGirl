@@ -12,14 +12,20 @@ namespace Scene.MainGameScene.Progress
     {
         private readonly SkillDataTable _skillTable;
         private readonly SkillUpgradeDataTable _upgradeTable;
+        private readonly SkillMasteryDataTable _masteryTable;
         private readonly SkillInventory _inventory;
 
         private readonly List<LevelUpChoice> _candidates = new List<LevelUpChoice>();
 
-        public LevelUpChoiceBuilder(SkillDataTable skillTable, SkillUpgradeDataTable upgradeTable, SkillInventory inventory)
+        public LevelUpChoiceBuilder(
+            SkillDataTable skillTable,
+            SkillUpgradeDataTable upgradeTable,
+            SkillMasteryDataTable masteryTable,
+            SkillInventory inventory)
         {
             _skillTable = skillTable;
             _upgradeTable = upgradeTable;
+            _masteryTable = masteryTable;
             _inventory = inventory;
         }
 
@@ -103,7 +109,79 @@ namespace Scene.MainGameScene.Progress
                 });
 
                 CollectUpgrades(owned);
+                CollectMastery(owned);
             }
+        }
+
+        // 강화스킬은 조건을 채웠고 아직 하나도 안 골랐을 때만 후보에 들어갑니다.
+        //
+        // 별도 슬롯을 만들지 않고 기존 후보 풀에 섞습니다. 가중치가 높아서
+        // 조건을 채운 뒤 한두 번의 레벨업이면 대개 나옵니다.
+        private void CollectMastery(SkillState owned)
+        {
+            if (_masteryTable == null || _inventory.HasMastery)
+                return;
+
+            var mastery = _masteryTable.FindBySkillId(owned.Row.Id);
+
+            if (mastery == null || mastery.Weight <= 0)
+                return;
+
+            if (!IsMasteryUnlocked(owned, mastery))
+                return;
+
+            _candidates.Add(new LevelUpChoice
+            {
+                Type = ELevelUpChoiceType.Mastery,
+                Skill = owned.Row,
+                Mastery = mastery,
+                Weight = mastery.Weight,
+                CurrentLevel = owned.Level,
+            });
+        }
+
+        private static bool IsMasteryUnlocked(SkillState owned, SkillMasteryDataTableRow mastery)
+        {
+            return owned.GetUpgradeCount(mastery.RequireUpgradeTypeA) >= mastery.RequireCountA
+                && owned.GetUpgradeCount(mastery.RequireUpgradeTypeB) >= mastery.RequireCountB;
+        }
+
+        // 이 강화 카드가 강화스킬 조건을 진행시키는지 보고, 진행도를 붙입니다.
+        //
+        // 조건 두 줄을 모두 담습니다. 위력 3/3을 채우고 "다 됐다"고 생각했는데
+        // 발사체가 0/3이면, 알려주려던 표시가 오히려 속이는 셈이 됩니다.
+        private void AttachMasteryProgress(LevelUpChoice choice, SkillState owned, ESkillUpgradeType advancing)
+        {
+            if (_masteryTable == null || _inventory.HasMastery)
+                return;
+
+            var mastery = _masteryTable.FindBySkillId(owned.Row.Id);
+
+            if (mastery == null || mastery.Weight <= 0)
+                return;
+
+            // 이 카드가 두 조건 중 어느 쪽도 올리지 않으면 표시하지 않습니다.
+            if (advancing != mastery.RequireUpgradeTypeA && advancing != mastery.RequireUpgradeTypeB)
+                return;
+
+            // 이미 조건을 다 채웠으면 진행도를 띄울 이유가 없습니다.
+            if (IsMasteryUnlocked(owned, mastery))
+                return;
+
+            choice.MasteryHint = mastery;
+            choice.MasteryProgress = new[]
+            {
+                new MasteryRequirement(
+                    mastery.RequireUpgradeTypeA,
+                    owned.GetUpgradeCount(mastery.RequireUpgradeTypeA),
+                    mastery.RequireCountA,
+                    advancing == mastery.RequireUpgradeTypeA),
+                new MasteryRequirement(
+                    mastery.RequireUpgradeTypeB,
+                    owned.GetUpgradeCount(mastery.RequireUpgradeTypeB),
+                    mastery.RequireCountB,
+                    advancing == mastery.RequireUpgradeTypeB),
+            };
         }
 
         private void CollectUpgrades(SkillState owned)
@@ -123,7 +201,7 @@ namespace Scene.MainGameScene.Progress
                 if (owned.Level < upgrade.RequireSkillLevel)
                     continue;
 
-                _candidates.Add(new LevelUpChoice
+                var choice = new LevelUpChoice
                 {
                     Type = ELevelUpChoiceType.UpgradeSkill,
                     Skill = owned.Row,
@@ -131,7 +209,11 @@ namespace Scene.MainGameScene.Progress
                     Weight = upgrade.Weight,
                     CurrentLevel = owned.Level,
                     StackedUpgradeCount = owned.GetUpgradeCount(upgrade.UpgradeType),
-                });
+                };
+
+                AttachMasteryProgress(choice, owned, upgrade.UpgradeType);
+
+                _candidates.Add(choice);
             }
         }
     }

@@ -16,6 +16,9 @@ namespace Scene.MainGameScene.Battle
         public readonly float WaveAmplitude;
         public readonly float WaveCycles;
 
+        // 강화스킬이 걸린 스킬이면 그 효과가 실립니다. 없으면 HasValue가 false입니다.
+        public readonly MasterySpec Mastery;
+
         public ProjectileSpec(
             string effectAssetId,
             float speed,
@@ -24,7 +27,8 @@ namespace Scene.MainGameScene.Battle
             float hitRange,
             EProjectileMoveType moveType,
             float waveAmplitude,
-            float waveCycles)
+            float waveCycles,
+            MasterySpec mastery = default)
         {
             EffectAssetId = effectAssetId;
             Speed = speed;
@@ -34,6 +38,7 @@ namespace Scene.MainGameScene.Battle
             MoveType = moveType;
             WaveAmplitude = waveAmplitude;
             WaveCycles = waveCycles;
+            Mastery = mastery;
         }
     }
 }

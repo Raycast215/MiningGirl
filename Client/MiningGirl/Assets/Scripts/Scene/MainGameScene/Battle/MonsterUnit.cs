@@ -23,6 +23,12 @@ namespace Scene.MainGameScene.Battle
         // 타워 앞에 나란히 설 때의 최소 간격. 그림 폭(1.28)보다 조금 넓게 잡아야 안 겹칩니다.
         public const float BlockedSpacing = 1.3f;
 
+        // 보스에게 걸리는 빙결 지속시간 배율.
+        //
+        // 보스는 유일하게 시간이 위협인 상대입니다. 3초가 그대로 걸리면 보스전이
+        // "묶고 때리기"가 되어 그 축이 통째로 지워집니다.
+        public const float BossFreezeRate = 0.3f;
+
         [SerializeField]
         private SpriteRenderer spriteRenderer;
 
@@ -45,9 +51,15 @@ namespace Scene.MainGameScene.Battle
 
         // 예측 사격이 쓰는 현재 하강 속도.
         //
-        // 타워 앞에 멈춰 선 뒤에는 움직이지 않으므로 0입니다.
-        // 이 값이 틀리면 멈춘 적을 앞질러 쏘게 됩니다.
-        public float MoveSpeed => IsBlocked ? 0f : _moveSpeed;
+        // 타워 앞에 멈춰 선 뒤에는 움직이지 않으므로 0입니다. 빙결도 마찬가지입니다 -
+        // 이 값이 틀리면 멈춰 있는 적을 앞질러 쏘게 됩니다.
+        public float MoveSpeed => IsBlocked || IsFrozen ? 0f : _moveSpeed;
+
+        // 빙결 중인지. 이동과 공격이 함께 멈춥니다.
+        public bool IsFrozen => _freezeRemaining > 0f;
+
+        // 화상 중인지. 표시용입니다.
+        public bool IsBurning => _burnRemaining > 0f;
 
         public void Reserve(float amount)
         {
@@ -88,18 +100,30 @@ namespace Scene.MainGameScene.Battle
 
         private float _attackTimer;
 
+        // 남은 빙결 시간. 0보다 크면 멈춥니다.
+        private float _freezeRemaining;
+
+        // 남은 화상 시간과 초당 피해.
+        private float _burnRemaining;
+        private float _burnPerSecond;
+
+        // 화상 피해를 넣어 줄 곳. 숫자 표시와 처치 처리를 거치려면 필드를 통해야 합니다.
+        private Action<MonsterUnit, float> _onStatusDamage;
+
         public void Setup(
             MonsterDataTableRow row,
             float statMultiplier,
             Tower tower,
             Vector3 spawnPosition,
             Action<MonsterUnit> onDied,
-            Action<MonsterUnit> onBlocked)
+            Action<MonsterUnit> onBlocked,
+            Action<MonsterUnit, float> onStatusDamage)
         {
             Row = row;
             _tower = tower;
             _onDied = onDied;
             _onBlocked = onBlocked;
+            _onStatusDamage = onStatusDamage;
 
             // 스테이지 난이도 배율은 체력과 공격력 양쪽에 곱합니다.
             _maxHealth = Mathf.Max(1f, row.MaxHealth * statMultiplier);
@@ -119,6 +143,11 @@ namespace Scene.MainGameScene.Battle
             _attackTimer = 0f;
             ReservedDamage = 0f;
 
+            // 풀에서 재사용되므로 이전 개체의 상태가 남지 않게 지웁니다.
+            _freezeRemaining = 0f;
+            _burnRemaining = 0f;
+            _burnPerSecond = 0f;
+
 #if UNITY_EDITOR
             DebugSerial = ++_debugSerialSeed;
 #endif
@@ -132,6 +161,16 @@ namespace Scene.MainGameScene.Battle
         public void Tick(float deltaTime)
         {
             if (!IsAlive)
+                return;
+
+            TickStatus(deltaTime);
+
+            // 화상으로 죽었으면 이번 프레임은 여기까지입니다.
+            if (!IsAlive)
+                return;
+
+            // 빙결 중에는 내려오지도 때리지도 않습니다.
+            if (IsFrozen)
                 return;
 
             if (!IsBlocked)
@@ -204,6 +243,89 @@ namespace Scene.MainGameScene.Battle
 
             return applied;
         }
+
+#region 상태이상
+
+        // 빙결·화상을 거는 창구. MonsterField가 부릅니다.
+        //
+        // 같은 상태를 다시 걸면 지속시간을 갱신합니다(합산 아님). 강화스킬이 런당
+        // 하나뿐이라 두 상태가 겹칠 일이 없어 중첩 규칙을 두지 않습니다.
+        public void ApplyStatus(EStatusEffectType type, float duration, float perSecondDamage)
+        {
+            if (!IsAlive || duration <= 0f)
+                return;
+
+            switch (type)
+            {
+                case EStatusEffectType.Freeze:
+                {
+                    // 보스는 시간이 유일한 위협이라 묶이면 그 축이 지워집니다.
+                    var scaled = Row != null && Row.MonsterType == EMonsterType.Boss
+                        ? duration * BossFreezeRate
+                        : duration;
+
+                    _freezeRemaining = Mathf.Max(_freezeRemaining, scaled);
+
+                    break;
+                }
+
+                case EStatusEffectType.Burn:
+                {
+                    _burnRemaining = Mathf.Max(_burnRemaining, duration);
+                    _burnPerSecond = Mathf.Max(_burnPerSecond, perSecondDamage);
+
+                    break;
+                }
+            }
+        }
+
+        // 밀어냅니다. 저항이 1이면 꿈쩍하지 않습니다.
+        //
+        // 몬스터는 x가 고정이고 아래로만 오므로 위로 밉니다. 타워 앞에 멈춰 있었다면
+        // 그 상태를 풀어야 합니다 - 안 풀면 밀려난 자리에서 계속 타워를 때립니다.
+        public void Knockback(float distance)
+        {
+            if (!IsAlive || distance <= 0f)
+                return;
+
+            var resist = Row != null ? Mathf.Clamp01(Row.KnockbackResist) : 0f;
+            var applied = distance * (1f - resist);
+
+            if (applied <= 0f)
+                return;
+
+            var position = transform.position;
+            position.y += applied;
+            transform.position = position;
+
+            if (!IsBlocked)
+                return;
+
+            IsBlocked = false;
+            _attackTimer = 0f;
+        }
+
+        private void TickStatus(float deltaTime)
+        {
+            if (_freezeRemaining > 0f)
+                _freezeRemaining -= deltaTime;
+
+            if (_burnRemaining <= 0f)
+                return;
+
+            _burnRemaining -= deltaTime;
+
+            var tick = _burnPerSecond * deltaTime;
+
+            if (tick <= 0f)
+                return;
+
+            // 화상은 발사체가 아니라 상태가 넣는 피해입니다. 숫자 표시와 처치 처리를
+            // 발사체와 같은 자리에서 하려고 필드로 돌립니다.
+            _onStatusDamage?.Invoke(this, tick);
+        }
+
+#endregion
 
         // 타워 앞에 멈춘 개체가 겹쳐 보이지 않도록 MonsterField가 x만 밀어 줍니다.
         public void NudgeX(float x)

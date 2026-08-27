@@ -19,6 +19,10 @@ namespace Scene.MainGameScene.Progress
         // 한 번의 발사가 퍼지는 총 길이의 상한.
         private const float MaxFireSpread = 0.6f;
 
+        // 부채꼴 발사체가 조준점 없이 날아갈 거리.
+        // Sine 발사체의 진폭 수렴 기준이라 화면을 넘길 만큼이면 됩니다.
+        private const float FanTargetDistance = 30f;
+
         private readonly SkillInventory _inventory;
         private readonly MonsterField _field;
         private readonly ProjectileLauncher _launcher;
@@ -198,6 +202,14 @@ namespace Scene.MainGameScene.Progress
             var count = Mathf.Max(1, skill.ProjectileCount);
             var origin = _muzzle.position;
 
+            // 부채꼴은 조준하지 않고 각도로 뿌립니다.
+            //
+            // 대상을 고르는 개념이 없으므로 조준 규칙 2(서로 다른 적)와 3(대기)이
+            // 적용되지 않습니다. 예외를 위한 분기가 아니라, 대상을 안 고르니 그
+            // 규칙들이 있는 코드를 아예 지나가지 않는 것입니다.
+            if (skill.Mastery.HasValue && skill.Mastery.Type == EMasteryType.FanBurst)
+                return FireFan(skill, origin, count);
+
             var target = _field.FindNearestTargetable(origin);
 
             if (target == null)
@@ -214,6 +226,40 @@ namespace Scene.MainGameScene.Progress
 
             for (var i = 1; i < count; i++)
                 _pending.Add(new PendingShot(skill, spacing * i, i, count));
+
+            return true;
+        }
+
+        // 부채꼴로 한꺼번에 뿌립니다.
+        //
+        // 동시 발사라 발사 딜레이 0.2초의 예외입니다. 각도로 흩어지므로 겹쳐 보이지
+        // 않고, 시차를 두면 오히려 부채꼴로 안 보입니다.
+        //
+        // 적이 없어도 쏩니다. 조준하지 않으니 "조준할 적이 없다"가 성립하지 않습니다.
+        private bool FireFan(SkillState skill, Vector3 origin, int count)
+        {
+            var total = count + Mathf.Max(0, Mathf.RoundToInt(skill.Mastery.Value));
+
+            if (total <= 0)
+                return false;
+
+            var spec = skill.BuildProjectileSpec();
+            var arc = Mathf.Max(1f, skill.Mastery.Range);
+
+            // 위쪽을 가운데로 두고 좌우로 벌립니다. 몬스터가 위에서 내려오기 때문입니다.
+            var start = 90f + arc * 0.5f;
+            var step = total <= 1 ? 0f : arc / (total - 1);
+
+            for (var i = 0; i < total; i++)
+            {
+                var degree = start - step * i;
+                var radian = degree * Mathf.Deg2Rad;
+                var direction = new Vector3(Mathf.Cos(radian), Mathf.Sin(radian), 0f);
+
+                // 조준 대상이 없으므로 예약도 걸지 않습니다.
+                // 사거리는 화면을 넘기는 값이면 충분합니다.
+                _launcher.Fire(spec, origin, direction, FanTargetDistance, null);
+            }
 
             return true;
         }
@@ -261,53 +307,11 @@ namespace Scene.MainGameScene.Progress
         private void FireOne(SkillState skill, Vector3 origin, MonsterUnit target)
         {
             var spec = skill.BuildProjectileSpec();
-            var aimPoint = PredictAimPoint(origin, target, spec.Speed);
+            var aimPoint = SkillAiming.PredictAimPoint(origin, target, spec.Speed);
             var toAim = aimPoint - origin;
 
             _launcher.Fire(spec, origin, toAim, toAim.magnitude, target);
         }
 
-        // 대상이 도착할 지점을 조준합니다.
-        //
-        // 현재 위치를 조준하면 비행 시간 동안 대상이 내려간 만큼 빗나갑니다. 조준선이
-        // 비스듬할수록, 대상이 빠를수록 크게 벌어져서 MoveSpeed가 표에 없는 회피 능력치처럼
-        // 굴었습니다. 몬스터가 등속 직선 하강이라 근사가 아니라 해가 정확히 나옵니다.
-        //
-        //   대상은 t초 뒤 P + (0, -v·t)에 있고, 발사체는 그때까지 s·t만큼 날아갑니다.
-        //   |P + (0, -v·t) - M| = s·t 를 t에 대해 풀면 2차방정식이 됩니다.
-        //
-        //   (s² - v²)·t² + 2·Dy·v·t - |D|² = 0        (D = P - M)
-        //
-        // s > v 이면 상수항이 음수라 양의 해가 하나만 나옵니다.
-        private static Vector3 PredictAimPoint(Vector3 origin, MonsterUnit target, float projectileSpeed)
-        {
-            var position = target.Position;
-            var moveSpeed = target.MoveSpeed;
-
-            if (moveSpeed <= 0f)
-                return position;
-
-            var a = projectileSpeed * projectileSpeed - moveSpeed * moveSpeed;
-
-            // 발사체가 대상보다 느리면 따라잡지 못합니다. 그때는 현재 위치를 조준합니다.
-            if (a <= 0.0001f)
-                return position;
-
-            var delta = position - origin;
-            var b = 2f * delta.y * moveSpeed;
-            var c = -delta.sqrMagnitude;
-
-            var discriminant = b * b - 4f * a * c;
-
-            if (discriminant < 0f)
-                return position;
-
-            var time = (-b + Mathf.Sqrt(discriminant)) / (2f * a);
-
-            if (time <= 0f)
-                return position;
-
-            return position + new Vector3(0f, -moveSpeed * time, 0f);
-        }
     }
 }

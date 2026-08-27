@@ -135,6 +135,28 @@ public enum ESkillUpgradeType
     HitRange,        // 명중 판정 반경
 }
 
+// 강화스킬(마스터리)이 발사체에 얹는 거동.
+//
+// 런당 하나만 고를 수 있고 조건을 채워야 3택에 나옵니다.
+// 값의 의미는 종류마다 다르므로 SkillMasteryDataTable의 주석을 함께 보십시오.
+public enum EMasteryType
+{
+    ChainOnHit, // 명중하면 그 지점에서 다른 적으로 한 발 더 나갑니다
+    FanBurst,   // 부채꼴로 한꺼번에 뿌립니다. 조준하지 않습니다
+    Explosion,  // 착탄 지점 주변에 범위 피해를 줍니다
+}
+
+// 몬스터에게 걸리는 지속 상태.
+//
+// 3종만 있고 확장 구조를 두지 않습니다. 강화스킬이 런당 하나뿐이라
+// 두 상태가 겹칠 수 없습니다. 같은 상태를 다시 걸면 지속시간을 갱신합니다(합산 아님).
+public enum EStatusEffectType
+{
+    None,
+    Freeze, // 이동과 공격이 멈춥니다
+    Burn,   // 초당 피해를 받습니다
+}
+
 public enum ESkillType
 {
     AirShot,        // 주변 적 공격 + 넉백

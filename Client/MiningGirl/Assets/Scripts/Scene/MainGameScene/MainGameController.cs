@@ -208,6 +208,7 @@ namespace Scene.MainGameScene
             _choiceBuilder = new LevelUpChoiceBuilder(
                 DataTableManager.Instance.SkillDataTable,
                 DataTableManager.Instance.SkillUpgradeDataTable,
+                DataTableManager.Instance.SkillMasteryDataTable,
                 _inventory);
 
             _waveRunner = new WaveRunner(
@@ -530,6 +531,15 @@ namespace Scene.MainGameScene
                 case ELevelUpChoiceType.UpgradeSkill:
                 {
                     _inventory.Find(choice.Skill.Id)?.ApplyUpgrade(choice.Upgrade);
+
+                    return;
+                }
+
+                case ELevelUpChoiceType.Mastery:
+                {
+                    // 강화스킬은 그 스킬에 붙고 런당 하나뿐입니다.
+                    _inventory.Find(choice.Skill.Id)?.SetMastery(choice.Mastery);
+                    _inventory.MarkMasteryTaken();
 
                     return;
                 }

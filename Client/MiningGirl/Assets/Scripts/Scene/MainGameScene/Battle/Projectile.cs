@@ -10,8 +10,25 @@ namespace Scene.MainGameScene.Battle
     // 몬스터가 직선으로만 내려오니 그래도 대부분 맞습니다.
     public class Projectile : MonoBehaviour
     {
+        // 넉백으로 밀리는 거리(유닛). 몬스터의 KnockbackResist로 줄어듭니다.
+        private const float KnockbackDistance = 1.5f;
+
         // 어느 풀에서 나왔는지. ProjectileLauncher가 되돌릴 때 씁니다.
         public string PoolKey { get; set; }
+
+        // 연쇄로 내보낼 발의 스펙. 마스터리를 빼서 다시 연쇄하지 않게 합니다.
+        public ProjectileSpec BuildChainSpec()
+        {
+            return new ProjectileSpec(
+                PoolKey,
+                _speed,
+                _damage,
+                0,
+                _hitRange,
+                _moveType,
+                _waveAmplitude,
+                _waveCycles);
+        }
 
         private readonly List<MonsterUnit> _hit = new List<MonsterUnit>();
 
@@ -47,6 +64,15 @@ namespace Scene.MainGameScene.Battle
 
         // 예약을 아직 풀지 않았는지. 명중해도, 그냥 사라져도 한 번만 풀어야 합니다.
         private bool _hasReservation;
+
+        // 이 발에 실린 강화스킬 효과.
+        private MasterySpec _mastery;
+
+        // 연쇄가 새 발사체를 만들 때 부릅니다. 발사체 스스로는 풀을 모릅니다.
+        private Action<Projectile, MonsterUnit> _onChain;
+
+        // 폭발 범위 안의 대상을 모으는 자리. 매번 새로 만들지 않습니다.
+        private readonly List<MonsterUnit> _statusBuffer = new List<MonsterUnit>();
 
         private bool _isActive;
 
@@ -138,11 +164,14 @@ namespace Scene.MainGameScene.Battle
             float targetDistance,
             ProjectileSpec spec,
             MonsterUnit target,
-            Action<Projectile> onFinished)
+            Action<Projectile> onFinished,
+            Action<Projectile, MonsterUnit> onChain = null)
         {
             _field = field;
             _bounds = bounds;
             _onFinished = onFinished;
+            _onChain = onChain;
+            _mastery = spec.Mastery;
 
             _direction = direction.sqrMagnitude < 0.0001f ? Vector3.up : direction.normalized;
             _perpendicular = new Vector3(-_direction.y, _direction.x, 0f);
@@ -306,6 +335,10 @@ namespace Scene.MainGameScene.Battle
 
                 _field.ApplyDamage(unit, _damage);
 
+                // 강화스킬 효과는 본체 피해가 들어간 뒤에 처리합니다.
+                // 폭발이 먼저 들어가면 본체가 죽은 적을 때리게 됩니다.
+                ApplyMasteryOnHit(unit);
+
 #if UNITY_EDITOR
                 _debugHitAny = true;
 
@@ -322,6 +355,88 @@ namespace Scene.MainGameScene.Battle
 
                 return;
             }
+        }
+
+        // 명중 순간에 얹히는 강화스킬 효과.
+        //
+        // 연쇄만 발사체를 더 만들고 나머지는 이 자리에서 끝납니다. 연쇄로 나간 발은
+        // 다시 연쇄하지 않으므로 스펙에서 마스터리를 빼고 보냅니다.
+        private void ApplyMasteryOnHit(MonsterUnit unit)
+        {
+            if (!_mastery.HasValue)
+                return;
+
+            switch (_mastery.Type)
+            {
+                case EMasteryType.Explosion:
+                {
+                    var center = unit.Position;
+
+                    // 본체에 맞은 대상은 폭발 피해를 중복으로 받지 않습니다.
+                    _field.ApplyAreaDamage(center, _mastery.Range, _damage * _mastery.Value, unit);
+
+                    // 상태이상과 넉백은 본체를 맞은 대상에게도 겁니다.
+                    ApplyStatusInRadius(center, _mastery.Range);
+
+                    break;
+                }
+
+                case EMasteryType.ChainOnHit:
+                {
+                    Chain(unit);
+
+                    break;
+                }
+
+                default:
+                {
+                    // 부채꼴은 발사 시점에 처리되므로 명중 때는 상태이상만 겁니다.
+                    ApplyStatusTo(unit);
+
+                    break;
+                }
+            }
+        }
+
+        private void ApplyStatusInRadius(Vector3 center, float radius)
+        {
+            if (_mastery.StatusType == EStatusEffectType.None && !_mastery.Knockback)
+                return;
+
+            _field.FillInRadius(center, radius, _statusBuffer);
+
+            for (var i = 0; i < _statusBuffer.Count; i++)
+                ApplyStatusTo(_statusBuffer[i]);
+        }
+
+        private void ApplyStatusTo(MonsterUnit unit)
+        {
+            if (unit == null || !unit.IsAlive)
+                return;
+
+            if (_mastery.StatusType != EStatusEffectType.None)
+            {
+                // 화상 세기는 발동한 스킬의 현재 위력에 비례합니다.
+                unit.ApplyStatus(_mastery.StatusType, _mastery.StatusDuration, _damage * _mastery.StatusValue);
+            }
+
+            if (_mastery.Knockback)
+                unit.Knockback(KnockbackDistance);
+        }
+
+        // 명중 지점에서 다른 적으로 한 발 더 보냅니다.
+        //
+        // 방금 맞은 대상은 제외하고, 조준 규칙과 예측 사격을 그대로 적용합니다.
+        // 유효 대상이 없으면 연쇄하지 않습니다.
+        private void Chain(MonsterUnit from)
+        {
+            var count = Mathf.RoundToInt(_mastery.Value);
+
+            if (count <= 0 || _onChain == null)
+                return;
+
+            for (var i = 0; i < count; i++)
+                _onChain(this, from);
         }
 
         private static float SqrDistanceToSegment(Vector3 point, Vector3 from, Vector3 to)

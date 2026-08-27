@@ -24,6 +24,7 @@ namespace Manager
         public CharacterDataTable CharacterDataTable { get; private set; }
         public SkillDataTable SkillDataTable { get; private set; }
         public SkillUpgradeDataTable SkillUpgradeDataTable { get; private set; }
+        public SkillMasteryDataTable SkillMasteryDataTable { get; private set; }
 
         public async UniTaskVoid PreLoadData()
         {
@@ -53,6 +54,7 @@ namespace Manager
             CharacterDataTable = Create<CharacterDataTable>();
             SkillDataTable = Create<SkillDataTable>();
             SkillUpgradeDataTable = Create<SkillUpgradeDataTable>();
+            SkillMasteryDataTable = Create<SkillMasteryDataTable>();
 
             IsInitialized = true;
         }

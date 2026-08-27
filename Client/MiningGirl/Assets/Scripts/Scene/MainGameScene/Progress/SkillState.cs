@@ -38,6 +38,17 @@ namespace Scene.MainGameScene.Progress
         public float HitRange => Mathf.Max(0f, Combine(ESkillUpgradeType.HitRange, Row.HitRange));
 
         // 지금 레벨과 쌓인 강화가 반영된 발사체 값 묶음.
+        // 이 스킬에 걸린 강화스킬. 없으면 HasValue가 false입니다.
+        //
+        // 런당 하나뿐이라 인벤토리가 아니라 스킬에 답니다 - 발사할 때 이 스킬이
+        // 강화스킬을 가졌는지만 보면 되고, 어느 스킬인지 되짚을 필요가 없습니다.
+        public Battle.MasterySpec Mastery { get; private set; }
+
+        public void SetMastery(SkillMasteryDataTableRow row)
+        {
+            Mastery = new Battle.MasterySpec(row);
+        }
+
         public Battle.ProjectileSpec BuildProjectileSpec()
         {
             var wave = Row.ProjectileWaveList;
@@ -50,7 +61,8 @@ namespace Scene.MainGameScene.Progress
                 HitRange,
                 Row.ProjectileMoveType,
                 wave != null && wave.Count > 0 ? wave[0] : 0f,
-                wave != null && wave.Count > 1 ? wave[1] : 0f);
+                wave != null && wave.Count > 1 ? wave[1] : 0f,
+                Mastery);
         }
 
         public void LevelUp()
