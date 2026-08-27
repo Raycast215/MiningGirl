@@ -29,6 +29,13 @@ namespace Scene.MainGameScene.Battle
         // "묶고 때리기"가 되어 그 축이 통째로 지워집니다.
         public const float BossFreezeRate = 0.3f;
 
+        // 화상이 피해를 넣는 간격(초).
+        //
+        // 매 프레임 넣으면 총 피해는 같아도 화면이 무너집니다 - 한 마리당 초당
+        // 60개꼴로 피해 숫자가 떠서 무엇이 얼마나 맞았는지 읽을 수 없습니다.
+        // 총량은 그대로 두고 덩어리로 모아 냅니다.
+        public const float BurnTickInterval = 0.5f;
+
         [SerializeField]
         private SpriteRenderer spriteRenderer;
 
@@ -114,6 +121,9 @@ namespace Scene.MainGameScene.Battle
         private float _burnRemaining;
         private float _burnPerSecond;
 
+        // 다음 화상 틱까지 모인 시간. 틱을 낼 때마다 그만큼 덜어냅니다.
+        private float _burnTickTimer;
+
         // 화상 피해를 넣어 줄 곳. 숫자 표시와 처치 처리를 거치려면 필드를 통해야 합니다.
         private Action<MonsterUnit, float> _onStatusDamage;
 
@@ -155,6 +165,7 @@ namespace Scene.MainGameScene.Battle
             _freezeRemaining = 0f;
             _burnRemaining = 0f;
             _burnPerSecond = 0f;
+            _burnTickTimer = 0f;
 
 #if UNITY_EDITOR
             DebugSerial = ++_debugSerialSeed;
@@ -327,16 +338,51 @@ namespace Scene.MainGameScene.Battle
             if (_burnRemaining <= 0f)
                 return;
 
+            // 지속시간을 넘겨 흐른 몫은 세지 않습니다.
+            // 그대로 쌓으면 마지막 틱이 표기 지속시간보다 더 아프게 들어갑니다.
+            var elapsed = Mathf.Min(deltaTime, _burnRemaining);
+
             _burnRemaining -= deltaTime;
+            _burnTickTimer += elapsed;
 
-            var tick = _burnPerSecond * deltaTime;
+            var expired = _burnRemaining <= 0f;
 
-            if (tick <= 0f)
+            // 끝날 때는 간격을 못 채운 조각까지 냅니다.
+            // 3초는 0.5초로 정확히 나뉘지만, 지속시간이 바뀌어도 총량은 지켜집니다.
+            while (_burnTickTimer >= BurnTickInterval || (expired && _burnTickTimer > 0f))
+            {
+                var span = Mathf.Min(BurnTickInterval, _burnTickTimer);
+
+                // 부동소수 잔량으로 제자리를 돌지 않게 막습니다.
+                if (span <= 0f)
+                    break;
+
+                _burnTickTimer -= span;
+
+                var damage = _burnPerSecond * span;
+
+                if (damage > 0f)
+                {
+                    // 화상은 발사체가 아니라 상태가 넣는 피해입니다. 숫자 표시와
+                    // 처치 처리를 발사체와 같은 자리에서 하려고 필드로 돌립니다.
+                    _onStatusDamage?.Invoke(this, damage);
+                }
+
+                // 이 틱에 죽었으면 남은 틱을 마저 넣지 않습니다.
+                if (!IsAlive)
+                {
+                    _burnRemaining = 0f;
+                    _burnTickTimer = 0f;
+
+                    return;
+                }
+            }
+
+            if (!expired)
                 return;
 
-            // 화상은 발사체가 아니라 상태가 넣는 피해입니다. 숫자 표시와 처치 처리를
-            // 발사체와 같은 자리에서 하려고 필드로 돌립니다.
-            _onStatusDamage?.Invoke(this, tick);
+            _burnPerSecond = 0f;
+            _burnTickTimer = 0f;
         }
 
 #endregion
