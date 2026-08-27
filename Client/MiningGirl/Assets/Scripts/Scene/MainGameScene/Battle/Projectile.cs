@@ -83,9 +83,26 @@ namespace Scene.MainGameScene.Battle
         //  - 판정이 닿았는데 처리되지 않은 것    -> 코드 결함
         //  - 애초에 닿지 않은 것                 -> 유도하지 않는다는 사양대로의 결과
         // 눈으로 보면 둘이 똑같아 보이므로 숫자로만 구분됩니다.
+        // 아래 셋은 **조준해서 쏜 발만** 셉니다.
+        //
+        // 무조준 발사(부채꼴, 그리고 대기하다 위로 흘려보낸 예약분)를 분모에 섞으면
+        // 명중률이 떨어지는데 그건 조준이 나빠져서가 아닙니다. 조준 품질과 몬스터
+        // 밀도가 한 숫자에 섞이면 어느 쪽이 나빠졌는지 못 봅니다. (기획 규칙)
         public static int DebugFired;
         public static int DebugHit;
         public static int DebugMissed;
+
+        // 무조준 발사. 부채꼴과 흘려보낸 예약분을 갈라 둡니다.
+        //
+        // 예약분 쪽이 "버리지 않고 쏘게 한" 변경의 실효 화력 상승분입니다.
+        // 부채꼴과 합치면 강화스킬을 골랐는지에 따라 숫자가 흔들려 못 읽습니다.
+        public static int DebugFiredFan;
+        public static int DebugHitFan;
+        public static int DebugFiredStray;
+        public static int DebugHitStray;
+
+        // 이 발이 어느 쪽인지. 0=조준, 1=부채꼴, 2=흘려보낸 예약분.
+        private int _debugAimKind;
 
         // 빗나간 발이 가장 가까이 스친 거리 ÷ 판정 반경. 1에 가까울수록 아슬아슬했습니다.
         public static readonly List<float> DebugMissClosest = new List<float>();
@@ -111,6 +128,10 @@ namespace Scene.MainGameScene.Battle
             DebugFired = 0;
             DebugHit = 0;
             DebugMissed = 0;
+            DebugFiredFan = 0;
+            DebugHitFan = 0;
+            DebugFiredStray = 0;
+            DebugHitStray = 0;
             DebugMissTargetDead = 0;
             DebugMissTargetGone = 0;
             DebugMissNear = 0;
@@ -212,7 +233,19 @@ namespace Scene.MainGameScene.Battle
             }
 
 #if UNITY_EDITOR
-            DebugFired++;
+            // 조준 대상이 없으면 무조준입니다. 부채꼴은 발사 시점부터 대상을 안 고르고,
+            // 나머지는 자기 차례에 조준할 적이 없어 위로 흘려보낸 예약분입니다.
+            _debugAimKind = target != null
+                ? 0
+                : (_mastery.HasValue && _mastery.Type == EMasteryType.FanBurst ? 1 : 2);
+
+            if (_debugAimKind == 0)
+                DebugFired++;
+            else if (_debugAimKind == 1)
+                DebugFiredFan++;
+            else
+                DebugFiredStray++;
+
             _debugClosest = float.MaxValue;
             _debugClosestToTarget = float.MaxValue;
             _debugHitAny = false;
@@ -464,21 +497,33 @@ namespace Scene.MainGameScene.Battle
             _isActive = false;
 
 #if UNITY_EDITOR
-            DebugCount(DebugFiredBy, _debugIntendedId);
-
-            if (_debugHitTarget)
+            // 무조준 발은 조준 통계에 넣지 않습니다. 맞았는지만 따로 셉니다.
+            if (_debugAimKind != 0)
+            {
+                if (_debugHitAny)
+                {
+                    if (_debugAimKind == 1)
+                        DebugHitFan++;
+                    else
+                        DebugHitStray++;
+                }
+            }
+            else if (_debugHitTarget)
             {
                 DebugHit++;
+                DebugCount(DebugFiredBy, _debugIntendedId);
                 DebugCount(DebugHitTargetBy, _debugIntendedId);
             }
             else if (_debugHitAny)
             {
                 DebugHit++;
+                DebugCount(DebugFiredBy, _debugIntendedId);
                 DebugCount(DebugHitOtherBy, _debugIntendedId);
             }
             else
             {
                 DebugMissed++;
+                DebugCount(DebugFiredBy, _debugIntendedId);
 
                 if (_debugClosest < float.MaxValue)
                     DebugMissClosest.Add(_debugClosest);
