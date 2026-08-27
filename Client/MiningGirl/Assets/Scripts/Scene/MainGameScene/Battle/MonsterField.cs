@@ -197,8 +197,24 @@ namespace Scene.MainGameScene.Battle
         // 아래쪽은 안 봅니다 - 타워 앞에서 멈추므로 화면 밖으로 안 나갑니다.
         private bool CanAim(MonsterUnit unit)
         {
-            return unit.IsTargetable && unit.Position.y <= _bounds.ScreenTopY;
+            if (!unit.IsTargetable)
+                return false;
+
+#if UNITY_EDITOR
+            // 대조판용 스위치. 화면 밖 제한이 무조준 비율에 얼마나 기여하는지를
+            // 재려면 그것만 끈 판이 필요합니다. 지금 62.9%가 제한 때문인지
+            // 체력표 때문인지 섞여 있습니다.
+            if (DebugIgnoreScreenBound)
+                return true;
+#endif
+
+            return unit.Position.y <= _bounds.ScreenTopY;
         }
+
+#if UNITY_EDITOR
+        // 켜면 화면 밖 몬스터도 조준합니다. 측정 전용이고 빌드에는 안 들어갑니다.
+        public static bool DebugIgnoreScreenBound;
+#endif
 
         // 발사체가 1발일 때. 조준해도 되는 적 중 가장 가까운 하나입니다.
         //

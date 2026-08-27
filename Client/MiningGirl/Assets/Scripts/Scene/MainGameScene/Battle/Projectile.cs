@@ -112,6 +112,13 @@ namespace Scene.MainGameScene.Battle
         public static float DebugStrayLifeSum;
         public static int DebugStrayLifeCount;
 
+        // 조준 발의 수명. 무조준 것과 나란히 놓아야 두 분포가 갈리는지 보입니다.
+        //
+        // 조준 발은 맞으면 사라지므로 가까운 적까지의 거리로 끝나고, 무조준은
+        // 맞을 게 없어 화면 위 경계까지 갑니다. 그 차이가 겹침의 크기를 정합니다.
+        public static float DebugAimedLifeSum;
+        public static int DebugAimedLifeCount;
+
         // 이 발이 어느 쪽인지. 0=조준, 1=부채꼴, 2=흘려보낸 예약분.
         private int _debugAimKind;
 
@@ -145,6 +152,8 @@ namespace Scene.MainGameScene.Battle
             DebugHitStray = 0;
             DebugStrayLifeSum = 0f;
             DebugStrayLifeCount = 0;
+            DebugAimedLifeSum = 0f;
+            DebugAimedLifeCount = 0;
             DebugMissTargetDead = 0;
             DebugMissTargetGone = 0;
             DebugMissNear = 0;
@@ -515,6 +524,11 @@ namespace Scene.MainGameScene.Battle
             {
                 DebugStrayLifeSum += _elapsed;
                 DebugStrayLifeCount++;
+            }
+            else if (_debugAimKind == 0)
+            {
+                DebugAimedLifeSum += _elapsed;
+                DebugAimedLifeCount++;
             }
 #endif
 
