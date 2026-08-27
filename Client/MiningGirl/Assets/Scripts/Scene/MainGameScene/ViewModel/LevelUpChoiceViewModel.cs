@@ -9,16 +9,22 @@ namespace Scene.MainGameScene.ViewModel
     // 카드 하단에 뜨는 강화스킬 조건 한 줄.
     public readonly struct MasteryProgressItem
     {
+        // 진행도 숫자만 담습니다. 종류는 아이콘이 말하므로 이름을 붙이지 않습니다 -
+        // "위력 강화" 카드에 "위력"이라고 또 적으면 같은 말이 두 번 나옵니다.
         public readonly string Text;
+
+        // 아이콘을 고르는 열쇠. 어떤 그림을 쓸지는 View가 정합니다.
+        public readonly ESkillUpgradeType Type;
 
         // 이 카드를 고르면 올라가는 쪽인지. 강조 표현은 View가 정합니다.
         public readonly bool IsAdvancing;
 
         public readonly bool IsMet;
 
-        public MasteryProgressItem(string text, bool isAdvancing, bool isMet)
+        public MasteryProgressItem(string text, ESkillUpgradeType type, bool isAdvancing, bool isMet)
         {
             Text = text;
+            Type = type;
             IsAdvancing = isAdvancing;
             IsMet = isMet;
         }
@@ -211,24 +217,13 @@ namespace Scene.MainGameScene.ViewModel
                 var requirement = source[i];
 
                 items[i] = new MasteryProgressItem(
-                    $"{UpgradeTypeName(requirement.Type)} {requirement.Current}/{requirement.Required}",
+                    $"{requirement.Current}/{requirement.Required}",
+                    requirement.Type,
                     requirement.IsAdvancedByThisCard,
                     requirement.IsMet);
             }
 
             return items;
-        }
-
-        private static string UpgradeTypeName(ESkillUpgradeType type)
-        {
-            switch (type)
-            {
-                case ESkillUpgradeType.Damage: return "위력";
-                case ESkillUpgradeType.ProjectileCount: return "발사체";
-                case ESkillUpgradeType.PierceCount: return "관통";
-                case ESkillUpgradeType.HitRange: return "범위";
-                default: return type.ToString();
-            }
         }
 
         private static string FormatUpgradeDetail(SkillUpgradeDataTableRow upgrade)
