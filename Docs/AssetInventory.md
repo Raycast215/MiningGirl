@@ -1,3 +1,29 @@
+## 미사용 처리 — 신규 스킬 이펙트 6종 (2026-08-27)
+
+**유저 지시로 스킬 범위가 축소됐다. 기존 3종(FireBolt / IceBolt / LightningBolt) +
+강화스킬만 남고, 신규 6종이 전부 빠졌다.**
+
+| 미사용이 된 이펙트 | 원본 |
+|---|---|
+| `Effect_QuartzShot` (석영 탄) | Pixel Effects `SunBolt` |
+| `Effect_MineGust` (삭풍) | Pixel Effects `StaticLightning` |
+| `Effect_ShaftArrow` (갱도 화살) | Pixel Effects `PoisonBolt` |
+| `Effect_DrillWedge` (곡괭이 투척) | Pixel Effects `ShadowBolt` |
+| `Effect_OreShard` (광석 파편) | Pixel Effects `DeathBolt` |
+| `Effect_Cavein` (낙반) | Pixel Effects `MeteorShower` |
+
+**파일도 어드레서블 등록도 지우지 않았다.** 스킬 행은 삭제가 아니라 Weight 0으로 뒀고
+(행을 지우면 `SkillUpgradeDataTable`에 고아 행 18개가 남는다), 선로딩은
+`MainGameController.cs`가 `Weight > 0`을 보므로 프리팹이 남아 있어도 메모리에 안 올라온다.
+**유저가 다시 쓰겠다고 하면 Weight만 되돌리면 살아난다.**
+
+**`Effect_FireBoltExplosion`은 강화스킬용이라 살아 있다.** 미사용 아님.
+
+**폐기된 미실행 조정:** 광석 파편 스케일 0.70 → 0.85(승인됨), DrillWedge/Cavein 재생 길이
+재검토. 둘 다 대상 스킬이 빠져 실행 이유가 없어졌다. 되살릴 때 이 두 건도 같이 꺼낼 것.
+
+---
+
 ## 라이선스 — 확인됨 (2026-08-27)
 
 **유저 확인 결과: 팩은 Asset Store에서 구매했고, 출시 계획은 비상업/포트폴리오다.**
@@ -105,7 +131,7 @@ Google Fonts에서 온 것이고 각 폰트 폴더에 OFL 전문이 들어 있�
 
 | 팩 | 문제가 생기면 |
 |---|---|
-| Pixel Effects 1/4 | 스킬 이펙트 9종 교체. 대체 팩이 프로젝트에 없어 **코드 드로잉으로 새로 그려야 함** |
+| Pixel Effects 1/4 | 스킬 이펙트 9종 교체(현재 실사용 3종 + 강화, 나머지 6종은 위 미사용 목록). 대체 팩이 프로젝트에 없어 **코드 드로잉으로 새로 그려야 함** |
 | 150 아이콘 | 스킬·강화 아이콘 전량 교체. 어드레서블 주소 150건 재구성 |
 | Layer Lab | 로딩·카드 프레임·아이콘 교체. **3차 착수 후에는 UI 전체** |
 | 나머지 | 미사용이라 폴더 삭제로 끝남 |
