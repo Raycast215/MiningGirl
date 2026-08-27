@@ -95,7 +95,9 @@ namespace Scene.StartScene
             // 물리 크기 캔버스를 하나 띄워 두고 있어서, FindObjectOfType으로는
             // 그쪽이 잡혀 화면이 손톱만 하게 그려집니다.
             var canvas = startPromptUI == null ? null : startPromptUI.GetComponentInParent<Canvas>();
-            var viewModel = new StageSelectViewModel(DataTableManager.Instance.StageDataTable);
+            var viewModel = new StageSelectViewModel(
+                DataTableManager.Instance.StageDataTable,
+                DataTableManager.Instance.WaveDataTable);
 
             if (canvas == null || viewModel.Items.Count == 0)
             {

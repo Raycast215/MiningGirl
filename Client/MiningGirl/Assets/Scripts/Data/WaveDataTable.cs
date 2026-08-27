@@ -68,5 +68,36 @@ namespace Data
 
             return total;
         }
+
+        // 한 스테이지에 나오는 몬스터 총 마리 수.
+        //
+        // 예전에는 StageDataTable에 열로 적혀 있었습니다. 구성을 고칠 때마다 두 곳을
+        // 맞춰야 했고, 실제로 어긋났는데 아무도 안 알려줬습니다 - 시트는 200인데
+        // 실제는 182였고, 측정 로그가 "처치 182/200"으로 판을 덜 끝낸 것처럼 찍혔습니다.
+        public int SumMonsterCount(string stageId)
+        {
+            if (Rows == null || string.IsNullOrEmpty(stageId))
+                return 0;
+
+            var total = 0;
+
+            for (var i = 0; i < Rows.Count; i++)
+            {
+                var row = Rows[i];
+
+                if (row == null || row.StageId != stageId || row.Counts == null)
+                    continue;
+
+                // 종류 목록보다 마리 수가 길면 그 뒤는 붙을 종류가 없어 안 나옵니다.
+                var count = row.MonsterIds != null
+                    ? Math.Min(row.MonsterIds.Count, row.Counts.Count)
+                    : 0;
+
+                for (var k = 0; k < count; k++)
+                    total += row.Counts[k];
+            }
+
+            return total;
+        }
     }
 }

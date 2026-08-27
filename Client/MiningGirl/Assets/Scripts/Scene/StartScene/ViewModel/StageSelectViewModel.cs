@@ -33,9 +33,11 @@ namespace Scene.StartScene.ViewModel
 
         private readonly List<StageSelectItem> _items = new List<StageSelectItem>();
 
-        public StageSelectViewModel(StageDataTable table)
+        // 마리 수는 웨이브 테이블에서 셉니다. StageDataTable에 열로 두면 구성을
+        // 고칠 때마다 두 곳을 맞춰야 하고, 어긋나도 아무도 안 알려줍니다.
+        public StageSelectViewModel(StageDataTable table, WaveDataTable waves)
         {
-            if (table?.Rows == null)
+            if (table?.Rows == null || waves == null)
                 return;
 
             for (var i = 0; i < table.Rows.Count; i++)
@@ -49,7 +51,7 @@ namespace Scene.StartScene.ViewModel
                     row.Id,
                     (i + 1).ToString(),
                     row.Name,
-                    $"{row.WaveCount}웨이브 / 몬스터 {row.TotalMonsterCount}"));
+                    $"{row.WaveCount}웨이브 / 몬스터 {waves.SumMonsterCount(row.Id)}"));
             }
         }
 

@@ -14,11 +14,6 @@ namespace Data
         // 이 스테이지의 웨이브 수. 보통 20.
         public int WaveCount { get; set; }
 
-        // 이 스테이지에 나올 몬스터 총합.
-        // 추후 WaveDataTable의 Count 합계와 일치해야 하며, 로딩 때 대조할 예정입니다.
-        // 총 경험치가 여기서 결정되므로 어긋나면 성장 곡선이 통째로 틀어집니다.
-        public int TotalMonsterCount { get; set; }
-
         // 몬스터 체력·공격력에 곱하는 스테이지 난이도 배율.
         public float MonsterStatMultiplier { get; set; }
 

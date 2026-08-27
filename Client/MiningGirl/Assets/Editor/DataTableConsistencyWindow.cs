@@ -202,16 +202,15 @@ public class DataTableConsistencyWindow : EditorWindow
 
             var total = stageWaves.Sum(x => x.Counts?.Sum() ?? 0);
 
-            if (total == stage.TotalMonsterCount)
-            {
-                Add(Severity.Info, $"[{stage.Id}] 웨이브 {stageWaves.Count}개, 몬스터 합계 {total}마리. TotalMonsterCount와 일치합니다.");
-
-                continue;
-            }
-
-            Add(Severity.Error,
-                $"[{stage.Id}] 웨이브 Counts 합계가 {total}마리인데 TotalMonsterCount는 {stage.TotalMonsterCount}입니다. " +
-                $"{total - stage.TotalMonsterCount:+#;-#;0}만큼 어긋납니다.");
+            // 예전에는 이 합계를 StageDataTable.TotalMonsterCount와 대조했습니다.
+            //
+            // 그 열을 없앴습니다. 구성을 고칠 때마다 두 곳을 맞춰야 했고, 실제로
+            // 어긋난 채로 지나갔습니다 - 시트는 200인데 실제는 182였습니다.
+            // 이 검사는 있었는데 아무도 안 돌렸습니다. 대조할 짝을 없애는 것이
+            // 검사를 하나 더 만드는 것보다 확실합니다.
+            //
+            // 이제 이 합계가 곧 정답이라 대조할 것이 없고, 값만 보여 줍니다.
+            Add(Severity.Info, $"[{stage.Id}] 웨이브 {stageWaves.Count}개, 몬스터 합계 {total}마리.");
         }
     }
 

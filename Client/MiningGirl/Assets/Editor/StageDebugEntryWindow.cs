@@ -1,4 +1,5 @@
 #if UNITY_EDITOR
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -40,6 +41,10 @@ public class StageDebugEntryWindow : EditorWindow
 
     // 스테이지별 웨이브 행 수. 행이 없는 스테이지로 들어가면 몬스터가 하나도 안 나옵니다.
     private readonly Dictionary<string, int> _waveRowCounts = new();
+
+    // 스테이지별 몬스터 총 마리 수. 웨이브 Counts를 더해서 냅니다.
+    // StageDataTable에 있던 열을 없앴습니다 - 시트 200, 실제 182로 어긋나 있었습니다.
+    private readonly Dictionary<string, int> _waveMonsterCounts = new();
 
     private string _loadError;
     private Vector2 _scroll;
@@ -151,9 +156,10 @@ public class StageDebugEntryWindow : EditorWindow
         }
 
         var waveRows = _waveRowCounts.TryGetValue(stage.Id, out var count) ? count : 0;
+        var monsterTotal = _waveMonsterCounts.TryGetValue(stage.Id, out var monsters) ? monsters : 0;
 
         EditorGUILayout.LabelField(
-            $"웨이브 {stage.WaveCount}    몬스터 {stage.TotalMonsterCount}마리    스탯 배율 x{stage.MonsterStatMultiplier:0.##}",
+            $"웨이브 {stage.WaveCount}    몬스터 {monsterTotal}마리    스탯 배율 x{stage.MonsterStatMultiplier:0.##}",
             EditorStyles.miniLabel);
 
         // 웨이브 행이 모자라면 들어가도 측정이 안 됩니다.
@@ -168,6 +174,7 @@ public class StageDebugEntryWindow : EditorWindow
     {
         _stages.Clear();
         _waveRowCounts.Clear();
+        _waveMonsterCounts.Clear();
         _loadError = null;
 
         if (!TryReadRows<StageDataTableRow>("StageDataTable", out var stages, out _loadError))
@@ -189,6 +196,19 @@ public class StageDebugEntryWindow : EditorWindow
 
             _waveRowCounts.TryGetValue(wave.StageId, out var count);
             _waveRowCounts[wave.StageId] = count + 1;
+
+            if (wave.Counts == null || wave.MonsterIds == null)
+                continue;
+
+            // 종류 목록보다 마리 수가 길면 그 뒤는 붙을 종류가 없어 안 나옵니다.
+            var pairs = Math.Min(wave.MonsterIds.Count, wave.Counts.Count);
+            var sum = 0;
+
+            for (var i = 0; i < pairs; i++)
+                sum += wave.Counts[i];
+
+            _waveMonsterCounts.TryGetValue(wave.StageId, out var monsters);
+            _waveMonsterCounts[wave.StageId] = monsters + sum;
         }
     }
 

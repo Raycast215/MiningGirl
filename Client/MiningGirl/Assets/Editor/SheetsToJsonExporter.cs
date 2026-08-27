@@ -176,6 +176,15 @@ public class SheetsToJsonExporter : EditorWindow
                             var key = headers[c];
                             if (string.IsNullOrWhiteSpace(key)) continue;
 
+                            // 이름이 "//"로 시작하는 열은 내보내지 않습니다.
+                            //
+                            // 탭 제목에는 이미 같은 규칙이 있는데(위쪽 sh.title.Contains("//"))
+                            // 열에는 없었습니다. 그래서 기획이 열을 "//TotalMonsterCount"로
+                            // 표시해 뒀는데도 "//TotalMonsterCount"라는 키로 그대로 나갔습니다.
+                            //
+                            // 값을 지우는 대신 표시만 해 두는 쪽이 되살릴 때 싸므로, 규칙을 맞춥니다.
+                            if (key.StartsWith("//")) continue;
+
                             string raw = (c < row.Count) ? (row[c] ?? "") : "";
                             object val = ConvertCellValue(raw);
                             obj[key] = val;

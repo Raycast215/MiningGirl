@@ -101,6 +101,12 @@ namespace Scene.MainGameScene
         private float[] speedSteps = { 1f, 2f };
 
         private StageDataTableRow _stage;
+
+        // 이 판에 나오는 몬스터 총 마리 수. 웨이브 테이블에서 셉니다.
+        //
+        // StageDataTable에 열로 있던 것을 뺐습니다. 구성을 고칠 때마다 두 곳을
+        // 맞춰야 했고 실제로 어긋났습니다 - 시트 200, 실제 182였습니다.
+        private int _stageMonsterCount;
         private CharacterDataTableRow _character;
 
         private BattleBounds _bounds;
@@ -384,6 +390,9 @@ namespace Scene.MainGameScene
 
             _stage = DataTableManager.Instance.StageDataTable?.GetRow(id);
             _character = DataTableManager.Instance.CharacterDataTable?.GetRow(characterId);
+
+            if (_stage != null)
+                _stageMonsterCount = DataTableManager.Instance.WaveDataTable.SumMonsterCount(_stage.Id);
 
             if (_stage == null)
             {

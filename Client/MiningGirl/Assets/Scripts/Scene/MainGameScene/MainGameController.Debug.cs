@@ -99,7 +99,7 @@ namespace Scene.MainGameScene
             Debug.Log($"[측정] 판 끝: 클리어={cleared}"
                 + $" 경과 {_elapsed:0}초"
                 + $" 레벨 {_levelSystem.Level}"
-                + $" 처치 {_levelSystem.TotalKills}/{_stage.TotalMonsterCount}"
+                + $" 처치 {_levelSystem.TotalKills}/{_stageMonsterCount}"
                 + $" 경험치 {_levelSystem.TotalExp}"
                 + $" 도달 {_field.ReachedTowerCount}"
                 + $" 최대동시 {_field.PeakAliveCount}"
