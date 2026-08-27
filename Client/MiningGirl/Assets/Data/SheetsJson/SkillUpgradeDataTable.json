@@ -140,7 +140,7 @@
   "SkillId": "Skill_QuartzShot",
   "UpgradeType": "Damage",
   "ValueType": "Mul",
-  "Weight": 100
+  "Weight": 0
 },
 {
   "Desc": "피격 범위가 {0}% 증가합니다",
@@ -151,7 +151,7 @@
   "SkillId": "Skill_QuartzShot",
   "UpgradeType": "HitRange",
   "ValueType": "Mul",
-  "Weight": 80
+  "Weight": 0
 },
 {
   "Desc": "관통 수가 {0} 늘어납니다",
@@ -162,7 +162,7 @@
   "SkillId": "Skill_QuartzShot",
   "UpgradeType": "PierceCount",
   "ValueType": "Add",
-  "Weight": 50
+  "Weight": 0
 },
 {
   "Desc": "관통 수가 {0} 늘어납니다",
@@ -173,7 +173,7 @@
   "SkillId": "Skill_MineGust",
   "UpgradeType": "PierceCount",
   "ValueType": "Add",
-  "Weight": 100
+  "Weight": 0
 },
 {
   "Desc": "데미지가 {0}% 증가합니다",
@@ -184,7 +184,7 @@
   "SkillId": "Skill_MineGust",
   "UpgradeType": "Damage",
   "ValueType": "Mul",
-  "Weight": 80
+  "Weight": 0
 },
 {
   "Desc": "피격 범위가 {0}% 증가합니다",
@@ -195,7 +195,7 @@
   "SkillId": "Skill_MineGust",
   "UpgradeType": "HitRange",
   "ValueType": "Mul",
-  "Weight": 60
+  "Weight": 0
 },
 {
   "Desc": "관통 수가 {0} 늘어납니다",
@@ -206,7 +206,7 @@
   "SkillId": "Skill_ShaftArrow",
   "UpgradeType": "PierceCount",
   "ValueType": "Add",
-  "Weight": 100
+  "Weight": 0
 },
 {
   "Desc": "데미지가 {0}% 증가합니다",
@@ -217,7 +217,7 @@
   "SkillId": "Skill_ShaftArrow",
   "UpgradeType": "Damage",
   "ValueType": "Mul",
-  "Weight": 80
+  "Weight": 0
 },
 {
   "Desc": "피격 범위가 {0}% 증가합니다",
@@ -228,7 +228,7 @@
   "SkillId": "Skill_ShaftArrow",
   "UpgradeType": "HitRange",
   "ValueType": "Mul",
-  "Weight": 60
+  "Weight": 0
 },
 {
   "Desc": "관통 수가 {0} 늘어납니다",
@@ -239,7 +239,7 @@
   "SkillId": "Skill_DrillWedge",
   "UpgradeType": "PierceCount",
   "ValueType": "Add",
-  "Weight": 100
+  "Weight": 0
 },
 {
   "Desc": "데미지가 {0}% 증가합니다",
@@ -250,7 +250,7 @@
   "SkillId": "Skill_DrillWedge",
   "UpgradeType": "Damage",
   "ValueType": "Mul",
-  "Weight": 80
+  "Weight": 0
 },
 {
   "Desc": "피격 범위가 {0}% 증가합니다",
@@ -261,7 +261,7 @@
   "SkillId": "Skill_DrillWedge",
   "UpgradeType": "HitRange",
   "ValueType": "Mul",
-  "Weight": 60
+  "Weight": 0
 },
 {
   "Desc": "발사체가 {0}개 늘어납니다",
@@ -272,7 +272,7 @@
   "SkillId": "Skill_OreShard",
   "UpgradeType": "ProjectileCount",
   "ValueType": "Add",
-  "Weight": 100
+  "Weight": 0
 },
 {
   "Desc": "피격 범위가 {0}% 증가합니다",
@@ -283,7 +283,7 @@
   "SkillId": "Skill_OreShard",
   "UpgradeType": "HitRange",
   "ValueType": "Mul",
-  "Weight": 80
+  "Weight": 0
 },
 {
   "Desc": "데미지가 {0}% 증가합니다",
@@ -294,7 +294,7 @@
   "SkillId": "Skill_OreShard",
   "UpgradeType": "Damage",
   "ValueType": "Mul",
-  "Weight": 60
+  "Weight": 0
 },
 {
   "Desc": "발사체가 {0}개 늘어납니다",
@@ -305,7 +305,7 @@
   "SkillId": "Skill_Cavein",
   "UpgradeType": "ProjectileCount",
   "ValueType": "Add",
-  "Weight": 100
+  "Weight": 0
 },
 {
   "Desc": "피격 범위가 {0}% 증가합니다",
@@ -316,7 +316,7 @@
   "SkillId": "Skill_Cavein",
   "UpgradeType": "HitRange",
   "ValueType": "Mul",
-  "Weight": 80
+  "Weight": 0
 },
 {
   "Desc": "데미지가 {0}% 증가합니다",
@@ -327,6 +327,6 @@
   "SkillId": "Skill_Cavein",
   "UpgradeType": "Damage",
   "ValueType": "Mul",
-  "Weight": 60
+  "Weight": 0
 }
 ]

@@ -125,7 +125,7 @@
     0
   ],
   "SkillType": "Bolt",
-  "Weight": 100
+  "Weight": 0
 },
 {
   "CooldownList": [
@@ -157,7 +157,7 @@
     0
   ],
   "SkillType": "Bolt",
-  "Weight": 100
+  "Weight": 0
 },
 {
   "CooldownList": [
@@ -189,7 +189,7 @@
     0
   ],
   "SkillType": "Bolt",
-  "Weight": 100
+  "Weight": 0
 },
 {
   "CooldownList": [
@@ -221,7 +221,7 @@
     0
   ],
   "SkillType": "Bolt",
-  "Weight": 100
+  "Weight": 0
 },
 {
   "CooldownList": [
@@ -253,7 +253,7 @@
     2
   ],
   "SkillType": "Bolt",
-  "Weight": 100
+  "Weight": 0
 },
 {
   "CooldownList": [
@@ -285,6 +285,6 @@
     1.5
   ],
   "SkillType": "Bolt",
-  "Weight": 100
+  "Weight": 0
 }
 ]
