@@ -126,14 +126,21 @@ namespace Scene.MainGameScene.Wave
                 return false;
             }
 
-            _phase = parsed;
-            _waveIndex = waveIndex;
-            _timer = timer;
-            _schedule.Clear();
-            _scheduleIndex = 0;
-
+            // 실패하면 아무것도 건드리지 않고 돌아갑니다. 반쯤 되돌린 상태로 두면
+            // 호출한 쪽이 새 판으로 시작해도 웨이브만 저장 시점에 가 있게 됩니다.
             if (parsed != EPhase.Running)
-                return savedScheduleCount == 0;
+            {
+                if (savedScheduleCount != 0)
+                    return false;
+
+                _phase = parsed;
+                _waveIndex = waveIndex;
+                _timer = timer;
+                _schedule.Clear();
+                _scheduleIndex = 0;
+
+                return true;
+            }
 
             if (waveIndex < 0 || waveIndex >= _waves.Count)
             {
@@ -143,14 +150,28 @@ namespace Scene.MainGameScene.Wave
             }
 
             var wave = _waves[waveIndex];
+            var duration = Mathf.Max(0.1f, wave.Duration);
 
-            _waveDuration = Mathf.Max(0.1f, wave.Duration);
+            // BuildSchedule이 _schedule과 _waveDuration을 쓰므로 임시로 넣고 재 봅니다.
+            var keptSchedule = new List<SpawnEntry>(_schedule);
+            var keptDuration = _waveDuration;
+
+            _waveDuration = duration;
 
             BuildSchedule(wave);
 
             if (_schedule.Count != savedScheduleCount)
-                return false;
+            {
+                _schedule.Clear();
+                _schedule.AddRange(keptSchedule);
+                _waveDuration = keptDuration;
 
+                return false;
+            }
+
+            _phase = parsed;
+            _waveIndex = waveIndex;
+            _timer = timer;
             _scheduleIndex = Mathf.Clamp(scheduleIndex, 0, _schedule.Count);
 
             return true;

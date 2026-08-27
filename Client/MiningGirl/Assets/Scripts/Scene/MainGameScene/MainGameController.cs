@@ -20,7 +20,7 @@ namespace Scene.MainGameScene
     // 그래서 진행을 한 군데서 묶지 않고 WaveRunner와 LevelSystem을 나란히 돌립니다.
     //
     // UI는 직접 건드리지 않습니다. ViewModel에 상태를 넣으면 View가 알아서 그립니다.
-    public class MainGameController : GameMonoInitializer
+    public partial class MainGameController : GameMonoInitializer
     {
 #if UNITY_EDITOR
         // 에디터의 스테이지 지정 진입이 고른 값을 넣어 두는 자리입니다.
@@ -239,11 +239,34 @@ namespace Scene.MainGameScene
                 constants.GetValue(EGameConstantType.WaveStartDelay, 2f),
                 constants.GetValue(EGameConstantType.WaveClearDelay, 1.5f));
 
+            // 프로세스가 예고 없이 죽었을 때의 바닥입니다. 일시정지 저장이
+            // 성공하면 그쪽이 이깁니다.
+            _waveRunner.OnWaveStarted += HandleWaveStartedForSave;
+
             await LoadSceneAssets();
 
-            GrantStartSkill();
+            // 저장이 있으면 되돌리고, 없거나 되돌리지 못하면 새 판으로 시작합니다.
+            var restore = _pendingRestore;
+            var restored = TryRestore();
+
+            if (!restored)
+            {
+                if (restore != null)
+                {
+                    // 반쯤 되돌린 판은 어디서 터질지 그때그때 다릅니다.
+                    // 그 스테이지 처음부터 시작하고 저장은 지웁니다.
+                    Debug.LogWarning("[Save] 이어하기를 불러오지 못해 스테이지를 처음부터 시작합니다");
+
+                    ClearRunSave();
+                }
+
+                GrantStartSkill();
+            }
 
             BindViewModels();
+
+            if (restored)
+                RestoreOpenChoice(restore);
 
             PlayStageBgm();
 
@@ -336,35 +359,12 @@ namespace Scene.MainGameScene
 
         // 실제로 들어갈 스테이지 Id.
         //
-        // 평소에는 인스펙터 값 그대로입니다. 스테이지 선택에서 고르고 들어왔거나
-        // 에디터에서 스테이지를 지정해 들어온 경우에만 그 값이 이깁니다. 씬 파일의
-        // stageId는 손대지 않으므로 지정 진입을 몇 번을 하든 저장소에는 아무
-        // 변화가 남지 않습니다.
+        // 우선순위와 진행 저장 처리는 MainGameController.Save.cs에 있습니다.
+        // 씬 파일의 stageId는 어느 경로로도 손대지 않으므로, 지정 진입이나
+        // 스테이지 선택을 몇 번 하든 저장소에는 변화가 남지 않습니다.
         private string ResolveStageId()
         {
-            // 한 번 쓰고 비웁니다. 남겨 두면 다음에 이 씬만 단독으로 재생했을 때
-            // 지난 선택이 되살아나 인스펙터 값이 무시됩니다.
-            var selected = StageEntry.Consume();
-
-            if (!string.IsNullOrEmpty(selected))
-            {
-                Debug.Log($"[MainGame] 스테이지 선택 진입: {selected}");
-
-                return selected;
-            }
-
-#if UNITY_EDITOR
-            var debugStageId = UnityEditor.SessionState.GetString(DebugStageIdKey, string.Empty);
-
-            if (!string.IsNullOrEmpty(debugStageId))
-            {
-                Debug.Log($"[MainGame] 스테이지 지정 진입: {debugStageId}");
-
-                return debugStageId;
-            }
-#endif
-
-            return stageId;
+            return ResolveStageIdWithSave();
         }
 
         private bool ResolveStageData()
@@ -594,9 +594,18 @@ namespace Scene.MainGameScene
         private void RememberShown(IReadOnlyList<LevelUpChoice> choices)
         {
             _shownChoiceKeys.Clear();
+            _openChoiceKeys.Clear();
 
             for (var i = 0; i < choices.Count; i++)
-                _shownChoiceKeys.Add(ChoiceKey(choices[i]));
+            {
+                var key = ChoiceKey(choices[i]);
+
+                _shownChoiceKeys.Add(key);
+
+                // 비교용은 정렬하므로 표시 순서는 따로 남깁니다. 저장에서
+                // 3택을 되살릴 때 카드가 놓인 자리가 달라지면 안 됩니다.
+                _openChoiceKeys.Add(key);
+            }
 
             _shownChoiceKeys.Sort(StringComparer.Ordinal);
         }
@@ -623,13 +632,11 @@ namespace Scene.MainGameScene
             return true;
         }
 
+        // 형식은 LevelUpChoiceBuilder에 한 벌만 둡니다. 중복 방지와 저장이
+        // 각자 만들면 둘이 어긋날 때 복원한 카드가 "본 적 없는 것"이 됩니다.
         private static string ChoiceKey(LevelUpChoice choice)
         {
-            var skillId = choice.Skill != null ? choice.Skill.Id : string.Empty;
-            var upgradeId = choice.Upgrade != null ? choice.Upgrade.Id : string.Empty;
-            var masteryId = choice.Mastery != null ? choice.Mastery.Id : string.Empty;
-
-            return $"{choice.Type}|{skillId}|{upgradeId}|{masteryId}";
+            return LevelUpChoiceBuilder.ToKey(choice);
         }
 
         private void HandleChoiceSelected(LevelUpChoice choice)
@@ -736,6 +743,10 @@ namespace Scene.MainGameScene
             _isFinished = true;
             _isRunning = false;
             _pendingLevelUps = 0;
+
+            // 클리어든 타워 파괴든 포기든 같은 자리입니다. 남겨 두면 다음 실행에서
+            // 이미 끝난 판이 되살아납니다.
+            ClearRunSave();
 
             Time.timeScale = 1f;
 

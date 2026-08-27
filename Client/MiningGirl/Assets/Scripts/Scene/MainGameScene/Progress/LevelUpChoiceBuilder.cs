@@ -77,6 +77,145 @@ namespace Scene.MainGameScene.Progress
             return picked;
         }
 
+        // 선택지 하나를 한 줄 문자열로. 같은 조합인지 비교하고 저장에 담는 데 씁니다.
+        //
+        // 형식을 한 곳에만 둡니다. 중복 방지와 저장이 각자 만들면 둘이 어긋날 때
+        // 저장에서 복원한 카드가 "본 적 없는 것"으로 취급됩니다.
+        public static string ToKey(LevelUpChoice choice)
+        {
+            if (choice == null)
+                return string.Empty;
+
+            var skillId = choice.Skill != null ? choice.Skill.Id : string.Empty;
+            var upgradeId = choice.Upgrade != null ? choice.Upgrade.Id : string.Empty;
+            var masteryId = choice.Mastery != null ? choice.Mastery.Id : string.Empty;
+
+            return $"{choice.Type}|{skillId}|{upgradeId}|{masteryId}";
+        }
+
+        // 저장에서 3택을 그대로 되살립니다.
+        //
+        // 다시 뽑지 않는 이유는 그게 무료 리롤이 되기 때문입니다 - 리롤 10회를
+        // 자원으로 쓰는 설계인데 앱을 껐다 켜서 우회하면 안 됩니다.
+        //
+        // 표시용 값(누적 횟수, 강화스킬 진행도)은 저장하지 않고 지금 인벤토리에서
+        // 다시 냅니다. 저장된 뒤에 값이 바뀌었어도 화면은 현재를 말해야 합니다.
+        // 하나라도 되살리지 못하면 null입니다 - 두 장짜리 3택을 띄우느니 안 띄웁니다.
+        public List<LevelUpChoice> RebuildFromKeys(IReadOnlyList<string> keys)
+        {
+            if (keys == null || keys.Count == 0)
+                return null;
+
+            var rebuilt = new List<LevelUpChoice>();
+
+            for (var i = 0; i < keys.Count; i++)
+            {
+                var choice = RebuildOne(keys[i]);
+
+                if (choice == null)
+                {
+                    Debug.LogWarning($"[Save] 3택을 되살리지 못했습니다: {keys[i]}");
+
+                    return null;
+                }
+
+                rebuilt.Add(choice);
+            }
+
+            return rebuilt;
+        }
+
+        private LevelUpChoice RebuildOne(string key)
+        {
+            if (string.IsNullOrEmpty(key))
+                return null;
+
+            var parts = key.Split('|');
+
+            if (parts.Length < 4)
+                return null;
+
+            ELevelUpChoiceType type;
+
+            if (!System.Enum.TryParse(parts[0], out type))
+                return null;
+
+            var skill = _skillTable?.GetRow(parts[1]);
+
+            if (skill == null)
+                return null;
+
+            switch (type)
+            {
+                case ELevelUpChoiceType.AcquireSkill:
+                {
+                    return new LevelUpChoice
+                    {
+                        Type = type,
+                        Skill = skill,
+                        Weight = skill.Weight,
+                        CurrentLevel = 0,
+                    };
+                }
+
+                case ELevelUpChoiceType.Mastery:
+                {
+                    var mastery = _masteryTable?.FindBySkillId(skill.Id);
+
+                    if (mastery == null || mastery.Id != parts[3])
+                        return null;
+
+                    var ownedForMastery = _inventory.Find(skill.Id);
+
+                    return new LevelUpChoice
+                    {
+                        Type = type,
+                        Skill = skill,
+                        Mastery = mastery,
+                        Weight = mastery.Weight,
+                        CurrentLevel = ownedForMastery != null ? ownedForMastery.Level : 1,
+                    };
+                }
+
+                default:
+                {
+                    var upgrade = FindUpgradeById(parts[2]);
+                    var owned = _inventory.Find(skill.Id);
+
+                    if (upgrade == null || owned == null)
+                        return null;
+
+                    var choice = new LevelUpChoice
+                    {
+                        Type = type,
+                        Skill = skill,
+                        Upgrade = upgrade,
+                        Weight = upgrade.Weight,
+                        CurrentLevel = owned.Level,
+                        StackedUpgradeCount = owned.GetUpgradeCount(upgrade.UpgradeType),
+                    };
+
+                    AttachMasteryProgress(choice, owned, upgrade.UpgradeType);
+
+                    return choice;
+                }
+            }
+        }
+
+        private SkillUpgradeDataTableRow FindUpgradeById(string id)
+        {
+            if (string.IsNullOrEmpty(id) || _upgradeTable?.Rows == null)
+                return null;
+
+            for (var i = 0; i < _upgradeTable.Rows.Count; i++)
+            {
+                if (_upgradeTable.Rows[i] != null && _upgradeTable.Rows[i].Id == id)
+                    return _upgradeTable.Rows[i];
+            }
+
+            return null;
+        }
+
         private void CollectCandidates()
         {
             _candidates.Clear();
