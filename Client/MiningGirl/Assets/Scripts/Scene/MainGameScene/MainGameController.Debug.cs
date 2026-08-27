@@ -34,6 +34,10 @@ namespace Scene.MainGameScene
 
         public bool DebugIsFinished => _isFinished;
 
+        // 자동 측정이 이 판을 버릴지 정할 수 있게 열어 둡니다.
+        // 복원된 판은 처음부터 돈 판이 아닙니다.
+        public bool DebugIsRestored => _restoredFromSave;
+
         private void LogChoiceShown()
         {
             if (_openChoices.Count == 0)
@@ -103,7 +107,8 @@ namespace Scene.MainGameScene
                 + $" 경험치 {_levelSystem.TotalExp}"
                 + $" 도달 {_field.ReachedTowerCount}"
                 + $" 최대동시 {_field.PeakAliveCount}"
-                + $" 리롤 남음 {_rerollsLeft}");
+                + $" 리롤 남음 {_rerollsLeft}"
+                + (_restoredFromSave ? "  [저장 복원된 판 - 측정에 쓰지 마십시오]" : string.Empty));
         }
 
         private static string DescribeChoice(LevelUpChoice choice)

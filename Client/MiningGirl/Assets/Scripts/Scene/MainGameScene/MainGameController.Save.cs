@@ -23,6 +23,18 @@ namespace Scene.MainGameScene
         // 아니고, 디버그로 한 판 봤다고 유저 진행이 날아가면 안 됩니다.
         private bool _isDebugStageEntry;
 
+        // 이 판이 저장에서 복원된 판인가.
+        //
+        // 측정용입니다. 복원된 판은 처음부터 돈 판이 아니라 결과를 그대로 쓰면 안 됩니다.
+        // 실제로 물렸습니다 - 판 도중에 플레이 모드를 껐더니 저장이 남았고, 다음 진입에서
+        // 경과 223초짜리 거의 끝난 판이 복원돼 그대로 결과로 찍혔습니다.
+        //
+        // 이 부류가 위험한 이유는 맞는 스테이지가 열린다는 것입니다. SessionState 오염은
+        // 엉뚱한 스테이지가 열려 눈에 띄는데, 이건 결과만 거짓입니다.
+        //
+        // 절차로 막지 않고 로그로 막습니다. 절차는 잊히고 로그는 남습니다.
+        private bool _restoredFromSave;
+
         // 지금 3택에 떠 있는 카드들. 표시 순서 그대로입니다.
         //
         // _shownChoiceKeys는 비교용이라 정렬돼 있어 순서가 없습니다.
@@ -274,6 +286,8 @@ namespace Scene.MainGameScene
                 tower.RestoreHealth(save.TowerHealth);
 
             RestoreMonsters(save);
+
+            _restoredFromSave = true;
 
             return true;
         }
