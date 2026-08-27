@@ -114,3 +114,6 @@ EditorUserSettings.asset
 # 개발 중 캡처한 스크린샷 (기록용 로컬 파일, 저장소에 커밋 불필요)
 **/[Aa]ssets/[Ss]creenshots/
 **/[Aa]ssets/[Ss]creenshots.meta
+# 조건부 캡처 산출물 (CaptureConditions 가 저장소 루트에 씁니다)
+# 측정할 때마다 덮어쓰는 로컬 파일이라 커밋하지 않습니다.
+/Captures/
