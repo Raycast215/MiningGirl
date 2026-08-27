@@ -8,7 +8,7 @@
   "KnockbackResist": 0,
   "MaxHealth": 12,
   "MonsterType": "Normal",
-  "MoveSpeed": 3,
+  "MoveSpeed": 2.4,
   "Name": "광석 슬라임",
   "SpawnDelay": 0
 },
@@ -21,7 +21,7 @@
   "KnockbackResist": 0,
   "MaxHealth": 17,
   "MonsterType": "Normal",
-  "MoveSpeed": 5.2,
+  "MoveSpeed": 3.4,
   "Name": "동굴 박쥐",
   "SpawnDelay": 3
 },
@@ -34,7 +34,7 @@
   "KnockbackResist": 0.5,
   "MaxHealth": 39,
   "MonsterType": "Normal",
-  "MoveSpeed": 2,
+  "MoveSpeed": 1.9,
   "Name": "바위 거미",
   "SpawnDelay": 5
 },
@@ -47,7 +47,7 @@
   "KnockbackResist": 0.8,
   "MaxHealth": 90,
   "MonsterType": "Elite",
-  "MoveSpeed": 2.8,
+  "MoveSpeed": 2.3,
   "Name": "갱도지키",
   "SpawnDelay": 8
 },
@@ -60,7 +60,7 @@
   "KnockbackResist": 1,
   "MaxHealth": 500,
   "MonsterType": "Boss",
-  "MoveSpeed": 1.6,
+  "MoveSpeed": 1.5,
   "Name": "심층의 것",
   "SpawnDelay": 0
 },
@@ -73,7 +73,7 @@
   "KnockbackResist": 0.2,
   "MaxHealth": 23,
   "MonsterType": "Normal",
-  "MoveSpeed": 3.6,
+  "MoveSpeed": 2.8,
   "Name": "갱도 쥐",
   "SpawnDelay": 4
 },
@@ -86,7 +86,7 @@
   "KnockbackResist": 0.6,
   "MaxHealth": 30,
   "MonsterType": "Normal",
-  "MoveSpeed": 2.4,
+  "MoveSpeed": 2.2,
   "Name": "광재 덩이",
   "SpawnDelay": 6
 },
@@ -99,7 +99,7 @@
   "KnockbackResist": 0.9,
   "MaxHealth": 180,
   "MonsterType": "Elite",
-  "MoveSpeed": 2.2,
+  "MoveSpeed": 2,
   "Name": "무너진 갱부",
   "SpawnDelay": 10
 }
