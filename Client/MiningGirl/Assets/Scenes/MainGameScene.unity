@@ -2704,7 +2704,7 @@ MonoBehaviour:
   slider: {fileID: 0}
   delayedSlider: {fileID: 0}
   label: {fileID: 0}
-  trackColor: {r: 0.08, g: 0.08, b: 0.1, a: 0.85}
+  trackColor: {r: 0.08, g: 0.08, b: 0.1, a: 1}
   fillColor: {r: 0.35, g: 0.72, b: 0.95, a: 1}
   dangerRatio: 0
   dangerColor: {r: 0.85, g: 0.25, b: 0.25, a: 1}
