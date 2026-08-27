@@ -195,8 +195,8 @@ namespace Scene.MainGameScene.ViewModel
             {
                 case ELevelUpChoiceType.AcquireSkill:
                 {
-                    var damage = SkillState.ValueAtLevel(choice.Skill.EffectValueList, 1);
-                    var cooldown = SkillState.ValueAtLevel(choice.Skill.CooldownList, 1);
+                    var damage = SkillState.FirstValue(choice.Skill.EffectValueList);
+                    var cooldown = SkillState.FirstValue(choice.Skill.CooldownList);
 
                     // 가운뎃점(·)은 NotoSansKR SDF 아틀라스에 없어 네모로 나옵니다.
                     return new LevelUpChoiceItem(
@@ -205,20 +205,6 @@ namespace Scene.MainGameScene.ViewModel
                         $"위력 {damage:0} / 쿨 {cooldown:0.0}초",
                         choice.Skill.IconAssetId,
                         true);
-                }
-
-                case ELevelUpChoiceType.LevelUpSkill:
-                {
-                    var owned = _inventory.Find(choice.Skill.Id);
-                    var current = owned?.Damage ?? 0f;
-                    var next = owned?.GetDamageAtLevel(choice.CurrentLevel + 1) ?? 0f;
-
-                    return new LevelUpChoiceItem(
-                        choice.Skill.Name,
-                        $"Lv.{choice.CurrentLevel} → Lv.{choice.CurrentLevel + 1}",
-                        $"위력 {current:0} → {next:0}",
-                        choice.Skill.IconAssetId,
-                        false);
                 }
 
                 case ELevelUpChoiceType.Mastery:

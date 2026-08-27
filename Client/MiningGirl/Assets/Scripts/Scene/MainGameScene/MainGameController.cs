@@ -643,13 +643,6 @@ namespace Scene.MainGameScene
                     return;
                 }
 
-                case ELevelUpChoiceType.LevelUpSkill:
-                {
-                    _inventory.Find(choice.Skill.Id)?.LevelUp();
-
-                    return;
-                }
-
                 case ELevelUpChoiceType.UpgradeSkill:
                 {
                     _inventory.Find(choice.Skill.Id)?.ApplyUpgrade(choice.Upgrade);

@@ -10,7 +10,12 @@ namespace Scene.MainGameScene.Progress
     {
         public SkillDataTableRow Row { get; }
 
-        public int Level { get; private set; }
+        // 화면에 보이는 레벨. 획득 1 + 이 스킬에 붙은 강화 횟수의 합입니다.
+        //
+        // 순수 표시값이라 스탯 계산에 쓰지 않습니다. 스킬 레벨업 카드가 사라지면서
+        // 위력을 올리는 경로가 강화 하나로 모였고, 시트의 레벨별 배열은 첫 값만 씁니다.
+        // 종류를 가리지 않고 셉니다 - 관통과 범위도 그 스킬에 넣은 투자입니다.
+        public int Level => 1 + _totalUpgradeCount;
 
         // 강화 종류별 누적. 합연산과 곱연산을 따로 들고 마지막에 (기본값 + 합) x 곱으로 냅니다.
         private readonly Dictionary<ESkillUpgradeType, float> _addValues = new Dictionary<ESkillUpgradeType, float>();
@@ -19,15 +24,19 @@ namespace Scene.MainGameScene.Progress
         // 3택에서 같은 강화가 몇 번 나왔는지. 카드에 "관통 +2" 같은 걸 보여줄 때 씁니다.
         private readonly Dictionary<ESkillUpgradeType, int> _upgradeCounts = new Dictionary<ESkillUpgradeType, int>();
 
+        // 지금까지 이 스킬에 넣은 강화의 총 횟수. 표시 레벨의 재료입니다.
+        private int _totalUpgradeCount;
+
         public SkillState(SkillDataTableRow row)
         {
             Row = row;
-            Level = 1;
         }
 
-        public float Cooldown => Mathf.Max(0.05f, ValueAtLevel(Row.CooldownList, Level));
+        // 레벨이 스탯에 붙지 않으므로 시트 배열의 첫 값만 씁니다.
+        // 나머지 네 값은 지우지 않고 미사용으로 둡니다.
+        public float Cooldown => Mathf.Max(0.05f, FirstValue(Row.CooldownList));
 
-        public float Damage => Combine(ESkillUpgradeType.Damage, ValueAtLevel(Row.EffectValueList, Level));
+        public float Damage => Combine(ESkillUpgradeType.Damage, FirstValue(Row.EffectValueList));
 
         public int ProjectileCount =>
             Mathf.Max(1, Mathf.RoundToInt(Combine(ESkillUpgradeType.ProjectileCount, Row.ProjectileCount)));
@@ -65,11 +74,6 @@ namespace Scene.MainGameScene.Progress
                 Mastery);
         }
 
-        public void LevelUp()
-        {
-            Level++;
-        }
-
         public void ApplyUpgrade(SkillUpgradeDataTableRow upgrade)
         {
             if (upgrade == null)
@@ -92,6 +96,8 @@ namespace Scene.MainGameScene.Progress
 
             _upgradeCounts.TryGetValue(upgrade.UpgradeType, out var count);
             _upgradeCounts[upgrade.UpgradeType] = count + 1;
+
+            _totalUpgradeCount++;
         }
 
         public int GetUpgradeCount(ESkillUpgradeType type)
@@ -101,38 +107,13 @@ namespace Scene.MainGameScene.Progress
             return count;
         }
 
-        // 다음 레벨의 위력. 3택 카드에 "위력 17 → 23"을 보여주는 데 씁니다.
-        public float GetDamageAtLevel(int level)
-        {
-            return Combine(ESkillUpgradeType.Damage, ValueAtLevel(Row.EffectValueList, level));
-        }
-
-        // 배열 길이를 넘는 레벨은 마지막 구간의 변화율을 곱연산으로 이어 갑니다.
+        // 시트의 레벨별 배열에서 첫 값만 꺼냅니다.
         //
-        // 배열 길이가 최대 레벨이 아니기 때문입니다. 곱연산이라 쿨다운은 0에 수렴하되
-        // 도달하지 않아 하한값을 따로 둘 필요가 없습니다.
-        public static float ValueAtLevel(IReadOnlyList<float> list, int level)
+        // 스킬 레벨업 카드가 없어져 인덱싱할 레벨이 없습니다. 나머지 네 값은
+        // 시트에 그대로 두고 쓰지 않습니다 - 되살릴 때 비용이 달라집니다.
+        public static float FirstValue(IReadOnlyList<float> list)
         {
-            if (list == null || list.Count == 0)
-                return 0f;
-
-            if (level <= 1)
-                return list[0];
-
-            if (level <= list.Count)
-                return list[level - 1];
-
-            var last = list[list.Count - 1];
-
-            if (list.Count < 2)
-                return last;
-
-            var previous = list[list.Count - 2];
-
-            if (previous <= 0f)
-                return last;
-
-            return last * Mathf.Pow(last / previous, level - list.Count);
+            return list == null || list.Count == 0 ? 0f : list[0];
         }
 
         private float Combine(ESkillUpgradeType type, float baseValue)

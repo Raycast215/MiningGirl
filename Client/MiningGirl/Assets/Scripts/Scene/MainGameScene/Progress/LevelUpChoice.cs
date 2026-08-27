@@ -4,9 +4,8 @@ namespace Scene.MainGameScene.Progress
 {
     public enum ELevelUpChoiceType
     {
-        AcquireSkill, // 미보유 스킬을 Lv.1로
-        LevelUpSkill, // 보유 스킬의 레벨 +1
-        UpgradeSkill, // 보유 스킬(Lv.2+)에 강화 하나
+        AcquireSkill, // 미보유 스킬을 얻습니다
+        UpgradeSkill, // 보유 스킬에 강화 하나
         Mastery,      // 강화스킬. 조건을 채워야 나오고 런당 한 번만 고를 수 있습니다
     }
 
@@ -46,7 +45,7 @@ namespace Scene.MainGameScene.Progress
 
         public int Weight { get; set; }
 
-        // 이 선택지를 만들 때의 스킬 레벨. 카드에 "Lv.2 → Lv.3"을 적는 데 씁니다.
+        // 이 선택지를 만들 때의 표시 레벨(획득 1 + 강화 합). 카드에 적는 데 씁니다.
         public int CurrentLevel { get; set; }
 
         // 강화가 이미 몇 번 쌓였는지.

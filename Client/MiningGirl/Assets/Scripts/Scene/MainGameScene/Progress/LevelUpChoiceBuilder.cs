@@ -108,14 +108,10 @@ namespace Scene.MainGameScene.Progress
                     continue;
                 }
 
-                _candidates.Add(new LevelUpChoice
-                {
-                    Type = ELevelUpChoiceType.LevelUpSkill,
-                    Skill = owned.Row,
-                    Weight = owned.Row.Weight,
-                    CurrentLevel = owned.Level,
-                });
-
+                // 이미 가진 스킬은 다시 후보에 넣지 않습니다.
+                //
+                // 위력을 올리는 경로가 스킬 레벨업과 Damage 강화 둘이라 중복이었습니다.
+                // 강화로 일원화하고, 보유 스킬에서는 강화와 강화스킬만 나옵니다.
                 CollectUpgrades(owned);
                 CollectMastery(owned);
             }
@@ -205,7 +201,11 @@ namespace Scene.MainGameScene.Progress
                 if (upgrade.SkillId != owned.Row.Id)
                     continue;
 
-                // 강화는 해당 스킬이 조건 레벨 이상일 때만 나옵니다.
+                // 강화는 그 스킬의 표시 레벨이 조건 이상일 때만 나옵니다.
+                //
+                // 표시 레벨이 "획득 1 + 강화 합"으로 바뀌었으므로, 이 값은 이제
+                // "강화를 몇 번 넣은 뒤에 열리는가"를 뜻합니다. 1이면 획득 직후부터
+                // 열리고, 3이면 다른 강화를 두 번 넣은 뒤에 열립니다.
                 if (owned.Level < upgrade.RequireSkillLevel)
                     continue;
 
