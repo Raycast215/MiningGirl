@@ -298,5 +298,1497 @@
   ],
   "StageId": "Stage_01",
   "WaveNo": 20
+},
+{
+  "Counts": 5,
+  "Duration": 10,
+  "Id": "W_S02_01",
+  "MonsterIds": "Monster_001",
+  "StageId": "Stage_02",
+  "WaveNo": 1
+},
+{
+  "Counts": 6,
+  "Duration": 10,
+  "Id": "W_S02_02",
+  "MonsterIds": "Monster_001",
+  "StageId": "Stage_02",
+  "WaveNo": 2
+},
+{
+  "Counts": [
+    4,
+    3
+  ],
+  "Duration": 9,
+  "Id": "W_S02_03",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002"
+  ],
+  "StageId": "Stage_02",
+  "WaveNo": 3
+},
+{
+  "Counts": [
+    4,
+    3
+  ],
+  "Duration": 9,
+  "Id": "W_S02_04",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002"
+  ],
+  "StageId": "Stage_02",
+  "WaveNo": 4
+},
+{
+  "Counts": [
+    5,
+    3
+  ],
+  "Duration": 9,
+  "Id": "W_S02_05",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002"
+  ],
+  "StageId": "Stage_02",
+  "WaveNo": 5
+},
+{
+  "Counts": [
+    4,
+    3,
+    2
+  ],
+  "Duration": 9,
+  "Id": "W_S02_06",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006"
+  ],
+  "StageId": "Stage_02",
+  "WaveNo": 6
+},
+{
+  "Counts": [
+    4,
+    3,
+    2
+  ],
+  "Duration": 10,
+  "Id": "W_S02_07",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006"
+  ],
+  "StageId": "Stage_02",
+  "WaveNo": 7
+},
+{
+  "Counts": [
+    4,
+    2,
+    2,
+    2
+  ],
+  "Duration": 10,
+  "Id": "W_S02_08",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003"
+  ],
+  "StageId": "Stage_02",
+  "WaveNo": 8
+},
+{
+  "Counts": [
+    4,
+    3,
+    2,
+    2
+  ],
+  "Duration": 10,
+  "Id": "W_S02_09",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003"
+  ],
+  "StageId": "Stage_02",
+  "WaveNo": 9
+},
+{
+  "Counts": [
+    4,
+    3,
+    2,
+    2
+  ],
+  "Duration": 10,
+  "Id": "W_S02_10",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003"
+  ],
+  "StageId": "Stage_02",
+  "WaveNo": 10
+},
+{
+  "Counts": [
+    5,
+    3,
+    2,
+    2
+  ],
+  "Duration": 10,
+  "Id": "W_S02_11",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003"
+  ],
+  "StageId": "Stage_02",
+  "WaveNo": 11
+},
+{
+  "Counts": [
+    5,
+    3,
+    2,
+    2,
+    1
+  ],
+  "Duration": 10,
+  "Id": "W_S02_12",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_004"
+  ],
+  "StageId": "Stage_02",
+  "WaveNo": 12
+},
+{
+  "Counts": [
+    5,
+    3,
+    2,
+    2,
+    1
+  ],
+  "Duration": 10,
+  "Id": "W_S02_13",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_004"
+  ],
+  "StageId": "Stage_02",
+  "WaveNo": 13
+},
+{
+  "Counts": [
+    6,
+    3,
+    2,
+    2,
+    1
+  ],
+  "Duration": 10,
+  "Id": "W_S02_14",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_004"
+  ],
+  "StageId": "Stage_02",
+  "WaveNo": 14
+},
+{
+  "Counts": [
+    4,
+    4,
+    3,
+    3,
+    1
+  ],
+  "Duration": 11,
+  "Id": "W_S02_15",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_004"
+  ],
+  "StageId": "Stage_02",
+  "WaveNo": 15
+},
+{
+  "Counts": [
+    4,
+    4,
+    3,
+    3,
+    1
+  ],
+  "Duration": 11,
+  "Id": "W_S02_16",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_004"
+  ],
+  "StageId": "Stage_02",
+  "WaveNo": 16
+},
+{
+  "Counts": [
+    5,
+    4,
+    3,
+    3,
+    1
+  ],
+  "Duration": 11,
+  "Id": "W_S02_17",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_004"
+  ],
+  "StageId": "Stage_02",
+  "WaveNo": 17
+},
+{
+  "Counts": [
+    6,
+    4,
+    3,
+    3,
+    1
+  ],
+  "Duration": 11,
+  "Id": "W_S02_18",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_004"
+  ],
+  "StageId": "Stage_02",
+  "WaveNo": 18
+},
+{
+  "Counts": [
+    7,
+    4,
+    3,
+    3,
+    1
+  ],
+  "Duration": 11,
+  "Id": "W_S02_19",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_004"
+  ],
+  "StageId": "Stage_02",
+  "WaveNo": 19
+},
+{
+  "Counts": [
+    1,
+    8
+  ],
+  "Duration": 18,
+  "Id": "W_S02_20",
+  "MonsterIds": [
+    "Monster_005",
+    "Monster_001"
+  ],
+  "StageId": "Stage_02",
+  "WaveNo": 20
+},
+{
+  "Counts": 5,
+  "Duration": 10,
+  "Id": "W_S03_01",
+  "MonsterIds": "Monster_001",
+  "StageId": "Stage_03",
+  "WaveNo": 1
+},
+{
+  "Counts": 6,
+  "Duration": 10,
+  "Id": "W_S03_02",
+  "MonsterIds": "Monster_001",
+  "StageId": "Stage_03",
+  "WaveNo": 2
+},
+{
+  "Counts": [
+    4,
+    2
+  ],
+  "Duration": 9,
+  "Id": "W_S03_03",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002"
+  ],
+  "StageId": "Stage_03",
+  "WaveNo": 3
+},
+{
+  "Counts": [
+    4,
+    3
+  ],
+  "Duration": 9,
+  "Id": "W_S03_04",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002"
+  ],
+  "StageId": "Stage_03",
+  "WaveNo": 4
+},
+{
+  "Counts": [
+    4,
+    2,
+    2
+  ],
+  "Duration": 9,
+  "Id": "W_S03_05",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006"
+  ],
+  "StageId": "Stage_03",
+  "WaveNo": 5
+},
+{
+  "Counts": [
+    4,
+    3,
+    2
+  ],
+  "Duration": 9,
+  "Id": "W_S03_06",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006"
+  ],
+  "StageId": "Stage_03",
+  "WaveNo": 6
+},
+{
+  "Counts": [
+    4,
+    2,
+    2,
+    2
+  ],
+  "Duration": 10,
+  "Id": "W_S03_07",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003"
+  ],
+  "StageId": "Stage_03",
+  "WaveNo": 7
+},
+{
+  "Counts": [
+    4,
+    3,
+    2,
+    2
+  ],
+  "Duration": 10,
+  "Id": "W_S03_08",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003"
+  ],
+  "StageId": "Stage_03",
+  "WaveNo": 8
+},
+{
+  "Counts": [
+    5,
+    3,
+    2,
+    2
+  ],
+  "Duration": 10,
+  "Id": "W_S03_09",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003"
+  ],
+  "StageId": "Stage_03",
+  "WaveNo": 9
+},
+{
+  "Counts": [
+    5,
+    3,
+    2,
+    2,
+    1
+  ],
+  "Duration": 10,
+  "Id": "W_S03_10",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007"
+  ],
+  "StageId": "Stage_03",
+  "WaveNo": 10
+},
+{
+  "Counts": [
+    5,
+    3,
+    2,
+    2,
+    1
+  ],
+  "Duration": 10,
+  "Id": "W_S03_11",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007"
+  ],
+  "StageId": "Stage_03",
+  "WaveNo": 11
+},
+{
+  "Counts": [
+    5,
+    3,
+    2,
+    2,
+    1,
+    1
+  ],
+  "Duration": 10,
+  "Id": "W_S03_12",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007",
+    "Monster_004"
+  ],
+  "StageId": "Stage_03",
+  "WaveNo": 12
+},
+{
+  "Counts": [
+    5,
+    3,
+    2,
+    2,
+    2,
+    1
+  ],
+  "Duration": 10,
+  "Id": "W_S03_13",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007",
+    "Monster_004"
+  ],
+  "StageId": "Stage_03",
+  "WaveNo": 13
+},
+{
+  "Counts": [
+    4,
+    3,
+    3,
+    3,
+    2,
+    1
+  ],
+  "Duration": 10,
+  "Id": "W_S03_14",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007",
+    "Monster_004"
+  ],
+  "StageId": "Stage_03",
+  "WaveNo": 14
+},
+{
+  "Counts": [
+    4,
+    4,
+    3,
+    3,
+    2,
+    1
+  ],
+  "Duration": 11,
+  "Id": "W_S03_15",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007",
+    "Monster_004"
+  ],
+  "StageId": "Stage_03",
+  "WaveNo": 15
+},
+{
+  "Counts": [
+    5,
+    4,
+    3,
+    3,
+    2,
+    1
+  ],
+  "Duration": 11,
+  "Id": "W_S03_16",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007",
+    "Monster_004"
+  ],
+  "StageId": "Stage_03",
+  "WaveNo": 16
+},
+{
+  "Counts": [
+    6,
+    4,
+    3,
+    3,
+    2,
+    1
+  ],
+  "Duration": 11,
+  "Id": "W_S03_17",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007",
+    "Monster_004"
+  ],
+  "StageId": "Stage_03",
+  "WaveNo": 17
+},
+{
+  "Counts": [
+    7,
+    4,
+    3,
+    3,
+    2,
+    1
+  ],
+  "Duration": 11,
+  "Id": "W_S03_18",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007",
+    "Monster_004"
+  ],
+  "StageId": "Stage_03",
+  "WaveNo": 18
+},
+{
+  "Counts": [
+    8,
+    4,
+    3,
+    3,
+    2,
+    1
+  ],
+  "Duration": 11,
+  "Id": "W_S03_19",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007",
+    "Monster_004"
+  ],
+  "StageId": "Stage_03",
+  "WaveNo": 19
+},
+{
+  "Counts": [
+    1,
+    9
+  ],
+  "Duration": 18,
+  "Id": "W_S03_20",
+  "MonsterIds": [
+    "Monster_005",
+    "Monster_001"
+  ],
+  "StageId": "Stage_03",
+  "WaveNo": 20
+},
+{
+  "Counts": 6,
+  "Duration": 10,
+  "Id": "W_S04_01",
+  "MonsterIds": "Monster_001",
+  "StageId": "Stage_04",
+  "WaveNo": 1
+},
+{
+  "Counts": [
+    4,
+    3
+  ],
+  "Duration": 10,
+  "Id": "W_S04_02",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002"
+  ],
+  "StageId": "Stage_04",
+  "WaveNo": 2
+},
+{
+  "Counts": [
+    5,
+    3
+  ],
+  "Duration": 9,
+  "Id": "W_S04_03",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002"
+  ],
+  "StageId": "Stage_04",
+  "WaveNo": 3
+},
+{
+  "Counts": [
+    4,
+    2,
+    2
+  ],
+  "Duration": 9,
+  "Id": "W_S04_04",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006"
+  ],
+  "StageId": "Stage_04",
+  "WaveNo": 4
+},
+{
+  "Counts": [
+    4,
+    3,
+    2
+  ],
+  "Duration": 9,
+  "Id": "W_S04_05",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006"
+  ],
+  "StageId": "Stage_04",
+  "WaveNo": 5
+},
+{
+  "Counts": [
+    4,
+    2,
+    2,
+    2
+  ],
+  "Duration": 9,
+  "Id": "W_S04_06",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003"
+  ],
+  "StageId": "Stage_04",
+  "WaveNo": 6
+},
+{
+  "Counts": [
+    4,
+    3,
+    2,
+    2
+  ],
+  "Duration": 10,
+  "Id": "W_S04_07",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003"
+  ],
+  "StageId": "Stage_04",
+  "WaveNo": 7
+},
+{
+  "Counts": [
+    4,
+    3,
+    2,
+    2,
+    1
+  ],
+  "Duration": 10,
+  "Id": "W_S04_08",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007"
+  ],
+  "StageId": "Stage_04",
+  "WaveNo": 8
+},
+{
+  "Counts": [
+    5,
+    3,
+    2,
+    2,
+    1
+  ],
+  "Duration": 10,
+  "Id": "W_S04_09",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007"
+  ],
+  "StageId": "Stage_04",
+  "WaveNo": 9
+},
+{
+  "Counts": [
+    5,
+    3,
+    2,
+    2,
+    1,
+    1
+  ],
+  "Duration": 10,
+  "Id": "W_S04_10",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007",
+    "Monster_004"
+  ],
+  "StageId": "Stage_04",
+  "WaveNo": 10
+},
+{
+  "Counts": [
+    5,
+    3,
+    2,
+    2,
+    1,
+    1
+  ],
+  "Duration": 10,
+  "Id": "W_S04_11",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007",
+    "Monster_004"
+  ],
+  "StageId": "Stage_04",
+  "WaveNo": 11
+},
+{
+  "Counts": [
+    5,
+    3,
+    2,
+    2,
+    2,
+    1
+  ],
+  "Duration": 10,
+  "Id": "W_S04_12",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007",
+    "Monster_004"
+  ],
+  "StageId": "Stage_04",
+  "WaveNo": 12
+},
+{
+  "Counts": [
+    4,
+    3,
+    3,
+    3,
+    2,
+    1
+  ],
+  "Duration": 10,
+  "Id": "W_S04_13",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007",
+    "Monster_004"
+  ],
+  "StageId": "Stage_04",
+  "WaveNo": 13
+},
+{
+  "Counts": [
+    4,
+    3,
+    3,
+    3,
+    2,
+    1,
+    1
+  ],
+  "Duration": 10,
+  "Id": "W_S04_14",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007",
+    "Monster_004",
+    "Monster_008"
+  ],
+  "StageId": "Stage_04",
+  "WaveNo": 14
+},
+{
+  "Counts": [
+    4,
+    4,
+    3,
+    3,
+    2,
+    1,
+    1
+  ],
+  "Duration": 11,
+  "Id": "W_S04_15",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007",
+    "Monster_004",
+    "Monster_008"
+  ],
+  "StageId": "Stage_04",
+  "WaveNo": 15
+},
+{
+  "Counts": [
+    5,
+    4,
+    3,
+    3,
+    2,
+    1,
+    1
+  ],
+  "Duration": 11,
+  "Id": "W_S04_16",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007",
+    "Monster_004",
+    "Monster_008"
+  ],
+  "StageId": "Stage_04",
+  "WaveNo": 16
+},
+{
+  "Counts": [
+    6,
+    4,
+    3,
+    3,
+    2,
+    1,
+    1
+  ],
+  "Duration": 11,
+  "Id": "W_S04_17",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007",
+    "Monster_004",
+    "Monster_008"
+  ],
+  "StageId": "Stage_04",
+  "WaveNo": 17
+},
+{
+  "Counts": [
+    7,
+    4,
+    3,
+    3,
+    2,
+    1,
+    1
+  ],
+  "Duration": 11,
+  "Id": "W_S04_18",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007",
+    "Monster_004",
+    "Monster_008"
+  ],
+  "StageId": "Stage_04",
+  "WaveNo": 18
+},
+{
+  "Counts": [
+    8,
+    4,
+    3,
+    3,
+    2,
+    1,
+    1
+  ],
+  "Duration": 11,
+  "Id": "W_S04_19",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007",
+    "Monster_004",
+    "Monster_008"
+  ],
+  "StageId": "Stage_04",
+  "WaveNo": 19
+},
+{
+  "Counts": [
+    1,
+    1,
+    8
+  ],
+  "Duration": 18,
+  "Id": "W_S04_20",
+  "MonsterIds": [
+    "Monster_005",
+    "Monster_008",
+    "Monster_001"
+  ],
+  "StageId": "Stage_04",
+  "WaveNo": 20
+},
+{
+  "Counts": 6,
+  "Duration": 10,
+  "Id": "W_S05_01",
+  "MonsterIds": "Monster_001",
+  "StageId": "Stage_05",
+  "WaveNo": 1
+},
+{
+  "Counts": [
+    4,
+    3
+  ],
+  "Duration": 10,
+  "Id": "W_S05_02",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002"
+  ],
+  "StageId": "Stage_05",
+  "WaveNo": 2
+},
+{
+  "Counts": [
+    4,
+    2,
+    2
+  ],
+  "Duration": 9,
+  "Id": "W_S05_03",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006"
+  ],
+  "StageId": "Stage_05",
+  "WaveNo": 3
+},
+{
+  "Counts": [
+    4,
+    3,
+    2
+  ],
+  "Duration": 9,
+  "Id": "W_S05_04",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006"
+  ],
+  "StageId": "Stage_05",
+  "WaveNo": 4
+},
+{
+  "Counts": [
+    4,
+    2,
+    2,
+    2
+  ],
+  "Duration": 9,
+  "Id": "W_S05_05",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003"
+  ],
+  "StageId": "Stage_05",
+  "WaveNo": 5
+},
+{
+  "Counts": [
+    4,
+    3,
+    2,
+    2
+  ],
+  "Duration": 9,
+  "Id": "W_S05_06",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003"
+  ],
+  "StageId": "Stage_05",
+  "WaveNo": 6
+},
+{
+  "Counts": [
+    4,
+    3,
+    2,
+    2,
+    1
+  ],
+  "Duration": 10,
+  "Id": "W_S05_07",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007"
+  ],
+  "StageId": "Stage_05",
+  "WaveNo": 7
+},
+{
+  "Counts": [
+    5,
+    3,
+    2,
+    2,
+    1
+  ],
+  "Duration": 10,
+  "Id": "W_S05_08",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007"
+  ],
+  "StageId": "Stage_05",
+  "WaveNo": 8
+},
+{
+  "Counts": [
+    5,
+    3,
+    2,
+    2,
+    1,
+    1
+  ],
+  "Duration": 10,
+  "Id": "W_S05_09",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007",
+    "Monster_004"
+  ],
+  "StageId": "Stage_05",
+  "WaveNo": 9
+},
+{
+  "Counts": [
+    5,
+    3,
+    2,
+    2,
+    2,
+    1
+  ],
+  "Duration": 10,
+  "Id": "W_S05_10",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007",
+    "Monster_004"
+  ],
+  "StageId": "Stage_05",
+  "WaveNo": 10
+},
+{
+  "Counts": [
+    4,
+    3,
+    3,
+    3,
+    2,
+    1
+  ],
+  "Duration": 10,
+  "Id": "W_S05_11",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007",
+    "Monster_004"
+  ],
+  "StageId": "Stage_05",
+  "WaveNo": 11
+},
+{
+  "Counts": [
+    4,
+    3,
+    3,
+    3,
+    2,
+    1,
+    1
+  ],
+  "Duration": 10,
+  "Id": "W_S05_12",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007",
+    "Monster_004",
+    "Monster_008"
+  ],
+  "StageId": "Stage_05",
+  "WaveNo": 12
+},
+{
+  "Counts": [
+    4,
+    4,
+    3,
+    3,
+    2,
+    1,
+    1
+  ],
+  "Duration": 10,
+  "Id": "W_S05_13",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007",
+    "Monster_004",
+    "Monster_008"
+  ],
+  "StageId": "Stage_05",
+  "WaveNo": 13
+},
+{
+  "Counts": [
+    5,
+    4,
+    3,
+    3,
+    2,
+    1,
+    1
+  ],
+  "Duration": 10,
+  "Id": "W_S05_14",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007",
+    "Monster_004",
+    "Monster_008"
+  ],
+  "StageId": "Stage_05",
+  "WaveNo": 14
+},
+{
+  "Counts": [
+    6,
+    4,
+    3,
+    3,
+    2,
+    1,
+    1
+  ],
+  "Duration": 11,
+  "Id": "W_S05_15",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007",
+    "Monster_004",
+    "Monster_008"
+  ],
+  "StageId": "Stage_05",
+  "WaveNo": 15
+},
+{
+  "Counts": [
+    7,
+    4,
+    3,
+    3,
+    2,
+    1,
+    1
+  ],
+  "Duration": 11,
+  "Id": "W_S05_16",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007",
+    "Monster_004",
+    "Monster_008"
+  ],
+  "StageId": "Stage_05",
+  "WaveNo": 16
+},
+{
+  "Counts": [
+    8,
+    4,
+    3,
+    3,
+    2,
+    1,
+    1
+  ],
+  "Duration": 11,
+  "Id": "W_S05_17",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007",
+    "Monster_004",
+    "Monster_008"
+  ],
+  "StageId": "Stage_05",
+  "WaveNo": 17
+},
+{
+  "Counts": [
+    8,
+    5,
+    3,
+    3,
+    2,
+    1,
+    1
+  ],
+  "Duration": 11,
+  "Id": "W_S05_18",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007",
+    "Monster_004",
+    "Monster_008"
+  ],
+  "StageId": "Stage_05",
+  "WaveNo": 18
+},
+{
+  "Counts": [
+    7,
+    5,
+    4,
+    4,
+    2,
+    1,
+    1
+  ],
+  "Duration": 11,
+  "Id": "W_S05_19",
+  "MonsterIds": [
+    "Monster_001",
+    "Monster_002",
+    "Monster_006",
+    "Monster_003",
+    "Monster_007",
+    "Monster_004",
+    "Monster_008"
+  ],
+  "StageId": "Stage_05",
+  "WaveNo": 19
+},
+{
+  "Counts": [
+    1,
+    2,
+    2
+  ],
+  "Duration": 18,
+  "Id": "W_S05_20",
+  "MonsterIds": [
+    "Monster_005",
+    "Monster_008",
+    "Monster_001"
+  ],
+  "StageId": "Stage_05",
+  "WaveNo": 20
 }
 ]

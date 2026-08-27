@@ -12,5 +12,61 @@
   "Name": "첫 번째 갱도",
   "TotalMonsterCount": 200,
   "WaveCount": 20
+},
+{
+  "BgAssetId": "Bg_Mine_02",
+  "BgmId": "Bgm_1",
+  "ClearGoldList": [
+    260,
+    455,
+    650
+  ],
+  "Id": "Stage_02",
+  "MonsterStatMultiplier": 1,
+  "Name": "무너진 승강로",
+  "TotalMonsterCount": 225,
+  "WaveCount": 20
+},
+{
+  "BgAssetId": "Bg_Mine_03",
+  "BgmId": "Bgm_1",
+  "ClearGoldList": [
+    340,
+    595,
+    850
+  ],
+  "Id": "Stage_03",
+  "MonsterStatMultiplier": 1,
+  "Name": "물이 찬 하부 갱",
+  "TotalMonsterCount": 250,
+  "WaveCount": 20
+},
+{
+  "BgAssetId": "Bg_Mine_04",
+  "BgmId": "Bgm_1",
+  "ClearGoldList": [
+    440,
+    770,
+    1100
+  ],
+  "Id": "Stage_04",
+  "MonsterStatMultiplier": 1,
+  "Name": "폐기된 제련층",
+  "TotalMonsterCount": 270,
+  "WaveCount": 20
+},
+{
+  "BgAssetId": "Bg_Mine_05",
+  "BgmId": "Bgm_1",
+  "ClearGoldList": [
+    570,
+    1000,
+    1425
+  ],
+  "Id": "Stage_05",
+  "MonsterStatMultiplier": 1,
+  "Name": "균열 아래",
+  "TotalMonsterCount": 290,
+  "WaveCount": 20
 }
 ]
