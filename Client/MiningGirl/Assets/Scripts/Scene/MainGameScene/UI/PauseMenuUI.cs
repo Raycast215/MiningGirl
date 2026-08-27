@@ -50,8 +50,22 @@ namespace Scene.MainGameScene.UI
 
         private PauseMenuViewModel _viewModel;
 
-        private void Awake()
+        // 버튼을 이미 연결했는지. Bind는 여러 번 불릴 수 있습니다.
+        private bool _buttonsWired;
+
+        // 버튼 연결을 Awake가 아니라 Bind에서 합니다.
+        //
+        // 이 컴포넌트는 처음에 꺼져 있는 PauseMenu 오브젝트에 붙어 있어 Awake가
+        // 돌지 않습니다. 그런데 메뉴 버튼과 배속 버튼은 HUD에 있어 늘 켜져 있으므로,
+        // Awake에서 연결하면 버튼은 멀쩡히 보이는데 눌러도 아무 일이 없습니다.
+        // Bind는 컨트롤러가 직접 부르므로 오브젝트가 꺼져 있어도 실행됩니다.
+        private void WireButtons()
         {
+            if (_buttonsWired)
+                return;
+
+            _buttonsWired = true;
+
             if (menuButton != null)
                 menuButton.onClick.AddListener(() => _viewModel?.Open());
 
@@ -76,6 +90,8 @@ namespace Scene.MainGameScene.UI
 
         public void Bind(PauseMenuViewModel viewModel)
         {
+            WireButtons();
+
             Unbind();
 
             _viewModel = viewModel;
