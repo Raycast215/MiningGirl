@@ -243,6 +243,10 @@ namespace Scene.MainGameScene
             // 성공하면 그쪽이 이깁니다.
             _waveRunner.OnWaveStarted += HandleWaveStartedForSave;
 
+#if UNITY_EDITOR
+            _waveRunner.OnWaveStarted += LogWaveSnapshot;
+#endif
+
             await LoadSceneAssets();
 
             // 저장이 있으면 되돌리고, 없거나 되돌리지 못하면 새 판으로 시작합니다.
@@ -608,6 +612,13 @@ namespace Scene.MainGameScene
             }
 
             _shownChoiceKeys.Sort(StringComparer.Ordinal);
+
+#if UNITY_EDITOR
+            _openChoices.Clear();
+            _openChoices.AddRange(choices);
+
+            LogChoiceShown();
+#endif
         }
 
         // 순서가 달라도 같은 세 장이면 같은 조합으로 봅니다.
@@ -642,6 +653,10 @@ namespace Scene.MainGameScene
         private void HandleChoiceSelected(LevelUpChoice choice)
         {
             ApplyChoice(choice);
+
+#if UNITY_EDITOR
+            LogChoicePicked(choice);
+#endif
 
             _pendingLevelUps--;
 
@@ -747,6 +762,10 @@ namespace Scene.MainGameScene
             // 클리어든 타워 파괴든 포기든 같은 자리입니다. 남겨 두면 다음 실행에서
             // 이미 끝난 판이 되살아납니다.
             ClearRunSave();
+
+#if UNITY_EDITOR
+            LogRunEnd(cleared);
+#endif
 
             Time.timeScale = 1f;
 

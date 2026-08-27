@@ -330,7 +330,7 @@ internal static class StageDebugEntryHook
             return;
 
         // 데이터 로딩이 끝나기 전이어도 됩니다. 자동 플레이는 화면에 뜬 것만 보고 움직입니다.
-        InGameAutoPlayTester.Begin(speed);
+        InGameAutoPlayTester.Begin(speed, true);
     }
 }
 #endif
