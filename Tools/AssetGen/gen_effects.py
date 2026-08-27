@@ -50,6 +50,16 @@ EFFECTS = [
     dict(id="Cavein",     src="MeteorShower",    dir=P4, scale=0.55, frame=1/30),
 ]
 
+# 화염 폭발 - ImpactExplosion은 흙먼지 색(채도 0.20)이라 그대로는 불로 안 읽힌다.
+# SpriteRenderer 색 곱연산으로 물들인다. 스프라이트를 복제해 칠하지 않는다.
+EFFECTS.append(
+    dict(id="FireBoltExplosion", src="ImpactExplosion", dir=P4, scale=2.50, frame=0.04,
+         tint=(255, 138, 46), loop=0))
+
+for _e in EFFECTS:
+    _e.setdefault("tint", (255, 255, 255))
+    _e.setdefault("loop", 1)
+
 FRAME_TBL = re.compile(r"- first:\s*\n\s*213:\s*(-?\d+)\s*\n\s*second:\s*(\S+)")
 GUID_RE = re.compile(r"^guid:\s*([0-9a-f]{32})\s*$", re.M)
 
@@ -143,7 +153,7 @@ AnimationClip:
     m_Level: 0
     m_CycleOffset: 0
     m_HasAdditiveReferencePose: 0
-    m_LoopTime: 1
+    m_LoopTime: {loop}
     m_LoopBlend: 0
     m_LoopBlendOrientation: 0
     m_LoopBlendPositionY: 0
@@ -292,7 +302,7 @@ SpriteRenderer:
   m_SortingOrder: 0
   m_MaskInteraction: 0
   m_Sprite: {{fileID: {first}, guid: {sheet}, type: 3}}
-  m_Color: {{r: 1, g: 1, b: 1, a: 1}}
+  m_Color: {{r: {tint_r}, g: {tint_g}, b: {tint_b}, a: 1}}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -346,6 +356,12 @@ PrefabImporter:
 
 
 # ---------------------------------------------------------------- 생성
+def num(v):
+    """Unity YAML 수치 표기 - 정수는 정수로 쓴다. 1.0으로 쓰면 쓸데없는 diff가 난다"""
+    r = round(v, 4)
+    return int(r) if r == int(r) else r
+
+
 def write(path, text):
     with io.open(path, "w", encoding="utf-8", newline="\n") as f:
         f.write(text)
@@ -357,8 +373,13 @@ def build(e, check_only=False):
     dt = e["frame"]
 
     if check_only:
-        print(f"  {e['id']:12s} <- {e['src']:16s} 프레임 {n:2d}  간격 {dt*1000:.0f}ms  "
-              f"길이 {n*dt:.2f}s  스케일 {e['scale']}")
+        extra = ""
+        if e["tint"] != (255, 255, 255):
+            extra += "  착색 %s" % (e["tint"],)
+        if not e["loop"]:
+            extra += "  루프없음"
+        print(f"  {e['id']:17s} <- {e['src']:16s} 프레임 {n:2d}  간격 {dt*1000:.0f}ms  "
+              f"길이 {n*dt:.2f}s  스케일 {e['scale']}{extra}")
         return
 
     clip_name = "SkillEffect_Idle_" + e["id"]
@@ -378,7 +399,7 @@ def build(e, check_only=False):
                    for i, fid in enumerate(frames))
     mapping = "".join(f"    - {{fileID: {fid}, guid: {sheet}, type: 3}}\n" for fid in frames)
     write(clip_path, ANIM.format(name=clip_name, keys=keys, mapping=mapping,
-                                 stop=round(n * dt, 6)))
+                                 stop=round(n * dt, 6), loop=e["loop"]))
     write(clip_path + ".meta", NATIVE_META.format(guid=clip_guid, main_id=7400000))
 
     write(ctrl_path, OVERRIDE.format(name=ctrl_name, base_ctrl=BASE_CTRL,
@@ -388,6 +409,8 @@ def build(e, check_only=False):
     write(pref_path, PREFAB.format(
         name=pref_name, scale=e["scale"], material=MATERIAL, sheet=sheet,
         first=frames[0], override=ctrl_guid,
+        tint_r=num(e["tint"][0] / 255), tint_g=num(e["tint"][1] / 255),
+        tint_b=num(e["tint"][2] / 255),
         root_go=local_id(pref_name + ".rootGO"), root_tr=local_id(pref_name + ".rootTR"),
         child_go=local_id(pref_name + ".childGO"), child_tr=local_id(pref_name + ".childTR"),
         renderer=local_id(pref_name + ".renderer"), animator=local_id(pref_name + ".animator")))
