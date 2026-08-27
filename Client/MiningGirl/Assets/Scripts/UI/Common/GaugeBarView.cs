@@ -31,8 +31,19 @@ namespace UI.Common
         private TMP_Text label;
 
         [Header("Colors")]
+
+        // 기본값은 불투명입니다.
+        //
+        // 반투명 막대는 뒤의 필드가 비쳐서 "어느 층에 있는지"를 흐립니다. 실제로
+        // 몬스터가 경험치 막대 뒤를 지날 때 43%가 비쳐, 뒤에 있는 몬스터가
+        // "UI 안에 든 아이콘"으로 읽혔습니다(Linear 색공간이라 알파 0.85가
+        // 그만큼 통과시킵니다).
+        //
+        // 반투명은 이유가 있을 때 고르는 특수한 경우이지 기본이 아닙니다.
+        // 이미 씬에 붙어 있는 컴포넌트는 직렬화된 값을 쓰므로 안 바뀝니다 -
+        // 이 기본값은 앞으로 새로 붙는 게이지에만 걸립니다.
         [SerializeField]
-        private Color trackColor = new Color(0.08f, 0.08f, 0.10f, 0.85f);
+        private Color trackColor = new Color(0.08f, 0.08f, 0.10f, 1f);
         [SerializeField]
         private Color fillColor = new Color(0.11f, 0.62f, 0.46f, 1f);
 
