@@ -15,6 +15,26 @@ MonoBehaviour:
   m_GroupName: Background
   m_GUID: 3065aab054f5d6e4cb5a35067f510cda
   m_SerializeEntries:
+  - m_GUID: a1dc260b0e4324c38076c91fd4278a23
+    m_Address: Bg_Mine_03
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: bda000982042f4598a0050c8f9d63bdf
+    m_Address: Bg_Mine_02
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: e32c7076cfba572bd61982d33058aa91
+    m_Address: Bg_Mine_05
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: fe397d3a4932e1ce81bb0a07073bc863
+    m_Address: Bg_Mine_04
+    m_ReadOnly: 0
+    m_SerializedLabels: []
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: fed4a118571de4982bea4824fd97713f
     m_Address: Bg_Mine_01
     m_ReadOnly: 0
