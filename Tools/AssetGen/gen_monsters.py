@@ -65,6 +65,29 @@ def outline(g, col):
                     break
 
 
+def rim(g, top_col, bottom_col):
+    """위쪽 모서리만 밝은 테두리, 아래쪽은 어둡게.
+
+    어두운 놈이 어두운 바닥에서 실루엣을 잃는 걸 막는다. 광재(007)는 몸통이
+    거의 검은데 5번 스테이지 바닥도 거의 검어서, 균열의 주황만 뜨고 덩어리
+    윤곽이 사라졌다. 사방을 다 밝히면 스티커처럼 떠 보이므로 위쪽만 준다 -
+    빛이 위에서 온다는 읽기와도 맞는다.
+    """
+    src = [row[:] for row in g]
+    for y in range(S):
+        for x in range(S):
+            if src[y][x] is not None:
+                continue
+            below = y + 1 < S and src[y + 1][x] is not None
+            above = y > 0 and src[y - 1][x] is not None
+            side = any(0 <= x + dx < S and src[y][x + dx] is not None
+                       for dx in (1, -1))
+            if below or (side and not above):
+                g[y][x] = top_col
+            elif above or side:
+                g[y][x] = bottom_col
+
+
 def chunk(tag, data):
     return (struct.pack(">I", len(data)) + tag + data
             + struct.pack(">I", zlib.crc32(tag + data) & 0xFFFFFFFF))
@@ -268,7 +291,7 @@ def slag():
         put(g, x, y, HOT)                                 # 균열 안쪽 고온부
     rect(g, 12, 20, 13, 21, EMBER); rect(g, 18, 20, 19, 21, EMBER)   # 눈처럼 읽히는 잉걸
     put(g, 12, 20, HOT); put(g, 19, 20, HOT)
-    outline(g, (22, 18, 20, 255))
+    rim(g, (116, 108, 112, 255), (22, 18, 20, 255))
     return g
 
 
