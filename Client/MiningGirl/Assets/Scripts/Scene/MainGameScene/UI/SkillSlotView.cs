@@ -67,8 +67,13 @@ namespace Scene.MainGameScene.UI
             if (levelRoot != null)
                 levelRoot.SetActive(true);
 
+            // 접두어 없이 숫자만 적습니다.
+            //
+            // 표시 레벨이 "획득 1 + 강화 합"이 되면서 상한이 14라 두 자리가 나옵니다.
+            // "Lv."까지 넣으면 판이 슬롯 폭의 62%를 먹어 아이콘 하단을 덮습니다.
+            // 숫자만이면 39%라 모서리에만 앉고, 같은 자리에서 글자가 커집니다.
             if (levelText != null)
-                levelText.text = $"Lv.{level}";
+                levelText.text = level.ToString();
         }
 
         // 매 프레임 들어옵니다. 스킬이 없는 칸에는 아무것도 하지 않습니다.
