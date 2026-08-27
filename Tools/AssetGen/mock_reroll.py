@@ -14,7 +14,12 @@
 2. **주사위 아이콘.** 후보는 dice / refresh / reload / redo / undo였다. 새로고침 계열은
    "같은 것을 다시 불러온다"는 뜻이라 리롤의 핵심인 "다른 것이 나온다"를 놓친다.
 
-3. **두 비활성을 숫자의 생사로 가른다.** 소진은 숫자가 0이고 같이 죽고, 부족은 숫자가
+3. **버튼은 스킬 슬롯 바로 위.** 유저가 "스킬 리스트 밑에 하단에"라고 지정했는데,
+   팝업 캔버스(sortingOrder 0)가 HUD 캔버스(100)보다 아래라 3택 중에도 하단 슬롯이
+   그대로 보인다. 슬롯 아래는 20px뿐이라 실질적 최하단이 슬롯 위다. 확인 단계가
+   없어 오조작을 되돌릴 수 없으니 카드에서 멀어지는 것도 이 배치가 낫다.
+
+4. **두 비활성을 숫자의 생사로 가른다.** 소진은 숫자가 0이고 같이 죽고, 부족은 숫자가
    살아 있는데 버튼만 죽는다. 기획이 말한 "자기 선택의 결과 vs 상황"이 그대로 보인다.
    부족 쪽에는 이유 한 줄이 필요하다 - 숫자가 멀쩡한데 못 누르면 버그로 읽힌다.
 
@@ -172,13 +177,22 @@ def main():
     scr = [[PAGE] * W for _ in range(H)]
     CW, CH = 470, 150
     BW, BH = 240, 70
+
     cx = (W - CW) // 2
 
-    # Header 900x90 / Guide 900x60 / 카드 940x300 x3 / 버튼 - 전부 1/2 축척
-    block = 45 + 13 + 30 + 30 + 3 * CH + 2 * 12 + 26 + BH
-    top = (H - block) // 2
+    # 유저 지정: "리롤버튼은 스킬 리스트 밑에 하단에 버튼이 들어가도록"
+    #
+    # 그런데 3택 팝업은 HUD를 덮지 못한다. LevelUpChoice의 배경은 검정 알파 0.78이지만
+    # 팝업 캔버스의 sortingOrder가 0이고 HUD 캔버스가 100이라, 팝업이 떠 있는 동안에도
+    # HUD Bottom의 SkillSlots(940x168, 화면 하단 y=20)가 그 위에 그대로 보인다.
+    #
+    # 그래서 "화면 하단"에 버튼을 놓으면 스킬 슬롯과 겹친다. 슬롯 아래로는 20px밖에
+    # 없어 들어갈 자리가 없으므로, 실질적인 최하단은 슬롯 바로 위다.
+    TOP = 60
+    SLOT_H, SLOT_Y = 84, 10          # 실제 168 / 하단 20
+    BTN_GAP = 15                     # 슬롯과 버튼 사이 (실제 30px)
 
-    y = top
+    y = TOP
     # Header/Guide 컨테이너는 900x60~90이지만 글자는 그 안에 중앙 정렬된다.
     # 막대를 컨테이너 폭으로 그리면 제목이 아니라 띠 두 개로 읽혀 레이아웃 판단을 흐린다.
     rect(scr, cx + (CW - 190) // 2, y + 8, 190, 30, HEAD)       # Header - 짧은 제목
@@ -191,11 +205,23 @@ def main():
         draw_card(scr, cx, y + i * (CH + 12), CW, CH,
                   load_icon(os.path.join(SKILL, f + ".png"), card_icon),
                   badge=(i == 1))
-    y += 3 * CH + 2 * 12 + 26
+    card_bottom = y + 3 * CH + 2 * 12
 
-    draw_button(scr, (W - BW) // 2, y, BW, BH, "on", 10,
+    # HUD의 스킬 슬롯 - 팝업 위에 그려지므로 어두워지지 않는다
+    sy = H - SLOT_Y - SLOT_H
+    rect(scr, cx, sy, CW, SLOT_H, (30, 32, 44))
+    for i in range(5):
+        n = SLOT_H - 20
+        rect(scr, cx + 14 + i * (n + 12), sy + 10, n, n, (52, 54, 70), round_=3)
+
+    by = sy - BTN_GAP - BH
+    draw_button(scr, (W - BW) // 2, by, BW, BH, "on", 10,
                 load_icon(os.path.join(PICTO, "function_icon_dice.png"),
                           int(BH * 0.52) // 2 * 2), 4)
+    print("카드 끝 %d / 버튼 %d~%d / 슬롯 %d~%d  (사이 %dpx, 실제 %dpx)"
+          % (card_bottom, by, by + BH, sy, sy + SLOT_H,
+             by - card_bottom, (by - card_bottom) * 2))
+
     p1 = os.path.join(out_dir, "reroll_screen.png")
     print("wrote", p1, write_png(p1, scr))
 
