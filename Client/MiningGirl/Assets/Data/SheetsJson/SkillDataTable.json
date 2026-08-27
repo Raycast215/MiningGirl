@@ -54,11 +54,11 @@
   "Name": "아이스볼트",
   "PierceCount": 0,
   "ProjectileCount": 2,
-  "ProjectileMoveType": "Sine",
+  "ProjectileMoveType": "Linear",
   "ProjectileSpeed": 12,
   "ProjectileWaveList": [
-    0.4,
-    2
+    0,
+    0
   ],
   "SkillType": "Bolt",
   "Weight": 100
@@ -86,11 +86,11 @@
   "Name": "라이트닝볼트",
   "PierceCount": 0,
   "ProjectileCount": 1,
-  "ProjectileMoveType": "Linear",
+  "ProjectileMoveType": "Sine",
   "ProjectileSpeed": 16,
   "ProjectileWaveList": [
-    0,
-    0
+    0.4,
+    3
   ],
   "SkillType": "Bolt",
   "Weight": 100
