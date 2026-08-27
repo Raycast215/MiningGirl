@@ -86,9 +86,11 @@ public static class CaptureConditions
         var alive = (int)field.GetType().GetProperty("AliveCount").GetValue(field, null);
         var monsters = Object.FindObjectsOfType<MonsterUnit>();
 
+        var stage = typeof(MainGameController).GetField("_stage", Hidden)?.GetValue(controller) as Data.StageDataTableRow;
+
         TryStrayVolley(alive);
         TryTowerHealthOverlap(monsters);
-        TryExplosionOverVein();
+        TryExplosionOverVein(stage);
         TrySlimeBehindStageText(monsters);
         TrySlagCluster(monsters);
     }
@@ -124,7 +126,7 @@ public static class CaptureConditions
             angles.Add((Mathf.Atan2(direction.x, direction.y) * Mathf.Rad2Deg).ToString("0.0"));
         }
 
-        Shoot("stray_volley", $"무조준 {projectiles.Length}발 생존0  수직에서 {string.Join(" / ", angles)}");
+        Shoot("stray_volley", $"무조준 {projectiles.Length}발 생존0  수직에서 {string.Join(" / ", angles)}  [판정] 보류 - 무조준 비율이 내려간 뒤 \"어수선한가\"로 봅니다. 간격이 일정한 것끼리가 한 볼리입니다");
     }
 
     // 몬스터가 타워 체력바에 겹친 프레임.
@@ -161,18 +163,25 @@ public static class CaptureConditions
         if (overlapping == 0 || !Take("tower_health_overlap", overlapping))
             return;
 
-        Shoot("tower_health_overlap", $"타워 체력바에 겹친 몬스터 {overlapping}마리 (월드 y {bottom:0.0}~{top:0.0})");
+        Shoot("tower_health_overlap", $"타워 체력바에 겹친 몬스터 {overlapping}마리 (월드 y {bottom:0.0}~{top:0.0})  [판정] 몬스터가 체력바에 깨끗하게 잘리는가. 안 잘리면 trackColor 알파 1.0");
     }
 
-    // 폭발이 광맥 위에서 터지는 프레임. 잉걸 광맥은 스테이지 5 배경입니다.
-    private static void TryExplosionOverVein()
+    // 폭발이 광맥 위에서 터지는 프레임.
+    //
+    // 스테이지 5에서만 찍습니다. 잉걸 광맥이 5번 배경이라, 다른 스테이지에서 찍으면
+    // 파일은 쌓이는데 볼 게 없습니다 - 아트가 볼 것은 "폭발의 어두운 가장자리가
+    // 잉걸 광맥과 갈라지는가"입니다.
+    private static void TryExplosionOverVein(Data.StageDataTableRow stage)
     {
+        if (stage == null || stage.Id != "Stage_05")
+            return;
+
         var effects = Object.FindObjectsOfType<OneShotEffect>();
 
         if (effects.Length == 0 || !Take("explosion", effects.Length))
             return;
 
-        Shoot("explosion", $"폭발 {effects.Length}개");
+        Shoot("explosion", $"폭발 {effects.Length}개  [판정] 폭발의 어두운 가장자리(루마 71.7)가 잉걸 광맥(106)과 갈라지는가");
     }
 
     // 광석 슬라임이 STAGE 글자 뒤를 지나는 프레임.
@@ -211,7 +220,7 @@ public static class CaptureConditions
             if (!Take("slime_behind_stage", 1))
                 return;
 
-            Shoot("slime_behind_stage", $"광석 슬라임이 STAGE 글자 뒤 ({p.x:0.0}, {p.y:0.0})");
+            Shoot("slime_behind_stage", $"광석 슬라임이 STAGE 글자 뒤 ({p.x:0.0}, {p.y:0.0})  [판정] 폰트 36에서 외곽선 0.6px이 밝은 초록 뒤에서 버티는가. WAVE(폰트 56)는 통과했습니다");
 
             return;
         }
@@ -242,7 +251,7 @@ public static class CaptureConditions
                 if (!Take("slag_cluster", 1))
                     return;
 
-                Shoot("slag_cluster", $"광재 둘 거리 {distance:0.00} (몸 폭 {bodyWidth:0.00})");
+                Shoot("slag_cluster", $"광재 둘 거리 {distance:0.00} (몸 폭 {bodyWidth:0.00})  [판정] 균열 무리 개수로 몇 마리인지 세어지는가");
 
                 return;
             }
