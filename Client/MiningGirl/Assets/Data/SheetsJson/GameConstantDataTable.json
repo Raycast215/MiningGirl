@@ -127,9 +127,9 @@
 },
 {
   "ConstantType": "LevelUpCurveRate",
-  "Desc": "[개편] 레벨업 곡선 강도. 마지막 구간 필요량 ÷ 첫 구간 필요량. 1이면 균등",
+  "Desc": "[개편] 레벨업 곡선 강도. 마지막 구간 필요량 / 첫 구간 필요량. 클수록 진입이 빠르고 후반이 느립니다",
   "Id": 104,
-  "Value": 1.5
+  "Value": 3
 },
 {
   "ConstantType": "Star3HealthRate",
@@ -153,6 +153,6 @@
   "ConstantType": "LevelUpFirstStepExp",
   "Desc": "[개편] 레벨 1에서 2로 오를 때 필요한 경험치. 이전에는 총 몬스터 수 / 웨이브 수로 내던 값입니다",
   "Id": 108,
-  "Value": 100
+  "Value": 54
 }
 ]
