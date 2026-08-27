@@ -142,6 +142,24 @@ namespace Scene.MainGameScene.Battle
                 PeakAliveCount = _alive.Count;
         }
 
+        // 저장에서 되살립니다. 자리를 무작위로 뽑지 않고 저장된 좌표에 둡니다.
+        public MonsterUnit SpawnAt(MonsterDataTableRow row, Vector3 position)
+        {
+            if (row == null || !_pools.TryGetValue(row.Id, out var pool))
+                return null;
+
+            var unit = pool.Get();
+
+            unit.Setup(row, _statMultiplier, _tower, position, HandleDied, HandleBlocked, HandleStatusDamage);
+
+            _alive.Add(unit);
+
+            if (_alive.Count > PeakAliveCount)
+                PeakAliveCount = _alive.Count;
+
+            return unit;
+        }
+
         public void Tick(float deltaTime)
         {
             // Tick 도중에 죽으면 목록이 바뀌므로, 죽은 개체는 모아 두었다가 뒤에서 치웁니다.

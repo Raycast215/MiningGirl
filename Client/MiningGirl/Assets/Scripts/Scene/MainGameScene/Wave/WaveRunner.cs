@@ -79,6 +79,83 @@ namespace Scene.MainGameScene.Wave
             _timer = _waveStartDelay;
         }
 
+        // 저장이 읽는 웨이브 진행 상태.
+        //
+        // _schedule 자체는 저장하지 않습니다. BuildSchedule이 시트에서 결정론적으로
+        // 다시 만들기 때문입니다. 대신 길이를 함께 내보내, 복원 때 다시 만든 것과
+        // 대조합니다 - 그 웨이브 행이 바뀌었으면 길이가 달라지고, 그러면 이어붙일
+        // 수 없습니다.
+        public string CapturePhase()
+        {
+            return _phase.ToString();
+        }
+
+        public int CaptureWaveIndex()
+        {
+            return _waveIndex;
+        }
+
+        public float CaptureTimer()
+        {
+            return _timer;
+        }
+
+        public int CaptureScheduleIndex()
+        {
+            return _scheduleIndex;
+        }
+
+        public int CaptureScheduleCount()
+        {
+            return _schedule.Count;
+        }
+
+        // 저장에서 되돌립니다. 스케줄 길이가 저장과 다르면 false입니다.
+        //
+        // OnWaveStarted를 다시 쏘지 않습니다. 이어붙이는 것이지 새 웨이브가
+        // 시작되는 게 아니고, 쏘면 화면이 "WAVE N 시작"을 한 번 더 알립니다.
+        // 화면 갱신은 컨트롤러가 CurrentWaveNo를 읽어 따로 합니다.
+        public bool RestoreState(string phase, int waveIndex, float timer, int scheduleIndex, int savedScheduleCount)
+        {
+            EPhase parsed;
+
+            if (!System.Enum.TryParse(phase, out parsed))
+            {
+                Debug.LogWarning($"[Wave] 저장의 진행 단계를 읽지 못했습니다: {phase}");
+
+                return false;
+            }
+
+            _phase = parsed;
+            _waveIndex = waveIndex;
+            _timer = timer;
+            _schedule.Clear();
+            _scheduleIndex = 0;
+
+            if (parsed != EPhase.Running)
+                return savedScheduleCount == 0;
+
+            if (waveIndex < 0 || waveIndex >= _waves.Count)
+            {
+                Debug.LogWarning($"[Wave] 저장의 웨이브 번호가 범위를 벗어납니다: {waveIndex}");
+
+                return false;
+            }
+
+            var wave = _waves[waveIndex];
+
+            _waveDuration = Mathf.Max(0.1f, wave.Duration);
+
+            BuildSchedule(wave);
+
+            if (_schedule.Count != savedScheduleCount)
+                return false;
+
+            _scheduleIndex = Mathf.Clamp(scheduleIndex, 0, _schedule.Count);
+
+            return true;
+        }
+
         // 이 스테이지에 나오는 몬스터 종류. 프리팹을 미리 불러 두는 데 씁니다.
         public IEnumerable<string> CollectMonsterIds()
         {

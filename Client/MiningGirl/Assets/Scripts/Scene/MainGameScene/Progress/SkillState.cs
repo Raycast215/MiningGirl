@@ -106,6 +106,9 @@ namespace Scene.MainGameScene.Progress
             _totalUpgradeCount++;
         }
 
+        // 저장이 종류별 횟수를 훑을 때 씁니다.
+        public IEnumerable<KeyValuePair<ESkillUpgradeType, int>> UpgradeCounts => _upgradeCounts;
+
         public int GetUpgradeCount(ESkillUpgradeType type)
         {
             _upgradeCounts.TryGetValue(type, out var count);

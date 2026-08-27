@@ -63,6 +63,18 @@ namespace Scene.MainGameScene.Progress
             RequiredKills = CalculateRequired(Level);
         }
 
+        // 저장에서 되돌립니다.
+        //
+        // 필요량은 저장하지 않고 여기서 다시 냅니다 - CalculateRequired가
+        // 시트 값만으로 결정되므로, 곡선이 바뀌면 최신 곡선을 따르는 게 맞습니다.
+        public void Restore(int level, int killsInLevel, int totalKills)
+        {
+            Level = Mathf.Max(1, level);
+            TotalKills = Mathf.Max(0, totalKills);
+            RequiredKills = CalculateRequired(Level);
+            KillsInLevel = Mathf.Clamp(killsInLevel, 0, Mathf.Max(0, RequiredKills - 1));
+        }
+
         // 몬스터 1마리 처치 = 경험치 1입니다.
         public void AddKill()
         {

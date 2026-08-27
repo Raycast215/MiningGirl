@@ -190,6 +190,23 @@ namespace Scene.MainGameScene.Progress
 #endif
         }
 
+        // 저장이 남은 쿨다운을 꺼내고 되돌릴 때 씁니다.
+        //
+        // 쿨다운은 저장 대상입니다. 버리면 복원 직후 전 스킬이 동시에 나가서
+        // "종료한 그 순간"이 아니게 됩니다 - 최대 3.6초라 눈에 띕니다.
+        public float GetCooldownRemaining(SkillState skill)
+        {
+            float remaining;
+
+            return skill != null && _cooldowns.TryGetValue(skill.Row.Id, out remaining) ? remaining : 0f;
+        }
+
+        public void SetCooldownRemaining(SkillState skill, float remaining)
+        {
+            if (skill != null)
+                _cooldowns[skill.Row.Id] = Mathf.Max(0f, remaining);
+        }
+
         // 스킬을 새로 얻으면 첫 발이 바로 나가도록 쿨을 0으로 둡니다.
         public void ResetCooldown(SkillState skill)
         {

@@ -60,6 +60,13 @@ namespace Scene.MainGameScene.Battle
         // 나머지는 시체로 날아갑니다. 위력이 체력에 맞춰져 있어 그 낭비가 100%입니다.
         public float ReservedDamage { get; private set; }
 
+        // 저장이 읽는 값들. 계산해서 낼 수 없는 것만 내놓습니다.
+        public float CurrentHealth => _currentHealth;
+        public float AttackTimer => _attackTimer;
+        public float FreezeRemaining => _freezeRemaining;
+        public float BurnRemaining => _burnRemaining;
+        public float BurnPerSecond => _burnPerSecond;
+
         // 조준해도 되는 대상인지. 이미 죽을 만큼 예약이 걸린 놈은 제외합니다.
         public bool IsTargetable => IsAlive && _currentHealth - ReservedDamage > 0f;
 
@@ -302,6 +309,32 @@ namespace Scene.MainGameScene.Battle
                     break;
                 }
             }
+        }
+
+        // 저장에서 되돌립니다. Setup 직후에 부릅니다.
+        //
+        // 예약 피해와 화상 틱 타이머는 되돌리지 않습니다. 예약은 날아가던
+        // 발사체와 짝이라 둘 다 버려야 앞뒤가 맞고(안 그러면 아무도 조준하지 않는
+        // 몬스터가 생깁니다), 화상 틱은 최대 0.5초라 위상만 어긋납니다.
+        // Setup이 이미 0으로 두었으므로 손대지 않습니다.
+        public void RestoreState(
+            float health,
+            float attackTimer,
+            float freezeRemaining,
+            float burnRemaining,
+            float burnPerSecond,
+            bool hasReachedTower)
+        {
+            _currentHealth = Mathf.Clamp(health, 0f, _maxHealth);
+            _attackTimer = Mathf.Max(0f, attackTimer);
+            _freezeRemaining = Mathf.Max(0f, freezeRemaining);
+            _burnRemaining = Mathf.Max(0f, burnRemaining);
+            _burnPerSecond = Mathf.Max(0f, burnPerSecond);
+
+            HasReachedTower = hasReachedTower;
+
+            // 멈춰 서 있었는지는 위치로 다시 나옵니다. 저장하지 않습니다.
+            IsBlocked = false;
         }
 
         // 밀어냅니다. 저항이 1이면 꿈쩍하지 않습니다.

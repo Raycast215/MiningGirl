@@ -53,6 +53,18 @@ namespace Scene.MainGameScene.Battle
         // 같은 그림을 다시 넣는 낭비를 막습니다.
         private Sprite _appliedSprite;
 
+        // 저장에서 되돌립니다. 절대값으로 저장하고 여기서 최대값에 맞춰 자릅니다.
+        //
+        // 비율로 저장하면 시트의 최대 체력이 바뀔 때 체력이 되살아나거나 줄어듭니다.
+        public void RestoreHealth(float current)
+        {
+            CurrentHealth = Mathf.Clamp(current, 0f, MaxHealth);
+
+            OnHealthChanged?.Invoke(CurrentHealth, MaxHealth);
+
+            RefreshVisual();
+        }
+
         public void Setup(float maxHealth)
         {
             MaxHealth = Mathf.Max(1f, maxHealth);
