@@ -9,7 +9,7 @@
   "MaxHealth": 12,
   "MonsterType": "Normal",
   "MoveSpeed": 2.4,
-  "Name": "광충",
+  "Name": "광석 슬라임",
   "SpawnDelay": 0
 },
 {
@@ -22,7 +22,7 @@
   "MaxHealth": 17,
   "MonsterType": "Normal",
   "MoveSpeed": 3.4,
-  "Name": "날벌레",
+  "Name": "동굴 박쥐",
   "SpawnDelay": 3
 },
 {
@@ -35,7 +35,7 @@
   "MaxHealth": 39,
   "MonsterType": "Normal",
   "MoveSpeed": 1.9,
-  "Name": "바위게",
+  "Name": "바위 거미",
   "SpawnDelay": 5
 },
 {
