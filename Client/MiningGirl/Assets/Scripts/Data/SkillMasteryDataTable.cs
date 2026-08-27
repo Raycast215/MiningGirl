@@ -51,6 +51,12 @@ namespace Data
         //  Explosion   폭발 반경(유닛)
         public float EffectRange { get; set; }
 
+        // 이 강화스킬을 고른 뒤의 쿨다운(초). 0이면 스킬의 쿨다운을 그대로 씁니다.
+        //
+        // 감산이 아니라 대입입니다 - 감산이면 스킬마다 결과가 달라져 시트 한 칸만
+        // 보고는 결과를 못 읽습니다. 대입이면 칸이 곧 결과입니다.
+        public float Cooldown { get; set; }
+
         [JsonConverter(typeof(StringEnumConverter))]
         public EStatusEffectType StatusType { get; set; }
 

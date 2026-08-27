@@ -34,7 +34,13 @@ namespace Scene.MainGameScene.Progress
 
         // 레벨이 스탯에 붙지 않으므로 시트 배열의 첫 값만 씁니다.
         // 나머지 네 값은 지우지 않고 미사용으로 둡니다.
-        public float Cooldown => Mathf.Max(0.05f, FirstValue(Row.CooldownList));
+        //
+        // 강화스킬이 쿨다운을 덮어쓸 수 있습니다. 0이면 안 건드린다는 뜻입니다 -
+        // 덮어쓰는 값은 감산이 아니라 대입이라 시트의 그 칸이 곧 결과입니다.
+        public float Cooldown =>
+            Mastery.HasValue && Mastery.Cooldown > 0f
+                ? Mastery.Cooldown
+                : Mathf.Max(0.05f, FirstValue(Row.CooldownList));
 
         public float Damage => Combine(ESkillUpgradeType.Damage, FirstValue(Row.EffectValueList));
 

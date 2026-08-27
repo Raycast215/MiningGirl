@@ -1,5 +1,6 @@
 [
 {
+  "Cooldown": 0,
   "Desc": "명중한 자리가 터진다. 주변을 밀쳐내고 화상을 남긴다",
   "EffectAssetId": "Effect_FireBoltExplosion",
   "EffectRange": 1.8,
@@ -20,6 +21,7 @@
   "Weight": 300
 },
 {
+  "Cooldown": 1,
   "Desc": "얼음을 부채꼴로 흩뿌린다. 맞은 적은 얼어붙는다",
   "EffectAssetId": "Effect_IceBolt",
   "EffectRange": 180,
@@ -40,6 +42,7 @@
   "Weight": 300
 },
 {
+  "Cooldown": 0,
   "Desc": "명중하면 다른 적에게 한 번 더 튄다",
   "EffectAssetId": "Effect_LightningBolt",
   "EffectRange": 0,

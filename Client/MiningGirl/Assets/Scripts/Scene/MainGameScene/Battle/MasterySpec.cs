@@ -15,6 +15,9 @@ namespace Scene.MainGameScene.Battle
         public readonly float Value;
         public readonly float Range;
 
+        // 이 강화스킬이 덮어쓰는 쿨다운(초). 0이면 스킬의 쿨다운을 그대로 씁니다.
+        public readonly float Cooldown;
+
         public readonly EStatusEffectType StatusType;
         public readonly float StatusDuration;
         public readonly float StatusValue;
@@ -33,6 +36,7 @@ namespace Scene.MainGameScene.Battle
                 Type = EMasteryType.ChainOnHit;
                 Value = 0f;
                 Range = 0f;
+                Cooldown = 0f;
                 StatusType = EStatusEffectType.None;
                 StatusDuration = 0f;
                 StatusValue = 0f;
@@ -45,6 +49,7 @@ namespace Scene.MainGameScene.Battle
             Type = row.MasteryType;
             Value = row.EffectValue;
             Range = row.EffectRange;
+            Cooldown = row.Cooldown;
             StatusType = row.StatusType;
             StatusDuration = row.StatusDuration;
             StatusValue = row.StatusValue;
