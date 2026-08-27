@@ -103,6 +103,14 @@ def rect(canvas, ox, oy, w, h, col, round_=0):
             canvas[oy + y][ox + x] = col
 
 
+OVERLAY = 0.78                      # LevelUpChoice 배경 검정 alpha
+
+
+def dim(col, a):
+    """검정 오버레이 alpha a가 위에 깔렸을 때 남는 색"""
+    return tuple(int(v * (1 - a)) for v in col)
+
+
 def load_icon(path, n):
     w, h, px = decode(path)
     return box(w, h, px, n)
@@ -207,12 +215,20 @@ def main():
                   badge=(i == 1))
     card_bottom = y + 3 * CH + 2 * 12
 
-    # HUD의 스킬 슬롯 - 팝업 위에 그려지므로 어두워지지 않는다
+    # HUD의 스킬 슬롯.
+    #
+    # 지금 구조에서는 팝업 위에 밝게 남지만, 기획이 "덮되 가리지 않는다"로 확정했다 -
+    # 오버레이가 위로 와서 어두워지되 형태는 비쳐 보여야 한다. 조작 대상이 아니라는
+    # 것과 내 투자 내역이라는 것을 동시에 말해야 하기 때문이다.
+    # 그래서 시안도 오버레이가 적용된 상태로 그린다. 밝게 그리면 개발이 그대로 만든다.
     sy = H - SLOT_Y - SLOT_H
-    rect(scr, cx, sy, CW, SLOT_H, (30, 32, 44))
+    rect(scr, cx, sy, CW, SLOT_H, dim((30, 32, 44), OVERLAY))
     for i in range(5):
         n = SLOT_H - 20
-        rect(scr, cx + 14 + i * (n + 12), sy + 10, n, n, (52, 54, 70), round_=3)
+        rect(scr, cx + 14 + i * (n + 12), sy + 10, n, n,
+             dim((52, 54, 70), OVERLAY), round_=3)
+        rect(scr, cx + 14 + i * (n + 12) + n - 26, sy + 10 + n - 18, 22, 14,
+             dim((255, 248, 232), OVERLAY))        # 레벨 숫자 자리
 
     by = sy - BTN_GAP - BH
     draw_button(scr, (W - BW) // 2, by, BW, BH, "on", 10,
@@ -244,6 +260,38 @@ def main():
             # 28px 기준 392px = 버튼 폭 480의 82%. 버튼 안에 갇히지 않으면서 넘치지도 않는다.
             # 강조선은 버튼 '안', 이 문구는 버튼 '밖 아래'다. 둘은 절대 같은 자리에 오지 않는다.
             rect(st, PAD + (BW2 - 392) // 2, y + BH2 + 14, 392, 9, TXT_OFF)
+    # --------------------------------------------------- 3) 오버레이 알파 비교
+    # 슬롯이 얼마나 남는지는 알파가 정한다. 0.78은 22%만 남겨 레벨 숫자가 안 읽힐 수 있다.
+    ALPHAS = (0.78, 0.60, 0.45)
+    SN, SG = 84, 14
+    W3 = PAD * 2 + 5 * (SN + SG) - SG
+    H3 = PAD * 2 + len(ALPHAS) * (SN + 40) - 40
+    ov = [[PAGE] * W3 for _ in range(H3)]
+    slot_icons = [load_icon(os.path.join(SKILL, f + ".png"), SN - 12)
+                  for f in ("116-Fire-Pillar", "42-Ice", "47-Lightning",
+                            "124-Pick", "42-Ice")]
+    for r, a in enumerate(ALPHAS):
+        oy = PAD + r * (SN + 40)
+        for i in range(5):
+            ox = PAD + i * (SN + SG)
+            rect(ov, ox, oy, SN, SN, dim((30, 32, 44), a), round_=4)
+            ic = slot_icons[i]
+            for yy in range(SN - 12):
+                for xx in range(SN - 12):
+                    rr, gg, bb, aa = ic[yy][xx]
+                    f = aa / 255.0
+                    base = dim((30, 32, 44), a)
+                    src = dim((rr, gg, bb), a)
+                    ov[oy + 6 + yy][ox + 6 + xx] = tuple(
+                        int(src[k] * f + base[k] * (1 - f)) for k in range(3))
+            rect(ov, ox + SN - 30, oy + SN - 22, 26, 16, dim((18, 16, 22), a), round_=3)
+            text(ov, str((i + 1) * 5), ox + SN - 26, oy + SN - 19, 3,
+                 dim((255, 248, 232), a))
+        rect(ov, PAD, oy + SN + 12, 70, 7, dim((150, 144, 162), 0.2))
+    p3 = os.path.join(out_dir, "overlay_alpha.png")
+    print("wrote", p3, write_png(p3, ov))
+    print("알파 위에서부터:", " / ".join(str(a) for a in ALPHAS))
+
     p2 = os.path.join(out_dir, "reroll_states.png")
     print("wrote", p2, write_png(p2, st))
     print("상태 위에서부터: 활성(10) / 소진(0) / 후보 부족(7, 아래 이유 줄)")
