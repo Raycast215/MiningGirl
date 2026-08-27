@@ -32,6 +32,14 @@ public static class InGameAutoPlayTester
 
     private static bool _running;
     private static bool _focused = true;
+
+    // 위력 바닥 규칙을 쓸지.
+    //
+    // 실측에서 이 규칙이 레벨 2의 발사체 카드를 세 번 버리고 위력을 찾았는데,
+    // 그 판의 병목이 하필 발사체 구간이었습니다(손실의 97.7%가 발사체 1~3일 때).
+    // 규칙이 도움인지 해인지를 두 판을 나란히 놓아 봅니다.
+    private static bool _useDamageFloor = true;
+
     private static float _speed = 10f;
 
     public static bool IsRunning => _running;
@@ -46,6 +54,13 @@ public static class InGameAutoPlayTester
     public static void StartFocusedNormal()
     {
         Begin(1f, true);
+    }
+
+    // 위력 바닥 규칙을 뺀 판. 화력 카드(위력 또는 발사체)가 하나도 없을 때만 다시 뽑습니다.
+    [MenuItem("Tools/MainGame/Auto Play x10 (집중, 위력바닥 없음)")]
+    public static void StartFocusedNoFloor()
+    {
+        Begin(10f, true, false);
     }
 
     [MenuItem("Tools/MainGame/Auto Play x10 (무작위)")]
@@ -68,6 +83,11 @@ public static class InGameAutoPlayTester
 
     public static void Begin(float speed, bool focused)
     {
+        Begin(speed, focused, true);
+    }
+
+    public static void Begin(float speed, bool focused, bool useDamageFloor)
+    {
         if (!Application.isPlaying)
         {
             Debug.LogError("[AutoPlay] 플레이 모드에서만 씁니다.");
@@ -77,6 +97,7 @@ public static class InGameAutoPlayTester
 
         _speed = Mathf.Clamp(speed, 0.1f, 20f);
         _focused = focused;
+        _useDamageFloor = useDamageFloor;
         EditorPrefs.SetFloat(SpeedKey, _speed);
 
         if (_running)
@@ -85,7 +106,8 @@ public static class InGameAutoPlayTester
         _running = true;
         EditorApplication.update += Tick;
 
-        Debug.Log($"[AutoPlay] 시작 x{_speed} ({(focused ? "집중" : "무작위")})");
+        Debug.Log($"[AutoPlay] 시작 x{_speed} ({(focused ? "집중" : "무작위")}"
+            + (focused ? (useDamageFloor ? ", 위력바닥 있음" : ", 위력바닥 없음") : string.Empty) + ")");
     }
 
     private static void Tick()
@@ -174,7 +196,7 @@ public static class InGameAutoPlayTester
         }
 
         // 위력이 아직 바닥에 못 미쳤으면 위력만 노립니다.
-        if (!hasDamage && MaxDamageCount(controller) < DamageFloor)
+        if (_useDamageFloor && !hasDamage && MaxDamageCount(controller) < DamageFloor)
             return true;
 
         return !hasDamage && !hasProjectile;
