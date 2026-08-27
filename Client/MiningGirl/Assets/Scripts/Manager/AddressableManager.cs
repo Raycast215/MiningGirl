@@ -10,6 +10,12 @@ namespace Manager
     public class AddressableManager : SingletonBase<AddressableManager>
     {
         private readonly Dictionary<string, object> _assetCacheDic = new Dictionary<string, object>();
+
+        // Image별로 가장 마지막에 요청한 주소.
+        //
+        // 씬에 고정된 칸(3택 카드, 스킬 슬롯)만 들어오므로 개수가 늘지 않습니다.
+        private readonly Dictionary<UnityEngine.UI.Image, string> _spriteRequestDic =
+            new Dictionary<UnityEngine.UI.Image, string>();
         private readonly CancellationTokenSource _cts = new CancellationTokenSource();
         
         /// Asset을 Load하고 반환합니다.
@@ -92,6 +98,10 @@ namespace Manager
             if (target == null)
                 return;
 
+            // 이 Image가 지금 무엇을 그려야 하는지 적어 둡니다.
+            // 늦게 끝난 로드가 이미 바뀐 그림을 덮어쓰지 않게 하는 기준입니다.
+            _spriteRequestDic[target] = assetName;
+
             if (string.IsNullOrEmpty(assetName))
             {
                 target.enabled = false;
@@ -118,6 +128,14 @@ namespace Manager
 
             // 불러오는 사이에 다른 카드로 바뀌었을 수 있습니다.
             if (sprite == null || target == null)
+                return;
+
+            // 기다리는 동안 같은 Image가 다른 주소를 요청했으면 이 결과는 버립니다.
+            //
+            // 3택 다시 뽑기처럼 같은 칸을 연달아 갈아 끼우면, 먼저 시작한 로드가
+            // 나중에 끝나 새 카드 위에 옛 아이콘을 덮어씁니다. 캐시된 그림은 즉시
+            // 들어가고 처음 보는 그림은 늦게 들어오므로 순서가 쉽게 뒤집힙니다.
+            if (!_spriteRequestDic.TryGetValue(target, out var latest) || latest != assetName)
                 return;
 
             target.sprite = sprite;
