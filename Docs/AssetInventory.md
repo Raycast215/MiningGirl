@@ -13,9 +13,17 @@
 | `Effect_Cavein` (낙반) | Pixel Effects `MeteorShower` |
 
 **파일도 어드레서블 등록도 지우지 않았다.** 스킬 행은 삭제가 아니라 Weight 0으로 뒀고
-(행을 지우면 `SkillUpgradeDataTable`에 고아 행 18개가 남는다), 선로딩은
-`MainGameController.cs`가 `Weight > 0`을 보므로 프리팹이 남아 있어도 메모리에 안 올라온다.
+(행을 지우면 `SkillUpgradeDataTable`에 고아 행 18개가 남는다).
 **유저가 다시 쓰겠다고 하면 Weight만 되돌리면 살아난다.**
+
+**런타임 메모리에는 안 올라오지만 빌드에는 포함된다.** 둘을 구분할 것.
+
+| | 상태 | 근거 |
+|---|---|---|
+| 런타임 메모리 | **안 올라옴** | 선로딩이 `MainGameController.cs`에서 `Weight > 0 \|\| Id == StartSkillId`를 본다. 라벨 통째 로드 경로도 없다 — `LoadAssetsLabel<T>()`는 호출자 0건이고 `Skill_Effect` 그룹에는 라벨이 안 달려 있어, 주소 id로 하나씩 명시 로드하는 길밖에 없다 |
+| 빌드 용량 | **포함됨** | 어드레서블 등록이 살아 있어 번들에 들어간다. 프리팹 보존 지시에 따른 감수 사항이고, 6종 스프라이트라 문제 될 규모는 아니다 |
+
+**나중에 빌드 용량을 줄여야 하면 여기서부터 본다.**
 
 **`Effect_FireBoltExplosion`은 강화스킬용이라 살아 있다.** 미사용 아님.
 
