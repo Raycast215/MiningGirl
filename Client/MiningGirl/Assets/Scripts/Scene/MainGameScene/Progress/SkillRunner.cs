@@ -36,13 +36,18 @@ namespace Scene.MainGameScene.Progress
         // 총 폭이 아니라 발당 간격으로 잡습니다. 총 폭을 고정하면 2발일 때
         // 부채가 아니라 갈라짐이 됩니다. 간격으로 두면 발수에 따라 자연히
         // 넓어지고 그게 "많이 쏜다"로 읽힙니다.
-        private const float StrayFireStep = 4.5f;
-
-        // 그래도 이만큼은 안 넘습니다.
+        // 각도가 아니라 화면 폭 비율로 잡습니다.
         //
-        // 총구에서 본 화면 전체가 좌우 합쳐 약 38도입니다(9:16 기준). 30도는
-        // 좁은 부채가 아니라 화면 각폭의 78%라, 여기가 상한이지 목표가 아닙니다.
-        private const float StrayFireArcMax = 30f;
+        // 같은 각도가 기기마다 다른 그림이 됩니다 - 총구에서 본 화면 각폭이
+        // 태블릿(3:4) 52.9도, 폰(9:16) 41.0도, 긴 폰(9:19.5) 34.1도입니다.
+        // 22.5도가 태블릿에서는 화면의 42%, 긴 폰에서는 66%를 덮습니다.
+        //
+        // 부채가 읽히는 기준은 "몇 도인가"가 아니라 "화면에서 얼마나 벌어져
+        // 보이는가"라서, 각도를 상수로 두면 기준이 기기마다 흔들립니다.
+        private const float StrayFireStepRatio = 0.10f;
+
+        // 그래도 화면 폭의 이만큼은 안 넘습니다.
+        private const float StrayFireArcMaxRatio = 0.55f;
 
         private readonly SkillInventory _inventory;
         private readonly MonsterField _field;
@@ -369,10 +374,18 @@ namespace Scene.MainGameScene.Progress
 
             if (count > 1)
             {
-                // 간격으로 벌리되 총 폭이 상한을 넘으면 상한에 맞춰 좁힙니다.
-                var step = Mathf.Min(StrayFireStep, StrayFireArcMax / (count - 1));
+                // 화면 위 끝에서 얼마나 벌어져 보일지를 먼저 정하고, 거기서 각도를 냅니다.
+                //
+                // 발사체가 거기까지 살아서 가므로 그 지점의 벌어짐이 곧 눈에 보이는
+                // 폭입니다. 아트 판정 기준(화면 중간에서 이웃한 발이 겨우 갈라져
+                // 보이는가)은 그 중간값이라 같이 만족합니다.
+                var bounds = _field.Bounds;
+                var ratio = Mathf.Min(StrayFireStepRatio * (count - 1), StrayFireArcMaxRatio);
+                var spread = bounds.HalfWidth * 2f * ratio;
+                var reach = Mathf.Max(0.01f, bounds.ScreenTopY - origin.y);
+                var halfAngle = Mathf.Atan2(spread * 0.5f, reach) * Mathf.Rad2Deg;
 
-                degree += (index - (count - 1) * 0.5f) * step;
+                degree += (index - (count - 1) * 0.5f) * (halfAngle * 2f / (count - 1));
             }
 
             var radian = degree * Mathf.Deg2Rad;

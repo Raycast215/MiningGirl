@@ -45,6 +45,10 @@ namespace Scene.MainGameScene.Battle
         private readonly Transform _layer;
         private readonly Tower _tower;
         private readonly BattleBounds _bounds;
+
+        // 발사 각도를 화면 폭 비율로 잡는 쪽에서 씁니다.
+        // 같은 각도가 화면비에 따라 다른 그림이 되므로 각도를 상수로 둘 수 없습니다.
+        public BattleBounds Bounds => _bounds;
         private readonly float _statMultiplier;
         private readonly FloatingDamageSpawner _floatingDamage;
         private readonly EffectSpawner _effects;
