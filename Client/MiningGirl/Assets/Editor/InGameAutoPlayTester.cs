@@ -40,6 +40,13 @@ public static class InGameAutoPlayTester
     // 규칙이 도움인지 해인지를 두 판을 나란히 놓아 봅니다.
     private static bool _useDamageFloor = true;
 
+    // 발사체를 위력보다 먼저 집을지.
+    //
+    // 실측에서 발사체가 두 번 떴는데 두 번 다 위력을 골랐고 끝까지 발사체 1로
+    // 밀렸습니다. 레벨 2에서 발사체 +1은 1발 -> 2발이라 화력 두 배이고,
+    // 위력 +20%보다 큽니다. 어느 쪽이 실제로 판을 살리는지 재 봅니다.
+    private static bool _projectileFirst;
+
     private static float _speed = 10f;
 
     public static bool IsRunning => _running;
@@ -54,6 +61,13 @@ public static class InGameAutoPlayTester
     public static void StartFocusedNormal()
     {
         Begin(1f, true);
+    }
+
+    // 발사체를 위력보다 먼저 집는 판.
+    [MenuItem("Tools/MainGame/Auto Play x10 (집중, 발사체 우선)")]
+    public static void StartProjectileFirst()
+    {
+        Begin(10f, true, true, true);
     }
 
     // 위력 바닥 규칙을 뺀 판. 화력 카드(위력 또는 발사체)가 하나도 없을 때만 다시 뽑습니다.
@@ -88,6 +102,11 @@ public static class InGameAutoPlayTester
 
     public static void Begin(float speed, bool focused, bool useDamageFloor)
     {
+        Begin(speed, focused, useDamageFloor, false);
+    }
+
+    public static void Begin(float speed, bool focused, bool useDamageFloor, bool projectileFirst)
+    {
         if (!Application.isPlaying)
         {
             Debug.LogError("[AutoPlay] 플레이 모드에서만 씁니다.");
@@ -98,6 +117,7 @@ public static class InGameAutoPlayTester
         _speed = Mathf.Clamp(speed, 0.1f, 20f);
         _focused = focused;
         _useDamageFloor = useDamageFloor;
+        _projectileFirst = projectileFirst;
         EditorPrefs.SetFloat(SpeedKey, _speed);
 
         if (_running)
@@ -107,7 +127,8 @@ public static class InGameAutoPlayTester
         EditorApplication.update += Tick;
 
         Debug.Log($"[AutoPlay] 시작 x{_speed} ({(focused ? "집중" : "무작위")}"
-            + (focused ? (useDamageFloor ? ", 위력바닥 있음" : ", 위력바닥 없음") : string.Empty) + ")");
+            + (focused ? (useDamageFloor ? ", 위력바닥 있음" : ", 위력바닥 없음") : string.Empty)
+            + (focused && projectileFirst ? ", 발사체 우선" : string.Empty) + ")");
     }
 
     private static void Tick()
@@ -258,8 +279,8 @@ public static class InGameAutoPlayTester
 
         switch (choice.Upgrade.UpgradeType)
         {
-            case ESkillUpgradeType.Damage: return 4;
-            case ESkillUpgradeType.ProjectileCount: return 3;
+            case ESkillUpgradeType.Damage: return _projectileFirst ? 3 : 4;
+            case ESkillUpgradeType.ProjectileCount: return _projectileFirst ? 4 : 3;
             default: return 2;
         }
     }
