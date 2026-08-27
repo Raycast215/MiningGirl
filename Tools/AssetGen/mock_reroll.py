@@ -103,7 +103,12 @@ def rect(canvas, ox, oy, w, h, col, round_=0):
             canvas[oy + y][ox + x] = col
 
 
-OVERLAY = 0.78                      # LevelUpChoice 배경 검정 alpha
+# 팝업이 열렸을 때 HUD 슬롯에 남는 밝기. 개발 실측값이다.
+#
+# LevelUpChoice 배경은 검정 alpha 0.78이지만 슬롯에 실제로 남는 건 51%다(배경은 39%).
+# sRGB가 비선형이라 밝은 픽셀이 상대적으로 덜 어두워진다. alpha 값으로 계산하면
+# 22%가 나오는데 그건 틀린 숫자다 - 실측이 아니라 산술이었다.
+SLOT_DIM = 0.49                     # 51% 남음
 
 
 def dim(col, a):
@@ -217,18 +222,17 @@ def main():
 
     # HUD의 스킬 슬롯.
     #
-    # 지금 구조에서는 팝업 위에 밝게 남지만, 기획이 "덮되 가리지 않는다"로 확정했다 -
-    # 오버레이가 위로 와서 어두워지되 형태는 비쳐 보여야 한다. 조작 대상이 아니라는
-    # 것과 내 투자 내역이라는 것을 동시에 말해야 하기 때문이다.
-    # 그래서 시안도 오버레이가 적용된 상태로 그린다. 밝게 그리면 개발이 그대로 만든다.
+    # 목표는 "덮되 가리지 않는다" - 조작 대상이 아니라는 것과 내 투자 내역이라는 것을
+    # 동시에 말해야 한다. 그리고 그 상태가 이미 성립해 있다. 슬롯 51% / 배경 39%로
+    # 슬롯이 어두워지면서도 배경보다는 밝다. 캔버스를 나눌 필요가 없었다.
     sy = H - SLOT_Y - SLOT_H
-    rect(scr, cx, sy, CW, SLOT_H, dim((30, 32, 44), OVERLAY))
+    rect(scr, cx, sy, CW, SLOT_H, dim((30, 32, 44), SLOT_DIM))
     for i in range(5):
         n = SLOT_H - 20
         rect(scr, cx + 14 + i * (n + 12), sy + 10, n, n,
-             dim((52, 54, 70), OVERLAY), round_=3)
+             dim((52, 54, 70), SLOT_DIM), round_=3)
         rect(scr, cx + 14 + i * (n + 12) + n - 26, sy + 10 + n - 18, 22, 14,
-             dim((255, 248, 232), OVERLAY))        # 레벨 숫자 자리
+             dim((255, 248, 232), SLOT_DIM))       # 레벨 숫자 자리
 
     by = sy - BTN_GAP - BH
     draw_button(scr, (W - BW) // 2, by, BW, BH, "on", 10,
@@ -260,9 +264,10 @@ def main():
             # 28px 기준 392px = 버튼 폭 480의 82%. 버튼 안에 갇히지 않으면서 넘치지도 않는다.
             # 강조선은 버튼 '안', 이 문구는 버튼 '밖 아래'다. 둘은 절대 같은 자리에 오지 않는다.
             rect(st, PAD + (BW2 - 392) // 2, y + BH2 + 14, 392, 9, TXT_OFF)
-    # --------------------------------------------------- 3) 오버레이 알파 비교
-    # 슬롯이 얼마나 남는지는 알파가 정한다. 0.78은 22%만 남겨 레벨 숫자가 안 읽힐 수 있다.
-    ALPHAS = (0.78, 0.60, 0.45)
+    # --------------------------------------------------- 3) 슬롯 밝기 비교
+    # 첫 줄이 현재 실측(51%)이고 아래 둘은 "더 밝혀야 한다"가 나올 때의 후보다.
+    # 지금은 손댈 이유가 없다 - 화면에서 안 읽힌다는 근거가 나오면 그때 본다.
+    ALPHAS = (SLOT_DIM, 0.35, 0.20)
     SN, SG = 84, 14
     W3 = PAD * 2 + 5 * (SN + SG) - SG
     H3 = PAD * 2 + len(ALPHAS) * (SN + 40) - 40
@@ -291,7 +296,8 @@ def main():
         rect(ov, PAD, oy + SN + 12, 70, 7, dim((150, 144, 162), 0.2))
     p3 = os.path.join(out_dir, "overlay_alpha.png")
     print("wrote", p3, write_png(p3, ov))
-    print("알파 위에서부터:", " / ".join(str(a) for a in ALPHAS))
+    print("남는 밝기 위에서부터:", " / ".join("%d%%" % round((1 - a) * 100) for a in ALPHAS))
+    print("첫 줄이 현재 실측값이다.")
 
     p2 = os.path.join(out_dir, "reroll_states.png")
     print("wrote", p2, write_png(p2, st))
