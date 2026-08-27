@@ -126,6 +126,10 @@ namespace Scene.MainGameScene.Battle
         // 정할 근거가 없습니다. 번호를 달고 다니면 셀 필요가 없습니다.
         //
         // SkillRunner 가 볼리를 시작할 때 넣고, Setup 이 그때 값을 집습니다.
+        //
+        // 진단용입니다. 게임 로직은 이 값을 읽지 않습니다 - 조준·발사·판정 어디에도
+        // 안 들어갑니다. 이 위에 기능을 만들지 마십시오. 빌드에도 안 들어갑니다.
+#if UNITY_EDITOR
         public static int DebugNextVolleyId;
 
         private int _debugVolleyId;
@@ -134,6 +138,7 @@ namespace Scene.MainGameScene.Battle
 
         // 0=조준, 1=부채꼴, 2=흘려보낸 예약분. 측정에서 셋을 갈라야 합니다.
         public int DebugAimKind => _debugAimKind;
+#endif
 
         // 이 발이 어느 쪽인지. 0=조준, 1=부채꼴, 2=흘려보낸 예약분.
         private int _debugAimKind;

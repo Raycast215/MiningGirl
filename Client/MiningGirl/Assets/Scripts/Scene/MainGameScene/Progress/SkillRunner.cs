@@ -69,8 +69,13 @@ namespace Scene.MainGameScene.Progress
             public readonly int Count;
 
             // 이 발이 속한 볼리 번호. 예약된 발이 나중에 나가도 자기 볼리를 압니다.
-            // 측정에만 씁니다 - 화면에 동시에 뜬 볼리 수를 세는 데 필요합니다.
-            public readonly int VolleyId;
+            //
+            // 진단용입니다. 화면에 동시에 뜬 볼리가 몇 개인지를 세는 데만 씁니다 -
+            // 각도가 등차수열인 것끼리 묶어 추론할 수도 있지만, 부채가 겹치면
+            // 어디까지가 한 볼리인지 정할 근거가 없고 세는 사람에 따라 값이 달라집니다.
+            //
+            // 게임 로직은 이 값을 안 읽습니다. 이 위에 기능을 만들지 마십시오.
+            public readonly int DebugVolleyId;
 
             public float Remaining;
 
@@ -80,11 +85,12 @@ namespace Scene.MainGameScene.Progress
                 Remaining = remaining;
                 Index = index;
                 Count = count;
-                VolleyId = volleyId;
+                DebugVolleyId = volleyId;
             }
         }
 
-        // 볼리마다 번호를 하나씩 씁니다. 측정 전용이라 값 자체에 뜻은 없습니다.
+        // 볼리마다 번호를 하나씩 씁니다. 진단용이라 값 자체에 뜻은 없고,
+        // 게임 로직은 이 값을 안 읽습니다.
         private int _volleySeq;
 
 #if UNITY_EDITOR
@@ -350,7 +356,7 @@ namespace Scene.MainGameScene.Progress
 #if UNITY_EDITOR
                 // 예약된 발은 자기 볼리 번호를 그대로 씁니다. 그 사이 다른 볼리가
                 // 시작했어도 이 발은 앞 볼리 것입니다.
-                Battle.Projectile.DebugNextVolleyId = shot.VolleyId;
+                Battle.Projectile.DebugNextVolleyId = shot.DebugVolleyId;
 #endif
 
                 if (target == null)
