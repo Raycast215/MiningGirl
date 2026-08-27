@@ -8,7 +8,7 @@
   "SkillId": "Skill_FireBolt",
   "UpgradeType": "Damage",
   "ValueType": "Mul",
-  "Weight": 100
+  "Weight": 120
 },
 {
   "Desc": "발사체가 {0}개 늘어납니다",
@@ -19,7 +19,7 @@
   "SkillId": "Skill_FireBolt",
   "UpgradeType": "ProjectileCount",
   "ValueType": "Add",
-  "Weight": 60
+  "Weight": 100
 },
 {
   "Desc": "관통 수가 {0} 늘어납니다",
@@ -52,7 +52,7 @@
   "SkillId": "Skill_IceBolt",
   "UpgradeType": "Damage",
   "ValueType": "Mul",
-  "Weight": 100
+  "Weight": 120
 },
 {
   "Desc": "발사체가 {0}개 늘어납니다",
@@ -63,7 +63,7 @@
   "SkillId": "Skill_IceBolt",
   "UpgradeType": "ProjectileCount",
   "ValueType": "Add",
-  "Weight": 60
+  "Weight": 100
 },
 {
   "Desc": "관통 수가 {0} 늘어납니다",
@@ -96,7 +96,7 @@
   "SkillId": "Skill_LightningBolt",
   "UpgradeType": "Damage",
   "ValueType": "Mul",
-  "Weight": 100
+  "Weight": 120
 },
 {
   "Desc": "발사체가 {0}개 늘어납니다",
@@ -107,7 +107,7 @@
   "SkillId": "Skill_LightningBolt",
   "UpgradeType": "ProjectileCount",
   "ValueType": "Add",
-  "Weight": 60
+  "Weight": 100
 },
 {
   "Desc": "관통 수가 {0} 늘어납니다",

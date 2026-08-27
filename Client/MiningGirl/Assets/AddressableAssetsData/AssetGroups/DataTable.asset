@@ -75,6 +75,12 @@ MonoBehaviour:
     m_SerializedLabels:
     - DataTable
     FlaggedDuringContentUpdateRestriction: 0
+  - m_GUID: dee16f694389dc144be53851b69a22c6
+    m_Address: SkillMasteryDataTable
+    m_ReadOnly: 0
+    m_SerializedLabels:
+    - DataTable
+    FlaggedDuringContentUpdateRestriction: 0
   - m_GUID: ee6b6ad0c793438439325324d50a35fd
     m_Address: SkillUpgradeDataTable
     m_ReadOnly: 0

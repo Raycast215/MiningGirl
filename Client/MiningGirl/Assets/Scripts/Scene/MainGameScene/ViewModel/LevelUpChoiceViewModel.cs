@@ -6,6 +6,24 @@ using Scene.MainGameScene.Progress;
 namespace Scene.MainGameScene.ViewModel
 {
     // 3택 카드 한 장에 그릴 내용. 전부 완성된 문자열입니다.
+    // 카드 하단에 뜨는 강화스킬 조건 한 줄.
+    public readonly struct MasteryProgressItem
+    {
+        public readonly string Text;
+
+        // 이 카드를 고르면 올라가는 쪽인지. 강조 표현은 View가 정합니다.
+        public readonly bool IsAdvancing;
+
+        public readonly bool IsMet;
+
+        public MasteryProgressItem(string text, bool isAdvancing, bool isMet)
+        {
+            Text = text;
+            IsAdvancing = isAdvancing;
+            IsMet = isMet;
+        }
+    }
+
     public readonly struct LevelUpChoiceItem
     {
         public readonly string Title;
@@ -14,13 +32,34 @@ namespace Scene.MainGameScene.ViewModel
         public readonly string IconAssetId;
         public readonly bool IsNew;
 
-        public LevelUpChoiceItem(string title, string subtitle, string detail, string iconAssetId, bool isNew)
+        // 강화스킬 자체를 고르는 카드인지. 런당 한 번뿐이라 다르게 보여야 합니다.
+        public readonly bool IsMastery;
+
+        // 강화스킬 조건 진행도. 없으면 null입니다.
+        public readonly string MasteryHintName;
+        public readonly string MasteryHintIconAssetId;
+        public readonly MasteryProgressItem[] MasteryProgress;
+
+        public LevelUpChoiceItem(
+            string title,
+            string subtitle,
+            string detail,
+            string iconAssetId,
+            bool isNew,
+            bool isMastery = false,
+            string masteryHintName = null,
+            string masteryHintIconAssetId = null,
+            MasteryProgressItem[] masteryProgress = null)
         {
             Title = title;
             Subtitle = subtitle;
             Detail = detail;
             IconAssetId = iconAssetId;
             IsNew = isNew;
+            IsMastery = isMastery;
+            MasteryHintName = masteryHintName;
+            MasteryHintIconAssetId = masteryHintIconAssetId;
+            MasteryProgress = masteryProgress;
         }
     }
 
@@ -123,6 +162,17 @@ namespace Scene.MainGameScene.ViewModel
                         false);
                 }
 
+                case ELevelUpChoiceType.Mastery:
+                {
+                    return new LevelUpChoiceItem(
+                        choice.Mastery.Name,
+                        $"{choice.Skill.Name} 강화스킬",
+                        choice.Mastery.Desc ?? string.Empty,
+                        choice.Mastery.IconAssetId ?? choice.Skill.IconAssetId,
+                        true,
+                        true);
+                }
+
                 default:
                 {
                     var subtitle = choice.StackedUpgradeCount > 0
@@ -134,8 +184,50 @@ namespace Scene.MainGameScene.ViewModel
                         subtitle,
                         FormatUpgradeDetail(choice.Upgrade),
                         choice.Skill.IconAssetId,
-                        false);
+                        false,
+                        false,
+                        choice.MasteryHint?.Name,
+                        choice.MasteryHint?.IconAssetId,
+                        BuildMasteryProgress(choice));
                 }
+            }
+        }
+
+        // 조건 두 줄을 문자열로 만듭니다.
+        //
+        // 하나만 보여주면 나머지 절반을 모른 채 "다 됐다"고 오해합니다.
+        // 이 카드가 올리는 쪽은 IsAdvancing으로 표시하고, 강조 표현은 View가 정합니다.
+        private static MasteryProgressItem[] BuildMasteryProgress(LevelUpChoice choice)
+        {
+            var source = choice.MasteryProgress;
+
+            if (source == null || source.Length == 0)
+                return null;
+
+            var items = new MasteryProgressItem[source.Length];
+
+            for (var i = 0; i < source.Length; i++)
+            {
+                var requirement = source[i];
+
+                items[i] = new MasteryProgressItem(
+                    $"{UpgradeTypeName(requirement.Type)} {requirement.Current}/{requirement.Required}",
+                    requirement.IsAdvancedByThisCard,
+                    requirement.IsMet);
+            }
+
+            return items;
+        }
+
+        private static string UpgradeTypeName(ESkillUpgradeType type)
+        {
+            switch (type)
+            {
+                case ESkillUpgradeType.Damage: return "위력";
+                case ESkillUpgradeType.ProjectileCount: return "발사체";
+                case ESkillUpgradeType.PierceCount: return "관통";
+                case ESkillUpgradeType.HitRange: return "범위";
+                default: return type.ToString();
             }
         }
 

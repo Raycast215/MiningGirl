@@ -33,13 +33,13 @@
 },
 {
   "CooldownList": [
-    2,
-    1.8,
-    1.6,
-    1.4,
-    1.2
+    3,
+    2.7,
+    2.4,
+    2.1,
+    1.8
   ],
-  "Desc": "얼음 화살을 쏘아 {0}의 피해",
+  "Desc": "얼음 화살 두 개를 날려 각각 {0}의 피해",
   "EffectAssetId": "Effect_IceBolt",
   "EffectValueList": [
     12,
@@ -53,32 +53,32 @@
   "Id": "Skill_IceBolt",
   "Name": "아이스볼트",
   "PierceCount": 0,
-  "ProjectileCount": 1,
-  "ProjectileMoveType": "Linear",
+  "ProjectileCount": 2,
+  "ProjectileMoveType": "Sine",
   "ProjectileSpeed": 12,
   "ProjectileWaveList": [
-    0,
-    0
+    0.4,
+    2
   ],
   "SkillType": "Bolt",
   "Weight": 100
 },
 {
   "CooldownList": [
-    2,
-    1.8,
-    1.6,
-    1.4,
-    1.2
+    3.6,
+    3.25,
+    2.9,
+    2.5,
+    2.15
   ],
   "Desc": "번개를 쏘아 {0}의 피해",
   "EffectAssetId": "Effect_LightningBolt",
   "EffectValueList": [
-    12,
-    17,
     23,
     30,
-    39
+    39,
+    51,
+    66
   ],
   "HitRange": 0.3,
   "IconAssetId": "Skill_Icon_1046",
@@ -86,11 +86,11 @@
   "Name": "라이트닝볼트",
   "PierceCount": 0,
   "ProjectileCount": 1,
-  "ProjectileMoveType": "Sine",
-  "ProjectileSpeed": 12,
+  "ProjectileMoveType": "Linear",
+  "ProjectileSpeed": 16,
   "ProjectileWaveList": [
-    0.6,
-    2
+    0,
+    0
   ],
   "SkillType": "Bolt",
   "Weight": 100

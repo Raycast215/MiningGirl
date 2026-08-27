@@ -38,6 +38,13 @@ namespace Scene.MainGameScene.Battle
         // 타워 앞에 멈춰 선 상태. 겹침 정리는 멈춘 개체끼리만 합니다.
         public bool IsBlocked { get; private set; }
 
+        // 이 개체가 타워에 닿은 적이 있는지.
+        //
+        // 넉백으로 밀렸다가 다시 내려오면 도달이 두 번 일어납니다. 타워 피해는
+        // 매번 들어가야 맞지만 "몇 마리가 닿았나"는 개체당 한 번만 세야 합니다 -
+        // 그 값이 별 등급과 밀도 판단의 근거라 중복되면 지표가 오염됩니다.
+        public bool HasReachedTower { get; private set; }
+
         public Vector3 Position => transform.position;
 
         // 이 몬스터에게 이미 날아오고 있는 피해량의 합.
@@ -140,6 +147,7 @@ namespace Scene.MainGameScene.Battle
 
             IsAlive = true;
             IsBlocked = false;
+            HasReachedTower = false;
             _attackTimer = 0f;
             ReservedDamage = 0f;
 
@@ -193,7 +201,13 @@ namespace Scene.MainGameScene.Battle
 
                 // 겹침 정리는 자리를 잡은 뒤에 해야 합니다.
                 if (arrived)
+                {
+                    // 콜백이 도달 수를 셀 때 "이번이 처음인지"를 봐야 하므로
+                    // 표시는 부른 뒤에 남깁니다.
                     _onBlocked?.Invoke(this);
+
+                    HasReachedTower = true;
+                }
 
                 return;
             }

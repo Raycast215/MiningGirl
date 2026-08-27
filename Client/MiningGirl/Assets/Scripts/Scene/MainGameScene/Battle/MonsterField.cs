@@ -328,7 +328,13 @@ namespace Scene.MainGameScene.Battle
         // 내려오는 도중에 밀면 직선 하강이라는 규칙이 깨져 보입니다.
         private void HandleBlocked(MonsterUnit unit)
         {
-            ReachedTowerCount++;
+            // 넉백으로 밀렸다가 다시 닿은 개체는 세지 않습니다.
+            // 도달 수는 "몇 마리가 닿았나"이지 "몇 번 닿았나"가 아닙니다.
+            //
+            // 개체에 플래그를 둡니다. 여기서 목록으로 들고 있으면 풀에서 재사용될 때
+            // 이전 개체의 기록이 새 몬스터에 그대로 붙습니다.
+            if (!unit.HasReachedTower)
+                ReachedTowerCount++;
 
             var origin = unit.Position.x;
 
