@@ -23,19 +23,26 @@ namespace Scene.MainGameScene.Progress
         // Sine 발사체의 진폭 수렴 기준이라 화면을 넘길 만큼이면 됩니다.
         private const float FanTargetDistance = 30f;
 
-        // 조준할 적이 없어 그냥 나가는 예약 발사체가 벌어지는 각도 범위(양 끝 사이).
+        // 조준할 적이 없어 그냥 나가는 예약 발사체의 벌어짐.
         //
         // 위쪽(90도)을 가운데로 둡니다 - 몬스터가 위에서 내려오므로 옆이나 아래로
         // 나가면 빗나간 게 아니라 엉뚱한 데 쏜 것으로 보입니다.
         //
         // 예전에는 120도 안에서 무작위였습니다. 조준 대상이 드물게 없을 때를
         // 가정한 값인데, 화력이 표적 수를 넘어서면서 이 경로가 기본이 됐습니다
-        // (실측 무조준 비율 53~57%).
+        // (실측 무조준 비율 53~63%). 무작위 방향은 플레이어가 배울 수 없어서
+        // 위력이 아니라 오작동으로 읽히고, 그 소음이 맞히는 순간의 피드백까지 깎습니다.
         //
-        // 무작위 방향은 플레이어가 배울 수 없습니다. 매번 다른 각도로 흩어지면
-        // 위력이 아니라 오작동으로 읽히고, 그 소음이 실제로 맞히는 순간의
-        // 피드백까지 깎습니다. 그래서 좁히고, 무작위를 없앴습니다.
-        private const float StrayFireArc = 30f;
+        // 총 폭이 아니라 발당 간격으로 잡습니다. 총 폭을 고정하면 2발일 때
+        // 부채가 아니라 갈라짐이 됩니다. 간격으로 두면 발수에 따라 자연히
+        // 넓어지고 그게 "많이 쏜다"로 읽힙니다.
+        private const float StrayFireStep = 4.5f;
+
+        // 그래도 이만큼은 안 넘습니다.
+        //
+        // 총구에서 본 화면 전체가 좌우 합쳐 약 38도입니다(9:16 기준). 30도는
+        // 좁은 부채가 아니라 화면 각폭의 78%라, 여기가 상한이지 목표가 아닙니다.
+        private const float StrayFireArcMax = 30f;
 
         private readonly SkillInventory _inventory;
         private readonly MonsterField _field;
@@ -347,6 +354,10 @@ namespace Scene.MainGameScene.Progress
         // 같은 모양으로 나가고, 그러면 "조준 못 함"이 아니라 "위쪽을 훑는다"로
         // 읽힙니다. 발수도 낭비도 같은데 읽히는 것만 달라집니다.
         //
+        // 판정 기준은 아트가 정했습니다 - 화면 중간 높이에서 이웃한 발이 겨우
+        // 갈라져 보이면 됩니다. 총구 근처에서 겹쳐 나가다 올라가며 벌어지는 것이
+        // 한 동작으로 읽히고, 처음부터 갈라져 나오면 여러 동작으로 읽힙니다.
+        //
         // 번호를 그대로 쓰므로 볼리의 일부만 조준에 실패해도 남은 발이 제자리
         // 각도로 나갑니다. 실패한 발이 몇 번째냐에 따라 모양이 흔들리지 않습니다.
         //
@@ -357,7 +368,12 @@ namespace Scene.MainGameScene.Progress
             var degree = 90f;
 
             if (count > 1)
-                degree += (index - (count - 1) * 0.5f) * (StrayFireArc / (count - 1));
+            {
+                // 간격으로 벌리되 총 폭이 상한을 넘으면 상한에 맞춰 좁힙니다.
+                var step = Mathf.Min(StrayFireStep, StrayFireArcMax / (count - 1));
+
+                degree += (index - (count - 1) * 0.5f) * step;
+            }
 
             var radian = degree * Mathf.Deg2Rad;
             var direction = new Vector3(Mathf.Cos(radian), Mathf.Sin(radian), 0f);
