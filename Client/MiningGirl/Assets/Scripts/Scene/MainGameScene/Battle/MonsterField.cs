@@ -182,6 +182,20 @@ namespace Scene.MainGameScene.Battle
             _deadBuffer.Clear();
         }
 
+        // 조준해도 되는 대상인지.
+        //
+        // 살아 있고 예약 피해로 이미 죽을 놈이 아니어야 하며, 그 위에 화면 안이어야
+        // 합니다. 몬스터는 화면 위 밖(SpawnY)에서 생겨 내려오는데, 그때부터 조준하면
+        // 플레이어가 못 보는 곳에 화력이 쓰입니다. 그 한 발은 무엇을 했는지 알 수
+        // 없고, 다발형에서는 보이는 적 하나가 그만큼 방치됩니다.
+        //
+        // 중심 기준입니다. 중심이 경계에 있으면 몸통 절반이 보입니다.
+        // 아래쪽은 안 봅니다 - 타워 앞에서 멈추므로 화면 밖으로 안 나갑니다.
+        private bool CanAim(MonsterUnit unit)
+        {
+            return unit.IsTargetable && unit.Position.y <= _bounds.ScreenTopY;
+        }
+
         // 발사체가 1발일 때. 조준해도 되는 적 중 가장 가까운 하나입니다.
         //
         // 이미 죽을 만큼 피해가 날아오고 있는 놈은 후보에서 빠집니다.
@@ -195,7 +209,7 @@ namespace Scene.MainGameScene.Battle
             {
                 var unit = _alive[i];
 
-                if (!unit.IsTargetable)
+                if (!CanAim(unit))
                     continue;
 
                 var distance = (unit.Position - from).sqrMagnitude;
@@ -226,7 +240,7 @@ namespace Scene.MainGameScene.Battle
             {
                 var unit = _alive[i];
 
-                if (!unit.IsTargetable)
+                if (!CanAim(unit))
                     continue;
 
                 var distance = (unit.Position - from).sqrMagnitude;
@@ -333,7 +347,7 @@ namespace Scene.MainGameScene.Battle
             {
                 var unit = _alive[i];
 
-                if (unit == exclude || !unit.IsTargetable)
+                if (unit == exclude || !CanAim(unit))
                     continue;
 
                 var distance = (unit.Position - from).sqrMagnitude;
