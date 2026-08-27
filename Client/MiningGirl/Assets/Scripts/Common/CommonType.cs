@@ -111,6 +111,8 @@ public enum EGameConstantType
     Star2HealthRate,     // 별 2개 기준. 미만이면 별 1개, 실패는 0개
 
     LevelUpRerollCount,  // 한 런에서 쓸 수 있는 3택 다시 뽑기 횟수. 스테이지마다 초기화되고 이월되지 않습니다
+
+    LevelUpFirstStepExp, // 레벨 1에서 2로 오를 때 필요한 경험치. 예전에는 총 몬스터 수 / 웨이브 수로 냈습니다
 }
 
 public enum EMonsterType
