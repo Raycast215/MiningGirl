@@ -19,7 +19,31 @@ namespace Scene.MainGameScene.Progress
 
         public int TotalKills { get; private set; }
 
-        public float Progress => RequiredKills <= 0 ? 0f : Mathf.Clamp01((float)KillsInLevel / RequiredKills);
+        // 경험치 게이지가 쓰는 분모. 레벨 계산에는 쓰지 않습니다.
+        //
+        // 마지막 구간은 판이 끝날 때까지 채울 수 없을 때가 있습니다. 200마리 20웨이브면
+        // 마지막 레벨업이 192마리째에 오고, 남은 8마리로는 다음 구간의 14를 못 채웁니다.
+        // RequiredKills를 그대로 그리면 몬스터를 다 잡아도 게이지가 8/14에서 멈춰
+        // 판을 덜 끝낸 것처럼 보입니다.
+        //
+        // 그래서 남은 몬스터가 필요량보다 적으면 남은 수를 분모로 씁니다. 마지막
+        // 구간만 "다음 레벨까지"가 아니라 "판이 끝날 때까지"를 그리게 되고, 전부
+        // 처치하면 게이지가 정확히 가득 찹니다. 레벨은 그대로 17에서 끝납니다.
+        public int GaugeRequired
+        {
+            get
+            {
+                var levelStartKills = TotalKills - KillsInLevel;
+                var remaining = _totalMonsterCount - levelStartKills;
+
+                return remaining > 0 && remaining < RequiredKills ? remaining : RequiredKills;
+            }
+        }
+
+        public float Progress => GaugeRequired <= 0 ? 0f : Mathf.Clamp01((float)KillsInLevel / GaugeRequired);
+
+        // 이 판에 나오는 몬스터 총수. 마지막 구간의 게이지 분모를 정하는 데 씁니다.
+        private readonly int _totalMonsterCount;
 
         // 첫 구간 필요량. TotalMonsterCount / WaveCount 입니다.
         private readonly float _firstStep;
@@ -31,6 +55,7 @@ namespace Scene.MainGameScene.Progress
 
         public LevelSystem(int totalMonsterCount, int waveCount, float curveRate)
         {
+            _totalMonsterCount = Mathf.Max(0, totalMonsterCount);
             _waveCount = Mathf.Max(1, waveCount);
             _firstStep = Mathf.Max(1f, (float)totalMonsterCount / _waveCount);
             _curveRate = Mathf.Max(1f, curveRate);
