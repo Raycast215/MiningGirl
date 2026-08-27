@@ -228,7 +228,7 @@ def main():
     # ------------------------------------------------------- 2) 상태 3종 비교
     BW2, BH2 = 480, 140
     PAD, GAP = 30, 26
-    LABEL = 26
+    LABEL = 32
     W2 = PAD * 2 + BW2
     H2 = PAD * 2 + 3 * (BH2 + LABEL + GAP) - GAP
     st = [[PAGE] * W2 for _ in range(H2)]
@@ -238,8 +238,12 @@ def main():
     for i, (state, left) in enumerate(rows):
         y = PAD + i * (BH2 + LABEL + GAP)
         draw_button(st, PAD, y, BW2, BH2, state, left, dice_btn, 7)
-        if state == "blocked":                       # 이유 한 줄 - 숫자만 살아 있으면 버그로 읽힌다
-            rect(st, PAD + (BW2 - 250) // 2, y + BH2 + 8, 250, 8, TXT_OFF)
+        if state == "blocked":
+            # 이유 한 줄 - 숫자만 살아 있으면 버그로 읽힌다.
+            # 기획 확정 문구 "지금은 다시 뽑아도 같습니다" 14자.
+            # 28px 기준 392px = 버튼 폭 480의 82%. 버튼 안에 갇히지 않으면서 넘치지도 않는다.
+            # 강조선은 버튼 '안', 이 문구는 버튼 '밖 아래'다. 둘은 절대 같은 자리에 오지 않는다.
+            rect(st, PAD + (BW2 - 392) // 2, y + BH2 + 14, 392, 9, TXT_OFF)
     p2 = os.path.join(out_dir, "reroll_states.png")
     print("wrote", p2, write_png(p2, st))
     print("상태 위에서부터: 활성(10) / 소진(0) / 후보 부족(7, 아래 이유 줄)")
