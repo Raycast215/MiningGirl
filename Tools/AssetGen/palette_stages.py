@@ -32,7 +32,7 @@
 산출물은 배경 그림이 아니라 스트립 한 장이다. 이 단계에서 고치는 게 그림을 다시
 그리는 것보다 싸다. 확정되면 이 팔레트로 2~5번 배경을 생성한다.
 """
-import os, sys
+import math, os, sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from mock_lib import write_png
@@ -49,23 +49,23 @@ STAGES = (
     dict(id=1, name="흙",
          soil=[(40, 33, 28), (47, 39, 32), (54, 45, 37), (61, 51, 42), (68, 57, 47)],
          pebble=[(58, 52, 47), (72, 65, 58), (86, 78, 70)], shadow=(34, 29, 26),
-         vein=None, vein_n=0),
+         vein=None, vein_n=0, vein_w=0),
     dict(id=2, name="젖은 흙",
          soil=[(30, 31, 28), (36, 37, 33), (42, 43, 39), (48, 49, 45), (54, 55, 51)],
          pebble=[(52, 54, 50), (64, 66, 61), (76, 78, 73)], shadow=(26, 27, 24),
-         vein=(118, 140, 132), vein_n=10),
+         vein=(118, 140, 132), vein_n=14, vein_w=1),
     dict(id=3, name="암반",
          soil=[(24, 27, 28), (29, 32, 34), (34, 38, 40), (40, 44, 46), (45, 50, 52)],
          pebble=[(54, 60, 63), (66, 72, 76), (78, 85, 90)], shadow=(20, 23, 24),
-         vein=(96, 168, 172), vein_n=16),
+         vein=(96, 168, 172), vein_n=22, vein_w=1),
     dict(id=4, name="결정층",
          soil=[(23, 22, 36), (28, 27, 43), (33, 32, 50), (38, 37, 57), (44, 43, 65)],
          pebble=[(56, 54, 80), (68, 66, 96), (80, 78, 112)], shadow=(18, 17, 28),
-         vein=(140, 140, 246), vein_n=22),
+         vein=(140, 140, 246), vein_n=30, vein_w=2),
     dict(id=5, name="심부",
          soil=[(21, 20, 21), (25, 24, 25), (29, 28, 29), (34, 32, 34), (39, 37, 39)],
          pebble=[(48, 45, 47), (58, 55, 57), (68, 64, 66)], shadow=(14, 13, 14),
-         vein=(238, 124, 44), vein_n=30),
+         vein=(238, 124, 44), vein_n=40, vein_w=2),
 )
 
 _seed = 20260827
@@ -104,6 +104,60 @@ def noise(w, h, cw, ch):
     return out
 
 
+def vein(put, st, rand, x, y, length, th):
+    """광맥 한 줄. 시안과 실제 배경이 같은 이 함수를 쓴다.
+
+    각도는 밖에서 받는다. 줄마다 따로 정하면 사방으로 흩어져 바위 속 광맥이 아니라
+    위에 뿌린 입자처럼 보인다. 양 끝은 가늘어졌다가 사라진다 - 시작과 끝이 뭉툭하면
+    벽에 그린 선이 된다.
+    """
+    v = st["vein"]
+    halo = tuple(int(a * .45 + b * .55) for a, b in zip(v, st["soil"][0]))
+    sx = 1 if rand() > .5 else -1
+    fx, fy = float(x), float(y)
+    for i in range(length):
+        th += (rand() - .5) * .16                    # 조금씩 휘어 자연스럽게
+        fx += math.cos(th) * sx
+        fy += math.sin(th)
+        ix, iy = int(fx), int(fy)
+        e = min(i, length - 1 - i) / max(1.0, length * .3)
+        put(ix, iy - 1, halo)
+        if e < .4:                                   # 끝은 번짐만 남기고 사라진다
+            continue
+        w = st["vein_w"] if e >= 1 else 1
+        for k in range(w):
+            put(ix, iy + k, v)
+        put(ix, iy + w, halo)
+
+
+def vein_field(put, st, rand, w, h, count, base_len):
+    """광맥 전체 배치.
+
+    **한 칸 안의 광맥은 같은 층리를 따른다.** 갱도 벽은 지층이라 광맥이 사방으로
+    뻗지 않는다. 줄마다 각도를 새로 뽑으면 유성우처럼 보이고, 완전히 수평이면
+    도트를 4배로 키웠을 때 주사선이 된다. 그래서 수평에서 6~18도만 기울인
+    층리 각을 칸마다 하나 정하고 줄마다 ±10도만 흔든다.
+
+    자리도 고르게 뿌리지 않고 2~4줄씩 뭉친다. 균등 분포는 배경이 아니라 무늬로
+    읽힌다. 길이도 0.35~1.65배로 크게 벌려 짧은 반짝임과 긴 줄이 섞이게 한다.
+    """
+    dip = math.radians(rint2(rand, 6, 18)) * (1 if rand() > .5 else -1)
+    made = 0
+    while made < count:
+        cx, cy = rint2(rand, 0, w - 1), rint2(rand, 0, h - 1)
+        for _ in range(min(count - made, rint2(rand, 2, 4))):
+            vein(put, st, rand,
+                 cx + rint2(rand, -w // 10, w // 10),
+                 cy + rint2(rand, -h // 14, h // 14),
+                 max(6, int(base_len * (.35 + rand() * 1.3))),
+                 dip + (rand() - .5) * .35)
+            made += 1
+
+
+def rint2(rand, a, b):
+    return a + int(rand() * (b - a + 1)) % (b - a + 1)
+
+
 def patch(st, w, h):
     """그 팔레트로 실제 바닥을 그린 조각. 색표가 아니라 그림으로 봐야 판단이 선다."""
     soil, peb, sh = st["soil"], st["pebble"], st["shadow"]
@@ -119,7 +173,9 @@ def patch(st, w, h):
     def put(x, y, c):
         g[y % h][x % w] = c
 
-    for _ in range(w * h // 100):                     # 돌 부스러기
+    # 흩뿌리는 밀도는 gen_bg.py와 같게 맞춘다. 조각이 실제보다 거칠면 색은 맞아도
+    # 질감이 다른 그림을 보고 판단하게 된다 - 512x576에 돌 600, 모래 880이 기준이다.
+    for _ in range(round(w * h / 491.5)):             # 돌 부스러기
         x, y = rint(0, w - 1), rint(0, h - 1)
         col = peb[rint(0, 2)]
         bw, bh = rint(2, 5), rint(2, 3)
@@ -129,18 +185,20 @@ def patch(st, w, h):
         for ox in range(bw + 1):
             put(x + ox, y + bh + 1, sh)
 
-    # 광맥 - 비스듬히 흐르는 가는 줄. 깊어질수록 개수가 늘고 색이 뜨거워진다.
+    for _ in range(round(w * h / 335.1)):             # 잘게 흩뿌린 모래알
+        x, y = rint(0, w - 1), rint(0, h - 1)
+        col = peb[rint(0, 1)]
+        for oy in range(2):
+            for ox in range(2):
+                put(x + ox, y + oy, col)
+
+    # 광맥 - 비스듬히 흐르는 줄. 깊어질수록 개수가 늘고 굵어지고 뜨거워진다.
     if st["vein"]:
-        v = st["vein"]
-        halo = tuple(int(a * .45 + b * .55) for a, b in zip(v, soil[0]))
-        for _ in range(st["vein_n"]):
-            x, y = rint(0, w - 1), rint(0, h - 1)
-            dx = 1 if rnd() > .5 else -1
-            for _ in range(rint(10, 26)):
-                put(x, y, v); put(x, y + 1, halo); put(x, y - 1, halo)
-                x += dx
-                if rnd() > .62:
-                    y += 1 if rnd() > .5 else -1
+        # vein_n은 실제 타일(512x576) 기준이므로 조각 크기로 환산해서 쓴다.
+        # 밀도의 원본은 배송되는 그림 쪽이어야 한다 - 시안이 원본이면 시안에서
+        # 좋아 보이는 값이 큰 화면에서 어떻게 되는지 아무도 안 본 채로 나간다.
+        vein_field(put, st, rnd, w, h,
+                   max(1, round(st["vein_n"] / 2.88)), 24)
     return g
 
 
@@ -159,7 +217,7 @@ def main():
     # 광맥이 "세진다"는 건 밝아진다는 뜻이 아니다. 주황은 Rec.709에서 루마가 낮게
     # 나오지만 검은 바닥 위에서는 가장 강하게 읽힌다. 그래서 재는 것은 두 가지 -
     # **제 바닥 대비 명도비**와 **채도**다. 둘 다 단조 증가해야 축이 성립한다.
-    print("칸  이름     바닥 루마  광맥 대비  광맥 채도  개수")
+    print("칸  이름     바닥 루마  광맥 대비  광맥 채도  타일당  굵기")
     for i, st in enumerate(STAGES):
         ox = PAD + i * (SW + GAP)
         text(c, str(st["id"]), ox, PAD, 4, LABEL)     # 스테이지 번호
@@ -184,8 +242,9 @@ def main():
             vl = "%8.2f  %9d" % (luma(v) / luma(st["soil"][2]), max(v) - min(v))
         else:
             vl = "%8s  %9s" % ("-", "-")
-        print(" %d  %-6s  %8.1f  %s  %6d"
-              % (st["id"], st["name"], luma(st["soil"][2]), vl, st["vein_n"]))
+        print(" %d  %-6s  %8.1f  %s  %6d  %4d"
+              % (st["id"], st["name"], luma(st["soil"][2]), vl,
+                 st["vein_n"], st["vein_w"]))
 
     p = os.path.join(out_dir, "stage_palette_strip.png")
     print("\nwrote", p, write_png(p, c))
