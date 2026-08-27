@@ -101,6 +101,17 @@ namespace Scene.MainGameScene.Battle
         public static int DebugFiredStray;
         public static int DebugHitStray;
 
+        // 무조준 발이 살아 있던 시간의 합과 개수.
+        //
+        // 겹침의 직접 원인이 여기 있습니다. 조준 발은 맞으면 사라지는데(가까운 적까지
+        // 8~12유닛이면 0.7~1.0초) 무조준은 맞을 게 없어 화면 위 경계까지 갑니다.
+        // 그 차이가 쿨 한 바퀴의 일부를 먹으면 앞 볼리가 남은 채로 다음이 나갑니다.
+        //
+        // 비율만으로는 겹침을 예측 못 합니다 - 사라지는 게 하필 오래 사는 쪽이라
+        // 비율이 내려가면 겹침은 그보다 더 크게 줄어듭니다.
+        public static float DebugStrayLifeSum;
+        public static int DebugStrayLifeCount;
+
         // 이 발이 어느 쪽인지. 0=조준, 1=부채꼴, 2=흘려보낸 예약분.
         private int _debugAimKind;
 
@@ -132,6 +143,8 @@ namespace Scene.MainGameScene.Battle
             DebugHitFan = 0;
             DebugFiredStray = 0;
             DebugHitStray = 0;
+            DebugStrayLifeSum = 0f;
+            DebugStrayLifeCount = 0;
             DebugMissTargetDead = 0;
             DebugMissTargetGone = 0;
             DebugMissNear = 0;
@@ -495,6 +508,15 @@ namespace Scene.MainGameScene.Battle
                 return;
 
             _isActive = false;
+
+#if UNITY_EDITOR
+            // 흘려보낸 예약분만 셉니다. 부채꼴은 강화스킬을 골랐는지에 따라 섞입니다.
+            if (_debugAimKind == 2)
+            {
+                DebugStrayLifeSum += _elapsed;
+                DebugStrayLifeCount++;
+            }
+#endif
 
 #if UNITY_EDITOR
             // 무조준 발은 조준 통계에 넣지 않습니다. 맞았는지만 따로 셉니다.
