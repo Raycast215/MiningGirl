@@ -23,10 +23,19 @@ namespace Scene.MainGameScene.Progress
         // Sine 발사체의 진폭 수렴 기준이라 화면을 넘길 만큼이면 됩니다.
         private const float FanTargetDistance = 30f;
 
-        // 조준할 적이 없어 아무 데나 나가는 예약 발사체가 흩어지는 각도 범위.
-        // 위쪽(90도)을 가운데로 두고 좌우로 벌립니다 - 몬스터가 위에서 내려오므로
-        // 옆이나 아래로 나가면 빗나간 게 아니라 엉뚱한 데 쏜 것으로 보입니다.
-        private const float StrayFireArc = 120f;
+        // 조준할 적이 없어 그냥 나가는 예약 발사체가 벌어지는 각도 범위(양 끝 사이).
+        //
+        // 위쪽(90도)을 가운데로 둡니다 - 몬스터가 위에서 내려오므로 옆이나 아래로
+        // 나가면 빗나간 게 아니라 엉뚱한 데 쏜 것으로 보입니다.
+        //
+        // 예전에는 120도 안에서 무작위였습니다. 조준 대상이 드물게 없을 때를
+        // 가정한 값인데, 화력이 표적 수를 넘어서면서 이 경로가 기본이 됐습니다
+        // (실측 무조준 비율 53~57%).
+        //
+        // 무작위 방향은 플레이어가 배울 수 없습니다. 매번 다른 각도로 흩어지면
+        // 위력이 아니라 오작동으로 읽히고, 그 소음이 실제로 맞히는 순간의
+        // 피드백까지 깎습니다. 그래서 좁히고, 무작위를 없앴습니다.
+        private const float StrayFireArc = 30f;
 
         private readonly SkillInventory _inventory;
         private readonly MonsterField _field;
@@ -313,7 +322,7 @@ namespace Scene.MainGameScene.Progress
 
                 if (target == null)
                 {
-                    FireStray(shot.Skill, muzzle);
+                    FireStray(shot.Skill, muzzle, shot.Index, shot.Count);
 
                     continue;
                 }
@@ -332,13 +341,24 @@ namespace Scene.MainGameScene.Progress
             return origin + new Vector3((index - (count - 1) * 0.5f) * MuzzleSpacing, 0f, 0f);
         }
 
-        // 조준 대상이 없을 때 위쪽으로 아무렇게나 내보냅니다.
+        // 조준 대상이 없을 때 위쪽으로 내보냅니다.
+        //
+        // 각도를 발사체 번호로 정합니다. 무작위를 안 씁니다 - 같은 볼리는 매번
+        // 같은 모양으로 나가고, 그러면 "조준 못 함"이 아니라 "위쪽을 훑는다"로
+        // 읽힙니다. 발수도 낭비도 같은데 읽히는 것만 달라집니다.
+        //
+        // 번호를 그대로 쓰므로 볼리의 일부만 조준에 실패해도 남은 발이 제자리
+        // 각도로 나갑니다. 실패한 발이 몇 번째냐에 따라 모양이 흔들리지 않습니다.
         //
         // 부채꼴과 같은 길로 나갑니다 - 조준점이 없으니 사거리는 화면을 넘기는
         // 값이면 되고, 타겟을 null로 넘겨 예측 조준을 건너뜁니다.
-        private void FireStray(SkillState skill, Vector3 origin)
+        private void FireStray(SkillState skill, Vector3 origin, int index, int count)
         {
-            var degree = 90f + Random.Range(-StrayFireArc * 0.5f, StrayFireArc * 0.5f);
+            var degree = 90f;
+
+            if (count > 1)
+                degree += (index - (count - 1) * 0.5f) * (StrayFireArc / (count - 1));
+
             var radian = degree * Mathf.Deg2Rad;
             var direction = new Vector3(Mathf.Cos(radian), Mathf.Sin(radian), 0f);
 
