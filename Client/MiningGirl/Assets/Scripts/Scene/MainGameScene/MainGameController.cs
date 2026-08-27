@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.Linq;
 using Cysharp.Threading.Tasks;
 using Data;
@@ -109,6 +111,16 @@ namespace Scene.MainGameScene
         private LevelSystem _levelSystem;
 
         private EffectSpawner _effects;
+
+        // 이 런에서 남은 3택 다시 뽑기 횟수.
+        //
+        // 인벤토리와 같은 수명입니다 - 스테이지를 나가면 사라지고 다음 스테이지로
+        // 이월되지 않습니다. 이월하면 초반 스테이지를 아껴 후반에 몰아 쓰는 게
+        // 최적이 되어 스테이지별로 난이도를 설계할 수 없게 됩니다.
+        private int _rerollsLeft;
+
+        // 다시 뽑기 직전에 보여 주던 카드들. 같은 조합이 다시 나왔는지 볼 때 씁니다.
+        private readonly List<string> _shownChoiceKeys = new List<string>();
         private LevelUpChoiceBuilder _choiceBuilder;
         private WaveRunner _waveRunner;
 
@@ -202,6 +214,9 @@ namespace Scene.MainGameScene
             var constants = DataTableManager.Instance.GameConstantDataTable;
 
             _inventory = new SkillInventory(constants.GetInt(EGameConstantType.SkillSlotMax, 5));
+
+            // 인벤토리와 같은 수명입니다. 스테이지를 나가면 사라지고 이월되지 않습니다.
+            _rerollsLeft = Mathf.Max(0, constants.GetInt(EGameConstantType.LevelUpRerollCount, 10));
             _skillRunner = new SkillRunner(_inventory, _field, _launcher, characterAnchor);
 
             _levelSystem = new LevelSystem(
@@ -282,6 +297,7 @@ namespace Scene.MainGameScene
 
             _choiceViewModel = new LevelUpChoiceViewModel(_inventory);
             _choiceViewModel.Selected += HandleChoiceSelected;
+            _choiceViewModel.RerollRequested += HandleRerollRequested;
 
             var constants = DataTableManager.Instance.GameConstantDataTable;
 
@@ -496,13 +512,15 @@ namespace Scene.MainGameScene
 
             while (_pendingLevelUps > 0)
             {
-                var choices = _choiceBuilder.Draw(
-                    DataTableManager.Instance.GameConstantDataTable.GetInt(EGameConstantType.LevelUpChoiceCount, 3));
+                var choices = _choiceBuilder.Draw(ChoiceCount);
 
                 if (choices.Count > 0)
                 {
+                    RememberShown(choices);
+
                     SetPaused(true);
                     _choiceViewModel.Show(_levelSystem.Level, choices);
+                    ApplyRerollState();
 
                     return;
                 }
@@ -514,6 +532,92 @@ namespace Scene.MainGameScene
             }
 
             SetPaused(false);
+        }
+
+        private int ChoiceCount =>
+            DataTableManager.Instance.GameConstantDataTable.GetInt(EGameConstantType.LevelUpChoiceCount, 3);
+
+        // 3택 카드를 다시 뽑습니다.
+        //
+        // 카드 세 장을 통째로 갈아 끼웁니다. 한 장만 다시 뽑게 하면 10회가 실질
+        // 3회가 되고, 3택에서 실제로 하는 판단도 "이 중에 쓸 게 없다"이지
+        // "한 장만 아쉽다"가 아닙니다.
+        private void HandleRerollRequested()
+        {
+            if (_isFinished || _rerollsLeft <= 0)
+                return;
+
+            var choices = _choiceBuilder.Draw(ChoiceCount);
+
+            if (choices.Count == 0)
+                return;
+
+            // 직전 후보를 빼지 않으므로 같은 조합이 다시 나올 수 있습니다.
+            // 그대로 보여주면 버튼이 안 먹은 것으로 읽히므로 한 번만 다시 뽑습니다.
+            // 두 번째도 같으면 그대로 보여줍니다 - 후보가 좁으면 다른 결과가 없습니다.
+            if (IsSameAsShown(choices))
+                choices = _choiceBuilder.Draw(ChoiceCount);
+
+            _rerollsLeft--;
+
+            RememberShown(choices);
+
+            _choiceViewModel.Replace(choices);
+            ApplyRerollState();
+        }
+
+        // 남은 횟수와 버튼을 누를 수 있는지를 ViewModel에 넣어 줍니다.
+        private void ApplyRerollState()
+        {
+            var reason = ERerollBlockReason.None;
+
+            if (_rerollsLeft <= 0)
+                reason = ERerollBlockReason.Exhausted;
+            else if (_choiceBuilder.LastCandidateCount <= ChoiceCount)
+                reason = ERerollBlockReason.NotEnoughPool;
+
+            _choiceViewModel.SetRerollState(_rerollsLeft, reason);
+        }
+
+        private void RememberShown(IReadOnlyList<LevelUpChoice> choices)
+        {
+            _shownChoiceKeys.Clear();
+
+            for (var i = 0; i < choices.Count; i++)
+                _shownChoiceKeys.Add(ChoiceKey(choices[i]));
+
+            _shownChoiceKeys.Sort(StringComparer.Ordinal);
+        }
+
+        // 순서가 달라도 같은 세 장이면 같은 조합으로 봅니다.
+        private bool IsSameAsShown(IReadOnlyList<LevelUpChoice> choices)
+        {
+            if (_shownChoiceKeys.Count != choices.Count)
+                return false;
+
+            var keys = new List<string>(choices.Count);
+
+            for (var i = 0; i < choices.Count; i++)
+                keys.Add(ChoiceKey(choices[i]));
+
+            keys.Sort(StringComparer.Ordinal);
+
+            for (var i = 0; i < keys.Count; i++)
+            {
+                if (!string.Equals(keys[i], _shownChoiceKeys[i], StringComparison.Ordinal))
+                    return false;
+            }
+
+            return true;
+        }
+
+        private static string ChoiceKey(LevelUpChoice choice)
+        {
+            var skillId = choice.Skill != null ? choice.Skill.Id : string.Empty;
+            var upgradeId = choice.Upgrade != null ? choice.Upgrade.Id : string.Empty;
+            var masteryId = choice.Mastery != null ? choice.Mastery.Id : string.Empty;
+
+            return $"{choice.Type}|{skillId}|{upgradeId}|{masteryId}";
         }
 
         private void HandleChoiceSelected(LevelUpChoice choice)

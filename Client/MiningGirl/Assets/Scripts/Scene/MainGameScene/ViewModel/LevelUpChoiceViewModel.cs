@@ -69,6 +69,14 @@ namespace Scene.MainGameScene.ViewModel
         }
     }
 
+    // 다시 뽑기 버튼이 꺼지는 이유. 표현은 View가 정합니다.
+    public enum ERerollBlockReason
+    {
+        None,           // 누를 수 있음
+        Exhausted,      // 남은 횟수 0
+        NotEnoughPool,  // 후보가 제시 장수 이하라 다시 뽑아도 같은 카드만 나옴
+    }
+
     // 레벨업 3택의 표시용 상태와 커맨드.
     //
     // 무엇을 고를 수 있는지는 LevelUpChoiceBuilder(Model)가 정하고,
@@ -78,11 +86,26 @@ namespace Scene.MainGameScene.ViewModel
         // 컨트롤러가 구독합니다. 고른 결과를 실제로 적용하는 건 컨트롤러 몫입니다.
         public event Action<LevelUpChoice> Selected;
 
+        // 다시 뽑기를 눌렀을 때. 실제로 다시 뽑는 건 컨트롤러 몫입니다 -
+        // 후보를 만드는 규칙은 Model에 있고 ViewModel이 그걸 알 이유가 없습니다.
+        public event Action RerollRequested;
+
         public ObservableProperty<bool> IsVisible { get; } = new ObservableProperty<bool>();
         public ObservableProperty<string> HeaderText { get; } = new ObservableProperty<string>(string.Empty);
 
         // 카드 내용이 갈릴 때마다 올라갑니다.
         public ObservableProperty<int> ItemRevision { get; } = new ObservableProperty<int>();
+
+        // 남은 다시 뽑기 횟수. 쓴 횟수가 아니라 남은 횟수입니다.
+        public ObservableProperty<int> RemainingRerolls { get; } = new ObservableProperty<int>();
+
+        // 버튼을 누를 수 있는지. 0회여도 버튼을 숨기지 않고 끄기만 합니다 -
+        // 사라지면 원래 없는 기능으로 읽힙니다.
+        public ObservableProperty<bool> CanReroll { get; } = new ObservableProperty<bool>();
+
+        // 왜 못 누르는지. 횟수 소진과 후보 부족은 구분되어야 합니다.
+        public ObservableProperty<ERerollBlockReason> RerollBlockReason { get; } =
+            new ObservableProperty<ERerollBlockReason>();
 
         public IReadOnlyList<LevelUpChoiceItem> Items => _items;
 
@@ -99,6 +122,29 @@ namespace Scene.MainGameScene.ViewModel
 
         public void Show(int level, IReadOnlyList<LevelUpChoice> choices)
         {
+            SetChoices(choices);
+
+            HeaderText.Value = $"LEVEL {level}";
+            IsVisible.Value = true;
+        }
+
+        // 헤더와 표시 상태는 그대로 두고 카드만 갈아 끼웁니다.
+        // 다시 뽑기는 같은 레벨업 안에서 일어나므로 창을 다시 여는 게 아닙니다.
+        public void Replace(IReadOnlyList<LevelUpChoice> choices)
+        {
+            SetChoices(choices);
+        }
+
+        // 남은 횟수와 누를 수 있는지를 컨트롤러가 정해 넣어 줍니다.
+        public void SetRerollState(int remaining, ERerollBlockReason blockReason)
+        {
+            RemainingRerolls.Value = remaining;
+            RerollBlockReason.Value = blockReason;
+            CanReroll.Value = blockReason == ERerollBlockReason.None;
+        }
+
+        private void SetChoices(IReadOnlyList<LevelUpChoice> choices)
+        {
             _choices.Clear();
             _items.Clear();
 
@@ -108,9 +154,16 @@ namespace Scene.MainGameScene.ViewModel
                 _items.Add(BuildItem(choice));
             }
 
-            HeaderText.Value = $"LEVEL {level}";
             ItemRevision.Value = ++_revision;
-            IsVisible.Value = true;
+        }
+
+        // View의 버튼이 부르는 커맨드입니다.
+        public void Reroll()
+        {
+            if (!IsVisible.Value || !CanReroll.Value)
+                return;
+
+            RerollRequested?.Invoke();
         }
 
         public void Hide()

@@ -17,6 +17,12 @@ namespace Scene.MainGameScene.Progress
 
         private readonly List<LevelUpChoice> _candidates = new List<LevelUpChoice>();
 
+        // 직전 Draw가 시작할 때 후보가 몇 개였는지.
+        //
+        // 다시 뽑기 버튼을 켤지 정하는 데 씁니다. 후보가 제시 장수 이하면 다시
+        // 뽑아도 같은 카드만 나오므로 횟수만 버리게 됩니다.
+        public int LastCandidateCount { get; private set; }
+
         public LevelUpChoiceBuilder(
             SkillDataTable skillTable,
             SkillUpgradeDataTable upgradeTable,
@@ -32,6 +38,8 @@ namespace Scene.MainGameScene.Progress
         public List<LevelUpChoice> Draw(int count)
         {
             CollectCandidates();
+
+            LastCandidateCount = _candidates.Count;
 
             var picked = new List<LevelUpChoice>();
 

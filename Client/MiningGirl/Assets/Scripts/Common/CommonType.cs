@@ -109,6 +109,8 @@ public enum EGameConstantType
 
     Star3HealthRate,     // 별 3개 기준. 남은 타워 체력 비율이 이 값 이상(0~1)
     Star2HealthRate,     // 별 2개 기준. 미만이면 별 1개, 실패는 0개
+
+    LevelUpRerollCount,  // 한 런에서 쓸 수 있는 3택 다시 뽑기 횟수. 스테이지마다 초기화되고 이월되지 않습니다
 }
 
 public enum EMonsterType
