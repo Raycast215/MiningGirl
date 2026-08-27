@@ -22,6 +22,17 @@ public static class CaptureConditions
     private const string EnabledKey = "MiningGirl.Capture.Enabled";
     private const string CountKeyPrefix = "MiningGirl.Capture.Count.";
 
+    // 조건이 몇 판 동안 살아 있었는지.
+    //
+    // 0회를 근거로 쓰려면 이 값이 있어야 합니다. "안 나왔다"와 "안 봤다"는
+    // 조건이 도중에 끊기면 구분이 안 됩니다 - 광재 열두 판 0회를 근거로 쓴 적이
+    // 있는데, 그때 조건이 내내 살아 있었는지는 확인 안 했습니다. 운이 좋았습니다.
+    private const string RunsKey = "MiningGirl.Capture.Runs";
+
+    // 판이 바뀐 것을 알아보는 데 씁니다. 다시하기가 씬을 다시 부르므로
+    // 컨트롤러 인스턴스가 새로 생깁니다.
+    private const string LastControllerKey = "MiningGirl.Capture.LastController";
+
     // 조건마다 몇 장까지 찍을지. 같은 화면을 계속 찍어도 새로 아는 게 없습니다.
     private const int ShotsPerCondition = 3;
 
@@ -43,6 +54,8 @@ public static class CaptureConditions
         Directory.CreateDirectory(_folder);
 
         SessionState.SetBool(EnabledKey, true);
+        SessionState.SetInt(RunsKey, 0);
+        SessionState.SetInt(LastControllerKey, 0);
 
         EditorApplication.update -= Tick;
         EditorApplication.update += Tick;
@@ -56,7 +69,30 @@ public static class CaptureConditions
         SessionState.SetBool(EnabledKey, false);
         EditorApplication.update -= Tick;
 
-        Debug.Log("[캡처조건] 정지");
+        Report();
+    }
+
+    // 조건별로 몇 장 찍혔는지, 그리고 몇 판을 봤는지 한 번에 적습니다.
+    //
+    // 0장이 "안 나온다"의 근거가 되려면 분모가 같이 있어야 합니다.
+    [MenuItem("Tools/MainGame/Capture Conditions 결과")]
+    public static void Report()
+    {
+        var runs = SessionState.GetInt(RunsKey, 0);
+        var keys = new[] { "stray_volley", "tower_health_overlap", "explosion", "slime_behind_stage", "slag_cluster" };
+
+        var report = new System.Text.StringBuilder();
+
+        report.AppendLine($"[캡처조건] 결과 - {runs}판 동안 조건이 살아 있었습니다");
+
+        for (var i = 0; i < keys.Length; i++)
+        {
+            var shots = SessionState.GetInt(CountKeyPrefix + keys[i], 0);
+
+            report.AppendLine($"  {keys[i],-22} {shots}장");
+        }
+
+        Debug.Log(report.ToString());
     }
 
     private static void Tick()
@@ -73,7 +109,19 @@ public static class CaptureConditions
         if (controller == null)
             return;
 
+        // 판이 바뀌면 셉니다. 0회를 근거로 쓸 때의 분모입니다.
+        var id = controller.GetInstanceID();
+
+        if (SessionState.GetInt(LastControllerKey, 0) != id)
+        {
+            SessionState.SetInt(LastControllerKey, id);
+            SessionState.SetInt(RunsKey, SessionState.GetInt(RunsKey, 0) + 1);
+        }
+
         // 복원된 판은 처음부터 돈 판이 아니라 화면도 대표성이 없습니다.
+        //
+        // 저장·복원이 밸런스 측정만 오염시키는 게 아닙니다 - 경과 223초짜리 거의
+        // 끝난 판이 복원된 적이 있는데, 그 화면은 그 스테이지의 대표 화면이 아닙니다.
         if (controller.DebugIsRestored)
             return;
 
